@@ -48,7 +48,7 @@ type
     # if an error occurs this function will return false (0).
   
     add_custom_scheme*: proc(self: ptr cef_scheme_registrar,
-      scheme_name: ptr cef_string, is_standard, is_local, is_display_isolated: bool): int {.callback.}
+      scheme_name: ptr cef_string, is_standard, is_local, is_display_isolated: bool): int {.cef_callback.}
 
 # Structure that creates cef_resource_handler_t instances for handling scheme
 # requests. The functions of this structure will always be called on the IO
@@ -63,7 +63,7 @@ type
     # passed to this function will not contain cookie data.
   
     create*: proc(self: ptr cef_scheme_handler_factory, browser: ptr cef_browser, 
-      frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.callback.}
+      frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.}
 
 # Register a scheme handler factory with the global request context. An NULL
 # |domain_name| value for a standard scheme will cause the factory to match all

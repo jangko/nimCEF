@@ -12,17 +12,17 @@ type
   cef_string_wide* = object
     str: ptr wchar_t
     length: csize
-    dtor: proc(str: ptr wchar_t) {.callback.}
+    dtor: proc(str: ptr wchar_t) {.cef_callback.}
 
   cef_string_utf16* = object
     str: ptr uint16
     length: csize
-    dtor: proc(str: ptr uint16) {.callback.}
+    dtor: proc(str: ptr uint16) {.cef_callback.}
 
   cef_string_utf8* = object
     str: ptr char
     length: csize
-    dtor: proc(str: ptr char) {.callback.}
+    dtor: proc(str: ptr char) {.cef_callback.}
 
 # These functions set string values. If |copy| is true (1) the value will be
 # copied instead of referenced. It is up to the user to properly manage

@@ -10,27 +10,27 @@ type
     # modify command-line arguments for non-browser processes as this may result
     # in undefined behavior including crashes.
     on_before_command_line_processing*: proc(self: ptr cef_app,
-      process_type: ptr cef_string, command_line: ptr cef_command_line) {.callback.}
+      process_type: ptr cef_string, command_line: ptr cef_command_line) {.cef_callback.}
 
     # Provides an opportunity to register custom schemes. Do not keep a reference
     # to the |registrar| object. This function is called on the main thread for
     # each process and the registered schemes should be the same across all
     # processes.
-    on_register_custom_schemes*: proc(self: ptr cef_app, registrar: ptr cef_scheme_registrar) {.callback.}
+    on_register_custom_schemes*: proc(self: ptr cef_app, registrar: ptr cef_scheme_registrar) {.cef_callback.}
 
     # Return the handler for resource bundle events. If
     # CefSettings.pack_loading_disabled is true (1) a handler must be returned.
     # If no handler is returned resources will be loaded from pack files. This
     # function is called by the browser and render processes on multiple threads.
-    get_resource_bundle_handler*: proc(self: ptr cef_app): ptr cef_resource_bundle_handler {.callback.}
+    get_resource_bundle_handler*: proc(self: ptr cef_app): ptr cef_resource_bundle_handler {.cef_callback.}
 
     # Return the handler for functionality specific to the browser process. This
     # function is called on multiple threads in the browser process.
-    get_browser_process_handler*: proc(self: ptr cef_app): ptr cef_browser_process_handler {.callback.}
+    get_browser_process_handler*: proc(self: ptr cef_app): ptr cef_browser_process_handler {.cef_callback.}
 
     # Return the handler for functionality specific to the render process. This
     # function is called on the render process main thread.
-    get_render_process_handler*: proc(self: ptr cef_app): ptr cef_render_process_handler {.callback.}
+    get_render_process_handler*: proc(self: ptr cef_app): ptr cef_render_process_handler {.cef_callback.}
     
 # This function should be called from the application entry point function to
 # execute a secondary process. It can be used to run secondary processes from

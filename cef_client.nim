@@ -1,14 +1,62 @@
+import cef_base, cef_request, cef_life_span_handler
+include cef_import
+
 type
-  cef_client* = object of cef_base
-  cef_frame* = object of cef_base
-  cef_request* = object of cef_base
-  cef_resource_handler* = object of cef_base
-  cef_resource_bundle_handler* = object of cef_base
-  cef_browser_process_handler* = object of cef_base
-  cef_render_process_handler* = object of cef_base
-  cef_main_args* = object of cef_base
-  cef_settings* = object of cef_base
-  cef_navigation_entry* = object of cef_base
-  cef_request_context* = object of cef_base
-  cef_process_message* = object of cef_base
-  cef_window_info* = object of cef_base
+  # Implement this structure to provide handler implementations.
+  cef_client* = object
+    base*: cef_base
+    
+    # Return the handler for context menus. If no handler is provided the default
+    # implementation will be used.
+    get_context_menu_handler*: proc(self: ptr cef_client): ptr cef_context_menu_handler {.cef_callback.}
+
+    # Return the handler for dialogs. If no handler is provided the default
+    # implementation will be used.
+    get_dialog_handler*: proc(self: ptr cef_client): ptr cef_dialog_handler {.cef_callback.}
+  
+    # Return the handler for browser display state events.
+    get_display_handler*: proc(self: ptr cef_client): ptr cef_display_handler {.cef_callback.}
+
+    # Return the handler for download events. If no handler is returned downloads
+    # will not be allowed.
+    get_download_handler*: proc(self: ptr cef_client): ptr cef_download_handler {.cef_callback.}
+  
+    # Return the handler for drag events.
+    get_drag_handler*: proc(self: ptr cef_client): ptr cef_drag_handler {.cef_callback.}
+  
+    # Return the handler for find result events.
+    get_find_handler*: proc(self: ptr cef_client): ptr cef_find_handler {.cef_callback.}
+
+    # Return the handler for focus events.
+    get_focus_handler*: proc(self: ptr cef_client): ptr cef_focus_handler {.cef_callback.}
+
+    # Return the handler for geolocation permissions requests. If no handler is
+    # provided geolocation access will be denied by default.
+    get_geolocation_handler*: proc(self: ptr cef_client): ptr cef_geolocation_handler {.cef_callback.}
+  
+    # Return the handler for JavaScript dialogs. If no handler is provided the
+    # default implementation will be used.
+    get_jsdialog_handler*: proc(self: ptr cef_client): ptr cef_jsdialog_handler {.cef_callback.}
+  
+    # Return the handler for keyboard events.
+    get_keyboard_handler*: proc(self: ptr cef_client): ptr cef_keyboard_handler {.cef_callback.}
+  
+    # Return the handler for browser life span events.
+    get_life_span_handler*: proc(self: ptr cef_client): ptr cef_life_span_handler {.cef_callback.}
+
+    # Return the handler for browser load status events.
+    get_load_handler*: proc(self: ptr cef_client): ptr cef_load_handler {.cef_callback.}
+  
+    # Return the handler for off-screen rendering events.
+    get_render_handler*: proc(self: ptr cef_client): ptr cef_render_handler {.cef_callback.}
+
+    # Return the handler for browser request events.
+    get_request_handler*: proc(self: ptr cef_client): ptr cef_request_handler {.cef_callback.}
+
+    # Called when a new message is received from a different process. Return true
+    # (1) if the message was handled or false (0) otherwise. Do not keep a
+    # reference to or attempt to access the message outside of this callback.
+    on_process_message_received*: proc(self: ptr cef_client,
+      browser: ptr_cef_browser, source_process: cef_process_id,
+      message: cef_process_message): int {.cef_callback.}
+

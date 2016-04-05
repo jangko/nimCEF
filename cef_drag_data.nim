@@ -1,7 +1,12 @@
+import cef_base, cef_stream
+include cef_import
+
 # Structure used to represent drag data. The functions of this structure may be
 # called on any thread.
 type
-  cef_drag_data* = object of cef_base
+  cef_drag_data* = object
+    base*: cef_base
+    
     # Returns a copy of the current object.
     clone*: proc(self: ptr cef_drag_data): ptr cef_drag_data {.cef_callback.}
 

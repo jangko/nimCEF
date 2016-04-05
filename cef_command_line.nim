@@ -1,3 +1,6 @@
+import cef_base
+include cef_import
+
 # Structure used to create and/or parse command line arguments. Arguments with
 # '--', '-' and, on Windows, '/' prefixes are considered switches. Switches
 # will always precede any arguments without switch prefixes. Switches can
@@ -7,7 +10,9 @@
 # arguments. Switch names are considered case-insensitive. This structure can
 # be used before cef_initialize() is called.
 type
-  cef_command_line* = object of cef_base
+  cef_command_line* = object
+    base*: cef_base
+    
     # Returns true (1) if this object is valid. Do not call any other functions
     # if this function returns false (0).
     is_valid*: proc(self: ptr cef_command_line): int {.cef_callback.}

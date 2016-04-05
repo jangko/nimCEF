@@ -46,7 +46,7 @@ type
 
 
   # Represents the state of a setting.
-  cef_state* = enum
+  cef_state* {.size: sizeof(int).} = enum
     STATE_DEFAULT = 0 # Use the default state for the setting.
     STATE_ENABLED     # Enable or allow the setting.
     STATE_DISABLED    # Disable or disallow the setting.
@@ -57,41 +57,41 @@ type
 
   cef_settings* = object
     # Size of this structure.
-    size: csize
+    size*: csize
   
     # Set to true (1) to use a single process for the browser and renderer. This
     # run mode is not officially supported by Chromium and is less stable than
     # the multi-process default. Also configurable using the "single-process"
     # command-line switch.
-    single_process: bool
+    single_process*: int
 
     # Set to true (1) to disable the sandbox for sub-processes. See
     # cef_sandbox_win.h for requirements to enable the sandbox on Windows. Also
     # configurable using the "no-sandbox" command-line switch.
-    no_sandbox: bool
+    no_sandbox*: int
 
     # The path to a separate executable that will be launched for sub-processes.
     # By default the browser process executable is used. See the comments on
     # CefExecuteProcess() for details. Also configurable using the
     # "browser-subprocess-path" command-line switch.
-    browser_subprocess_path: cef_string
+    browser_subprocess_path*: cef_string
 
     # Set to true (1) to have the browser process message loop run in a separate
     # thread. If false (0) than the CefDoMessageLoopWork() function must be
     # called from your application message loop. This option is only supported on
     # Windows.
-    multi_threaded_message_loop: bool
+    multi_threaded_message_loop*: int
   
     # Set to true (1) to enable windowless (off-screen) rendering support. Do not
     # enable this value if the application does not use windowless rendering as
     # it may reduce rendering performance on some systems.
-    windowless_rendering_enabled: bool
+    windowless_rendering_enabled*: int
 
     # Set to true (1) to disable configuration of browser process features using
     # standard CEF and Chromium command-line arguments. Configuration can still
     # be specified using CEF data structures or via the
     # CefApp::OnBeforeCommandLineProcessing() method.
-    command_line_args_disabled: bool
+    command_line_args_disabled*: int
 
     # The location where cache data will be stored on disk. If empty then
     # browsers will be created in "incognito mode" where in-memory caches are
@@ -99,7 +99,7 @@ type
     # localStorage will only persist across sessions if a cache path is
     # specified. Can be overridden for individual CefRequestContext instances via
     # the CefRequestContextSettings.cache_path value.
-    cache_path: cef_string
+    cache_path*: cef_string
 
     # The location where user data such as spell checking dictionary files will
     # be stored on disk. If empty then the default platform-specific user data
@@ -107,7 +107,7 @@ type
     # "~/Library/Application Support/CEF/User Data" directory on Mac OS X,
     # "Local Settings\Application Data\CEF\User Data" directory under the user
     # profile directory on Windows).
-    user_data_path: cef_string
+    user_data_path*: cef_string
 
     # To persist session cookies (cookies without an expiry date or validity
     # interval) by default when using the global cookie manager set this value to
@@ -117,7 +117,7 @@ type
     # "persist-session-cookies" command-line switch. Can be overridden for
     # individual CefRequestContext instances via the
     # CefRequestContextSettings.persist_session_cookies value.
-    persist_session_cookies: bool
+    persist_session_cookies*: int
   
     # To persist user preferences as a JSON file in the cache path directory set
     # this value to true (1). A |cache_path| value must also be specified
@@ -125,25 +125,25 @@ type
     # "persist-user-preferences" command-line switch. Can be overridden for
     # individual CefRequestContext instances via the
     # CefRequestContextSettings.persist_user_preferences value.
-    persist_user_preferences: bool
+    persist_user_preferences*: int
 
     # Value that will be returned as the User-Agent HTTP header. If empty the
     # default User-Agent string will be used. Also configurable using the
     # "user-agent" command-line switch.
-    user_agent: cef_string
+    user_agent*: cef_string
 
     # Value that will be inserted as the product portion of the default
     # User-Agent string. If empty the Chromium product version will be used. If
     # |userAgent| is specified this value will be ignored. Also configurable
     # using the "product-version" command-line switch.
-    product_version: cef_string
+    product_version*: cef_string
 
     # The locale string that will be passed to WebKit. If empty the default
     # locale of "en-US" will be used. This value is ignored on Linux where locale
     # is determined using environment variable parsing with the precedence order:
     # LANGUAGE, LC_ALL, LC_MESSAGES and LANG. Also configurable using the "lang"
     # command-line switch.
-    locale: cef_string
+    locale*: cef_string
 
     # The directory and file name to use for the debug log. If empty a default
     # log file name and location will be used. On Windows and Linux a "debug.log"
@@ -151,53 +151,53 @@ type
     # "~/Library/Logs/<app name>_debug.log" file will be written where <app name>
     # is the name of the main app executable. Also configurable using the
     # "log-file" command-line switch.
-    log_file: cef_string
+    log_file*: cef_string
 
     # The log severity. Only messages of this severity level or higher will be
     # logged. Also configurable using the "log-severity" command-line switch with
     # a value of "verbose", "info", "warning", "error", "error-report" or
     # "disable".
-    log_severity: cef_string
+    log_severity*: cef_log_severity
 
     # Custom flags that will be used when initializing the V8 JavaScript engine.
     # The consequences of using custom flags may not be well tested. Also
     # configurable using the "js-flags" command-line switch.
-    javascript_flags: cef_string
+    javascript_flags*: cef_string
 
     # The fully qualified path for the resources directory. If this value is
     # empty the cef.pak and/or devtools_resources.pak files must be located in
     # the module directory on Windows/Linux or the app bundle Resources directory
     # on Mac OS X. Also configurable using the "resources-dir-path" command-line
     # switch.
-    resources_dir_path: cef_string
+    resources_dir_path*: cef_string
 
     # The fully qualified path for the locales directory. If this value is empty
     # the locales directory must be located in the module directory. This value
     # is ignored on Mac OS X where pack files are always loaded from the app
     # bundle Resources directory. Also configurable using the "locales-dir-path"
     # command-line switch.
-    locales_dir_path: cef_string
+    locales_dir_path*: cef_string
 
     # Set to true (1) to disable loading of pack files for resources and locales.
     # A resource bundle handler must be provided for the browser and render
     # processes via CefApp::GetResourceBundleHandler() if loading of pack files
     # is disabled. Also configurable using the "disable-pack-loading" command-
     # line switch.
-    pack_loading_disabled: bool
+    pack_loading_disabled*: int
 
     # Set to a value between 1024 and 65535 to enable remote debugging on the
     # specified port. For example, if 8080 is specified the remote debugging URL
     # will be http:#localhost:8080. CEF can be remotely debugged from any CEF or
     # Chrome browser window. Also configurable using the "remote-debugging-port"
     # command-line switch.
-    remote_debugging_port: int
+    remote_debugging_port*: int
 
     # The number of stack trace frames to capture for uncaught exceptions.
     # Specify a positive value to enable the CefRenderProcessHandler::
     # OnUncaughtException() callback. Specify 0 (default value) and
     # OnUncaughtException() will not be called. Also configurable using the
     # "uncaught-exception-stack-size" command-line switch.
-    uncaught_exception_stack_size: int
+    uncaught_exception_stack_size*: int
   
     # By default CEF V8 references will be invalidated (the IsValid() method will
     # return false) after the owning context has been released. This reduces the
@@ -217,7 +217,7 @@ type
     #
     # Also configurable using the "context-safety-implementation" command-line
     # switch.
-    context_safety_implementation: int
+    context_safety_implementation*: int
 
     # Set to true (1) to ignore errors related to invalid SSL certificates.
     # Enabling this setting can lead to potential security vulnerabilities like
@@ -226,13 +226,13 @@ type
     # "ignore-certificate-errors" command-line switch. Can be overridden for
     # individual CefRequestContext instances via the
     # CefRequestContextSettings.ignore_certificate_errors value.
-    ignore_certificate_errors: int
+    ignore_certificate_errors*: int
 
     # Opaque background color used for accelerated content. By default the
     # background color will be white. Only the RGB compontents of the specified
     # value will be used. The alpha component must greater than 0 to enable use
     # of the background color but will be otherwise ignored.
-    background_color: cef_color
+    background_color*: cef_color
   
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. May be overridden on a
@@ -240,7 +240,7 @@ type
     # If both values are empty then "en-US,en" will be used. Can be overridden
     # for individual CefRequestContext instances via the
     # CefRequestContextSettings.accept_language_list value.
-    accept_language_list: cef_string
+    accept_language_list*: cef_string
 
   # Request context initialization settings. Specify NULL or 0 to get the
   # recommended default values.
@@ -292,132 +292,132 @@ type
   # line switches.
   cef_browser_settings* = object
     # Size of this structure.
-    size: csize
+    size*: csize
   
     # The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
     # will be called for a windowless browser. The actual fps may be lower if
     # the browser cannot generate frames at the requested rate. The minimum
     # value is 1 and the maximum value is 60 (default 30). This value can also be
     # changed dynamically via CefBrowserHost::SetWindowlessFrameRate.
-    windowless_frame_rate: int
+    windowless_frame_rate*: int
   
     # The below values map to WebPreferences settings.
       
     # Font settings.
-    standard_font_family: cef_string
-    fixed_font_family: cef_string
-    serif_font_family: cef_string
-    sans_serif_font_family: cef_string
-    cursive_font_family: cef_string
-    fantasy_font_family: cef_string
-    default_font_size: int
-    default_fixed_font_size: int
-    minimum_font_size:int
-    minimum_logical_font_size:int
+    standard_font_family*: cef_string
+    fixed_font_family*: cef_string
+    serif_font_family*: cef_string
+    sans_serif_font_family*: cef_string
+    cursive_font_family*: cef_string
+    fantasy_font_family*: cef_string
+    default_font_size*: int
+    default_fixed_font_size*: int
+    minimum_font_size*:int
+    minimum_logical_font_size*:int
       
     # Default encoding for Web content. If empty "ISO-8859-1" will be used. Also
     # configurable using the "default-encoding" command-line switch.
-    default_encoding: cef_string
+    default_encoding*: cef_string
   
     # Controls the loading of fonts from remote sources. Also configurable using
     # the "disable-remote-fonts" command-line switch.
-    remote_fonts: cef_state
+    remote_fonts*: cef_state
       
     # Controls whether JavaScript can be executed. Also configurable using the
     # "disable-javascript" command-line switch.
-    javascript: cef_state
+    javascript*: cef_state
       
     # Controls whether JavaScript can be used for opening windows. Also
     # configurable using the "disable-javascript-open-windows" command-line
     # switch.
-    javascript_open_windows: cef_state
+    javascript_open_windows*: cef_state
       
     # Controls whether JavaScript can be used to close windows that were not
     # opened via JavaScript. JavaScript can still be used to close windows that
     # were opened via JavaScript or that have no back/forward history. Also
     # configurable using the "disable-javascript-close-windows" command-line
     # switch.
-    javascript_close_windows: cef_state
+    javascript_close_windows*: cef_state
       
     # Controls whether JavaScript can access the clipboard. Also configurable
     # using the "disable-javascript-access-clipboard" command-line switch.
-    javascript_access_clipboard: cef_state
+    javascript_access_clipboard*: cef_state
       
     # Controls whether DOM pasting is supported in the editor via
     # execCommand("paste"). The |javascript_access_clipboard| setting must also
     # be enabled. Also configurable using the "disable-javascript-dom-paste"
     # command-line switch.
-    javascript_dom_paste: cef_state
+    javascript_dom_paste*: cef_state
       
     # Controls whether the caret position will be drawn. Also configurable using
     # the "enable-caret-browsing" command-line switch.
-    caret_browsing: cef_state
+    caret_browsing*: cef_state
       
     # Controls whether any plugins will be loaded. Also configurable using the
     # "disable-plugins" command-line switch.
-    plugins: cef_state
+    plugins*: cef_state
       
     # Controls whether file URLs will have access to all URLs. Also configurable
     # using the "allow-universal-access-from-files" command-line switch.
-    universal_access_from_file_urls: cef_state
+    universal_access_from_file_urls*: cef_state
       
     # Controls whether file URLs will have access to other file URLs. Also
     # configurable using the "allow-access-from-files" command-line switch.
-    file_access_from_file_urls: cef_state
+    file_access_from_file_urls*: cef_state
       
     # Controls whether web security restrictions (same-origin policy) will be
     # enforced. Disabling this setting is not recommend as it will allow risky
     # security behavior such as cross-site scripting (XSS). Also configurable
     # using the "disable-web-security" command-line switch.
-    web_security: cef_state
+    web_security*: cef_state
       
     # Controls whether image URLs will be loaded from the network. A cached image
     # will still be rendered if requested. Also configurable using the
     # "disable-image-loading" command-line switch.
-    image_loading: cef_state
+    image_loading*: cef_state
       
     # Controls whether standalone images will be shrunk to fit the page. Also
     # configurable using the "image-shrink-standalone-to-fit" command-line
     # switch.
-    image_shrink_standalone_to_fit: cef_state
+    image_shrink_standalone_to_fit*: cef_state
       
     # Controls whether text areas can be resized. Also configurable using the
     # "disable-text-area-resize" command-line switch.
-    text_area_resize: cef_state
+    text_area_resize*: cef_state
       
     # Controls whether the tab key can advance focus to links. Also configurable
     # using the "disable-tab-to-links" command-line switch.
-    tab_to_links: cef_state
+    tab_to_links*: cef_state
       
     # Controls whether local storage can be used. Also configurable using the
     # "disable-local-storage" command-line switch.
-    local_storage: cef_state
+    local_storage*: cef_state
       
     # Controls whether databases can be used. Also configurable using the
     # "disable-databases" command-line switch.
-    databases: cef_state
+    databases*: cef_state
       
     # Controls whether the application cache can be used. Also configurable using
     # the "disable-application-cache" command-line switch.
-    application_cache: cef_state
+    application_cache*: cef_state
       
     # Controls whether WebGL can be used. Note that WebGL requires hardware
     # support and may not work on all systems even when enabled. Also
     # configurable using the "disable-webgl" command-line switch.
-    webgl: cef_state
+    webgl*: cef_state
       
     # Opaque background color used for the browser before a document is loaded
     # and when no document color is specified. By default the background color
     # will be the same as CefSettings.background_color. Only the RGB compontents
     # of the specified value will be used. The alpha component must greater than
     # 0 to enable use of the background color but will be otherwise ignored.
-    background_color: cef_color
+    background_color*: cef_color
       
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. May be set globally
     # using the CefBrowserSettings.accept_language_list value. If both values are
     # empty then "en-US,en" will be used.
-    accept_language_list: cef_string
+    accept_language_list*: cef_string
 
   # Return value types.
   cef_return_value* = enum

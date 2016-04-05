@@ -1,5 +1,10 @@
+import cef_base, cef_command_line, cef_scheme, cef_request
+include cef_import
+
 type
-  cef_app* = object of cef_base
+  cef_app* {.pure.} = object
+    base*: cef_base
+    
     # Provides an opportunity to view and/or modify command-line arguments before
     # processing by CEF and Chromium. The |process_type| value will be NULL for
     # the browser process. Do not keep a reference to the cef_command_line_t

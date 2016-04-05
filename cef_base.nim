@@ -1,10 +1,13 @@
-import macros, cef_string, cef_string_list, cef_string_map, cef_types
+import cef_string, cef_string_list, cef_string_map, cef_types
+
+export cef_string, cef_string_list, cef_string_map, cef_types
+
 include cef_import
 
 type
   # Structure defining the reference count implementation functions. All
   # framework structures must include the cef_base_t structure first.
-  cef_base* = object of RootObj
+  cef_base* {.pure.} = object
     # Size of the data structure.
     size*: csize
     # Called to increment the reference count for the object. Should be called
@@ -17,8 +20,6 @@ type
     # Returns true (1) if the current reference count is 1.
     has_one_ref*: proc(self: ptr cef_base): int {.cef_callback.}
   
-  #cef_client* = object of cef_base
-    #on_app: proc(self: ptr cef_client, app: ptr cef_app) {.cef_callback.}
-    #on_bca: proc(self: ptr cef_client) {.cef_callback.}
-    
-include cef_command_line, cef_stream, cef_drag_data, cef_client, cef_browser, cef_scheme, cef_app
+  #this is needed to avoid circular import which is not supported yet
+  ptr_cef_browser* = distinct pointer
+  ptr_ptr_cef_client* = distinct pointer

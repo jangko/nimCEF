@@ -1,7 +1,12 @@
+import cef_base, cef_browser, cef_frame, cef_request
+include cef_import
+
 # Structure that manages custom scheme registrations.
 
 type
-  cef_scheme_registrar* = object of cef_base
+  cef_scheme_registrar* = object
+    base*: cef_base
+    
     # Register a custom scheme. This function should not be called for the built-
     # in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
     #
@@ -54,7 +59,8 @@ type
 # requests. The functions of this structure will always be called on the IO
 # thread.
 type
-  cef_scheme_handler_factory* = object of cef_base
+  cef_scheme_handler_factory* = object
+    base*: cef_base
     # Return a new resource handler instance to handle the request or an NULL
     # reference to allow default handling of the request. |browser| and |frame|
     # will be the browser window and frame respectively that originated the

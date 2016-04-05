@@ -1,9 +1,14 @@
+import cef_base, cef_request, cef_drag_data, cef_frame, cef_client
+include cef_import
+
 # Structure used to represent a browser window. When used in the browser
 # process the functions of this structure may be called on any thread unless
 # otherwise indicated in the comments. When used in the render process the
 # functions of this structure may only be called on the main thread.
 type
-  cef_browser* = object of cef_base
+  cef_browser* = object
+    base*: cef_base
+    
     # Returns the browser host object. This function can only be called in the
     # browser process.
     get_host*: proc(self: ptr cef_browser): ptr cef_browser_host {.cef_callback.}
@@ -80,7 +85,8 @@ type
   # The functions of this structure can only be called in the browser process.
   # They may be called on any thread in that process unless otherwise indicated
   # in the comments.
-  cef_browser_host* = object of cef_base
+  cef_browser_host* = object
+    base*: cef_base
     # Returns the hosted browser object.
     get_browser*: proc(self: ptr cef_browser_host): ptr cef_browser {.cef_callback.}
   
@@ -350,7 +356,7 @@ type
  
   # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
   # this structure will be called on the browser process UI thread.
-  cef_run_file_dialog_callback* = object of cef_base
+  cef_run_file_dialog_callback* = object
     # Called asynchronously after the file dialog is dismissed.
     # |selected_accept_filter| is the 0-based index of the value selected from
     # the accept filters array passed to cef_browser_host_t::RunFileDialog.
@@ -363,7 +369,7 @@ type
   # Callback structure for cef_browser_host_t::GetNavigationEntries. The
   # functions of this structure will be called on the browser process UI thread.
 
-  cef_navigation_entry_visitor* = object of cef_base
+  cef_navigation_entry_visitor* = object
     # Method that will be executed. Do not keep a reference to |entry| outside of
     # this callback. Return true (1) to continue visiting entries or false (0) to
     # stop. |current| is true (1) if this entry is the currently loaded
@@ -376,7 +382,7 @@ type
   # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
   # structure will be called on the browser process UI thread.
 
-  cef_pdf_print_callback* = object of cef_base  
+  cef_pdf_print_callback* = object  
     # Method that will be executed when the PDF printing has completed. |path| is
     # the output path. |ok| will be true (1) if the printing completed
     # successfully or false (0) otherwise.

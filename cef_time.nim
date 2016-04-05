@@ -1,4 +1,4 @@
-include cef_import, times
+include cef_import #, times
 
 type
   cef_time* = object
@@ -14,8 +14,8 @@ type
 
 # Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)
 # on failure.
-proc cef_time_to_timet*(ctime: ptr cef_time, time: Time): int {.cef_import.}
-proc cef_time_from_timet*(time: Time, ctime: ptr cef_time): int {.cef_import.}
+#proc cef_time_to_timet*(ctime: ptr cef_time, time: Time): int {.cef_import.}
+#proc cef_time_from_timet*(time: Time, ctime: ptr cef_time): int {.cef_import.}
 
 
 # Converts cef_time_t to/from a double which is the number of seconds since

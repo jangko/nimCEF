@@ -56,10 +56,10 @@ proc cef_string_utf16_cmp*(str1, str2: ptr cef_string_utf16): int {.cef_import.}
 # value indicating whether the conversion is 100% valid.
 
 proc cef_string_wide_to_utf8*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_utf8): int {.cef_import.}
-proc cef_string_utf8_to_wide*(src: ptr char, src_len: csize, output: ptr cef_string_wide): int {.cef_import.}
+proc cef_string_utf8_to_wide*(src: cstring, src_len: csize, output: ptr cef_string_wide): int {.cef_import.}
 proc cef_string_wide_to_utf16*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_utf16): int {.cef_import.}
 proc cef_string_utf16_to_wide*(src: ptr uint16, src_len: csize, output: ptr cef_string_wide): int {.cef_import.}
-proc cef_string_utf8_to_utf16*(src: ptr char, src_len: csize, output: ptr cef_string_utf16): int {.cef_import.}
+proc cef_string_utf8_to_utf16*(src: cstring, src_len: csize, output: ptr cef_string_utf16): int {.cef_import.}
 proc cef_string_utf16_to_utf8*(src: ptr uint16, src_len: csize, output: ptr cef_string_utf8): int {.cef_import.}
 
 # These functions convert an ASCII string, typically a hardcoded constant, to a

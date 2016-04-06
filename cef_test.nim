@@ -5,3 +5,5 @@ import cef_keyboard_handler, cef_resource_handler, cef_print_handler
 import cef_download_item, cef_jsdialog_handler, cef_task
 import cef_render_process_handler, cef_web_plugin, cef_parser
 import cef_render_handler, cef_ssl_info, cef_urlrequest
+import cef_xml_reader, cef_cookie_manager, cef_dom
+import cef_context_menu_handler, cef_request_handler, cef_request_context

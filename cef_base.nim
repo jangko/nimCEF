@@ -23,3 +23,4 @@ type
   #this is needed to avoid circular import which is not supported yet
   ptr_cef_browser* = distinct pointer
   ptr_ptr_cef_client* = distinct pointer
+  ptr_cef_scheme_handler_factory* = distinct pointer

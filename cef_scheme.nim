@@ -1,4 +1,4 @@
-import cef_base, cef_browser, cef_frame, cef_request
+import cef_base, cef_browser, cef_frame, cef_request, cef_resource_handler
 include cef_import
 
 # Structure that manages custom scheme registrations.
@@ -68,7 +68,7 @@ type
     # example, if the request came from cef_urlrequest_t). The |request| object
     # passed to this function will not contain cookie data.
   
-    create*: proc(self: ptr cef_scheme_handler_factory, browser: ptr cef_browser, 
+    create*: proc(self: ptr cef_scheme_handler_factory, browser: ptr_cef_browser, 
       frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.}
 
 # Register a scheme handler factory with the global request context. An NULL

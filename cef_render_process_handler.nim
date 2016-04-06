@@ -1,4 +1,5 @@
-import cef_base, cef_values, cef_browser, cef_request, cef_frame, cef_process_message
+import cef_base, cef_values, cef_browser, cef_request, cef_frame
+import cef_dom, cef_process_message
 include cef_import
 
 type

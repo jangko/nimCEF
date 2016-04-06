@@ -1,4 +1,4 @@
-import cef_base, cef_request, cef_auth_callback
+import cef_base, cef_request, cef_auth_callback, cef_request_context
 include cef_import
 
 type

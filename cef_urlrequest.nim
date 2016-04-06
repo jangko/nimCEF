@@ -1,4 +1,5 @@
 import cef_base, cef_request, cef_auth_callback, cef_request_context
+import cef_response
 include cef_import
 
 type

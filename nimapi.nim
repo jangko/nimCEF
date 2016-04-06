@@ -3,6 +3,10 @@ import cef_scheme, cef_base, cef_app, os, strutils, cef_client, cef_browser, cef
 import cef_geolocation_handler, cef_keyboard_handler, cef_process_message
 import cef_drag_handler, cef_find_handler, cef_focus_handler, cef_render_process_handler
 import cef_jsdialog_handler, cef_context_menu_handler, cef_request_context, cef_request_handler
+import cef_render_process_handler, cef_resource_bundle_handler
+import cef_browser_process_handler, cef_dialog_handler, cef_display_handler
+import cef_download_handler, cef_load_handler, cef_render_handler
+
 include cef_import
 
 # Structure defining the reference count implementation functions. All

@@ -1,4 +1,6 @@
-import cef_base, cef_command_line, cef_scheme, cef_request, cef_render_process_handler
+import cef_base, cef_command_line, cef_scheme, cef_request
+import cef_render_process_handler, cef_resource_bundle_handler
+import cef_browser_process_handler
 include cef_import
 
 type

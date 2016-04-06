@@ -1,4 +1,5 @@
-import cef_base, cef_frame, cef_request, cef_resource_handler, cef_auth_callback, cef_ssl_info
+import cef_base, cef_frame, cef_request, cef_resource_handler
+import cef_auth_callback, cef_ssl_info, cef_response, cef_response_filter
 include cef_import
 
 type

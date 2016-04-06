@@ -1,5 +1,5 @@
 import cef_base, cef_request, cef_drag_data, cef_frame, cef_client, cef_process_message
-import cef_request_context
+import cef_request_context, cef_navigation_entry
 include cef_import
 
 # Structure used to represent a browser window. When used in the browser

@@ -1,4 +1,4 @@
-import cef_base, cef_request, cef_callback
+import cef_base, cef_request, cef_callback, cef_response
 include cef_import
 
 # Structure used to implement a custom request handler structure. The functions

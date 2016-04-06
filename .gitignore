@@ -50,6 +50,9 @@ nimcache/
 master/
 locales/
 include/
+sample/
+rtlib32/
+rtlib64/
 *.exe
 *.dll
 *.pak

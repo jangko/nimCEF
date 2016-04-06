@@ -3,7 +3,7 @@ include cef_import
 
 # Generic callback structure used for asynchronous continuation
 type
-  cef_callback = object
+  cef_callback* = object
     base*: cef_base
 
     # Continue processing.
@@ -13,7 +13,7 @@ type
     cancel*: proc(self: ptr cef_callback) {.cef_callback.}
 
   # Generic callback structure used for asynchronous completion.
-  cef_completion_callback = object
+  cef_completion_callback* = object
     base*: cef_base
 
     # Method that will be called once the task is complete.

@@ -36,3 +36,5 @@ type
     base*: cef_base
   cef_domvisitor* = object
     base*: cef_base
+  cef_response* = object
+    base*: cef_base

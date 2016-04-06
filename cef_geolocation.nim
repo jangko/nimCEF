@@ -15,4 +15,4 @@ type
 # Request a one-time geolocation update. This function bypasses any user
 # permission checks so should only be used by code that is allowed to access
 # location information.
-proc cef_get_geolocation(callback: ptr cef_get_geolocation_callback): int {.cef_import.}
+proc cef_get_geolocation*(callback: ptr cef_get_geolocation_callback): int {.cef_import.}

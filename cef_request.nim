@@ -10,8 +10,6 @@ type
     base*: cef_base
   cef_browser_process_handler* = object 
     base*: cef_base
-  cef_render_process_handler* = object 
-    base*: cef_base
   cef_navigation_entry* = object 
     base*: cef_base
   cef_request_context* = object 
@@ -24,8 +22,6 @@ type
     base*: cef_base
   cef_download_handler* = object 
     base*: cef_base
-  cef_jsdialog_handler* = object 
-    base*: cef_base
   cef_load_handler* = object 
     base*: cef_base
   cef_render_handler* = object 
@@ -34,7 +30,13 @@ type
     base*: cef_base
   cef_v8context* = object
     base*: cef_base
+  cef_v8exception* = object
+    base*: cef_base
+  cef_v8stacktrace* = object
+    base*: cef_base
   cef_domvisitor* = object
+    base*: cef_base
+  cef_domnode* = object
     base*: cef_base
   cef_response* = object
     base*: cef_base

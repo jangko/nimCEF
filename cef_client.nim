@@ -1,5 +1,6 @@
 import cef_base, cef_request, cef_life_span_handler, cef_drag_handler, cef_find_handler
 import cef_geolocation_handler, cef_keyboard_handler, cef_process_message
+import cef_jsdialog_handler
 import cef_focus_handler
 
 include cef_import

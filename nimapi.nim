@@ -1,7 +1,8 @@
 import winapi, cef_command_line, cef_stream, cef_drag_data, cef_request, cef_frame
 import cef_scheme, cef_base, cef_app, os, strutils, cef_client, cef_browser, cef_life_span_handler
 import cef_geolocation_handler, cef_keyboard_handler, cef_process_message
-import cef_drag_handler, cef_find_handler, cef_focus_handler
+import cef_drag_handler, cef_find_handler, cef_focus_handler, cef_render_process_handler
+import cef_jsdialog_handler
 include cef_import
 
 # Structure defining the reference count implementation functions. All

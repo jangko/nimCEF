@@ -1,4 +1,4 @@
-import cef_base, cef_browser
+import cef_base
 include cef_import
 
 type
@@ -34,7 +34,7 @@ type
     # dialog is used the application must execute |callback| once the custom
     # dialog is dismissed.
     on_jsdialog*: proc(self: ptr cef_jsdialog_handler,
-        browser: ptr cef_browser, origin_url, accept_lang: ptr cef_string, 
+        browser: ptr_cef_browser, origin_url, accept_lang: ptr cef_string, 
         dialog_type: cef_jsdialog_type,
         message_text, default_prompt_text: ptr cef_string,
         callback: ptr cef_jsdialog_callback, suppress_message: var int): int {.cef_callback.}
@@ -46,15 +46,15 @@ type
     # dialog is used the application must execute |callback| once the custom
     # dialog is dismissed.
     on_before_unload_dialog*: proc(self: ptr cef_jsdialog_handler, 
-      browser: ptr cef_browser, message_text: ptr cef_string, is_reload: int,
+      browser: ptr_cef_browser, message_text: ptr cef_string, is_reload: int,
       callback: ptr cef_jsdialog_callback): int {.cef_callback.}
 
     # Called to cancel any pending dialogs and reset any saved dialog state. Will
     # be called due to events like page navigation irregardless of whether any
     # dialogs are currently pending.
     on_reset_dialog_state*: proc(self: ptr cef_jsdialog_handler, 
-      browser: ptr cef_browser) {.cef_callback.}
+      browser: ptr_cef_browser) {.cef_callback.}
 
     # Called when the default implementation dialog is closed.
     on_dialog_closed*: proc(self: ptr cef_jsdialog_handler,
-      browser: ptr cef_browser) {.cef_callback.}
+      browser: ptr_cef_browser) {.cef_callback.}

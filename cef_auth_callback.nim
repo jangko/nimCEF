@@ -4,7 +4,7 @@ include cef_import
 # Callback structure used for asynchronous continuation of authentication
 # requests.
 type
-  cef_auth_callback = object
+  cef_auth_callback* = object
     base*: cef_base
 
     # Continue the authentication request.

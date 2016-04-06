@@ -1,13 +1,6 @@
-import winapi, cef_command_line, cef_stream, cef_drag_data, cef_request, cef_frame
-import cef_scheme, cef_base, cef_app, os, strutils, cef_client, cef_browser, cef_life_span_handler
-import cef_geolocation_handler, cef_keyboard_handler, cef_process_message
-import cef_drag_handler, cef_find_handler, cef_focus_handler, cef_render_process_handler
-import cef_jsdialog_handler, cef_context_menu_handler, cef_request_context, cef_request_handler
-import cef_render_process_handler, cef_resource_bundle_handler
-import cef_browser_process_handler, cef_dialog_handler, cef_display_handler
-import cef_download_handler, cef_load_handler, cef_render_handler
-
-include cef_import
+import winapi, os, strutils
+import cef/cef_base, cef/cef_app, cef/cef_client, cef/cef_browser
+include cef/cef_import
 
 # Structure defining the reference count implementation functions. All
 # framework structures must include the cef_base_t structure first.
@@ -29,7 +22,7 @@ proc add_ref(self: ptr cef_base) {.cef_callback.} =
         
 # Decrement the reference count.  Delete this object when no references
 # remain.
-proc release(self: ptr cef_base): int {.cef_callback.} = 
+proc release(self: ptr cef_base): cint {.cef_callback.} = 
   if release_ref_cnt == 0:
     #echo "cef_base_t.release"
     inc release_ref_cnt
@@ -39,7 +32,7 @@ proc release(self: ptr cef_base): int {.cef_callback.} =
   result = 1
 
 # Returns the current number of references.
-proc has_one_ref(self: ptr cef_base): int {.cef_callback.} = 
+proc has_one_ref(self: ptr cef_base): cint {.cef_callback.} = 
   if has_one_ref_cnt == 0:
     #echo "cef_base_t.get_refct"
     inc has_one_ref_cnt
@@ -86,10 +79,10 @@ proc initialize_cef_base(base: ptr cef_base) =
 proc on_before_popup(self: ptr cef_life_span_handler,
     browser: ptr_cef_browser, frame: ptr cef_frame,
     target_url, target_frame_name: ptr cef_string,
-    target_disposition: cef_window_open_disposition, user_gesture: int,
+    target_disposition: cef_window_open_disposition, user_gesture: cint,
     popupFeatures: ptr cef_popup_features,
     windowInfo: ptr cef_window_info, client: ptr_ptr_cef_client,
-    settings: ptr cef_browser_settings, no_javascript_access: var int): int {.cef_callback.} =
+    settings: ptr cef_browser_settings, no_javascript_access: var cint): cint {.cef_callback.} =
   result = 0
   
 # Called after a new browser is created.
@@ -99,7 +92,7 @@ proc on_after_created(self: ptr cef_life_span_handler, browser: ptr_cef_browser)
 # Called when a modal window is about to display and the modal loop should
 # begin running. Return false (0) to use the default modal loop
 # implementation or true (1) to use a custom implementation.
-proc run_modal(self: ptr cef_life_span_handler, browser: ptr_cef_browser): int {.cef_callback.} =
+proc run_modal(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.} =
   discard
 
 # Called when a browser has recieved a request to close. This may result
@@ -157,7 +150,7 @@ proc run_modal(self: ptr cef_life_span_handler, browser: ptr_cef_browser): int {
 # 11. Application exits by calling cef_quit_message_loop() if no other
 # browsers
 #     exist.
-proc do_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser): int {.cef_callback.} =
+proc do_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.} =
   discard
 
 # Called just before a browser is destroyed. Release all references to the
@@ -325,7 +318,7 @@ proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_ca
 # reference to or attempt to access the message outside of this callback.
 proc on_process_message_received(self: ptr cef_client,
   browser: ptr_cef_browser, source_process: cef_process_id,
-  message: ptr cef_process_message): int {.cef_callback.} =
+  message: ptr cef_process_message): cint {.cef_callback.} =
   #echo "on_process_message_received"
   result = 0
     
@@ -367,9 +360,10 @@ proc main() =
 
   #Execute subprocesses.
   #let argc = paramCount()
-  #echo "cef_execute_process, argc = ", argc
+  echo "cef_execute_process, app size: ", app.base.size, " ", sizeof(mainArgs.instance), " ", sizeof(mainArgs)
   var code = cef_execute_process(mainArgs.addr, app.addr, nil)
   if code >= 0:
+    echo "failure execute process ", code
     quit(code)
   
   # Application settings.
@@ -378,10 +372,10 @@ proc main() =
   zeroMem(settings.addr, sizeof(settings))
   settings.size = sizeof(settings)
   settings.no_sandbox = 1
-  #echo "settings size: ", settings.size  
+  echo "settings size: ", settings.size  
   
   #Initialize CEF.
-  #echo "cef_initialize"
+  echo "cef_initialize"
   discard cef_initialize(mainArgs.addr, settings.addr, app.addr, nil)
     
   var windowInfo: cef_window_info
@@ -395,7 +389,7 @@ proc main() =
   #Initial url.
   let cwd = getCurrentDir()
   let url = "file://$1/example.html" % [cwd]
-  #echo url
+  echo url
   
   #There is no _cef_string_t type.
   var cefUrl: cef_string
@@ -416,7 +410,7 @@ proc main() =
   initialize_client_handler(client.addr)
 
   # Create browser.
-  #echo "cef_browser_host_create_browser"
+  echo "cef_browser_host_create_browser"
   discard cef_browser_host_create_browser(windowInfo.addr, cast[ptr cef_client](client.addr), cefUrl.addr, browserSettings.addr, nil)
   
   # Message loop.
@@ -425,6 +419,5 @@ proc main() =
     
   #echo "cef_shutdown"
   cef_shutdown()
-    
     
 main()

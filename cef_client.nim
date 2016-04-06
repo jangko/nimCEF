@@ -1,4 +1,7 @@
-import cef_base, cef_request, cef_life_span_handler
+import cef_base, cef_request, cef_life_span_handler, cef_drag_handler, cef_find_handler
+import cef_geolocation_handler, cef_keyboard_handler, cef_process_message
+import cef_focus_handler
+
 include cef_import
 
 type
@@ -58,5 +61,5 @@ type
     # reference to or attempt to access the message outside of this callback.
     on_process_message_received*: proc(self: ptr cef_client,
       browser: ptr_cef_browser, source_process: cef_process_id,
-      message: cef_process_message): int {.cef_callback.}
+      message: ptr cef_process_message): int {.cef_callback.}
 

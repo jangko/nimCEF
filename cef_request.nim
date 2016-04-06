@@ -16,8 +16,6 @@ type
     base*: cef_base
   cef_request_context* = object 
     base*: cef_base
-  cef_process_message* = object 
-    base*: cef_base
   cef_context_menu_handler* = object 
     base*: cef_base
   cef_dialog_handler* = object 
@@ -26,21 +24,15 @@ type
     base*: cef_base
   cef_download_handler* = object 
     base*: cef_base
-  cef_drag_handler* = object 
-    base*: cef_base
-  cef_find_handler* = object 
-    base*: cef_base
-  cef_focus_handler* = object 
-    base*: cef_base
-  cef_geolocation_handler* = object 
-    base*: cef_base
   cef_jsdialog_handler* = object 
-    base*: cef_base
-  cef_keyboard_handler* = object 
     base*: cef_base
   cef_load_handler* = object 
     base*: cef_base
   cef_render_handler* = object 
     base*: cef_base
   cef_request_handler* = object 
+    base*: cef_base
+  cef_v8context* = object
+    base*: cef_base
+  cef_domvisitor* = object
     base*: cef_base

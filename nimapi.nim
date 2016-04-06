@@ -1,5 +1,7 @@
 import winapi, cef_command_line, cef_stream, cef_drag_data, cef_request, cef_frame
 import cef_scheme, cef_base, cef_app, os, strutils, cef_client, cef_browser, cef_life_span_handler
+import cef_geolocation_handler, cef_keyboard_handler, cef_process_message
+import cef_drag_handler, cef_find_handler, cef_focus_handler
 include cef_import
 
 # Structure defining the reference count implementation functions. All
@@ -318,7 +320,7 @@ proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_ca
 # reference to or attempt to access the message outside of this callback.
 proc on_process_message_received(self: ptr cef_client,
   browser: ptr_cef_browser, source_process: cef_process_id,
-  message: cef_process_message): int {.cef_callback.} =
+  message: ptr cef_process_message): int {.cef_callback.} =
   #echo "on_process_message_received"
   result = 0
     

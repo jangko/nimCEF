@@ -20,12 +20,6 @@ type
     base*: cef_base
   cef_render_handler* = object 
     base*: cef_base
-  cef_v8context* = object
-    base*: cef_base
-  cef_v8exception* = object
-    base*: cef_base
-  cef_v8stacktrace* = object
-    base*: cef_base
   cef_response* = object
     base*: cef_base
   cef_response_filter* = object

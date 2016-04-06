@@ -7,3 +7,4 @@ import cef_render_process_handler, cef_web_plugin, cef_parser
 import cef_render_handler, cef_ssl_info, cef_urlrequest
 import cef_xml_reader, cef_cookie_manager, cef_dom
 import cef_context_menu_handler, cef_request_handler, cef_request_context
+import cef_v8

@@ -24,3 +24,4 @@ type
   ptr_cef_browser* = distinct pointer
   ptr_ptr_cef_client* = distinct pointer
   ptr_cef_scheme_handler_factory* = distinct pointer
+  ptr_cef_frame* = distinct pointer

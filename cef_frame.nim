@@ -1,4 +1,4 @@
-import cef_base, cef_string_visitor, cef_request, cef_dom
+import cef_base, cef_string_visitor, cef_request, cef_dom, cef_v8
 include cef_import
 
 # Structure used to represent a frame in the browser window. When used in the

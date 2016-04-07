@@ -126,13 +126,13 @@ type
 
     # Get the current zoom level. The default zoom level is 0.0. This function
     # can only be called on the UI thread.
-    get_zoom_level*: proc(self: ptr cef_browser_host): float64 {.cef_callback.}
+    get_zoom_level*: proc(self: ptr cef_browser_host): cdouble {.cef_callback.}
   
     # Change the zoom level to the specified value. Specify 0.0 to reset the zoom
     # level. If called on the UI thread the change will be applied immediately.
     # Otherwise, the change will be applied asynchronously on the UI thread.
   
-    set_zoom_level*: proc(self: ptr cef_browser_host, zoomLevel: float64) {.cef_callback.}
+    set_zoom_level*: proc(self: ptr cef_browser_host, zoomLevel: cdouble) {.cef_callback.}
 
     # Call to run a file chooser dialog. Only a single file chooser dialog may be
     # pending at any given time. |mode| represents the type of dialog to display.

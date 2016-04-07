@@ -23,8 +23,8 @@ proc cef_time_from_timet*(time: Time, ctime: ptr cef_time): cint {.cef_import.}
 # epoch (Jan 1, 1970). Webkit uses this format to represent time. A value of 0
 # means "not initialized". Returns true (1) on success and false (0) on
 # failure.
-proc cef_time_to_doublet*(ctime: ptr cef_time, time: var float64): cint {.cef_import.}
-proc cef_time_from_doublet*(time: float64, ctime: ptr cef_time): cint {.cef_import.}
+proc cef_time_to_doublet*(ctime: ptr cef_time, time: var cdouble): cint {.cef_import.}
+proc cef_time_from_doublet*(time: cdouble, ctime: ptr cef_time): cint {.cef_import.}
 
 # Retrieve the current system time.
 proc cef_time_now*(ctime: ptr cef_time): cint {.cef_import.}

@@ -86,4 +86,4 @@ type
   
     # Called when the scroll offset has changed.
     on_scroll_offset_changed*: proc(self: ptr cef_render_handler, 
-      browser: ptr_cef_browser, x, y: float64) {.cef_callback.}
+      browser: ptr_cef_browser, x, y: cdouble) {.cef_callback.}

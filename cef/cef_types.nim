@@ -938,7 +938,7 @@ type
   cef_screen_info* = object
     # Device scale factor. Specifies the ratio between physical and logical
     # pixels.
-    device_scale_factor: float32
+    device_scale_factor: cfloat
 
     # The screen depth in bits per pixel.
     depth: cint
@@ -1329,25 +1329,25 @@ type
   # their types may differ.
   cef_geoposition* = object
     # Latitude in decimal degrees north (WGS84 coordinate frame).
-    latitude: float64
+    latitude: cdouble
   
     # Longitude in decimal degrees west (WGS84 coordinate frame).
-    longitude: float64
+    longitude: cdouble
   
     # Altitude in meters (above WGS84 datum).
-    altitude: float64
+    altitude: cdouble
   
     # Accuracy of horizontal position in meters.
-    accuracy: float64
+    accuracy: cdouble
   
     # Accuracy of altitude in meters.
-    altitude_accuracy: float64
+    altitude_accuracy: cdouble
   
     # Heading in decimal degrees clockwise from true north.
-    heading: float64
+    heading: cdouble
   
     # Horizontal component of device velocity in meters per second.
-    speed: float64
+    speed: cdouble
   
     # Time of position measurement in milliseconds since Epoch in UTC time. This
     # is taken from the host computer's system clock.
@@ -1447,7 +1447,7 @@ type
   # an upper-left origin.
   cef_cursor_info* = object
     hotspot: cef_point
-    image_scale_factor: float32
+    image_scale_factor: cfloat
     buffer: pointer
     size: cef_size
 
@@ -1561,10 +1561,10 @@ type
 
     # Margins in millimeters. Only used if |margin_type| is set to
     # PDF_PRINT_MARGIN_CUSTOM.
-    margin_top: float64
-    margin_right: float64
-    margin_bottom: float64
-    margin_left: float64
+    margin_top: cdouble
+    margin_right: cdouble
+    margin_bottom: cdouble
+    margin_left: cdouble
   
     # Margin type.
     margin_type: cef_pdf_print_margin_type

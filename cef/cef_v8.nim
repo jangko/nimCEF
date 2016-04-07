@@ -203,7 +203,7 @@ type
 
     # Return a double value.  The underlying data will be converted to if
     # necessary.
-    get_double_value*: proc(self: ptr cef_v8value): float64 {.cef_callback.}
+    get_double_value*: proc(self: ptr cef_v8value): cdouble {.cef_callback.}
 
     # Return a Date value.  The underlying data will be converted to if
     # necessary.
@@ -503,7 +503,7 @@ proc cef_v8value_create_int*(value: int32): ptr cef_v8value {.cef_import.}
 proc cef_v8value_create_uint*(value: uint32): ptr cef_v8value {.cef_import.}
 
 # Create a new cef_v8value_t object of type double.
-proc cef_v8value_create_double*(value: float64): ptr cef_v8value {.cef_import.}
+proc cef_v8value_create_double*(value: cdouble): ptr cef_v8value {.cef_import.}
 
 # Create a new cef_v8value_t object of type Date. This function should only be
 # called from within the scope of a cef_render_process_handler_t,

@@ -45,7 +45,7 @@ type
     get_int*: proc(self: ptr cef_value): cint {.cef_callback.}
   
     # Returns the underlying value as type double.
-    get_double*: proc(self: ptr cef_value): float64 {.cef_callback.}
+    get_double*: proc(self: ptr cef_value): cdouble {.cef_callback.}
   
     # Returns the underlying value as type string.
     
@@ -90,7 +90,7 @@ type
   
     # Sets the underlying value as type double. Returns true (1) if the value was
     # set successfully.
-    set_double*: proc(self: ptr cef_value, value: float64): cint {.cef_callback.}
+    set_double*: proc(self: ptr cef_value, value: cdouble): cint {.cef_callback.}
   
     # Sets the underlying value as type string. Returns true (1) if the value was
     # set successfully.
@@ -216,7 +216,7 @@ type
   
     # Returns the value at the specified key as type double.
     get_double*: proc(self: ptr cef_dictionary_value,
-      key: ptr cef_string): float64 {.cef_callback.}
+      key: ptr cef_string): cdouble {.cef_callback.}
   
     # Returns the value at the specified key as type string.
     
@@ -264,7 +264,7 @@ type
     # Sets the value at the specified key as type double. Returns true (1) if the
     # value was set successfully.
     set_double*: proc(self: ptr cef_dictionary_value,
-      key: ptr cef_string, value: float64): cint {.cef_callback.}
+      key: ptr cef_string, value: cdouble): cint {.cef_callback.}
   
     # Sets the value at the specified key as type string. Returns true (1) if the
     # value was set successfully.
@@ -354,7 +354,7 @@ type
     get_int*: proc(self: ptr cef_list_value, index: cint): cint {.cef_callback.}
   
     # Returns the value at the specified index as type double.
-    get_double*: proc(self: ptr cef_list_value, index: cint): float64 {.cef_callback.}
+    get_double*: proc(self: ptr cef_list_value, index: cint): cdouble {.cef_callback.}
   
     # Returns the value at the specified index as type string.
     
@@ -401,7 +401,7 @@ type
     # Sets the value at the specified index as type double. Returns true (1) if
     # the value was set successfully.
     set_double*: proc(self: ptr cef_list_value, index: cint,
-        value: float64): cint {.cef_callback.}
+        value: cdouble): cint {.cef_callback.}
       
     # Sets the value at the specified index as type string. Returns true (1) if
     # the value was set successfully.

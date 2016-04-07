@@ -1,22 +1,23 @@
-include cef_import #, times
+{.deadCodeElim:on.}
+
+include cef_import , times
 
 type
   cef_time* = object
-    year: cint          # Four digit year "2007"
-    month: cint         # 1-based month (values 1 = January, etc.)
-    day_of_week: cint   # 0-based day of week (0 = Sunday, etc.)
-    day_of_month: cint  # 1-based day of month (1-31)
-    hour: cint          # Hour within the current day (0-23)
-    minute: cint        # Minute within the current hour (0-59)
-    second: cint        # Second within the current minute (0-59 plus leap
+    year*: cint          # Four digit year "2007"
+    month*: cint         # 1-based month (values 1 = January, etc.)
+    day_of_week*: cint   # 0-based day of week (0 = Sunday, etc.)
+    day_of_month*: cint  # 1-based day of month (1-31)
+    hour*: cint          # Hour within the current day (0-23)
+    minute*: cint        # Minute within the current hour (0-59)
+    second*: cint        # Second within the current minute (0-59 plus leap
                    #   seconds which may take it up to 60).
-    millisecond: cint   # Milliseconds within the current second (0-999)
+    millisecond*: cint   # Milliseconds within the current second (0-999)
 
 # Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)
 # on failure.
-#proc cef_time_to_timet*(ctime: ptr cef_time, time: Time): cint {.cef_import.}
-#proc cef_time_from_timet*(time: Time, ctime: ptr cef_time): cint {.cef_import.}
-
+proc cef_time_to_timet*(ctime: ptr cef_time, time: Time): cint {.cef_import.}
+proc cef_time_from_timet*(time: Time, ctime: ptr cef_time): cint {.cef_import.}
 
 # Converts cef_time_t to/from a double which is the number of seconds since
 # epoch (Jan 1, 1970). Webkit uses this format to represent time. A value of 0

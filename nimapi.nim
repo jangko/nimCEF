@@ -160,6 +160,10 @@ proc do_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {
 # be used to exit the custom modal loop. See do_close() documentation for
 # additional usage information.
 proc on_before_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
+  var brow = cast[ptr cef_browser](browser)
+  var host = brow.get_host(brow)
+  var client = host.get_client(host)
+  echo "on before close client addr: ", cast[int](client)
   cef_quit_message_loop()
  
 
@@ -325,7 +329,7 @@ proc on_process_message_received(self: ptr cef_client,
 proc initialize_client_handler(client: ptr my_client) =
   #echo "initialize_client_handler"
   
-  client.handler.base.size = sizeof(client[])
+  client.handler.base.size = sizeof(my_client)
   initialize_cef_base(cast[ptr cef_base](client))
   
   # callbacks
@@ -346,10 +350,19 @@ proc initialize_client_handler(client: ptr my_client) =
   
   initialize_life_span_handler(client.span.addr)
   
+const
+  appName = "cefcapi"
+  
 proc main() =
   # Main args.
   var mainArgs: cef_main_args
-  mainArgs.instance = getModuleHandle(nil)
+  
+  when defined(windows):
+    mainArgs.instance = getModuleHandle(nil)
+  elif defined(linux):
+    var argv: array[2, cstring] = [appName.cstring, nil]
+    mainArgs.argc = 1
+    mainArgs.argv = argv[0].addr
     
   # Application handler and its callbacks.
   # cef_app_t structure must be filled. It must implement
@@ -360,7 +373,7 @@ proc main() =
 
   #Execute subprocesses.
   #let argc = paramCount()
-  echo "cef_execute_process, app size: ", app.base.size, " ", sizeof(mainArgs.instance), " ", sizeof(mainArgs)
+  echo "cef_execute_process, app size: ", app.base.size
   var code = cef_execute_process(mainArgs.addr, app.addr, nil)
   if code >= 0:
     echo "failure execute process ", code
@@ -369,7 +382,7 @@ proc main() =
   # Application settings.
   # It is mandatory to set the "size" member.
   var settings: cef_settings
-  zeroMem(settings.addr, sizeof(settings))
+  #zeroMem(settings.addr, sizeof(settings))
   settings.size = sizeof(settings)
   settings.no_sandbox = 1
   echo "settings size: ", settings.size  
@@ -377,19 +390,27 @@ proc main() =
   #Initialize CEF.
   echo "cef_initialize"
   discard cef_initialize(mainArgs.addr, settings.addr, app.addr, nil)
-    
-  var windowInfo: cef_window_info
-  windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
-  windowInfo.parent_window = cef_window_handle(0)
-  windowInfo.x = CW_USEDEFAULT
-  windowInfo.y = CW_USEDEFAULT
-  windowInfo.width = CW_USEDEFAULT
-  windowInfo.height = CW_USEDEFAULT
+  
+  var windowInfo: cef_window_info  
+  
+  when defined(linux):
+    # Create GTK window. You can pass a NULL handle 
+    # to CEF and then it will create a window of its own.
+    initialize_gtk()
+    var hwnd = create_gtk_window("cefcapi example", 1024, 768)
+    windowInfo.parent_widget = hwnd
+  elif defined(windows):
+    windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
+    windowInfo.parent_window = cef_window_handle(0)
+    windowInfo.x = CW_USEDEFAULT
+    windowInfo.y = CW_USEDEFAULT
+    windowInfo.width = CW_USEDEFAULT
+    windowInfo.height = CW_USEDEFAULT
   
   #Initial url.
   let cwd = getCurrentDir()
   let url = "file://$1/example.html" % [cwd]
-  echo url
+  #echo url
   
   #There is no _cef_string_t type.
   var cefUrl: cef_string
@@ -398,7 +419,7 @@ proc main() =
   #Browser settings.
   #It is mandatory to set the "size" member.
   var browserSettings: cef_browser_settings
-  zeroMem(browserSettings.addr, sizeof(browserSettings))
+  #zeroMem(browserSettings.addr, sizeof(browserSettings))
   browserSettings.size = sizeof(browserSettings)
   #echo "browser settings size: ", browserSettings.size
     
@@ -408,10 +429,11 @@ proc main() =
   # initialized with zeroes.
   var client: my_client
   initialize_client_handler(client.addr)
-
+  echo "client addr: ", cast[int](client.addr)
+  
   # Create browser.
   echo "cef_browser_host_create_browser"
-  discard cef_browser_host_create_browser(windowInfo.addr, cast[ptr cef_client](client.addr), cefUrl.addr, browserSettings.addr, nil)
+  discard cef_browser_host_create_browser(windowInfo.addr, client.handler.addr, cefUrl.addr, browserSettings.addr, nil)
   
   # Message loop.
   #echo ("cef_run_message_loop")

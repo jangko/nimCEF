@@ -20,16 +20,16 @@ type
     dtor: proc(str: ptr uint16) {.cef_callback.}
 
   cef_string_utf8* = object
-    str: ptr char
+    str: cstring
     length: csize
-    dtor: proc(str: ptr char) {.cef_callback.}
+    dtor: proc(str: cstring) {.cef_callback.}
 
 # These functions set string values. If |copy| is true (1) the value will be
 # copied instead of referenced. It is up to the user to properly manage
 # the lifespan of references.
 
 proc cef_string_wide_set*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_wide, copy: bool): cint {.cef_import.}
-proc cef_string_utf8_set*(src: ptr char, src_len: csize, output: ptr cef_string_utf8, copy: bool): cint {.cef_import.}
+proc cef_string_utf8_set*(src: cstring, src_len: csize, output: ptr cef_string_utf8, copy: bool): cint {.cef_import.}
 proc cef_string_utf16_set*(src: ptr uint16, src_len: csize, output: ptr cef_string_utf16, copy: bool): cint {.cef_import.}
 
 # Convenience macros for copying values.

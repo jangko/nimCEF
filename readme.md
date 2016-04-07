@@ -19,6 +19,6 @@ the development in Nim style and Nim native datatypes will be used whenever poss
 |----|-----------------------|----------|---------|----------|---------|----------|---------|
 | 1  | CEF3 C API            | complete | ongoing | complete | ongoing | ongoing  | 0.13.0  |
 | 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0  |
-| 3  | Simple Client Example | no       | no      | no       | no      | no       | 0.13.0  |
+| 3  | Simple Client Example | yes      | no      | no       | no      | no       | 0.13.0  |
 | 4  | CefClient Example     | no       | no      | no       | no      | no       | 0.13.0  |
-| 5  | Convenience Layer     | no       | no      | no       | no      | no       | 0.13.0  |
+| 5  | Convenience Layer     | 1%       | no      | no       | no      | no       | 0.13.0  |

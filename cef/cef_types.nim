@@ -1,4 +1,4 @@
-import cef_string, cef_string_list, cef_time
+import cef_string_api, cef_string_list_api, cef_time_api
 
 when defined(MACOSX):
   include cef_type_mac

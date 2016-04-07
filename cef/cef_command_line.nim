@@ -55,10 +55,10 @@ type
     set_program*: proc(self: ptr cef_command_line, program: ptr cef_string) {.cef_callback.}
   
     # Returns true (1) if the command line has switches.
-    has_switches*: proc(self: ptr cef_command_line): bool {.cef_callback.}
+    has_switches*: proc(self: ptr cef_command_line): cint {.cef_callback.}
 
     # Returns true (1) if the command line contains the given switch.
-    has_switch*: proc(self: ptr cef_command_line, name: ptr cef_string): bool {.cef_callback.}
+    has_switch*: proc(self: ptr cef_command_line, name: ptr cef_string): cint {.cef_callback.}
     
     # Returns the value associated with the given switch. If the switch has no
     # value or isn't present this function returns the NULL string.
@@ -78,7 +78,7 @@ type
     append_switch_with_value*: proc(self: ptr cef_command_line, name, value: ptr cef_string) {.cef_callback.}
       
     # True if there are remaining command line arguments.
-    has_arguments*: proc(self: ptr cef_command_line): bool {.cef_callback.}
+    has_arguments*: proc(self: ptr cef_command_line): cint {.cef_callback.}
   
     # Get the remaining command line arguments.
     get_arguments*: proc(self: ptr cef_command_line, arguments: cef_string_list) {.cef_callback.}

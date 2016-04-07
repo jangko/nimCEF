@@ -200,13 +200,13 @@ type
     # navigation entry will be sent, otherwise all navigation entries will be
     # sent.
     get_navigation_entries*: proc(self: ptr cef_browser_host,
-        visitor: ptr cef_navigation_entry_visitor, current_only: bool) {.cef_callback.}
+        visitor: ptr cef_navigation_entry_visitor, current_only: cint) {.cef_callback.}
     
     # Set whether mouse cursor change is disabled.
-    set_mouse_cursor_change_disabled*: proc(self: ptr cef_browser_host, disabled: bool) {.cef_callback.}
+    set_mouse_cursor_change_disabled*: proc(self: ptr cef_browser_host, disabled: cint) {.cef_callback.}
     
     # Returns true (1) if mouse cursor change is disabled.
-    is_mouse_cursor_change_disabled*: proc(self: ptr cef_browser_host): bool {.cef_callback.}
+    is_mouse_cursor_change_disabled*: proc(self: ptr cef_browser_host): cint {.cef_callback.}
     
     # If a misspelled word is currently selected in an editable node calling this
     # function will replace it with the specified |word|.
@@ -218,7 +218,7 @@ type
       word: ptr cef_string) {.cef_callback.}
     
     # Returns true (1) if window rendering is disabled.
-    is_window_rendering_disabled*: proc(self: ptr cef_browser_host): bool {.cef_callback.}
+    is_window_rendering_disabled*: proc(self: ptr cef_browser_host): cint {.cef_callback.}
     
     # Notify the browser that the widget has been resized. The browser will first
     # call cef_render_handler_t::GetViewRect to get the new size and then call
@@ -229,7 +229,7 @@ type
     # Notify the browser that it has been hidden or shown. Layouting and
     # cef_render_handler_t::OnPaint notification will stop when the browser is
     # hidden. This function is only used when window rendering is disabled.
-    was_hidden*: proc(self: ptr cef_browser_host, hidden: bool) {.cef_callback.}
+    was_hidden*: proc(self: ptr cef_browser_host, hidden: cint) {.cef_callback.}
     
     # Send a notification to the browser that the screen info has changed. The
     # browser will then call cef_render_handler_t::GetScreenInfo to update the
@@ -253,12 +253,12 @@ type
     # relative to the upper-left corner of the view.
     send_mouse_click_event*: proc(self: ptr cef_browser_host,
       event: ptr cef_mouse_event, ptype: cef_mouse_button_type,
-      mouseUp: bool, clickCount: cint) {.cef_callback.}
+      mouseUp: cint, clickCount: cint) {.cef_callback.}
     
     # Send a mouse move event to the browser. The |x| and |y| coordinates are
     # relative to the upper-left corner of the view.
     send_mouse_move_event*: proc(self: ptr cef_browser_host,
-      event: ptr cef_mouse_event, mouseLeave: bool) {.cef_callback.}
+      event: ptr cef_mouse_event, mouseLeave: cint) {.cef_callback.}
     
     # Send a mouse wheel event to the browser. The |x| and |y| coordinates are
     # relative to the upper-left corner of the view. The |deltaX| and |deltaY|
@@ -270,7 +270,7 @@ type
     
     # Send a focus event to the browser.
     send_focus_event*: proc(self: ptr cef_browser_host,
-      setFocus: bool) {.cef_callback.}
+      setFocus: cint) {.cef_callback.}
     
     # Send a capture lost event to the browser.
     send_capture_lost_event*: proc(self: ptr cef_browser_host) {.cef_callback.}

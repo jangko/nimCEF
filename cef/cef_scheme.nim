@@ -53,7 +53,7 @@ type
     # if an error occurs this function will return false (0).
   
     add_custom_scheme*: proc(self: ptr cef_scheme_registrar,
-      scheme_name: ptr cef_string, is_standard, is_local, is_display_isolated: bool): cint {.cef_callback.}
+      scheme_name: ptr cef_string, is_standard, is_local, is_display_isolated: cint): cint {.cef_callback.}
 
 # Structure that creates cef_resource_handler_t instances for handling scheme
 # requests. The functions of this structure will always be called on the IO

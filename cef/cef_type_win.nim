@@ -33,13 +33,13 @@ type
     # monitor will be used and some functionality that requires a parent window
     # may not function correctly. In order to create windowless browsers the
     # CefSettings.windowless_rendering_enabled value must be set to true.
-    windowless_rendering_enabled*: bool
+    windowless_rendering_enabled*: cint
 
     # Set to true (1) to enable transparent painting in combination with
     # windowless rendering. When this value is true a transparent background
     # color will be used (RGBA=0x00000000). When this value is false the
     # background will be white and opaque.
-    transparent_painting_enabled*: bool
+    transparent_painting_enabled*: cint
 
     # Handle for the new browser window. Only used with windowed rendering.
     window*: cef_window_handle

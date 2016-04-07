@@ -28,9 +28,9 @@ type
 # copied instead of referenced. It is up to the user to properly manage
 # the lifespan of references.
 
-proc cef_string_wide_set*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_wide, copy: bool): cint {.cef_import.}
-proc cef_string_utf8_set*(src: cstring, src_len: csize, output: ptr cef_string_utf8, copy: bool): cint {.cef_import.}
-proc cef_string_utf16_set*(src: ptr uint16, src_len: csize, output: ptr cef_string_utf16, copy: bool): cint {.cef_import.}
+proc cef_string_wide_set*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_wide, copy: cint): cint {.cef_import.}
+proc cef_string_utf8_set*(src: cstring, src_len: csize, output: ptr cef_string_utf8, copy: cint): cint {.cef_import.}
+proc cef_string_utf16_set*(src: ptr uint16, src_len: csize, output: ptr cef_string_utf16, copy: cint): cint {.cef_import.}
 
 # Convenience macros for copying values.
 

@@ -259,8 +259,14 @@ type
     
   NCCFS* = set[NCClientCreateFlag]
   
+proc client_finalizer[T](client: T) =
+  if client.context_menu_handler != nil: freeShared(client.context_menu_handler.addr)
+  if client.life_span_handler != nil: freeShared(client.life_span_handler.addr)
+  
 proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
-  var client = new(T)
+  var client: T
+  new(client, client_finalizer)
+  
   initialize_client_handler(client.client_handler.addr)
   
   if NCCF_CONTEXT_MENU in flags:

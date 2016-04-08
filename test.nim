@@ -1,11 +1,13 @@
 import winapi, os, strutils
-import ncapi
+import ncapi, nc_menu_model, nc_process_message, nc_app, nc_client
 
 type
   myClient = ref object of NCClient
     abc: int
     name: string
 
+  myApp = ref object of NCApp
+  
 proc newClient(no: int, name: string): myClient =
   result = makeNCClient(myClient, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
   result.abc = no
@@ -14,16 +16,36 @@ proc newClient(no: int, name: string): myClient =
 method OnBeforeClose(self: myClient, browser: ptr cef_browser) =
   cef_quit_message_loop()
   echo "close: ", self.name, " no: ", self.abc
-   
+  
+const
+  MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
+  MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
+  
+method OnBeforeContextMenu(self: myClient, browser: ptr cef_browser,
+  frame: ptr cef_frame, params: ptr cef_context_menu_params, model: NCMenuModel) =
+  discard model.AddSeparator()
+  discard model.AddItem(MY_MENU_ID, "Hello There")
+  discard model.AddItem(MY_QUIT_ID, "Quit")
+  
+method OnContextMenuCommand(self: myClient, browser: ptr cef_browser, 
+  frame: ptr cef_frame, params: ptr cef_context_menu_params, command_id: cef_menu_id, 
+  event_flags: cef_event_flags): int =
+  
+  if command_id == MY_MENU_ID:
+    echo "Hello There Clicked"
+  
+  if command_id == MY_QUIT_ID:
+    var host = browser.get_host(browser)
+    host.close_browser(host, 1)
+
 proc main() =
   # Main args.
   var mainArgs: cef_main_args
   mainArgs.instance = getModuleHandle(nil)
 
-  var app: cef_app
-  initialize_app_handler(app.addr)
+  var app = makeNCApp(myApp)
 
-  var code = cef_execute_process(mainArgs.addr, app.addr, nil)
+  var code = cef_execute_process(mainArgs.addr, app.GetHandler(), nil)
   if code >= 0:
     echo "failure execute process ", code
     quit(code)
@@ -31,7 +53,8 @@ proc main() =
   var settings: cef_settings
   settings.size = sizeof(settings)
   settings.no_sandbox = 1
-  discard cef_initialize(mainArgs.addr, settings.addr, app.addr, nil)
+  discard cef_initialize(mainArgs.addr, settings.addr, app.GetHandler(), nil)
+  echo "cef_initialize thread id: ", getCurrentThreadId()
   
   var windowInfo: cef_window_info  
   windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE

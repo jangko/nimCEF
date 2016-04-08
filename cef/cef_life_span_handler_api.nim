@@ -26,7 +26,7 @@ type
         target_url, target_frame_name: ptr cef_string,
         target_disposition: cef_window_open_disposition, user_gesture: cint,
         popupFeatures: ptr cef_popup_features,
-        windowInfo: ptr cef_window_info, client: ptr_ptr_cef_client,
+        windowInfo: ptr cef_window_info, client: var ptr_cef_client,
         settings: ptr cef_browser_settings, no_javascript_access: var cint): cint {.cef_callback.}
       
     # Called after a new browser is created.

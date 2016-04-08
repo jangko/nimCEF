@@ -981,6 +981,8 @@ template registerClass*(wndClass: expr): ATOM =
   when defined(winUnicode): RegisterClassW(addr(wndClass))
   else: RegisterClassA(addr(wndClass))
 
+proc getCurrentThreadId*(): DWORD{.stdcall, dynlib: "kernel32", importc: "GetCurrentThreadId".}
+
 proc GetModuleHandleA(lpModuleName: LPCSTR): HMODULE {.stdcall, dynlib: "kernel32", importc: "GetModuleHandleA".}
 proc GetModuleHandleW(lpModuleName: LPCWSTR): HMODULE {.stdcall, dynlib: "kernel32", importc: "GetModuleHandleW".}
 

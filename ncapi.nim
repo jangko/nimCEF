@@ -6,13 +6,15 @@ export cef_menu_model_api
 
 include cef/cef_import
 
-import nc_menu_model
+import nc_menu_model, nc_util, nc_process_message, nc_app, nc_client, nc_context_menu_handler
+import nc_life_span_handler
 
-type
-  NCClient* = ref object of RootObj
-    client_handler: cef_client
-    life_span_handler: ptr cef_life_span_handler
-    context_menu_handler: ptr cef_context_menu_handler
+#menu model
+#context menu handler
+#base
+#client
+#app
+#life span handler
     
 proc nc_add_ref(self: ptr cef_base) {.cef_callback.} = discard
 proc nc_release(self: ptr cef_base): cint {.cef_callback.} = 1
@@ -40,46 +42,62 @@ proc get_client(browser: ptr_cef_browser): NCClient =
 
 template client_to_client(client: expr): expr =
   cast[NCClient](cast[ByteAddress](client) - sizeof(pointer))
+
+template app_to_app(app: expr): expr =
+  cast[NCApp](cast[ByteAddress](app) - sizeof(pointer))
   
-method OnBeforeContextMenu(self: NCClient, browser: ptr cef_browser,
-  frame: ptr cef_frame, params: ptr cef_context_menu_params, model: NCMenuModel) {.base.} =
-  discard
+template b_to_b(brow: expr): expr = cast[ptr cef_browser](brow)
+  
+template add_ref*(elem: expr) =
+  discard elem.base.add_ref(cast[ptr cef_base](elem))
 
-method RunContextMenu(self: NCClient, browser: ptr cef_browser, 
-  frame: ptr cef_frame, params: ptr cef_context_menu_params, model: NCMenuModel,
-  callback: ptr cef_run_context_menu_callback): int {.base.} =
-  discard
+template release*(elem: expr) =
+  if elem != nil: discard elem.base.release(cast[ptr cef_base](elem))
+  
+template has_one_ref*(elem: expr): expr =
+  elem.base.has_one_ref(cast[ptr cef_base](elem))
+  
 
-method OnContextMenuCommand(self: NCClient, browser: ptr cef_browser, 
-  frame: ptr cef_frame, params: ptr cef_context_menu_params, command_id: int, 
-  event_flags: cef_event_flags): int {.base.} =
-  discard
-
-method OnContextMenuDismissed(self: NCCLient,  browser: ptr cef_browser, 
-  frame: ptr cef_frame) {.base.} =
-  discard
   
 proc on_before_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_browser,
   frame: ptr cef_frame, params: ptr cef_context_menu_params, model: ptr cef_menu_model) {.cef_callback.} =
   var client = get_client(browser)
-  client.OnBeforeContextMenu(cast[ptr cef_browser](browser), frame, params, model)
-
+  var brow = b_to_b(browser)
+  client.OnBeforeContextMenu(brow, frame, params, model)
+  release(brow)
+  release(frame)
+  release(params)
+  release(model)
+  
 proc run_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_browser, 
   frame: ptr cef_frame, params: ptr cef_context_menu_params, model: ptr cef_menu_model,
   callback: ptr cef_run_context_menu_callback): cint {.cef_callback.} =
   var client = get_client(browser)
-  result = client.RunContextMenu(cast[ptr cef_browser](browser), frame, params, model, callback).cint
+  var brow = b_to_b(browser)
+  result = client.RunContextMenu(brow, frame, params, model, callback).cint
+  release(brow)
+  release(frame)
+  release(params)
+  release(model)
+  release(callback)  
 
 proc on_context_menu_command(self: ptr cef_context_menu_handler, browser: ptr_cef_browser, 
   frame: ptr cef_frame, params: ptr cef_context_menu_params, command_id: cint, 
   event_flags: cef_event_flags): cint {.cef_callback.} =
   var client = get_client(browser)
-  result = client.OnContextMenuCommand(cast[ptr cef_browser](browser), frame, params, command_id, event_flags).cint
+  var brow = b_to_b(browser)
+  result = client.OnContextMenuCommand(brow, frame, params, command_id.cef_menu_id, event_flags).cint
+  release(brow)
+  release(frame)
+  release(params)
   
 proc on_context_menu_dismissed(self: ptr cef_context_menu_handler, 
   browser: ptr_cef_browser, frame: ptr cef_frame) {.cef_callback.} =
   var client = get_client(browser)
-  client.OnContextMenuDismissed(cast[ptr cef_browser](browser), frame)
+  var brow = b_to_b(browser)
+  client.OnContextMenuDismissed(brow, frame)
+  release(brow)
+  release(frame)
   
 proc initialize_context_menu_handler(menu: ptr cef_context_menu_handler) =
   init_base(menu)
@@ -88,55 +106,49 @@ proc initialize_context_menu_handler(menu: ptr cef_context_menu_handler) =
   menu.on_context_menu_command = on_context_menu_command
   menu.on_context_menu_dismissed = on_context_menu_dismissed
   
-method OnBeforePopup(self: NCClient, browser: ptr cef_browser, frame: ptr cef_frame,
-    target_url, target_frame_name: ptr cef_string,
-    target_disposition: cef_window_open_disposition, user_gesture: cint,
-    popupFeatures: ptr cef_popup_features,
-    windowInfo: ptr cef_window_info, client: ptr_ptr_cef_client,
-    settings: ptr cef_browser_settings, no_javascript_access: var cint): int {.base.} =
-  result = 0
-  
-method OnAfterCreated(self: NCClient, browser: ptr cef_browser) {.base.} =
-  discard
 
-method RunModal(self: NCClient, browser: ptr cef_browser): int {.base.} =
-  discard
-
-method DoClose(self: NCClient, browser: ptr cef_browser): int {.base.} =
-  discard
-
-method OnBeforeClose(self: NCClient, browser: ptr cef_browser) {.base.} =
-  discard
   
 proc on_before_popup(self: ptr cef_life_span_handler,
     browser: ptr_cef_browser, frame: ptr cef_frame,
     target_url, target_frame_name: ptr cef_string,
     target_disposition: cef_window_open_disposition, user_gesture: cint,
     popupFeatures: ptr cef_popup_features,
-    windowInfo: ptr cef_window_info, client: ptr_ptr_cef_client,
+    windowInfo: ptr cef_window_info, client: var ptr_cef_client,
     settings: ptr cef_browser_settings, no_javascript_access: var cint): cint {.cef_callback.} =
     
   var cliente = get_client(browser)
+  var brow = b_to_b(browser)
   var nja: cint = no_javascript_access
-  result = cliente.OnBeforePopup(cast[ptr cef_browser](browser), frame, target_url, target_frame_name,
+  result = cliente.OnBeforePopup(brow, frame, $target_url, $target_frame_name,
     target_disposition, user_gesture, popupFeatures, windowInfo, client, settings, nja).cint
   no_javascript_access = nja
+  release(brow)
+  release(frame)
+  release(brow)
   
 proc on_after_created(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
-  var client = get_client(browser)
-  client.OnAfterCreated(cast[ptr cef_browser](browser))
+  var client = get_client(browser)  
+  var brow = b_to_b(browser)
+  client.OnAfterCreated(brow)
+  release(brow)
 
 proc run_modal(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.} =
   var client = get_client(browser)
-  result = client.RunModal(cast[ptr cef_browser](browser)).cint
+  var brow = b_to_b(browser)
+  result = client.RunModal(brow).cint
+  release(brow)
 
 proc do_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.} =
   var client = get_client(browser)
-  result = client.DoClose(cast[ptr cef_browser](browser)).cint
+  var brow = b_to_b(browser)
+  result = client.DoClose(brow).cint
+  release(brow)
 
 proc on_before_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
   var client = get_client(browser)
-  client.OnBeforeClose(cast[ptr cef_browser](browser))
+  var brow = b_to_b(browser)
+  client.OnBeforeClose(brow)
+  release(brow)
  
 proc initialize_life_span_handler(span: ptr cef_life_span_handler) =
   init_base(span)
@@ -146,25 +158,27 @@ proc initialize_life_span_handler(span: ptr cef_life_span_handler) =
   span.do_close = do_close
   span.on_before_close = on_before_close
   
-  
+
   
 proc on_before_command_line_processing(self: ptr cef_app,
   process_type: ptr cef_string, command_line: ptr cef_command_line) {.cef_callback.} =
-  discard
-
+  app_to_app(self).OnBeforeCommandLineProcessing($process_type, command_line)
+  release(command_line)
+  
 proc on_register_custom_schemes(self: ptr cef_app, registrar: ptr cef_scheme_registrar) {.cef_callback.} =
-  discard
-
+  app_to_app(self).OnRegisterCustomSchemes(registrar)
+  release(registrar)
+  
 proc get_resource_bundle_handler(self: ptr cef_app): ptr cef_resource_bundle_handler {.cef_callback.} =
-  result = nil
+  result = app_to_app(self).GetResourceBundleHandler()
 
 proc get_browser_process_handler(self: ptr cef_app): ptr cef_browser_process_handler {.cef_callback.} =
-  result = nil
+  result = app_to_app(self).GetBrowserProcessHandler()
   
 proc get_render_process_handler(self: ptr cef_app): ptr cef_render_process_handler {.cef_callback.} =
-  result = nil
+  result = app_to_app(self).GetRenderProcessHandler()
 
-proc initialize_app_handler*(app: ptr cef_app) = 
+proc initialize_app_handler(app: ptr cef_app) = 
   init_base(app)
   app.on_before_command_line_processing = on_before_command_line_processing
   app.on_register_custom_schemes = on_register_custom_schemes
@@ -216,7 +230,10 @@ proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_ca
 proc on_process_message_received(self: ptr cef_client,
   browser: ptr_cef_browser, source_process: cef_process_id,
   message: ptr cef_process_message): cint {.cef_callback.} =
-  result = 0
+  var brow = b_to_b(browser)
+  result = client_to_client(self).OnProcessMessageReceived(brow, source_process, message).cint
+  release(brow)
+  release(message)
     
 proc initialize_client_handler(client: ptr cef_client) =
   init_base(client) 
@@ -257,3 +274,9 @@ proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
   return client
   
 proc GetHandler*(client: NCClient): ptr cef_client = client.client_handler.addr
+
+proc makeNCApp*(T: typedesc): auto =
+  var app = new(T)
+  initialize_app_handler(app.app_handler.addr)
+  return app
+  

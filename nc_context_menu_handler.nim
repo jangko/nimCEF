@@ -18,3 +18,5 @@ method OnContextMenuCommand*(self: NCClient, browser: ptr cef_browser,
 method OnContextMenuDismissed*(self: NCCLient,  browser: ptr cef_browser, 
   frame: ptr cef_frame) {.base.} =
   discard
+  
+include nc_context_menu_internal

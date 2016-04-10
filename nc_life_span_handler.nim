@@ -20,3 +20,5 @@ method DoClose*(self: NCClient, browser: ptr cef_browser): int {.base.} =
 
 method OnBeforeClose*(self: NCClient, browser: ptr cef_browser) {.base.} =
   discard
+  
+include nc_life_span_internal

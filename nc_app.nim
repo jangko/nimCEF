@@ -43,3 +43,11 @@ method GetRenderProcessHandler*(self: NCApp): ptr cef_render_process_handler {.b
   result = nil
   
 proc GetHandler*(app: NCApp): ptr cef_app = app.app_handler.addr
+
+include nc_app_internal
+
+proc makeNCApp*(T: typedesc): auto =
+  var app = new(T)
+  initialize_app_handler(app.app_handler.addr)
+  return app
+  

@@ -18,6 +18,19 @@ proc to_nim_string*(str: cef_string_userfree, dofree = true): string =
   
 proc `$`*(str: ptr cef_string): string = to_nim_string(str, false)
 
+proc string_list_to_nim_and_free*(strlist: cef_string_list): seq[string] =
+  var len = cef_string_list_size(strlist).int
+  result = newSeq[string](len)
+  var res: cef_string
+  for i in 0.. <len:
+    if cef_string_list_value(strlist, i.cint, res.addr) == 1.cint:
+      result[i] = newString(res.length)
+      copyMem(result[i].cstring, res.str, res.length)
+      cef_string_clear(res.addr)    
+    else:
+      result[i] = ""
+  cef_string_list_free(strlist)
+
 template add_ref*(elem: expr) =
   discard elem.base.add_ref(cast[ptr cef_base](elem))
 

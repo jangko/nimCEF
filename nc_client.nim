@@ -19,6 +19,4 @@ method OnProcessMessageReceived*(self: NCClient, browser: ptr cef_browser,
   
 include nc_client_internal
 
-
-  
 proc GetHandler*(client: NCClient): ptr cef_client = client.client_handler.addr

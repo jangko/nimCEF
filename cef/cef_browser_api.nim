@@ -72,7 +72,7 @@ type
   
     # Returns the identifiers of all existing frames.
     get_frame_identifiers*: proc(self: ptr cef_browser,
-      identifiersCount: var csize, identifiers: var int64) {.cef_callback.}
+      identifiersCount: var csize, identifiers: ptr int64) {.cef_callback.}
   
     # Returns the names of all existing frames.
     get_frame_names*: proc(self: ptr cef_browser,

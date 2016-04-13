@@ -17,7 +17,7 @@ import nc_types
 # default to the source browser's values. If the |no_javascript_access| value
 # is set to false (0) the new browser will not be scriptable and may not be
 # hosted in the same renderer process as the source browser.
-method OnBeforePopup*(self: NCClient, browser: ptr cef_browser, frame: ptr cef_frame,
+method OnBeforePopup*(self: NCClient, browser: NCBrowser, frame: NCFrame,
     target_url, target_frame_name: string,
     target_disposition: cef_window_open_disposition, user_gesture: cint,
     popupFeatures: ptr cef_popup_features,
@@ -26,13 +26,13 @@ method OnBeforePopup*(self: NCClient, browser: ptr cef_browser, frame: ptr cef_f
   result = 0
   
 # Called after a new browser is created.
-method OnAfterCreated*(self: NCClient, browser: ptr cef_browser) {.base.} =
+method OnAfterCreated*(self: NCClient, browser: NCBrowser) {.base.} =
   discard
   
 # Called when a modal window is about to display and the modal loop should
 # begin running. Return false (0) to use the default modal loop
 # implementation or true (1) to use a custom implementation.
-method RunModal*(self: NCClient, browser: ptr cef_browser): int {.base.} =
+method RunModal*(self: NCClient, browser: NCBrowser): int {.base.} =
   discard
   
 # Called when a browser has recieved a request to close. This may result
@@ -90,7 +90,7 @@ method RunModal*(self: NCClient, browser: ptr cef_browser): int {.base.} =
 # 11. Application exits by calling cef_quit_message_loop() if no other
 # browsers
 #     exist.
-method DoClose*(self: NCClient, browser: ptr cef_browser): int {.base.} =
+method DoClose*(self: NCClient, browser: NCBrowser): int {.base.} =
   discard
   
 # Called just before a browser is destroyed. Release all references to the
@@ -99,7 +99,7 @@ method DoClose*(self: NCClient, browser: ptr cef_browser): int {.base.} =
 # modal loop implementation was provided in run_modal() this callback should
 # be used to exit the custom modal loop. See do_close() documentation for
 # additional usage information.
-method OnBeforeClose*(self: NCClient, browser: ptr cef_browser) {.base.} =
+method OnBeforeClose*(self: NCClient, browser: NCBrowser) {.base.} =
   discard
   
 include nc_life_span_internal

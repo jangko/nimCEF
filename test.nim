@@ -1,5 +1,6 @@
 import winapi, os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
+import nc_context_menu_params
 
 type
   myClient = ref object of NCClient
@@ -13,7 +14,7 @@ proc newClient(no: int, name: string): myClient =
   result.abc = no
   result.name = name
  
-method OnBeforeClose(self: myClient, browser: ptr cef_browser) =
+method OnBeforeClose(self: myClient, browser: NCBrowser) =
   cef_quit_message_loop()
   echo "close: ", self.name, " no: ", self.abc
   
@@ -21,14 +22,14 @@ const
   MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
   MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
   
-method OnBeforeContextMenu(self: myClient, browser: ptr cef_browser,
-  frame: ptr cef_frame, params: ptr cef_context_menu_params, model: NCMenuModel) =
+method OnBeforeContextMenu(self: myClient, browser: NCBrowser,
+  frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
   discard model.AddSeparator()
   discard model.AddItem(MY_MENU_ID, "Hello There")
   discard model.AddItem(MY_QUIT_ID, "Quit")
   
-method OnContextMenuCommand(self: myClient, browser: ptr cef_browser, 
-  frame: ptr cef_frame, params: ptr cef_context_menu_params, command_id: cef_menu_id, 
+method OnContextMenuCommand(self: myClient, browser: NCBrowser, 
+  frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id, 
   event_flags: cef_event_flags): int =
   
   if command_id == MY_MENU_ID:

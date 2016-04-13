@@ -36,7 +36,7 @@ type
     get_file_size*: proc(self: ptr cef_zip_reader): int64 {.cef_callback.}
   
     # Returns the last modified timestamp for the file.
-    get_file_last_modified*: proc(self: ptr cef_zip_reader): ptr cef_time {.cef_callback.}
+    get_file_last_modified*: proc(self: ptr cef_zip_reader): cef_time {.cef_callback.}
 
     # Opens the file for reading of uncompressed data. A read password may
     # optionally be specified.

@@ -6,8 +6,8 @@ import nc_client, nc_menu_model, nc_context_menu_params, nc_types
 # context menu. The |model| can be cleared to show no context menu or
 # modified to show a custom menu. Do not keep references to |params| or
 # |model| outside of this callback.
-method OnBeforeContextMenu*(self: NCClient, browser: ptr cef_browser,
-  frame: ptr cef_frame, params: NCContextMenuParams, model: NCMenuModel) {.base.} =
+method OnBeforeContextMenu*(self: NCClient, browser: NCBrowser,
+  frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) {.base.} =
   discard
   
 # Called to allow custom display of the context menu. |params| provides
@@ -16,8 +16,8 @@ method OnBeforeContextMenu*(self: NCClient, browser: ptr cef_browser,
 # (1) and execute |callback| either synchronously or asynchronously with the
 # selected command ID. For default display return false (0). Do not keep
 # references to |params| or |model| outside of this callback.
-method RunContextMenu*(self: NCClient, browser: ptr cef_browser, 
-  frame: ptr cef_frame, params: NCContextMenuParams, model: NCMenuModel,
+method RunContextMenu*(self: NCClient, browser: NCBrowser, 
+  frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel,
   callback: ptr cef_run_context_menu_callback): int {.base.} =
   discard
   
@@ -28,15 +28,15 @@ method RunContextMenu*(self: NCClient, browser: ptr cef_browser,
 # MENU_ID_USER_LAST. |params| will have the same values as what was passed to
 # on_before_context_menu(). Do not keep a reference to |params| outside of
 # this callback.
-method OnContextMenuCommand*(self: NCClient, browser: ptr cef_browser, 
-  frame: ptr cef_frame, params: NCContextMenuParams, command_id: cef_menu_id, 
+method OnContextMenuCommand*(self: NCClient, browser: NCBrowser, 
+  frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id, 
   event_flags: cef_event_flags): int {.base.} =
   discard
   
 # Called when the context menu is dismissed irregardless of whether the menu
 # was NULL or a command was selected.
-method OnContextMenuDismissed*(self: NCCLient,  browser: ptr cef_browser, 
-  frame: ptr cef_frame) {.base.} =
+method OnContextMenuDismissed*(self: NCCLient,  browser: NCBrowser, 
+  frame: NCFrame) {.base.} =
   discard
   
 include nc_context_menu_internal

@@ -140,5 +140,5 @@ type
 
 # Create a new cef_xml_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
-proc cef_xml_reader_create*(strem: ptr cef_stream_reader, encodingType: cef_xml_encoding_type,
+proc cef_xml_reader_create*(stream: ptr cef_stream_reader, encodingType: cef_xml_encoding_type,
   URI: ptr cef_string): ptr cef_xml_reader {.cef_import.}

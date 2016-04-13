@@ -432,7 +432,7 @@ proc DragTargetDrop*(self: NCBrowserHost, event: ptr cef_mouse_event) =
 # drag target then all DragTarget* functions should be called before
 # DragSource* mthods. This function is only used when window rendering is
 # disabled.
-proc DragSourceEnded_at*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_mask) =
+proc DragSourceEndedAt*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_mask) =
   self.drag_source_ended_at(self, x.cint, y.cint, op)
 
 # Call this function when the drag operation started by a

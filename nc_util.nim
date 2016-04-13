@@ -11,7 +11,7 @@ proc to_cef_string*(str: string): ptr cef_string =
   discard cef_string_from_utf8(str.cstring, str.len.csize, result)
 
 proc to_nim_string*(str: cef_string_userfree, dofree = true): string =
-  if str == nil: return ""
+  if str == nil: return nil
   var res: cef_string_utf8
   if cef_string_to_utf8(str.str, str.length, res.addr) == 1:
     result = newString(res.length)
@@ -23,7 +23,7 @@ proc to_nim_string*(str: cef_string_userfree, dofree = true): string =
 
 proc `$`*(str: ptr cef_string): string = to_nim_string(str, false)
 
-proc to_nim_and_free*(strlist: cef_string_list): seq[string] =
+proc to_nim_and_free*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
   result = newSeq[string](len)
   var res: cef_string
@@ -34,7 +34,9 @@ proc to_nim_and_free*(strlist: cef_string_list): seq[string] =
       cef_string_clear(res.addr)
     else:
       result[i] = ""
-  cef_string_list_free(strlist)
+  if dofree: cef_string_list_free(strlist)
+
+proc `$`*(list: cef_string_list): seq[string] = to_nim_and_free(list, false)
 
 proc nim_to_string_list*(input: seq[string]): cef_string_list =
   var list = cef_string_list_alloc()

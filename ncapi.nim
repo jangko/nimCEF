@@ -17,8 +17,13 @@ import nc_life_span_handler, nc_types
 #life span handler
 
 proc client_finalizer[T](client: T) =
-  if client.context_menu_handler != nil: freeShared(client.context_menu_handler.addr)
-  if client.life_span_handler != nil: freeShared(client.life_span_handler.addr)
+  if client.context_menu_handler != nil: freeShared(client.context_menu_handler)
+  if client.life_span_handler != nil: freeShared(client.life_span_handler)
+  if client.drag_handler != nil: freeShared(client.drag_handler)
+  if client.display_handler != nil: freeShared(client.display_handler)
+  if client.focus_handler != nil: freeShared(client.focus_handler)
+  if client.keyboard_handler != nil: freeShared(client.keyboard_handler)
+  if client.load_handler != nil: freeShared(client.load_handler)
   
 proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
   var client: T
@@ -33,5 +38,25 @@ proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
   if NCCF_LIFE_SPAN in flags:
     client.life_span_handler = createShared(cef_life_span_handler)
     initialize_life_span_handler(client.life_span_handler)
+    
+  if NCCF_DRAG in flags:
+    client.drag_handler = createShared(cef_drag_handler)
+    initialize_drag_handler(client.drag_handler)
+    
+  if NCCF_DISPLAY in flags:
+    client.display_handler = createShared(cef_display_handler)
+    initialize_display_handler(client.display_handler)
+    
+  if NCCF_FOCUS in flags:
+    client.focus_handler = createShared(cef_focus_handler)
+    initialize_focus_handler(client.focus_handler)
+    
+  if NCCF_KEYBOARD in flags:
+    client.keyboard_handler = createShared(cef_keyboard_handler)
+    initialize_keyboard_handler(client.keyboard_handler)
+    
+  if NCCF_LOAD in flags:
+    client.load_handler = createShared(cef_load_handler)
+    initialize_load_handler(client.load_handler)
     
   return client

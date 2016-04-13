@@ -27,6 +27,9 @@ method OnBeforeContextMenu(self: myClient, browser: NCBrowser,
   discard model.AddSeparator()
   discard model.AddItem(MY_MENU_ID, "Hello There")
   discard model.AddItem(MY_QUIT_ID, "Quit")
+  echo "page URL: ", params.GetPageUrl()
+  echo "frame URL: ", params.GetFrameUrl()
+  echo "link URL: ", params.GetLinkUrl()
   
 method OnContextMenuCommand(self: myClient, browser: NCBrowser, 
   frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id, 

@@ -9,11 +9,21 @@ type
     client_handler*: cef_client
     life_span_handler*: ptr cef_life_span_handler
     context_menu_handler*: ptr cef_context_menu_handler
+    drag_handler*: ptr cef_drag_handler
+    display_handler*: ptr cef_display_handler
+    focus_handler*: ptr cef_focus_handler
+    keyboard_handler*: ptr cef_keyboard_handler
+    load_handler*: ptr cef_load_handler
   
   #choose what kind of handler you want to exposed to your app
   NCClientCreateFlag* = enum
     NCCF_CONTEXT_MENU
     NCCF_LIFE_SPAN
+    NCCF_DRAG
+    NCCF_DISPLAY
+    NCCF_FOCUS
+    NCCF_KEYBOARD
+    NCCF_LOAD
     
   NCCFS* = set[NCClientCreateFlag]
   

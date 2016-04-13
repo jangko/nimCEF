@@ -1,10 +1,18 @@
-import cef/cef_app_api
+import cef/cef_app_api, nc_command_line
 
 type
   # Implement this structure to provide handler implementations. Methods will be
   # called by the process and/or thread indicated.
   NCApp* = ref object of RootObj
     app_handler*: cef_app
+  
+  #choose what kind of handler you want to exposed to your app
+  NCAppCreateFlag* = enum
+    NCAF_RESOURCE_BUNDLE
+    NCAF_BROWSER_PROCESS
+    NCAF_RENDER_PROCESS
+    
+  NCAFS* = set[NCAppCreateFlag]
   
 # Provides an opportunity to view and/or modify command-line arguments before
 # processing by CEF and Chromium. The |process_type| value will be NULL for
@@ -15,7 +23,7 @@ type
 # before this function is called. Be cautious when using this function to
 # modify command-line arguments for non-browser processes as this may result
 # in undefined behavior including crashes.  
-method OnBeforeCommandLineProcessing*(self: NCApp, process_type: string, command_line: ptr cef_command_line) {.base.} =
+method OnBeforeCommandLineProcessing*(self: NCApp, process_type: string, command_line: NCCommandLine) {.base.} =
   discard
 
 # Provides an opportunity to register custom schemes. Do not keep a reference

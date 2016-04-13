@@ -1,4 +1,4 @@
-import nc_internal, cef/cef_life_span_handler_api, nc_util
+import cef/cef_life_span_handler_api, nc_util, nc_types
 include cef/cef_import
 
 proc on_before_popup(self: ptr cef_life_span_handler,

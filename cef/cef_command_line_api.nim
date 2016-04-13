@@ -27,11 +27,11 @@ type
     # Initialize the command line with the specified |argc| and |argv| values.
     # The first argument must be the name of the program. This function is only
     # supported on non-Windows platforms.
-    init_from_argv*: proc(self: ptr cef_command_line, argc: cint, argv: ptr ptr char) {.cef_callback.}    
+    init_from_argv*: proc(self: ptr cef_command_line, argc: cint, argv: ptr cstring) {.cef_callback.}    
   
     # Initialize the command line with the string returned by calling
     # GetCommandLineW(). This function is only supported on Windows.
-    init_from_string*: proc(self: ptr cef_command_line, command_line: cef_string) {.cef_callback.}
+    init_from_string*: proc(self: ptr cef_command_line, command_line: ptr cef_string) {.cef_callback.}
     
     # Reset the command-line switches and arguments but leave the program
     # component unchanged.
@@ -84,11 +84,11 @@ type
     get_arguments*: proc(self: ptr cef_command_line, arguments: cef_string_list) {.cef_callback.}
   
     # Add an argument to the end of the command line.
-    append_argument*: proc(self: ptr cef_command_line, argument: cef_string) {.cef_callback.}
+    append_argument*: proc(self: ptr cef_command_line, argument: ptr cef_string) {.cef_callback.}
   
     # Insert a command before the current command. Common for debuggers, like
     # "valgrind" or "gdb --args".
-    prepend_wrapper*: proc(self: ptr cef_command_line, wrapper: cef_string) {.cef_callback.}
+    prepend_wrapper*: proc(self: ptr cef_command_line, wrapper: ptr cef_string) {.cef_callback.}
       
 # Create a new cef_command_line_t instance.
 proc cef_command_line_create*(): ptr cef_command_line {.cef_import.}

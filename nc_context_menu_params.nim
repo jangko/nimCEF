@@ -86,7 +86,7 @@ proc GetMisspelledWord*(self: NCContextMenuParams): string =
 proc GetDictionarySuggestions*(self: NCContextMenuParams): seq[string] =
   var suggestions = cef_string_list_alloc()
   if self.get_dictionary_suggestions(self, suggestions) == 1.cint:
-    result = string_list_to_nim_and_free(suggestions)
+    result = to_nim_and_free(suggestions)
   else:
     cef_string_list_free(suggestions)
     result = nil

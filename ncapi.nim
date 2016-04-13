@@ -7,7 +7,7 @@ export cef_menu_model_api
 include cef/cef_import
 
 import nc_menu_model, nc_util, nc_process_message, nc_app, nc_client, nc_context_menu_handler
-import nc_life_span_handler, nc_internal
+import nc_life_span_handler, nc_types
 
 #menu model
 #context menu handler

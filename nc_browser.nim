@@ -1,20 +1,46 @@
-import cef/cef_base_api, cef/cef_browser_api, nc_util, nc_process_message
+import nc_types, cef/cef_browser_api, nc_util, nc_process_message
 
 type
-  NCFrame* = ptr cef_frame
-  
-  # Structure used to represent a browser window. When used in the browser
-  # process the functions of this structure may be called on any thread unless
-  # otherwise indicated in the comments. When used in the render process the
-  # functions of this structure may only be called on the main thread.
-  NCBrowser* = ptr cef_browser
-  
-  # Structure used to represent the browser process aspects of a browser window.
-  # The functions of this structure can only be called in the browser process.
-  # They may be called on any thread in that process unless otherwise indicated
-  # in the comments.
-  NCBrowserHost* = ptr cef_browser_host
+  # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
+  # this structure will be called on the browser process UI thread.
+  NCRunFileDialogCallback* = ref object
+    handler: cef_run_file_dialog_callback
+    
+    
+    
+    # Called asynchronously after the file dialog is dismissed.
+    # |selected_accept_filter| is the 0-based index of the value selected from
+    # the accept filters array passed to cef_browser_host_t::RunFileDialog.
+    # |file_paths| will be a single value or a list of values depending on the
+    # dialog mode. If the selection was cancelled |file_paths| will be NULL.
+    
+   # on_file_dialog_dismissed*(self: ptr cef_run_file_dialog_callback, 
+    #  selected_accept_filter: cint, file_paths: cef_string_list) =
 
+  # Callback structure for cef_browser_host_t::GetNavigationEntries. The
+  # functions of this structure will be called on the browser process UI thread.
+
+  #cef_navigation_entry_visitor* = object
+    # Method that will be executed. Do not keep a reference to |entry| outside of
+    # this callback. Return true (1) to continue visiting entries or false (0) to
+    # stop. |current| is true (1) if this entry is the currently loaded
+    # navigation entry. |index| is the 0-based index of this entry and |total| is
+    # the total number of entries.
+  
+   # visit*(self: ptr cef_navigation_entry_visitor,
+    #  entry: ptr cef_navigation_entry, current, index, total: cint): cint =
+
+  # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
+  # structure will be called on the browser process UI thread.
+
+  #cef_pdf_print_callback* = object  
+    # Method that will be executed when the PDF printing has completed. |path| is
+    # the output path. |ok| will be true (1) if the printing completed
+    # successfully or false (0) otherwise.
+  
+    #on_pdf_print_finished*(self: ptr cef_pdf_print_callback, path: ptr cef_string,
+      #ok: cint): cint =
+      
 # Returns the browser host object. This function can only be called in the
 # browser process.
 proc GetHost*(self: NCBrowser): NCBrowserHost =
@@ -101,7 +127,7 @@ proc GetFrameIdentifiers*(self: NCBrowser): seq[int64] =
 # Returns the names of all existing frames.
 proc GetFrameNames*(self: NCBrowser): seq[string] =
   var strlist = cef_string_list_alloc()
-  result = string_list_to_nim_and_free(strlist)
+  result = to_nim_and_free(strlist)
   
 # Send a message to the specified |target_process|. Returns true (1) if the
 # message was sent successfully.
@@ -146,19 +172,22 @@ proc GetOpenerWindowGandle*(self: NCBrowserHost): cef_window_handle =
 
 # Returns the client for this browser.
 proc GetClient*(self: NCBrowserHost): NCClient =
-  result = self.get_client(self)
+  result = client_to_client(self.get_client(self))
 
 # Returns the request context for this browser.
-proc get_request_context*(self: NCBrowserHost): ptr cef_request_context =
+proc GetRequestContext*(self: NCBrowserHost): ptr cef_request_context =
+  result = self.get_request_context(self)
 
 # Get the current zoom level. The default zoom level is 0.0. This function
 # can only be called on the UI thread.
-proc get_zoom_level*(self: NCBrowserHost): cdouble =
+proc GetZoomLevel*(self: NCBrowserHost): float64 =
+  result = self.get_zoom_level(self).float64
 
 # Change the zoom level to the specified value. Specify 0.0 to reset the zoom
 # level. If called on the UI thread the change will be applied immediately.
 # Otherwise, the change will be applied asynchronously on the UI thread.
-proc set_zoom_level*(self: NCBrowserHost, zoomLevel: cdouble) =
+proc SetZoomLevel*(self: NCBrowserHost, zoomLevel: float64) =
+  self.set_zoom_level(self, zoomLevel.cdouble)
 
 # Call to run a file chooser dialog. Only a single file chooser dialog may be
 # pending at any given time. |mode| represents the type of dialog to display.
@@ -174,25 +203,38 @@ proc set_zoom_level*(self: NCBrowserHost, zoomLevel: cdouble) =
 # selected by default. |callback| will be executed after the dialog is
 # dismissed or immediately if another dialog is already pending. The dialog
 # will be initiated asynchronously on the UI thread.
-proc run_file_dialog*(self: NCBrowserHost,
-  mode: cef_file_dialog_mode, title, default_file_path: ptr cef_string, 
-  accept_filters: cef_string_list, selected_accept_filter: cint,
+proc RunFileDialog*(self: NCBrowserHost,
+  mode: cef_file_dialog_mode, title, default_file_path: string, 
+  accept_filters: seq[string], selected_accept_filter: int,
   callback: ptr cef_run_file_dialog_callback) =
+  
+  let ctitle = to_cef_string(title)
+  let cpath = to_cef_string(default_file_path)
+  let clist = nim_to_string_list(accept_filters)
+  self.run_file_dialog(self, mode, ctitle, cpath, clist, selected_accept_filter.cint, callback)
+  cef_string_list_free(clist)
+  cef_string_userfree_free(ctitle)
+  cef_string_userfree_free(cpath)
 
 # Download the file at |url| using cef_download_handler_t.
-proc start_download*(self: NCBrowserHost,
-  url: ptr cef_string) =
+proc StartDownload*(self: NCBrowserHost, url: string) =
+  let curl = to_cef_string(url)
+  self.start_download(self, curl)
+  cef_string_userfree_free(curl)
 
 # Print the current browser contents.
-proc print*(self: NCBrowserHost) =
+proc Print*(self: NCBrowserHost) =
+  self.print(self)
 
 # Print the current browser contents to the PDF file specified by |path| and
 # execute |callback| on completion. The caller is responsible for deleting
 # |path| when done. For PDF printing to work on Linux you must implement the
 # cef_print_handler_t::GetPdfPaperSize function.
-proc print_to_pdf*(self: NCBrowserHost,
-  path: ptr cef_string, settings: ptr cef_pdf_print_settings,
+proc PrintToPdf*(self: NCBrowserHost, path: string, settings: ptr cef_pdf_print_settings,
   callback: ptr cef_pdf_print_callback) =
+  let cpath = to_cef_string(path)
+  self.print_to_pdf(self, cpath, settings, callback)
+  cef_string_userfree_free(cpath)
 
 # Search for |searchText|. |identifier| can be used to have multiple searches
 # running simultaniously. |forward| indicates whether to search forward or
@@ -200,61 +242,72 @@ proc print_to_pdf*(self: NCBrowserHost,
 # be case-sensitive. |findNext| indicates whether this is the first request
 # or a follow-up. The cef_find_handler_t instance, if any, returned via
 # cef_client_t::GetFindHandler will be called to report find results.    
-proc find*(self: NCBrowserHost, identifier: cint,
-  searchText: ptr cef_string, forward, matchCase: cint,
-  findNext: cint) =
+proc Find*(self: NCBrowserHost, identifier: int,
+  searchText: string, forward, matchCase, findNext: bool) =
+  let ctext = to_cef_string(searchText)
+  self.find(self, identifier.cint, ctext, forward.cint, matchCase.cint, findNext.cint)
+  cef_string_userfree_free(ctext)
 
 # Cancel all searches that are currently going on.
-proc stop_finding*(self: NCBrowserHost,
-  clearSelection: cint) =
+proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
+  self.stop_finding(self, clearSelection.cint)
 
 # Open developer tools in its own window. If |inspect_element_at| is non-
 # NULL the element at the specified (x,y) location will be inspected.
-proc show_dev_tools*(self: NCBrowserHost,
-    windowInfo: ptr cef_window_info,
-    client: ptr cef_client,
-    setting: ptr cef_browser_settings,
-    inspect_element_at: ptr cef_point) =
+proc ShowDevTools*(self: NCBrowserHost, windowInfo: ptr cef_window_info, client: NCClient,
+  setting: ptr cef_browser_settings, inspect_element_at: ptr cef_point) =
+  self.show_dev_tools(self, windowInfo, to_cclient(client), setting, inspect_element_at)
 
 # Explicitly close the developer tools window if one exists for this browser
 # instance.
-proc close_dev_tools*(self: NCBrowserHost) =
+proc CloseDevTools*(self: NCBrowserHost) =
+  self.close_dev_tools(self)
 
 # Retrieve a snapshot of current navigation entries as values sent to the
 # specified visitor. If |current_only| is true (1) only the current
 # navigation entry will be sent, otherwise all navigation entries will be
 # sent.
-proc get_navigation_entries*(self: NCBrowserHost,
-    visitor: ptr cef_navigation_entry_visitor, current_only: cint) =
-
+proc GetNavigationEntries*(self: NCBrowserHost,
+  visitor: ptr cef_navigation_entry_visitor, current_only: bool) =
+  self.get_navigation_entries(self, visitor, current_only.cint)
+  
 # Set whether mouse cursor change is disabled.
-proc set_mouse_cursor_change_disabled*(self: NCBrowserHost, disabled: cint) =
+proc SetMouseCursorChangeDisabled*(self: NCBrowserHost, disabled: bool) =
+  self.set_mouse_cursor_change_disabled(self, disabled.cint)
 
 # Returns true (1) if mouse cursor change is disabled.
-proc is_mouse_cursor_change_disabled*(self: NCBrowserHost): cint =
+proc IsMouseCursorChangeDisabled*(self: NCBrowserHost): bool =
+  self.is_mouse_cursor_change_disabled(self) == 1.cint
 
 # If a misspelled word is currently selected in an editable node calling this
 # function will replace it with the specified |word|.
-proc replace_misspelling*(self: NCBrowserHost,
-  word: ptr cef_string) =
+proc ReplaceMisspelling*(self: NCBrowserHost, word: string) =
+  let cword = to_cef_string(word)
+  self.replace_misspelling(self, cword)
+  cef_string_userfree_free(cword)
 
 # Add the specified |word| to the spelling dictionary.
-proc add_word_to_dictionary*(self: NCBrowserHost,
-  word: ptr cef_string) =
-
+proc AddWordToDictionary*(self: NCBrowserHost, word: string) =
+  let cword = to_cef_string(word)
+  self.add_word_to_dictionary(self, cword)
+  cef_string_userfree_free(cword)
+  
 # Returns true (1) if window rendering is disabled.
-proc is_window_rendering_disabled*(self: NCBrowserHost): cint =
+proc IsWindowRenderingDisabled*(self: NCBrowserHost): bool =
+  self.is_window_rendering_disabled(self) == 1.cint
 
 # Notify the browser that the widget has been resized. The browser will first
 # call cef_render_handler_t::GetViewRect to get the new size and then call
 # cef_render_handler_t::OnPaint asynchronously with the updated regions. This
 # function is only used when window rendering is disabled.
-proc was_resized*(self: NCBrowserHost) =
+proc WasResized*(self: NCBrowserHost) =
+  self.was_resized(self)
 
 # Notify the browser that it has been hidden or shown. Layouting and
 # cef_render_handler_t::OnPaint notification will stop when the browser is
 # hidden. This function is only used when window rendering is disabled.
-proc was_hidden*(self: NCBrowserHost, hidden: cint) =
+proc WasHidden*(self: NCBrowserHost, hidden: bool) =
+  self.was_hidden(self, hidden.cint)
 
 # Send a notification to the browser that the screen info has changed. The
 # browser will then call cef_render_handler_t::GetScreenInfo to update the
@@ -262,74 +315,82 @@ proc was_hidden*(self: NCBrowserHost, hidden: cint) =
 # window from one display to another, or changing the properties of the
 # current display. This function is only used when window rendering is
 # disabled.
-proc notify_screen_info_changed*(self: NCBrowserHost) =
+proc NotifyScreenInfoChanged*(self: NCBrowserHost) =
+  self.notify_screen_info_changed(self)
 
 # Invalidate the view. The browser will call cef_render_handler_t::OnPaint
 # asynchronously. This function is only used when window rendering is
 # disabled.
-proc invalidate*(self: NCBrowserHost,
-  ptype: cef_paint_element_type) =
+proc Invalidate*(self: NCBrowserHost, ptype: cef_paint_element_type) =
+  self.invalidate(self, ptype)
 
 # Send a key event to the browser.
-proc send_key_event*(self: NCBrowserHost,
-  event: ptr cef_key_event) =
+proc SendKeyEvent*(self: NCBrowserHost, event: ptr cef_key_event) =
+  self.send_key_event(self, event)
 
 # Send a mouse click event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
-proc send_mouse_click_event*(self: NCBrowserHost,
-  event: ptr cef_mouse_event, ptype: cef_mouse_button_type,
-  mouseUp: cint, clickCount: cint) =
+proc SendMouseClickEvent*(self: NCBrowserHost, event: ptr cef_mouse_event, 
+  ptype: cef_mouse_button_type, mouseUp: bool, clickCount: int) =
+  self.send_mouse_click_event(self, event, ptype, mouseUp.cint, clickCount.cint)
 
 # Send a mouse move event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
-proc send_mouse_move_event*(self: NCBrowserHost,
-  event: ptr cef_mouse_event, mouseLeave: cint) =
+proc SendMouseMoveEvent*(self: NCBrowserHost,
+  event: ptr cef_mouse_event, mouseLeave: bool) =
+  self.send_mouse_move_event(self, event, mouseLeave.cint)
 
 # Send a mouse wheel event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view. The |deltaX| and |deltaY|
 # values represent the movement delta in the X and Y directions respectively.
 # In order to scroll inside select popups with window rendering disabled
 # cef_render_handler_t::GetScreenPoint should be implemented properly.
-proc send_mouse_wheel_event*(self: NCBrowserHost,
-   event: ptr cef_mouse_event, deltaX, deltaY: cint) =
+proc SendMouseWheelEvent*(self: NCBrowserHost,
+   event: ptr cef_mouse_event, deltaX, deltaY: int) =
+   self.send_mouse_wheel_event(self, event, deltaX.cint, deltaY.cint)
 
 # Send a focus event to the browser.
-proc send_focus_event*(self: NCBrowserHost,
-  setFocus: cint) =
+proc SendFocusEvent*(self: NCBrowserHost, setFocus: bool) =
+  self.send_focus_event(self, setFocus.cint)
 
 # Send a capture lost event to the browser.
-proc send_capture_lost_event*(self: NCBrowserHost) =
+proc SendCaptureLostEvent*(self: NCBrowserHost) =
+  self.send_capture_lost_event(self)
 
 # Notify the browser that the window hosting it is about to be moved or
 # resized. This function is only used on Windows and Linux.
-proc notify_move_or_resize_started*(self: NCBrowserHost) =
+proc NotifyMoveOrResizeStarted*(self: NCBrowserHost) =
+  self.notify_move_or_resize_started(self)
 
 # Returns the maximum rate in frames per second (fps) that
 # cef_render_handler_t:: OnPaint will be called for a windowless browser. The
 # actual fps may be lower if the browser cannot generate frames at the
 # requested rate. The minimum value is 1 and the maximum value is 60 (default
 # 30). This function can only be called on the UI thread.
-proc get_windowless_frame_rate*(self: NCBrowserHost): cint =
+proc GetWindowlessFrameRate*(self: NCBrowserHost): int =
+  self.get_windowless_frame_rate(self).int
 
 # Set the maximum rate in frames per second (fps) that cef_render_handler_t::
 # OnPaint will be called for a windowless browser. The actual fps may be
 # lower if the browser cannot generate frames at the requested rate. The
 # minimum value is 1 and the maximum value is 60 (default 30). Can also be
 # set at browser creation via cef_browser_tSettings.windowless_frame_rate.
-proc set_windowless_frame_rate*(self: NCBrowserHost, frame_rate: cint) =
+proc SetWindowlessFrameRate*(self: NCBrowserHost, frame_rate: int) =
+  self.set_windowless_frame_rate(self, frame_rate.cint)
 
 # Get the NSTextInputContext implementation for enabling IME on Mac when
 # window rendering is disabled.
-proc get_nstext_input_context*:proc(self: NCBrowserHost): cef_text_input_context =
+proc GetNstextInputContext*(self: NCBrowserHost): cef_text_input_context =
+  self.get_nstext_input_context(self)
 
 # Handles a keyDown event prior to passing it through the NSTextInputClient
 # machinery.
-proc handle_key_event_before_text_input_client*(self: NCBrowserHost, 
-  keyEvent: cef_event_handle) =
+proc HandleKeyEventBeforeTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
+  self.handle_key_event_before_text_input_client(self, keyEvent)
 
 # Performs any additional actions after NSTextInputClient handles the event.
-proc handle_key_event_after_text_input_client*(self: NCBrowserHost, 
-  keyEvent: cef_event_handle) =
+proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
+  self.handle_key_event_after_text_input_client(self, keyEvent)
 
 # Call this function when the user drags the mouse into the web view (before
 # calling DragTargetDragOver/DragTargetLeave/DragTargetDrop). |drag_data|
@@ -338,31 +399,31 @@ proc handle_key_event_after_text_input_client*(self: NCBrowserHost,
 # cef_drag_data_t::ResetFileContents (for example, if |drag_data| comes from
 # cef_render_handler_t::StartDragging). This function is only used when
 # window rendering is disabled.
-proc drag_target_drag_enter*(self: NCBrowserHost,
-  drag_data: ptr cef_drag_data,
-  event: ptr cef_mouse_event,
-  allowed_ops: cef_drag_operations_mask) =
+proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: ptr cef_drag_data, 
+  event: ptr cef_mouse_event, allowed_ops: cef_drag_operations_mask) =
+  self.drag_target_drag_enter(self, drag_data, event, allowed_ops)
 
 # Call this function each time the mouse is moved across the web view during
 # a drag operation (after calling DragTargetDragEnter and before calling
 # DragTargetDragLeave/DragTargetDrop). This function is only used when window
 # rendering is disabled.
-proc drag_target_drag_over*(self: NCBrowserHost,
-  event: ptr cef_mouse_event,
+proc DragTargetDragOver*(self: NCBrowserHost, event: ptr cef_mouse_event,
   allowed_ops: cef_drag_operations_mask) =
+  self.drag_target_drag_over(self, event, allowed_ops)
 
 # Call this function when the user drags the mouse out of the web view (after
 # calling DragTargetDragEnter). This function is only used when window
 # rendering is disabled.
-proc drag_target_drag_leave*(self: NCBrowserHost) =
+proc DragTargetDragLeave*(self: NCBrowserHost) =
+  self.drag_target_drag_leave(self)
 
 # Call this function when the user completes the drag operation by dropping
 # the object onto the web view (after calling DragTargetDragEnter). The
 # object being dropped is |drag_data|, given as an argument to the previous
 # DragTargetDragEnter call. This function is only used when window rendering
 # is disabled.
-proc drag_target_drop*(self: NCBrowserHost,
-  event: ptr cef_mouse_event) =
+proc DragTargetDrop*(self: NCBrowserHost, event: ptr cef_mouse_event) =
+  self.drag_target_drop(self, event)
 
 # Call this function when the drag operation started by a
 # cef_render_handler_t::StartDragging call has ended either in a drop or by
@@ -371,8 +432,8 @@ proc drag_target_drop*(self: NCBrowserHost,
 # drag target then all DragTarget* functions should be called before
 # DragSource* mthods. This function is only used when window rendering is
 # disabled.
-proc drag_source_ended_at*(self: NCBrowserHost,
-  x, y: cint, op: cef_drag_operations_mask) =
+proc DragSourceEnded_at*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_mask) =
+  self.drag_source_ended_at(self, x.cint, y.cint, op)
 
 # Call this function when the drag operation started by a
 # cef_render_handler_t::StartDragging call has completed. This function may
@@ -380,40 +441,6 @@ proc drag_source_ended_at*(self: NCBrowserHost,
 # drag operation. If the web view is both the drag source and the drag target
 # then all DragTarget* functions should be called before DragSource* mthods.
 # This function is only used when window rendering is disabled.
-proc drag_source_system_drag_ended*(self: NCBrowserHost) =
+proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
+  self.drag_source_system_drag_ended(self)
  
-  # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
-  # this structure will be called on the browser process UI thread.
-  cef_run_file_dialog_callback* = object
-    # Called asynchronously after the file dialog is dismissed.
-    # |selected_accept_filter| is the 0-based index of the value selected from
-    # the accept filters array passed to cef_browser_host_t::RunFileDialog.
-    # |file_paths| will be a single value or a list of values depending on the
-    # dialog mode. If the selection was cancelled |file_paths| will be NULL.
-    
-    on_file_dialog_dismissed*(self: ptr cef_run_file_dialog_callback, 
-      selected_accept_filter: cint, file_paths: cef_string_list) =
-
-  # Callback structure for cef_browser_host_t::GetNavigationEntries. The
-  # functions of this structure will be called on the browser process UI thread.
-
-  cef_navigation_entry_visitor* = object
-    # Method that will be executed. Do not keep a reference to |entry| outside of
-    # this callback. Return true (1) to continue visiting entries or false (0) to
-    # stop. |current| is true (1) if this entry is the currently loaded
-    # navigation entry. |index| is the 0-based index of this entry and |total| is
-    # the total number of entries.
-  
-    visit*(self: ptr cef_navigation_entry_visitor,
-      entry: ptr cef_navigation_entry, current, index, total: cint): cint =
-
-  # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
-  # structure will be called on the browser process UI thread.
-
-  cef_pdf_print_callback* = object  
-    # Method that will be executed when the PDF printing has completed. |path| is
-    # the output path. |ok| will be true (1) if the printing completed
-    # successfully or false (0) otherwise.
-  
-    on_pdf_print_finished*(self: ptr cef_pdf_print_callback, path: ptr cef_string,
-      ok: cint): cint =

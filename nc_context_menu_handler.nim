@@ -1,5 +1,5 @@
 import cef/cef_base_api, cef/cef_browser_api, cef/cef_context_menu_handler_api
-import nc_client, nc_menu_model, nc_context_menu_params
+import nc_client, nc_menu_model, nc_context_menu_params, nc_types
 
 # Called before a context menu is displayed. |params| provides information
 # about the context menu state. |model| initially contains the default

@@ -1,4 +1,4 @@
-import cef/cef_base_api, nc_util, nc_internal
+import cef/cef_base_api, nc_util, nc_types
 include cef/cef_import
 
 proc on_before_command_line_processing(self: ptr cef_app,

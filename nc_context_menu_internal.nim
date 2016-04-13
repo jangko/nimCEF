@@ -1,4 +1,4 @@
-import nc_internal, cef/cef_menu_model_api, cef/cef_callback_api, nc_util
+import nc_types, cef/cef_menu_model_api, cef/cef_callback_api, nc_util
 include cef/cef_import
 
 proc on_before_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_browser,

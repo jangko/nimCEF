@@ -1,5 +1,5 @@
 import cef/cef_base_api, cef/cef_browser_api, cef/cef_frame_api
-import nc_client
+import nc_types
 
 # Called on the IO thread before a new popup browser is created. The
 # |browser| and |frame| values represent the source of the popup request. The

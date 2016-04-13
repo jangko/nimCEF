@@ -1,4 +1,4 @@
-import cef/cef_base_api, nc_browser, cef/cef_browser_api, nc_util
+import nc_browser, nc_util, nc_types
 import cef/cef_string_visitor_api, cef/cef_request_api
 import cef/cef_v8_api, cef/cef_dom_api
 
@@ -8,7 +8,7 @@ import cef/cef_v8_api, cef/cef_dom_api
 # the functions of this structure may only be called on the main thread.
 
 #type
-#  NCFrame* = ptr cef_frame  #moved to nc_browser.nim to avoid circular import
+#  NCFrame* = ptr cef_frame  #moved to nc_types.nim to avoid circular import
   
 # True if this object is currently attached to a valid frame.
 proc IsValid*(self: NCFrame): bool =

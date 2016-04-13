@@ -1,5 +1,5 @@
 import winapi, os, strutils
-import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi
+import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
 
 type
   myClient = ref object of NCClient

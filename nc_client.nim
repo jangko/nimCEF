@@ -1,5 +1,9 @@
 import cef/cef_base_api, cef/cef_client_api, cef/cef_browser_api
-import nc_process_message, nc_types
+
+import cef/cef_resource_handler_api, cef/cef_response_api, cef/cef_response_filter_api
+import cef/cef_auth_callback_api, cef/cef_ssl_info_api
+
+import nc_process_message, nc_types, nc_download_item, nc_request
 
 #moved to nc_types.nim to avoid circular import
 #type
@@ -228,6 +232,258 @@ method UpdateDragCursor*(self: NCClient, browser: NCBrowser, operation: cef_drag
 method OnScrollOffsetChanged*(self: NCClient, browser: NCBrowser, x, y: float64) {.base.} =
   discard
   
+  
+#--Dialog Handler
+# Called to run a file chooser dialog. |mode| represents the type of dialog
+# to display. |title| to the title to be used for the dialog and may be NULL
+# to show the default title ("Open" or "Save" depending on the mode).
+# |default_file_path| is the path with optional directory and/or file name
+# component that should be initially selected in the dialog. |accept_filters|
+# are used to restrict the selectable file types and may any combination of
+# (a) valid lower-cased MIME types (e.g. "text/*" or "image/*"), (b)
+# individual file extensions (e.g. ".txt" or ".png"), or (c) combined
+# description and file extension delimited using "|" and ";" (e.g. "Image
+# Types|.png;.gif;.jpg"). |selected_accept_filter| is the 0-based index of
+# the filter that should be selected by default. To display a custom dialog
+# return true (1) and execute |callback| either inline or at a later time. To
+# display the default dialog return false (0).
+method OnFileDialog*(self: NCClient,
+  browser: NCBrowser, mode: cef_file_dialog_mode,
+  title, default_file_path: string,
+  accept_filters: seq[string], selected_accept_filter: int,
+  callback: ptr cef_file_dialog_callback): bool {.base.} =
+  result = false
+
+  #--Download Handler
+# Called before a download begins. |suggested_name| is the suggested name for
+# the download file. By default the download will be canceled. Execute
+# |callback| either asynchronously or in this function to continue the
+# download if desired. Do not keep a reference to |download_item| outside of
+# this function.
+method OnBeforeDownload*(self: NCClient, browser: NCBrowser,
+  download_item: NCDownloadItem, suggested_name: string,
+  callback: ptr cef_before_download_callback) {.base.} =
+  discard
+
+# Called when a download's status or progress information has been updated.
+# This may be called multiple times before and after on_before_download().
+# Execute |callback| either asynchronously or in this function to cancel the
+# download if desired. Do not keep a reference to |download_item| outside of
+# this function.
+method OnDownloadUpdated*(self: NCClient, browser: NCBrowser,
+  download_item: NCDownloadItem, callback: ptr cef_download_item_callback) {.base.} =
+  discard
+ 
+#--Geolocation Handler
+# Called when a page requests permission to access geolocation information.
+# |requesting_url| is the URL requesting permission and |request_id| is the
+# unique ID for the permission request. Return true (1) and call
+# cef_geolocation_callback_t::cont() either in this function or at a later
+# time to continue or cancel the request. Return false (0) to cancel the
+# request immediately.
+method OnRequestGeolocationPermission*(self: NCClient, 
+  browser: NCBrowser, requesting_url: string, request_id: int,
+  callback: ptr cef_geolocation_callback): bool {.base.} =
+  result = false
+
+# Called when a geolocation access request is canceled. |request_id| is the
+# unique ID for the permission request.
+method OnCancelGeolocationPermission*(self: NCClient, 
+  browser: NCBrowser, request_id: int) {.base.} =
+  discard
+
+#--JSDialog Handler
+# Called to run a JavaScript dialog. If |origin_url| and |accept_lang| are
+# non-NULL they can be passed to the CefFormatUrlForSecurityDisplay function
+# to retrieve a secure and user-friendly display string. The
+# |default_prompt_text| value will be specified for prompt dialogs only. Set
+# |suppress_message| to true (1) and return false (0) to suppress the message
+# (suppressing messages is preferable to immediately executing the callback
+# as this is used to detect presumably malicious behavior like spamming alert
+# messages in onbeforeunload). Set |suppress_message| to false (0) and return
+# false (0) to use the default implementation (the default implementation
+# will show one modal dialog at a time and suppress any additional dialog
+# requests until the displayed dialog is dismissed). Return true (1) if the
+# application will use a custom dialog or if the callback has been executed
+# immediately. Custom dialogs may be either modal or modeless. If a custom
+# dialog is used the application must execute |callback| once the custom
+# dialog is dismissed.
+method OnJsdialog*(self: NCClient,
+    browser: NCBrowser, origin_url, accept_lang: string, 
+    dialog_type: cef_jsdialog_type,
+    message_text, default_prompt_text: string,
+    callback: ptr cef_jsdialog_callback, suppress_message: var bool): bool {.base.} =
+    result = false
+
+# Called to run a dialog asking the user if they want to leave a page. Return
+# false (0) to use the default dialog implementation. Return true (1) if the
+# application will use a custom dialog or if the callback has been executed
+# immediately. Custom dialogs may be either modal or modeless. If a custom
+# dialog is used the application must execute |callback| once the custom
+# dialog is dismissed.
+method OnBeforeUnloadDialog*(self: NCClient, 
+  browser: NCBrowser, message_text: string, is_reload: bool,
+  callback: ptr cef_jsdialog_callback): bool {.base.} =
+  result = false
+
+# Called to cancel any pending dialogs and reset any saved dialog state. Will
+# be called due to events like page navigation irregardless of whether any
+# dialogs are currently pending.
+method OnResetDialogState*(self: NCClient, browser: NCBrowser) {.base.} =
+  discard
+
+# Called when the default implementation dialog is closed.
+method OnDialogClosed*(self: NCClient, browser: NCBrowser) {.base.} =
+  discard
+      
+#--Request Handler      
+# Called on the UI thread before browser navigation. Return true (1) to
+# cancel the navigation or false (0) to allow the navigation to proceed. The
+# |request| object cannot be modified in this callback.
+# cef_load_handler_t::OnLoadingStateChange will be called twice in all cases.
+# If the navigation is allowed cef_load_handler_t::OnLoadStart and
+# cef_load_handler_t::OnLoadEnd will be called. If the navigation is canceled
+# cef_load_handler_t::OnLoadError will be called with an |errorCode| value of
+# ERR_ABORTED.
+method OnBeforeBrowse*(self: NCClient, browser: NCBrowser, frame: NCFrame,
+  request: NCRequest, is_redirect: bool): bool {.base.} =
+  result = false
+
+# Called on the UI thread before OnBeforeBrowse in certain limited cases
+# where navigating a new or different browser might be desirable. This
+# includes user-initiated navigation that might open in a special way (e.g.
+# links clicked via middle-click or ctrl + left-click) and certain types of
+# cross-origin navigation initiated from the renderer process (e.g.
+# navigating the top-level frame to/from a file URL). The |browser| and
+# |frame| values represent the source of the navigation. The
+# |target_disposition| value indicates where the user intended to navigate
+# the browser based on standard Chromium behaviors (e.g. current tab, new
+# tab, etc). The |user_gesture| value will be true (1) if the browser
+# navigated via explicit user gesture (e.g. clicking a link) or false (0) if
+# it navigated automatically (e.g. via the DomContentLoaded event). Return
+# true (1) to cancel the navigation or false (0) to allow the navigation to
+# proceed in the source browser's top-level frame.
+method OnOpenUrlFromTab*(self: NCClient, browser: NCBrowser, frame: NCFrame, target_url: string,
+  target_disposition: cef_window_open_disposition, user_gesture: bool): bool {.base.} =
+  result = false
+
+# Called on the IO thread before a resource request is loaded. The |request|
+# object may be modified. Return RV_CONTINUE to continue the request
+# immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
+# cont() at a later time to continue or cancel the request asynchronously.
+# Return RV_CANCEL to cancel the request immediately.
+method OnBeforeResourceLoad*(self: NCClient, 
+  browser: NCBrowser, frame: NCFrame, request: NCRequest,
+  callback: ptr cef_request_callback): cef_return_value {.base.} =
+  discard
+
+# Called on the IO thread before a resource is loaded. To allow the resource
+# to load normally return NULL. To specify a handler for the resource return
+# a cef_resource_handler_t object. The |request| object should not be
+# modified in this callback.
+method GetResourceHandler*(self: NCClient, browser: NCBrowser,
+  frame: NCFrame, request: NCRequest): ptr cef_resource_handler {.base.} =
+  result = nil
+
+# Called on the IO thread when a resource load is redirected. The |request|
+# parameter will contain the old URL and other request-related information.
+# The |new_url| parameter will contain the new URL and can be changed if
+# desired. The |request| object cannot be modified in this callback.
+method OnResourceRedirect*(self: NCClient, browser: NCBrowser, frame: NCFrame,
+  request: NCRequest, new_url: string) {.base.} =
+  discard
+
+# Called on the IO thread when a resource response is received. To allow the
+# resource to load normally return false (0). To redirect or retry the
+# resource modify |request| (url, headers or post body) and return true (1).
+# The |response| object cannot be modified in this callback.
+method OnResourceResponse*(self: NCClient,
+  browser: NCBrowser, frame: NCFrame,
+  request: NCRequest, response: ptr cef_response): bool {.base.} =
+  result = false
+
+# Called on the IO thread to optionally filter resource response content.
+# |request| and |response| represent the request and response respectively
+# and cannot be modified in this callback.
+method GetResourceResponseFilter*(self: NCClient, browser: NCBrowser,
+  frame: NCFrame, request: NCRequest,
+  response: ptr cef_response): ptr cef_response_filter {.base.} =
+  result = nil
+
+# Called on the IO thread when a resource load has completed. |request| and
+# |response| represent the request and response respectively and cannot be
+# modified in this callback. |status| indicates the load completion status.
+# |received_content_length| is the number of response bytes actually read.
+method OnResourceLoadComplete*(self: NCClient, browser: NCBrowser,
+  frame: NCFrame, request: NCRequest,
+  response: ptr cef_response, status: cef_urlrequest_status,
+  received_content_length: int64) {.base.} =
+  discard
+
+# Called on the IO thread when the browser needs credentials from the user.
+# |isProxy| indicates whether the host is a proxy server. |host| contains the
+# hostname and |port| contains the port number. |realm| is the realm of the
+# challenge and may be NULL. |scheme| is the authentication scheme used, such
+# as "basic" or "digest", and will be NULL if the source of the request is an
+# FTP server. Return true (1) to continue the request and call
+# cef_auth_callback_t::cont() either in this function or at a later time when
+# the authentication information is available. Return false (0) to cancel the
+# request immediately.
+method GetAuthCredentials*(self: NCClient, browser: NCBrowser, frame: NCFrame, isProxy: bool,
+  host: string, port: int, realm: string,
+  scheme: string, callback: ptr cef_auth_callback): bool {.base.} =
+  result = false
+
+# Called on the IO thread when JavaScript requests a specific storage quota
+# size via the webkitStorageInfo.requestQuota function. |origin_url| is the
+# origin of the page making the request. |new_size| is the requested quota
+# size in bytes. Return true (1) to continue the request and call
+# cef_request_tCallback::cont() either in this function or at a later time to
+# grant or deny the request. Return false (0) to cancel the request
+# immediately.
+method OnQuotaRequest*(self: NCClient,
+  browser: NCBrowser, origin_url: string,
+  new_size: int64, callback: ptr cef_request_callback): bool {.base.} =
+  result = false
+
+# Called on the UI thread to handle requests for URLs with an unknown
+# protocol component. Set |allow_os_execution| to true (1) to attempt
+# execution via the registered OS protocol handler, if any. SECURITY WARNING:
+# YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR
+# OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
+method OnProtocolExecution*(self: NCClient, browser: NCBrowser,
+  url: string, allow_os_execution: var bool) {.base.} =
+  discard
+
+# Called on the UI thread to handle requests for URLs with an invalid SSL
+# certificate. Return true (1) and call cef_request_tCallback::cont() either
+# in this function or at a later time to continue or cancel the request.
+# Return false (0) to cancel the request immediately. If
+# CefSettings.ignore_certificate_errors is set all invalid certificates will
+# be accepted without calling this function.
+method OnCertificateError*(self: NCClient,
+    browser: NCBrowser, cert_error: cef_errorcode,
+    request_url: string, ssl_info: ptr cef_sslinfo,
+    callback: ptr cef_request_callback): bool {.base.} =
+  result = false
+
+# Called on the browser process UI thread when a plugin has crashed.
+# |plugin_path| is the path of the plugin that crashed.
+method OnPluginCrashed*(self: NCClient, browser: NCBrowser, plugin_path: string) {.base.} =
+  discard
+
+# Called on the browser process UI thread when the render view associated
+# with |browser| is ready to receive/handle IPC messages in the render
+# process.
+method OnRenderViewReady*(self: NCClient, browser: NCBrowser) {.base.} =
+  discard
+
+# Called on the browser process UI thread when the render process terminates
+# unexpectedly. |status| indicates how the process terminated.
+method OnRenderProcessTerminated*(self: NCClient, browser: NCBrowser,
+  status: cef_termination_status) {.base.} =
+  discard
+      
 include nc_client_internal
 
 proc GetHandler*(client: NCClient): ptr cef_client = client.client_handler.addr

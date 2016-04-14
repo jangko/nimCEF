@@ -20,8 +20,8 @@ And many of the ref-count related issues already handled for you.
 
 | No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver |
 |----|-----------------------|----------|---------|----------|---------|----------|---------|
-| 1  | CEF3 C API            | complete | ongoing | complete | ongoing | ongoing  | 0.13.0  |
+| 1  | CEF3 C API            | complete | 98%     | complete | 98%     | 90%      | 0.13.0  |
 | 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0  |
 | 3  | Simple Client Example | yes      | no      | yes      | no      | no       | 0.13.0  |
 | 4  | CefClient Example     | no       | no      | no       | no      | no       | 0.13.0  |
-| 5  | Convenience Layer     | 16%      | no      | 16%      | no      | no       | 0.13.0  |
+| 5  | Convenience Layer     | 17%      | no      | 17%      | no      | no       | 0.13.0  |

@@ -39,7 +39,7 @@ proc get_load_handler(self: ptr cef_client): ptr cef_load_handler {.cef_callback
   result = client_to_client(self).load_handler
 
 proc get_render_handler(self: ptr cef_client): ptr cef_render_handler {.cef_callback.} =
-  result = nil
+  result = client_to_client(self).render_handler
 
 proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_callback.} =
   result = nil
@@ -85,9 +85,9 @@ proc on_draggable_regions_changed(self: ptr cef_drag_handler, browser: ptr_cef_b
   release(brow)
     
 proc initialize_drag_handler*(drag: ptr cef_drag_handler) =
+  init_base(drag)
   drag.on_drag_enter = on_drag_enter
   drag.on_draggable_regions_changed = on_draggable_regions_changed
-  
   
 proc on_address_change(self: ptr cef_display_handler, browser: ptr_cef_browser, frame: ptr cef_frame, url: ptr cef_string) {.cef_callback.} =
   var client = get_client(browser)
@@ -138,6 +138,7 @@ proc on_console_message(self: ptr cef_display_handler, browser: ptr_cef_browser,
   release(brow)
   
 proc initialize_display_handler*(disp: ptr cef_display_handler) =
+  init_base(disp)
   disp.on_address_change = on_address_change
   disp.on_title_change = on_title_change
   disp.on_favicon_urlchange = on_favicon_urlchange
@@ -165,6 +166,7 @@ proc on_got_focus(self: ptr cef_focus_handler, browser: ptr_cef_browser) {.cef_c
   release(brow)
   
 proc initialize_focus_handler*(focus: ptr cef_focus_handler) =
+  init_base(focus)
   focus.on_take_focus = on_take_focus
   focus.on_set_focus = on_set_focus
   focus.on_got_focus = on_got_focus
@@ -188,6 +190,7 @@ proc on_key_event(self: ptr cef_keyboard_handler,
   release(brow)
   
 proc initialize_keyboard_handler*(keyboard: ptr cef_keyboard_handler) =
+  init_base(keyboard)
   keyboard.on_pre_key_event = on_pre_key_event
   keyboard.on_key_event = on_key_event
   
@@ -225,7 +228,100 @@ proc on_load_error(self: ptr cef_load_handler,
   release(frame)
   
 proc initialize_load_handler*(load: ptr cef_load_handler) =
+  init_base(load)
   load.on_loading_state_change = on_loading_state_change
   load.on_load_start = on_load_start
   load.on_load_end = on_load_end
   load.on_load_error = on_load_error
+  
+proc get_root_screen_rect(self: ptr cef_render_handler, browser: ptr_cef_browser, rect: ptr cef_rect): cint {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  result = client.GetRootScreenRect(brow, rect).cint
+  release(brow)
+  
+proc get_view_rect(self: ptr cef_render_handler, browser: ptr_cef_browser, rect: ptr cef_rect): cint {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  result = client.GetViewRect(brow, rect).cint
+  release(brow)
+
+proc get_screen_point(self: ptr cef_render_handler,
+  browser: ptr_cef_browser, viewX, viewY: cint, screenX, screenY: var cint): cint {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  var scX = screenX.int
+  var scY = screenY.int
+  result = client.GetScreenPoint(brow, viewX.int, viewY.int, scX, scY).cint
+  screenX = scX.cint
+  screenY = scY.cint
+  release(brow)
+  
+proc get_screen_info(self: ptr cef_render_handler, browser: ptr_cef_browser, screen_info: ptr cef_screen_info): cint {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  result = client.GetScreenInfo(brow, screen_info).cint
+  release(brow)
+  
+proc on_popup_show(self: ptr cef_render_handler, browser: ptr_cef_browser, show: cint) {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  client.OnPopupShow(brow, show == 1.cint)
+  release(brow)
+
+proc on_popup_size(self: ptr cef_render_handler, browser: ptr_cef_browser, rect: ptr cef_rect) {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  client.OnPopupSize(brow, rect)
+  release(brow)
+  
+proc on_paint(self: ptr cef_render_handler, browser: ptr_cef_browser, ptype: cef_paint_element_type,
+  dirtyRectsCount: csize, dirtyRects: ptr cef_rect, buffer: pointer, width, height: cint) {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  client.OnPaint(brow, ptype, dirtyRectsCount.int, dirtyRects, buffer, width.int, height.int)
+  release(brow)
+  
+proc on_cursor_change(self: ptr cef_render_handler,
+  browser: ptr_cef_browser, cursor: cef_cursor_handle,
+  ptype: cef_cursor_type, custom_cursor_info: ptr cef_cursor_info) {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  client.OnCursorChange(brow, cursor, ptype, custom_cursor_info)
+  release(brow)
+  
+proc start_dragging(self: ptr cef_render_handler,
+  browser: ptr_cef_browser, drag_data: ptr cef_drag_data,
+  allowed_ops: cef_drag_operations_mask, x, y: cint): cint {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  result = client.StartDragging(brow, drag_data, allowed_ops, x.int, y.int).cint
+  release(brow)
+  
+proc update_drag_cursor(self: ptr cef_render_handler,
+  browser: ptr_cef_browser, operation: cef_drag_operations_mask) {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  client.UpdateDragCursor(brow, operation)
+  release(brow)
+  
+proc on_scroll_offset_changed(self: ptr cef_render_handler, 
+  browser: ptr_cef_browser, x, y: cdouble) {.cef_callback.} =
+  var client = get_client(browser)
+  var brow = b_to_b(browser)
+  client.OnScrollOffsetChanged(brow, x.float64, y.float64)
+  release(brow)
+  
+proc initialize_render_handler*(render: ptr cef_render_handler) =
+  init_base(render)
+  render.get_root_screen_rect = get_root_screen_rect
+  render.get_view_rect = get_view_rect
+  render.get_screen_point = get_screen_point
+  render.get_screen_info = get_screen_info
+  render.on_popup_show = on_popup_show
+  render.on_popup_size = on_popup_size
+  render.on_paint = on_paint
+  render.on_cursor_change = on_cursor_change
+  render.start_dragging = start_dragging
+  render.update_drag_cursor = update_drag_cursor
+  render.on_scroll_offset_changed = on_scroll_offset_changed

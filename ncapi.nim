@@ -24,6 +24,12 @@ proc client_finalizer[T](client: T) =
   if client.focus_handler != nil: freeShared(client.focus_handler)
   if client.keyboard_handler != nil: freeShared(client.keyboard_handler)
   if client.load_handler != nil: freeShared(client.load_handler)
+  if client.render_handler != nil: freeShared(client.render_handler)
+  if client.dialog_handler != nil: freeShared(client.dialog_handler)
+  if client.download_handler != nil: freeShared(client.download_handler)
+  if client.geolocation_handler != nil: freeShared(client.geolocation_handler)
+  if client.jsdialog_handler != nil: freeShared(client.jsdialog_handler)
+  if client.request_handler != nil: freeShared(client.request_handler)
   
 proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
   var client: T
@@ -59,4 +65,27 @@ proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
     client.load_handler = createShared(cef_load_handler)
     initialize_load_handler(client.load_handler)
     
+  if NCCF_RENDER in flags:
+    client.render_handler = createShared(cef_render_handler)
+    initialize_render_handler(client.render_handler)
+    
+  #if NCCF_DIALOG in flags:
+  #  client.dialog_handler = createShared(cef_dialog_handler)
+  #  initialize_dialog_handler(client.dialog_handler)
+  #  
+  #if NCCF_DOWNLOAD in flags:
+  #  client.download_handler = createShared(cef_download_handler)
+  #  initialize_download_handler(client.download_handler)
+  #  
+  #if NCCF_GEOLOCATION in flags:
+  #  client.geolocation_handler = createShared(cef_geolocation_handler)
+  #  initialize_geolocation_handler(client.geolocation_handler)
+  #  
+  #if NCCF_JSDIALOG in flags:
+  #  client.jsdialog_handler = createShared(cef_jsdialog_handler)
+  #  initialize_jsdialog_handler(client.jsdialog_handler)
+  #  
+  #if NCCF_REQUEST in flags:
+  #  client.request_handler = createShared(cef_request_handler)
+  #  initialize_request_handler(client.request_handler)
   return client

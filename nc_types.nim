@@ -14,6 +14,12 @@ type
     focus_handler*: ptr cef_focus_handler
     keyboard_handler*: ptr cef_keyboard_handler
     load_handler*: ptr cef_load_handler
+    render_handler*: ptr cef_render_handler
+    dialog_handler*: ptr cef_dialog_handler
+    download_handler*: ptr cef_download_handler
+    geolocation_handler*: ptr cef_geolocation_handler
+    jsdialog_handler*: ptr cef_jsdialog_handler
+    request_handler*: ptr cef_request_handler
   
   #choose what kind of handler you want to exposed to your app
   NCClientCreateFlag* = enum
@@ -24,6 +30,12 @@ type
     NCCF_FOCUS
     NCCF_KEYBOARD
     NCCF_LOAD
+    NCCF_RENDER
+    NCCF_DIALOG
+    NCCF_DOWNLOAD
+    NCCF_GEOLOCATION
+    NCCF_JSDIALOG
+    NCCF_REQUEST
     
   NCCFS* = set[NCClientCreateFlag]
   

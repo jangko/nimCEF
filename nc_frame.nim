@@ -9,11 +9,11 @@ import cef/cef_v8_api, cef/cef_dom_api
 
 #type
 #  NCFrame* = ptr cef_frame  #moved to nc_types.nim to avoid circular import
-  
+
 # True if this object is currently attached to a valid frame.
 proc IsValid*(self: NCFrame): bool =
   result = self.is_valid(self) == 1.cint
-  
+
 # Execute undo in this frame.
 proc Undo*(self: NCFrame) =
   self.undo(self)
@@ -21,19 +21,19 @@ proc Undo*(self: NCFrame) =
 # Execute redo in this frame.
 proc Redo*(self: NCFrame) =
   self.redo(self)
-  
+
 # Execute cut in this frame.
 proc Cut*(self: NCFrame) =
   self.cut(self)
-  
+
 # Execute copy in this frame.
 proc Copy*(self: NCFrame) =
   self.copy(self)
-  
+
 # Execute paste in this frame.
 proc Paste*(self: NCFrame) =
   self.paste(self)
-  
+
 # Execute delete in this frame.
 proc Del*(self: NCFrame) =
   self.del(self)
@@ -41,18 +41,18 @@ proc Del*(self: NCFrame) =
 # Execute select all in this frame.
 proc SelectAll*(self: NCFrame) =
   self.select_all(self)
-  
+
 # Save this frame's HTML source to a temporary file and open it in the
 # default text viewing application. This function can only be called from the
 # browser process.
 proc ViewSource*(self: NCFrame) =
   self.view_source(self)
-  
+
 # Retrieve this frame's HTML source as a string sent to the specified
 # visitor.
 proc GetSource*(self: NCFrame, visitor: ptr cef_string_visitor) =
   self.get_source(self, visitor)
-  
+
 # Retrieve this frame's display text as a string sent to the specified
 # visitor.
 proc GetText*(self: NCFrame, visitor: ptr cef_string_visitor) =
@@ -89,7 +89,7 @@ proc ExecuteJavaScript*(self: NCFrame, code, script_url: string, start_line: int
   self.execute_java_script(self, ccode, curl, start_line.cint)
   cef_string_userfree_free(ccode)
   cef_string_userfree_free(curl)
-    
+
 # Returns true (1) if this is the main (top-level) frame.
 proc IsMain*(self: NCFrame): bool =
   result = self.is_main(self) == 1.cint
@@ -130,7 +130,7 @@ proc GetBrowser*(self: NCFrame): NCBrowser =
 # called from the render process.
 proc GetV8context*(self: NCFrame): ptr cef_v8context =
   result = self.get_v8context(self)
-  
+
 # Visit the DOM document. This function can only be called from the render
 # process.
 proc VisitDom*(self: NCFrame, visitor: ptr cef_domvisitor) =

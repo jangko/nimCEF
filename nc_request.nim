@@ -4,15 +4,15 @@ type
   # Structure used to represent a web request. The functions of this structure
   # may be called on any thread.
   NCRequest* = ptr cef_request
-  
+
   # Structure used to represent post data for a web request. The functions of
   # this structure may be called on any thread.
   NCPostData* = ptr cef_post_data
-  
+
   # Structure used to represent a single element in the request post data. The
   # functions of this structure may be called on any thread.
   NCPostDataElement* = ptr cef_post_data_element
-  
+
 # Returns true (1) if this object is read-only.
 proc IsReadOnly*(self: NCRequest): bool =
   result = self.is_read_only(self) == 1.cint
@@ -121,7 +121,7 @@ proc GetTransitionType*(self: NCRequest): cef_transition_type =
 # browser process to track a single request across multiple callbacks.
 proc GetIdentifier*(self: NCRequest): int64 =
   result = self.get_identifier(self)
-  
+
 # Returns true (1) if this object is read-only.
 proc IsReadOnly*(self: NCPostData): bool =
   result = self.is_read_only(self) == 1.cint

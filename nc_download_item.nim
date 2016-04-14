@@ -3,7 +3,7 @@ import cef/cef_download_item_api, cef/cef_time_api, nc_util
 type
   # Structure used to represent a download item.
   NCDownloadItem* = ptr cef_download_item
-    
+
 
 # Returns true (1) if this object is valid. Do not call any other functions
 # if this function returns false (0).

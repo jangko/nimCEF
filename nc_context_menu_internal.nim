@@ -10,8 +10,8 @@ proc on_before_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef
   release(frame)
   release(params)
   release(model)
-  
-proc run_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_browser, 
+
+proc run_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_browser,
   frame: ptr cef_frame, params: ptr cef_context_menu_params, model: ptr cef_menu_model,
   callback: ptr cef_run_context_menu_callback): cint {.cef_callback.} =
   var client = get_client(browser)
@@ -21,10 +21,10 @@ proc run_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_brows
   release(frame)
   release(params)
   release(model)
-  release(callback)  
+  release(callback)
 
-proc on_context_menu_command(self: ptr cef_context_menu_handler, browser: ptr_cef_browser, 
-  frame: ptr cef_frame, params: ptr cef_context_menu_params, command_id: cint, 
+proc on_context_menu_command(self: ptr cef_context_menu_handler, browser: ptr_cef_browser,
+  frame: ptr cef_frame, params: ptr cef_context_menu_params, command_id: cint,
   event_flags: cef_event_flags): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
@@ -32,15 +32,15 @@ proc on_context_menu_command(self: ptr cef_context_menu_handler, browser: ptr_ce
   release(brow)
   release(frame)
   release(params)
-  
-proc on_context_menu_dismissed(self: ptr cef_context_menu_handler, 
+
+proc on_context_menu_dismissed(self: ptr cef_context_menu_handler,
   browser: ptr_cef_browser, frame: ptr cef_frame) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
   client.OnContextMenuDismissed(brow, frame)
   release(brow)
   release(frame)
-  
+
 proc initialize_context_menu_handler*(menu: ptr cef_context_menu_handler) =
   init_base(menu)
   menu.on_before_context_menu = on_before_context_menu

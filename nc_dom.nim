@@ -5,7 +5,7 @@ type
   # will be called on the render process main thread.
   NCDomVisitor* = ref object of RootObj
     handler*: cef_domvisitor
-  
+
   # Structure used to represent a DOM document. The functions of this structure
   # should only be called on the render process main thread thread.
   NCDomDocument* = ptr cef_domdocument
@@ -14,7 +14,7 @@ type
   # should only be called on the render process main thread.
   NCDomNode* = ptr cef_domnode
 
-    
+
 # Method executed for visiting the DOM. The document object passed to this
 # function represents a snapshot of the DOM at the time this function is
 # executed. DOM objects are only valid for the scope of this function. Do not
@@ -22,7 +22,7 @@ type
 # of this function.
 method Visit*(self: NCDomVisitor, document: NCDomDocument) {.base.} =
   discard
-  
+
 # Returns the document type.
 proc GetType*(self: NCDomDocument): cef_dom_document_type =
   result = self.get_type(self)
@@ -92,105 +92,105 @@ proc GetCompleteUrl*(self: NCDomDocument, partialURL: string): string =
 # Returns the type for this node.
 proc GetType*(self: NCDomNode): cef_dom_node_type =
   result = self.get_type(self)
-  
+
 # Returns true (1) if this is a text node.
 proc IsText*(self: NCDomNode): bool =
   result = self.is_text(self) == 1.cint
-  
+
 # Returns true (1) if this is an element node.
 proc IsElement*(self: NCDomNode): bool =
   result = self.is_element(self) == 1.cint
-  
+
 # Returns true (1) if this is an editable node.
 proc IsEditable*(self: NCDomNode): bool =
   result = self.is_editable(self) == 1.cint
-  
+
 # Returns true (1) if this is a form control element node.
 proc IsFormControlElement*(self: NCDomNode): bool =
   result = self.is_form_control_element(self) == 1.cint
-  
+
 # Returns the type of this form control element node.
 # The resulting string must be freed by calling string_free().
 proc GetFormControlElementType*(self: NCDomNode): string =
   result = to_nim_string(self.get_form_control_element_type(self))
-  
+
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCDomNode): bool =
   result = self.is_same(self, that) == 1.cint
-  
+
 # Returns the name of this node.
 # The resulting string must be freed by calling string_free().
 proc GetName*(self: NCDomNode): string =
   result = to_nim_string(self.get_name(self))
-  
+
 # Returns the value of this node.
 # The resulting string must be freed by calling string_free().
 proc GetValue*(self: NCDomNode): string =
   result = to_nim_string(self.get_value(self))
-  
+
 # Set the value of this node. Returns true (1) on success.
 proc SetValue*(self: NCDomNode, value: string): bool =
   let cval = to_cef_string(value)
   result = self.set_value(self, cval) == 1.cint
   cef_string_userfree_free(cval)
-  
+
 # Returns the contents of this node as markup.
 # The resulting string must be freed by calling string_free().
 proc GetAsMarkup*(self: NCDomNode): string =
   result = to_nim_string(self.get_as_markup(self))
-  
+
 # Returns the document associated with this node.
 proc GetDocument*(self: NCDomNode): NCDomDocument =
   result = self.get_document(self)
-  
+
 # Returns the parent node.
 proc GetParent*(self: NCDomNode): NCDomNode =
   result = self.get_parent(self)
-  
+
 # Returns the previous sibling node.
 proc GetPreviousSibling*(self: NCDomNode): NCDomNode =
   result = self.get_previous_sibling(self)
-  
+
 # Returns the next sibling node.
 proc GetNextSibling*(self: NCDomNode): NCDomNode =
   result = self.get_next_sibling(self)
-  
+
 # Returns true (1) if this node has child nodes.
 proc HasChildren*(self: NCDomNode): bool =
   result = self.has_children(self) == 1.cint
-  
+
 # Return the first child node.
 proc GetFirstChild*(self: NCDomNode): NCDomNode =
   result = self.get_first_child(self)
-  
+
 # Returns the last child node.
 proc GetLastChild*(self: NCDomNode): NCDomNode =
   result = self.get_last_child(self)
-  
+
 # The following functions are valid only for element nodes.
 # Returns the tag name of this element.
 # The resulting string must be freed by calling string_free().
 proc GetElementTagName*(self: NCDomNode): string =
   result = to_nim_string(self.get_element_tag_name(self))
-  
+
 # Returns true (1) if this element has attributes.
 proc HasElementAttributes*(self: NCDomNode): bool =
   result = self.has_element_attributes(self) == 1.cint
-  
+
 # Returns true (1) if this element has an attribute named |attrName|.
 proc HasElementAttribute*(self: NCDomNode, attrName: string): bool =
   let cname = to_cef_string(attrName)
   result = self.has_element_attribute(self, cname) == 1.cint
   cef_string_userfree_free(cname)
-  
+
 # Returns the element attribute named |attrName|.
 # The resulting string must be freed by calling string_free().
 proc GetElementAttribute*(self: NCDomNode, attrName: string): string =
   let cname = to_cef_string(attrName)
   result = to_nim_string(self.get_element_attribute(self, cname))
   cef_string_userfree_free(cname)
-  
+
 # Returns a map of all element attributes.
 proc GetElementAttributes*(self: NCDomNode): StringTableRef =
   var cmap = cef_string_map_alloc()
@@ -205,7 +205,7 @@ proc SetElementAttribute*(self: NCDomNode, attrName, value: string): bool =
   result = self.set_element_attribute(self, cname, cvalue) == 1.cint
   cef_string_userfree_free(cname)
   cef_string_userfree_free(cvalue)
-  
+
 # Returns the inner text of the element.
 # The resulting string must be freed by calling string_free().
 proc GetElementInnerText*(self: NCDomNode): string =

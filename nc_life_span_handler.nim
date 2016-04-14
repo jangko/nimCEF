@@ -24,17 +24,17 @@ method OnBeforePopup*(self: NCClient, browser: NCBrowser, frame: NCFrame,
     windowInfo: ptr cef_window_info, client: var ptr_cef_client,
     settings: ptr cef_browser_settings, no_javascript_access: var cint): int {.base.} =
   result = 0
-  
+
 # Called after a new browser is created.
 method OnAfterCreated*(self: NCClient, browser: NCBrowser) {.base.} =
   discard
-  
+
 # Called when a modal window is about to display and the modal loop should
 # begin running. Return false (0) to use the default modal loop
 # implementation or true (1) to use a custom implementation.
 method RunModal*(self: NCClient, browser: NCBrowser): int {.base.} =
   discard
-  
+
 # Called when a browser has recieved a request to close. This may result
 # directly from a call to cef_browser_host_t::close_browser() or indirectly
 # if the browser is a top-level OS window created by CEF and the user
@@ -92,7 +92,7 @@ method RunModal*(self: NCClient, browser: NCBrowser): int {.base.} =
 #     exist.
 method DoClose*(self: NCClient, browser: NCBrowser): int {.base.} =
   discard
-  
+
 # Called just before a browser is destroyed. Release all references to the
 # browser object and do not attempt to execute any functions on the browser
 # object after this callback returns. If this is a modal window and a custom
@@ -101,5 +101,5 @@ method DoClose*(self: NCClient, browser: NCBrowser): int {.base.} =
 # additional usage information.
 method OnBeforeClose*(self: NCClient, browser: NCBrowser) {.base.} =
   discard
-  
+
 include nc_life_span_internal

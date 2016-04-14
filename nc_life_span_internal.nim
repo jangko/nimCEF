@@ -8,7 +8,7 @@ proc on_before_popup(self: ptr cef_life_span_handler,
     popupFeatures: ptr cef_popup_features,
     windowInfo: ptr cef_window_info, client: var ptr_cef_client,
     settings: ptr cef_browser_settings, no_javascript_access: var cint): cint {.cef_callback.} =
-    
+
   var cliente = get_client(browser)
   var brow = b_to_b(browser)
   var nja: cint = no_javascript_access
@@ -18,9 +18,9 @@ proc on_before_popup(self: ptr cef_life_span_handler,
   release(brow)
   release(frame)
   release(brow)
-  
+
 proc on_after_created(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
-  var client = get_client(browser)  
+  var client = get_client(browser)
   var brow = b_to_b(browser)
   client.OnAfterCreated(brow)
   release(brow)
@@ -42,7 +42,7 @@ proc on_before_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser) 
   var brow = b_to_b(browser)
   client.OnBeforeClose(brow)
   release(brow)
- 
+
 proc initialize_life_span_handler*(span: ptr cef_life_span_handler) =
   init_base(span)
   span.on_before_popup = on_before_popup

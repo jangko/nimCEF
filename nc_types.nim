@@ -20,7 +20,7 @@ type
     geolocation_handler*: ptr cef_geolocation_handler
     jsdialog_handler*: ptr cef_jsdialog_handler
     request_handler*: ptr cef_request_handler
-  
+
   #choose what kind of handler you want to exposed to your app
   NCClientCreateFlag* = enum
     NCCF_CONTEXT_MENU
@@ -36,21 +36,21 @@ type
     NCCF_GEOLOCATION
     NCCF_JSDIALOG
     NCCF_REQUEST
-    
+
   NCCFS* = set[NCClientCreateFlag]
-  
+
   # Structure used to represent a frame in the browser window. When used in the
   # browser process the functions of this structure may be called on any thread
   # unless otherwise indicated in the comments. When used in the render process
   # the functions of this structure may only be called on the main thread.
   NCFrame* = ptr cef_frame
-  
+
   # Structure used to represent a browser window. When used in the browser
   # process the functions of this structure may be called on any thread unless
   # otherwise indicated in the comments. When used in the render process the
   # functions of this structure may only be called on the main thread.
   NCBrowser* = ptr cef_browser
-  
+
   # Structure used to represent the browser process aspects of a browser window.
   # The functions of this structure can only be called in the browser process.
   # They may be called on any thread in that process unless otherwise indicated
@@ -67,9 +67,9 @@ proc get_client*(browser: ptr_cef_browser): NCClient =
 
 template app_to_app*(app: expr): expr =
   cast[NCApp](cast[ByteAddress](app) - sizeof(pointer))
-  
+
 template client_to_client*(client: expr): expr =
   cast[NCClient](cast[ByteAddress](client) - sizeof(pointer))
-  
+
 template to_cclient*(client: expr): expr =
   client.client_handler.addr

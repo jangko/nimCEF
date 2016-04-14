@@ -4,21 +4,21 @@ import nc_command_line, nc_values, nc_types, nc_dom, nc_v8, nc_request, nc_proce
 type
   NCBase*[T, C] = object
     refcount*: int
-    container*: C    
+    container*: C
     handler*: T
-    
+
   NCResourceBundleHandler* = NCBase[cef_resource_bundle_handler, NCApp]
-  NCBrowserProcessHandler* = NCBase[cef_browser_process_handler, NCApp]    
+  NCBrowserProcessHandler* = NCBase[cef_browser_process_handler, NCApp]
   NCRenderProcessHandler*  = NCBase[cef_render_process_handler, NCApp]
-  
+
   # Implement this structure to provide handler implementations. Methods will be
   # called by the process and/or thread indicated.
   NCApp* = ref object of RootObj
     app_handler*: cef_app
     resource_bundle_handler: ptr NCResourceBundleHandler
     render_process_handler: ptr NCRenderProcessHandler
-    browser_process_handler: ptr NCBrowserProcessHandler    
-  
+    browser_process_handler: ptr NCBrowserProcessHandler
+
   #choose what kind of handler you want to exposed to your app
   NCAppCreateFlag* = enum
     NCAF_RESOURCE_BUNDLE
@@ -26,9 +26,9 @@ type
     # Return the handler for functionality specific to the render process. This
     # function is called on the render process main thread.
     NCAF_RENDER_PROCESS
-    
+
   NCAFS* = set[NCAppCreateFlag]
-  
+
 # Provides an opportunity to view and/or modify command-line arguments before
 # processing by CEF and Chromium. The |process_type| value will be NULL for
 # the browser process. Do not keep a reference to the cef_command_line_t
@@ -37,7 +37,7 @@ type
 # specified in CefSettings that equate to command-line arguments will be set
 # before this function is called. Be cautious when using this function to
 # modify command-line arguments for non-browser processes as this may result
-# in undefined behavior including crashes.  
+# in undefined behavior including crashes.
 method OnBeforeCommandLineProcessing*(self: NCApp, process_type: string, command_line: NCCommandLine) {.base.} =
   discard
 
@@ -67,17 +67,17 @@ method GetBrowserProcessHandler*(self: NCApp): ptr cef_browser_process_handler {
 # keep a reference to |extra_info| outside of this function.
 method OnRenderThreadCreated*(self: NCApp, extra_info: NCListValue) {.base.} =
   discard
-  
+
 # Called after WebKit has been initialized.
 method OnWebKitInitialized*(self: NCApp) {.base.} =
   discard
-  
+
 # Called after a browser has been created. When browsing cross-origin a new
 # browser will be created before the old browser with the same identifier is
 # destroyed.
 method OnBrowserCreated*(self: NCApp, browser: NCBrowser) {.base.} =
   discard
-  
+
 # Called before a browser is destroyed.
 method OnBrowserDestroyed*(self: NCApp, browser: NCBrowser) {.base.} =
   discard
@@ -134,7 +134,7 @@ method OnBrowserProcessMessageReceived*(self: NCApp, browser: NCBrowser, source_
   message: NCProcessMessage): bool {.base.} =
   result = false
 
-      
+
 proc GetHandler*(app: NCApp): ptr cef_app = app.app_handler.addr
 
 include nc_app_internal
@@ -143,16 +143,22 @@ proc app_finalizer[T](app: T) =
   if app.render_process_handler != nil: freeShared(app.render_process_handler)
   if app.browser_process_handler != nil: freeShared(app.browser_process_handler)
   if app.resource_bundle_handler != nil: freeShared(app.resource_bundle_handler)
-  
+
 proc makeNCApp*(T: typedesc, flags: NCAFS = {}): auto =
   var app: T
   new(app, app_finalizer)
-  
+
   initialize_app_handler(app.app_handler.addr)
-  
+
   if NCAF_RENDER_PROCESS in flags:
     app.render_process_handler = createShared(NCRenderProcessHandler)
     initialize_render_process_handler(app.render_process_handler.handler.addr)
-    
+
+  if NCAF_RENDER_PROCESS in flags:
+    app.browser_process_handler = createShared(NCBrowserProcessHandler)
+    initialize_browser_process_handler(app.browser_process_handler.handler.addr)
+
+  if NCAF_RENDER_PROCESS in flags:
+    app.resource_bundle_handler = createShared(NCResourceBundleHandler)
+    initialize_resource_bundle_handler(app.resource_bundle_handler.handler.addr)
   return app
-  

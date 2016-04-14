@@ -11,7 +11,7 @@ type
 # cursor position was set successfully.
 proc MoveToFirstFile*(self: NCZipReader): bool =
   result = self.move_to_first_file(self) == 1.cint
-  
+
 # Moves the cursor to the next file in the archive. Returns true (1) if the
 # cursor position was set successfully.
 proc MoveToNextFile*(self: NCZipReader): bool =
@@ -29,17 +29,17 @@ proc MoveToFile*(self: NCZipReader, fileName: string, caseSensitive: bool): bool
 # occurs on the correct thread.
 proc Close*(self: NCZipReader): bool =
   result = self.close(self) == 1.cint
-  
+
 # The below functions act on the file at the current cursor position.
 # Returns the name of the file.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetFileName*(self: NCZipReader): string =
   result = to_nim_string(self.get_file_name(self))
-  
+
 # Returns the uncompressed size of the file.
 proc GetFileSize*(self: NCZipReader): int64 =
   result = self.get_file_size(self)
-  
+
 # Returns the last modified timestamp for the file.
 proc GetFileLastModified*(self: NCZipReader): cef_time =
   result = self.get_file_last_modified(self)
@@ -54,20 +54,20 @@ proc OpenFile*(self: NCZipReader, password: string): bool =
 # Closes the file.
 proc CloseFile*(self: NCZipReader): bool =
   result = self.close_file(self) == 1.cint
-  
+
 # Read uncompressed file contents into the specified buffer. Returns < 0 if
 # an error occurred, 0 if at the end of file, or the number of bytes read.
 proc ReadFile*(self: NCZipReader, buffer: pointer, bufferSize: int): int =
   result = self.read_file(self, buffer, bufferSize.cint).int
-  
+
 # Returns the current offset in the uncompressed file contents.
 proc Tell*(self: NCZipReader): int64 =
   result = self.tell(self)
-  
+
 # Returns true (1) if at end of the file contents.
 proc Eof*(self: NCZipReader): bool =
   result = self.eof(self) == 1.cint
-  
+
 # Create a new cef_zip_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
 proc NCZipReaderCreate*(stream: ptr cef_stream_reader): NCZipReader =

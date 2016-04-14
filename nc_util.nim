@@ -57,9 +57,9 @@ proc to_nim_and_free*(map: cef_string_map): StringTableRef =
     result[$(key.addr)] = $(value.addr)
     cef_string_clear(key.addr)
     cef_string_clear(value.addr)
-    
+
   cef_string_map_free(map)
-  
+
 template add_ref*(elem: expr) =
   discard elem.base.add_ref(cast[ptr cef_base](elem))
 

@@ -31,7 +31,7 @@ proc client_finalizer[T](client: T) =
   if client.jsdialog_handler != nil: freeShared(client.jsdialog_handler)
   if client.request_handler != nil: freeShared(client.request_handler)
   
-proc makeNCClient*(T: typedesc, flags: NCCFS): auto =
+proc makeNCClient*(T: typedesc, flags: NCCFS = {}): auto =
   var client: T
   new(client, client_finalizer)
   

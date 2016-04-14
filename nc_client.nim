@@ -13,7 +13,7 @@ import nc_process_message, nc_types, nc_download_item, nc_request
 # Called when a new message is received from a different process. Return true
 # (1) if the message was handled or false (0) otherwise. Do not keep a
 # reference to or attempt to access the message outside of this callback.
-method OnProcessMessageReceived*(self: NCClient, browser: NCBrowser,
+method OnRenderProcessMessageReceived*(self: NCClient, browser: NCBrowser,
   source_process: cef_process_id, message: NCProcessMessage): bool {.base.} =
   result = false
 

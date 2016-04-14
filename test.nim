@@ -47,7 +47,7 @@ proc main() =
   var mainArgs: cef_main_args
   mainArgs.instance = getModuleHandle(nil)
 
-  var app = makeNCApp(myApp)
+  var app = makeNCApp(myApp, {})
 
   var code = cef_execute_process(mainArgs.addr, app.GetHandler(), nil)
   if code >= 0:

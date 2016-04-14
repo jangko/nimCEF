@@ -9,13 +9,13 @@ proc get_context_menu_handler(self: ptr cef_client): ptr cef_context_menu_handle
   result = client_to_client(self).context_menu_handler
 
 proc get_dialog_handler(self: ptr cef_client): ptr cef_dialog_handler {.cef_callback.} =
-  result = nil
+  result = client_to_client(self).dialog_handler
 
 proc get_display_handler(self: ptr cef_client): ptr cef_display_handler {.cef_callback.} =
   result = client_to_client(self).display_handler
 
 proc get_download_handler(self: ptr cef_client): ptr cef_download_handler {.cef_callback.} =
-  result = nil
+  result = client_to_client(self).download_handler
 
 proc get_drag_handler(self: ptr cef_client): ptr cef_drag_handler {.cef_callback.} =
   result = client_to_client(self).drag_handler
@@ -24,10 +24,10 @@ proc get_focus_handler(self: ptr cef_client): ptr cef_focus_handler {.cef_callba
   result = client_to_client(self).focus_handler
 
 proc get_geolocation_handler(self: ptr cef_client): ptr cef_geolocation_handler {.cef_callback.} =
-  result = nil
+  result = client_to_client(self).geolocation_handler
 
 proc get_jsdialog_handler(self: ptr cef_client): ptr cef_jsdialog_handler {.cef_callback.} =
-  result = nil
+  result = client_to_client(self).jsdialog_handler
 
 proc get_keyboard_handler(self: ptr cef_client): ptr cef_keyboard_handler {.cef_callback.} =
   result = client_to_client(self).keyboard_handler
@@ -42,13 +42,13 @@ proc get_render_handler(self: ptr cef_client): ptr cef_render_handler {.cef_call
   result = client_to_client(self).render_handler
 
 proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_callback.} =
-  result = nil
+  result = client_to_client(self).request_handler
 
 proc on_process_message_received(self: ptr cef_client,
   browser: ptr_cef_browser, source_process: cef_process_id,
   message: ptr cef_process_message): cint {.cef_callback.} =
   var brow = b_to_b(browser)
-  result = client_to_client(self).OnProcessMessageReceived(brow, source_process, message).cint
+  result = client_to_client(self).OnRenderProcessMessageReceived(brow, source_process, message).cint
   release(brow)
   release(message)
 

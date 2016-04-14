@@ -1,4 +1,4 @@
-import cef/cef_app_api, cef/cef_load_handler_api
+import cef/cef_app_api, cef/cef_load_handler_api, cef/cef_print_handler_api
 import nc_command_line, nc_values, nc_types, nc_dom, nc_v8, nc_request, nc_process_message
 
 type
@@ -21,7 +21,13 @@ type
 
   #choose what kind of handler you want to exposed to your app
   NCAppCreateFlag* = enum
+    # Return the handler for resource bundle events. If
+    # CefSettings.pack_loading_disabled is true (1) a handler must be returned.
+    # If no handler is returned resources will be loaded from pack files. This
+    # function is called by the browser and render processes on multiple threads.
     NCAF_RESOURCE_BUNDLE
+    # Return the handler for functionality specific to the browser process. This
+    # function is called on multiple threads in the browser process.
     NCAF_BROWSER_PROCESS
     # Return the handler for functionality specific to the render process. This
     # function is called on the render process main thread.
@@ -47,19 +53,6 @@ method OnBeforeCommandLineProcessing*(self: NCApp, process_type: string, command
 # processes.
 method OnRegisterCustomSchemes*(self: NCApp, registrar: ptr cef_scheme_registrar) {.base.} =
   discard
-
-# Return the handler for resource bundle events. If
-# CefSettings.pack_loading_disabled is true (1) a handler must be returned.
-# If no handler is returned resources will be loaded from pack files. This
-# function is called by the browser and render processes on multiple threads.
-method GetResourceBundleHandler*(self: NCApp): ptr cef_resource_bundle_handler {.base.} =
-  result = nil
-
-# Return the handler for functionality specific to the browser process. This
-# function is called on multiple threads in the browser process.
-method GetBrowserProcessHandler*(self: NCApp): ptr cef_browser_process_handler {.base.} =
-  result = nil
-
 
 # Called after the render process main thread has been created. |extra_info|
 # is a read-only value originating from
@@ -135,6 +128,58 @@ method OnBrowserProcessMessageReceived*(self: NCApp, browser: NCBrowser, source_
   result = false
 
 
+# Called on the browser process UI thread immediately after the CEF context
+# has been initialized.
+method OnContextInitialized*(self: NCApp) {.base.} =
+  discard
+  
+# Called before a child process is launched. Will be called on the browser
+# process UI thread when launching a render process and on the browser
+# process IO thread when launching a GPU or plugin process. Provides an
+# opportunity to modify the child process command line. Do not keep a
+# reference to |command_line| outside of this function.
+method OnBeforeChildProcessLaunch*(self: NCApp, command_line: NCCommandLine) {.base.} =
+  discard
+  
+# Called on the browser process IO thread after the main thread has been
+# created for a new render process. Provides an opportunity to specify extra
+# information that will be passed to
+# cef_render_process_handler_t::on_render_thread_created() in the render
+# process. Do not keep a reference to |extra_info| outside of this function.
+method OnRenderProcessThreadCreated*(self: NCApp, extra_info: NCListValue) {.base.} =
+  discard
+  
+# Return the handler for printing on Linux. If a print handler is not
+# provided then printing will not be supported on the Linux platform.
+method GetPrintHandler*(self: NCApp): ptr cef_print_handler {.base.} =
+  result = nil
+
+# Called to retrieve a localized translation for the specified |string_id|.
+# To provide the translation set |string| to the translation string and
+# return true (1). To use the default translation return false (0). Include
+# cef_pack_strings.h for a listing of valid string ID values.
+method GetLocalizedString*(self: NCApp, string_id: int, str: var string): bool {.base.} =
+  result = false
+
+# Called to retrieve data for the specified scale independent |resource_id|.
+# To provide the resource data set |data| and |data_size| to the data pointer
+# and size respectively and return true (1). To use the default resource data
+# return false (0). The resource data will not be copied and must remain
+# resident in memory. Include cef_pack_resources.h for a listing of valid
+# resource ID values.
+method GetDataResource*(self: NCApp, resource_id: int, data: var pointer, data_size: var csize): bool {.base.} =
+  result = false
+
+# Called to retrieve data for the specified |resource_id| nearest the scale
+# factor |scale_factor|. To provide the resource data set |data| and
+# |data_size| to the data pointer and size respectively and return true (1).
+# To use the default resource data return false (0). The resource data will
+# not be copied and must remain resident in memory. Include
+# cef_pack_resources.h for a listing of valid resource ID values.
+method GetDataResourceForScale*(self: NCApp, resource_id: int,
+  scale_factor: cef_scale_factor, data: var pointer, data_size: var csize): bool {.base.} =
+  result = false
+      
 proc GetHandler*(app: NCApp): ptr cef_app = app.app_handler.addr
 
 include nc_app_internal
@@ -152,13 +197,16 @@ proc makeNCApp*(T: typedesc, flags: NCAFS = {}): auto =
 
   if NCAF_RENDER_PROCESS in flags:
     app.render_process_handler = createShared(NCRenderProcessHandler)
+    app.render_process_handler.container = app
     initialize_render_process_handler(app.render_process_handler.handler.addr)
 
   if NCAF_RENDER_PROCESS in flags:
     app.browser_process_handler = createShared(NCBrowserProcessHandler)
+    app.browser_process_handler.container = app
     initialize_browser_process_handler(app.browser_process_handler.handler.addr)
 
   if NCAF_RENDER_PROCESS in flags:
     app.resource_bundle_handler = createShared(NCResourceBundleHandler)
+    app.resource_bundle_handler.container = app
     initialize_resource_bundle_handler(app.resource_bundle_handler.handler.addr)
   return app

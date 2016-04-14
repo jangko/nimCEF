@@ -1,4 +1,5 @@
-import cef_base_api, cef_request_handler_api, cef_callback_api, cef_cookie_manager_api, cef_scheme_api, cef_values_api
+import cef_base_api, cef_request_context_handler_api, cef_callback_api
+import cef_cookie_manager_api, cef_scheme_api, cef_values_api
 include cef_import
 
 type
@@ -45,7 +46,7 @@ type
     is_global*: proc(self: ptr cef_request_context): cint {.cef_callback.}
   
     # Returns the handler for this context if any.
-    get_handler*: proc(self: ptr cef_request_context): ptr cef_request_handler {.cef_callback.}
+    get_handler*: proc(self: ptr cef_request_context): ptr cef_request_context_handler {.cef_callback.}
   
     # Returns the cache path for this object. If NULL an "incognito mode" in-
     # memory cache is being used.
@@ -156,9 +157,9 @@ proc cef_request_context_get_global_context*(): ptr cef_request_context {.cef_im
 # Creates a new context object with the specified |settings| and optional
 # |handler|.
 proc cef_request_context_create_context*(settings: ptr cef_request_context_settings,
-  handler: ptr cef_request_handler): ptr cef_request_context {.cef_import.}
+  handler: ptr cef_request_context_handler): ptr cef_request_context {.cef_import.}
 
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.
 proc create_context_shared*(other: ptr cef_request_context,
-  handler: ptr cef_request_handler): ptr cef_request_context {.cef_import.}
+  handler: ptr cef_request_context_handler): ptr cef_request_context {.cef_import.}

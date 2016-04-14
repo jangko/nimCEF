@@ -1,6 +1,6 @@
 import winapi, os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
-import nc_context_menu_params
+import nc_context_menu_params, nc_browser
 
 type
   myClient = ref object of NCClient
@@ -71,11 +71,6 @@ proc main() =
   #Initial url.
   let cwd = getCurrentDir()
   let url = "file://$1/example.html" % [cwd]
-  #echo url
-  
-  #There is no _cef_string_t type.
-  var cefUrl: cef_string
-  discard cef_string_utf8_to_utf16(url.cstring, url.len, cefUrl.addr)
     
   #Browser settings.
   #It is mandatory to set the "size" member.
@@ -86,7 +81,7 @@ proc main() =
   
   # Create browser.
   echo "cef_browser_host_create_browser"
-  discard cef_browser_host_create_browser(windowInfo.addr, client.GetHandler(), cefUrl.addr, browserSettings.addr, nil)
+  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings.addr, nil)
   
   # Message loop.
   cef_run_message_loop()

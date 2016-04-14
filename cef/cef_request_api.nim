@@ -2,6 +2,8 @@ import cef_base_api, cef_string_multimap_api
 include cef_import
 
 type
+  # Structure used to represent a web request. The functions of this structure
+  # may be called on any thread.
   cef_request* = object
     base*: cef_base
  
@@ -18,7 +20,7 @@ type
     # Get the request function type. The value will default to POST if post data
     # is provided and GET otherwise.
     # The resulting string must be freed by calling cef_string_userfree_free().
-    get_method*: proc(self: ptr cef_request): ptr cef_string_userfree {.cef_callback.}
+    get_method*: proc(self: ptr cef_request): cef_string_userfree {.cef_callback.}
   
     # Set the request function type.
     set_method*: proc(self: ptr cef_request, pmethod: ptr cef_string) {.cef_callback.}

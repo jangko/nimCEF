@@ -1,20 +1,20 @@
-import nc_types, cef/cef_browser_api, nc_util, nc_process_message
+import nc_types, cef/cef_browser_api, nc_util, nc_process_message, nc_client
 
 type
   # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
   # this structure will be called on the browser process UI thread.
   NCRunFileDialogCallback* = ref object
     handler: cef_run_file_dialog_callback
-    
-    
-    
+
+
+
     # Called asynchronously after the file dialog is dismissed.
     # |selected_accept_filter| is the 0-based index of the value selected from
     # the accept filters array passed to cef_browser_host_t::RunFileDialog.
     # |file_paths| will be a single value or a list of values depending on the
     # dialog mode. If the selection was cancelled |file_paths| will be NULL.
-    
-   # on_file_dialog_dismissed*(self: ptr cef_run_file_dialog_callback, 
+
+   # on_file_dialog_dismissed*(self: ptr cef_run_file_dialog_callback,
     #  selected_accept_filter: cint, file_paths: cef_string_list) =
 
   # Callback structure for cef_browser_host_t::GetNavigationEntries. The
@@ -26,67 +26,67 @@ type
     # stop. |current| is true (1) if this entry is the currently loaded
     # navigation entry. |index| is the 0-based index of this entry and |total| is
     # the total number of entries.
-  
+
    # visit*(self: ptr cef_navigation_entry_visitor,
     #  entry: ptr cef_navigation_entry, current, index, total: cint): cint =
 
   # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
   # structure will be called on the browser process UI thread.
 
-  #cef_pdf_print_callback* = object  
+  #cef_pdf_print_callback* = object
     # Method that will be executed when the PDF printing has completed. |path| is
     # the output path. |ok| will be true (1) if the printing completed
     # successfully or false (0) otherwise.
-  
+
     #on_pdf_print_finished*(self: ptr cef_pdf_print_callback, path: ptr cef_string,
       #ok: cint): cint =
-      
+
 # Returns the browser host object. This function can only be called in the
 # browser process.
 proc GetHost*(self: NCBrowser): NCBrowserHost =
   result = self.get_host(self)
-  
+
 # Returns true (1) if the browser can navigate backwards.
 proc CanGoBack*(self: NCBrowser): bool =
   result = self.can_go_back(self) == 1.cint
-  
+
 # Navigate backwards.
 proc GoBack*(self: NCBrowser) =
   self.go_back(self)
-  
+
 # Returns true (1) if the browser can navigate forwards.
 proc CanGoForward*(self: NCBrowser): bool =
   self.can_go_forward(self) == 1.cint
-  
+
 # Navigate forwards.
 proc GoGorward*(self: NCBrowser) =
   self.go_forward(self)
-  
+
 # Returns true (1) if the browser is currently loading.
 proc IsLoading*(self: NCBrowser): bool =
   result = self.is_loading(self) == 1.cint
-  
+
 # Reload the current page.
 proc Reload*(self: NCBrowser) =
   self.reload(self)
-  
+
 # Reload the current page ignoring any cached data.
 proc ReloadIgnoreCache*(self: NCBrowser) =
   self.reload_ignore_cache(self)
-  
+
 # Stop loading the page.
 proc StopLoad*(self: NCBrowser) =
   self.stop_load(self)
-  
+
 # Returns the globally unique identifier for this browser.
 proc GetIdentifier*(self: NCBrowser): int =
   result = self.get_identifier(self).int
-  
+
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCBrowser): bool =
   result = self.is_same(self, that) == 1.cint
-  
+
 # Returns true (1) if the window is a popup window.
 proc IsPopup*(self: NCBrowser): bool =
   result = self.is_popup(self) == 1.cint
@@ -128,13 +128,13 @@ proc GetFrameIdentifiers*(self: NCBrowser): seq[int64] =
 proc GetFrameNames*(self: NCBrowser): seq[string] =
   var strlist = cef_string_list_alloc()
   result = to_nim_and_free(strlist)
-  
+
 # Send a message to the specified |target_process|. Returns true (1) if the
 # message was sent successfully.
 proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id,
   message: NCProcessMessage): bool =
   result = self.send_process_message(self, target_process, message) == 1.cint
-   
+
 
 # Returns the hosted browser object.
 proc GetBrowser*(self: NCBrowserHost): NCBrowser =
@@ -204,10 +204,10 @@ proc SetZoomLevel*(self: NCBrowserHost, zoomLevel: float64) =
 # dismissed or immediately if another dialog is already pending. The dialog
 # will be initiated asynchronously on the UI thread.
 proc RunFileDialog*(self: NCBrowserHost,
-  mode: cef_file_dialog_mode, title, default_file_path: string, 
+  mode: cef_file_dialog_mode, title, default_file_path: string,
   accept_filters: seq[string], selected_accept_filter: int,
   callback: ptr cef_run_file_dialog_callback) =
-  
+
   let ctitle = to_cef_string(title)
   let cpath = to_cef_string(default_file_path)
   let clist = nim_to_string_list(accept_filters)
@@ -241,7 +241,7 @@ proc PrintToPdf*(self: NCBrowserHost, path: string, settings: ptr cef_pdf_print_
 # backward within the page. |matchCase| indicates whether the search should
 # be case-sensitive. |findNext| indicates whether this is the first request
 # or a follow-up. The cef_find_handler_t instance, if any, returned via
-# cef_client_t::GetFindHandler will be called to report find results.    
+# cef_client_t::GetFindHandler will be called to report find results.
 proc Find*(self: NCBrowserHost, identifier: int,
   searchText: string, forward, matchCase, findNext: bool) =
   let ctext = to_cef_string(searchText)
@@ -270,7 +270,7 @@ proc CloseDevTools*(self: NCBrowserHost) =
 proc GetNavigationEntries*(self: NCBrowserHost,
   visitor: ptr cef_navigation_entry_visitor, current_only: bool) =
   self.get_navigation_entries(self, visitor, current_only.cint)
-  
+
 # Set whether mouse cursor change is disabled.
 proc SetMouseCursorChangeDisabled*(self: NCBrowserHost, disabled: bool) =
   self.set_mouse_cursor_change_disabled(self, disabled.cint)
@@ -291,7 +291,7 @@ proc AddWordToDictionary*(self: NCBrowserHost, word: string) =
   let cword = to_cef_string(word)
   self.add_word_to_dictionary(self, cword)
   cef_string_userfree_free(cword)
-  
+
 # Returns true (1) if window rendering is disabled.
 proc IsWindowRenderingDisabled*(self: NCBrowserHost): bool =
   self.is_window_rendering_disabled(self) == 1.cint
@@ -330,7 +330,7 @@ proc SendKeyEvent*(self: NCBrowserHost, event: ptr cef_key_event) =
 
 # Send a mouse click event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
-proc SendMouseClickEvent*(self: NCBrowserHost, event: ptr cef_mouse_event, 
+proc SendMouseClickEvent*(self: NCBrowserHost, event: ptr cef_mouse_event,
   ptype: cef_mouse_button_type, mouseUp: bool, clickCount: int) =
   self.send_mouse_click_event(self, event, ptype, mouseUp.cint, clickCount.cint)
 
@@ -399,7 +399,7 @@ proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_even
 # cef_drag_data_t::ResetFileContents (for example, if |drag_data| comes from
 # cef_render_handler_t::StartDragging). This function is only used when
 # window rendering is disabled.
-proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: ptr cef_drag_data, 
+proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: ptr cef_drag_data,
   event: ptr cef_mouse_event, allowed_ops: cef_drag_operations_mask) =
   self.drag_target_drag_enter(self, drag_data, event, allowed_ops)
 
@@ -443,4 +443,25 @@ proc DragSourceEndedAt*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_
 # This function is only used when window rendering is disabled.
 proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
   self.drag_source_system_drag_ended(self)
- 
+
+
+# Create a new browser window using the window parameters specified by
+# |windowInfo|. All values will be copied internally and the actual window will
+# be created on the UI thread. If |request_context| is NULL the global request
+# context will be used. This function can be called on any browser process
+# thread and will not block.
+proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClient,
+  url: string, settings: ptr cef_browser_settings, request_context: ptr cef_request_context): bool =
+  let curl = to_cef_string(url)
+  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, settings, request_context) == 1.cint
+  cef_string_userfree_free(curl)
+
+# Create a new browser window using the window parameters specified by
+# |windowInfo|. If |request_context| is NULL the global request context will be
+# used. This function can only be called on the browser process UI thread.
+proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NCClient,
+  url: string, settings: ptr cef_browser_settings,
+  request_context: ptr cef_request_context): NCBrowser =
+  let curl = to_cef_string(url)
+  result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, settings, request_context)
+  cef_string_userfree_free(curl)

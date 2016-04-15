@@ -76,6 +76,7 @@ proc on_drag_enter(self: ptr cef_drag_handler, browser: ptr_cef_browser, dragDat
   var brow = b_to_b(browser)
   result = client.OnDragEnter(brow, dragData, mask).cint
   release(brow)
+  release(dragData)
 
 proc on_draggable_regions_changed(self: ptr cef_drag_handler, browser: ptr_cef_browser,
   regionsCount: csize, regions: ptr cef_draggable_region) {.cef_callback.} =
@@ -297,6 +298,7 @@ proc start_dragging(self: ptr cef_render_handler,
   var brow = b_to_b(browser)
   result = client.StartDragging(brow, drag_data, allowed_ops, x.int, y.int).cint
   release(brow)
+  release(drag_data)
 
 proc update_drag_cursor(self: ptr cef_render_handler,
   browser: ptr_cef_browser, operation: cef_drag_operations_mask) {.cef_callback.} =
@@ -336,7 +338,7 @@ proc on_file_dialog*(self: ptr cef_dialog_handler, browser: ptr_cef_browser, mod
   result = client.OnFileDialog(brow, mode, $title,
     $default_file_path, $accept_filters, selected_accept_filter.int, callback).cint
   release(brow)
-
+  release(callback)
 
 proc initialize_dialog_handler*(dialog: ptr cef_dialog_handler) =
   init_base(dialog)
@@ -349,6 +351,8 @@ proc on_before_download(self: ptr cef_download_handler, browser: ptr_cef_browser
   var brow = b_to_b(browser)
   client.OnBeforeDownload(brow, download_item, $suggested_name, callback)
   release(brow)
+  release(download_item)
+  release(callback)
 
 proc on_download_updated(self: ptr cef_download_handler, browser: ptr_cef_browser,
   download_item: ptr cef_download_item, callback: ptr cef_download_item_callback) {.cef_callback.} =
@@ -356,6 +360,8 @@ proc on_download_updated(self: ptr cef_download_handler, browser: ptr_cef_browse
   var brow = b_to_b(browser)
   client.OnDownloadUpdated(brow, download_item, callback)
   release(brow)
+  release(download_item)
+  release(callback)
 
 proc initialize_download_handler*(download: ptr cef_download_handler) =
   init_base(download)
@@ -370,6 +376,7 @@ proc on_request_geolocation_permission*(self: ptr cef_geolocation_handler,
   var brow = b_to_b(browser)
   result = client.OnRequestGeolocationPermission(brow, $requesting_url, request_id, callback).cint
   release(brow)
+  release(callback)
 
 proc on_cancel_geolocation_permission*(self: ptr cef_geolocation_handler,
   browser: ptr_cef_browser, request_id: cint) {.cef_callback.} =
@@ -397,6 +404,7 @@ proc on_jsdialog*(self: ptr cef_jsdialog_handler,
     $message_text, $default_prompt_text, callback, supp).cint
   suppress_message = supp.cint
   release(brow)
+  release(callback)
 
 proc on_before_unload_dialog*(self: ptr cef_jsdialog_handler,
       browser: ptr_cef_browser, message_text: ptr cef_string, is_reload: cint,
@@ -405,6 +413,7 @@ proc on_before_unload_dialog*(self: ptr cef_jsdialog_handler,
   var brow = b_to_b(browser)
   result = client.OnBeforeUnloadDialog(brow, $message_text, is_reload == 1.cint, callback).cint
   release(brow)
+  release(callback)
 
 proc on_reset_dialog_state*(self: ptr cef_jsdialog_handler, browser: ptr_cef_browser) {.cef_callback.} =
   var client = get_client(browser)
@@ -433,6 +442,7 @@ proc on_before_browse*(self: ptr cef_request_handler,
   result = client.OnBeforeBrowse(brow, frame, request, is_redirect == 1.cint).cint
   release(brow)
   release(frame)
+  release(request)
 
 proc on_open_urlfrom_tab*(self: ptr cef_request_handler,
   browser: ptr_cef_browser, frame: ptr cef_frame, target_url: ptr cef_string,
@@ -451,6 +461,8 @@ proc on_before_resource_load*(self: ptr cef_request_handler,
   result = client.OnBeforeResourceLoad(brow, frame, request, callback)
   release(brow)
   release(frame)
+  release(request)
+  release(callback)
 
 proc get_resource_handler*(self: ptr cef_request_handler, browser: ptr_cef_browser,
   frame: ptr cef_frame, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
@@ -459,6 +471,7 @@ proc get_resource_handler*(self: ptr cef_request_handler, browser: ptr_cef_brows
   result = client.GetResourceHandler(brow, frame, request)
   release(brow)
   release(frame)
+  release(request)
 
 proc on_resource_redirect*(self: ptr cef_request_handler, browser: ptr_cef_browser, frame: ptr cef_frame,
   request: ptr cef_request, new_url: ptr cef_string) {.cef_callback.} =
@@ -467,6 +480,7 @@ proc on_resource_redirect*(self: ptr cef_request_handler, browser: ptr_cef_brows
   client.OnResourceRedirect(brow, frame, request, $new_url)
   release(brow)
   release(frame)
+  release(request)
 
 proc on_resource_response*(self: ptr cef_request_handler, browser: ptr_cef_browser, frame: ptr cef_frame,
   request: ptr cef_request, response: ptr cef_response): cint {.cef_callback.} =
@@ -475,6 +489,8 @@ proc on_resource_response*(self: ptr cef_request_handler, browser: ptr_cef_brows
   result = client.OnResourceResponse(brow, frame, request, response).cint
   release(brow)
   release(frame)
+  release(request)
+  release(response)
 
 proc get_resource_response_filter*(self: ptr cef_request_handler, browser: ptr_cef_browser,
   frame: ptr cef_frame, request: ptr cef_request,
@@ -484,6 +500,8 @@ proc get_resource_response_filter*(self: ptr cef_request_handler, browser: ptr_c
   result = client.GetResourceResponseFilter(brow, frame, request, response)
   release(brow)
   release(frame)
+  release(request)
+  release(response)
 
 proc on_resource_load_complete*(self: ptr cef_request_handler, browser: ptr_cef_browser,
   frame: ptr cef_frame, request: ptr cef_request,
@@ -494,6 +512,8 @@ proc on_resource_load_complete*(self: ptr cef_request_handler, browser: ptr_cef_
   client.OnResourceLoadComplete(brow, frame, request, response, status, received_content_length)
   release(brow)
   release(frame)
+  release(request)
+  release(response)
 
 proc get_auth_credentials*(self: ptr cef_request_handler,
   browser: ptr_cef_browser, frame: ptr cef_frame, isProxy: cint,
@@ -505,7 +525,8 @@ proc get_auth_credentials*(self: ptr cef_request_handler,
     $scheme, callback).cint
   release(brow)
   release(frame)
-
+  release(callback)
+  
 proc on_quota_request*(self: ptr cef_request_handler,
   browser: ptr_cef_browser, origin_url: ptr cef_string,
   new_size: int64, callback: ptr cef_request_callback): cint {.cef_callback.} =
@@ -513,6 +534,7 @@ proc on_quota_request*(self: ptr cef_request_handler,
   var brow = b_to_b(browser)
   result = client.OnQuotaRequest(brow, $origin_url, new_size, callback).cint
   release(brow)
+  release(callback)
 
 proc on_protocol_execution*(self: ptr cef_request_handler, browser: ptr_cef_browser,
   url: ptr cef_string, allow_os_execution: var cint) {.cef_callback.} =
@@ -531,6 +553,8 @@ proc on_certificate_error*(self: ptr cef_request_handler,
   var brow = b_to_b(browser)
   result = client.OnCertificateError(brow, cert_error, $request_url, ssl_info, callback).cint
   release(brow)
+  release(ssl_info)
+  release(callback)
 
 proc on_plugin_crashed*(self: ptr cef_request_handler,
   browser: ptr_cef_browser, plugin_path: ptr cef_string) {.cef_callback.} =

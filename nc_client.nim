@@ -432,7 +432,7 @@ method OnResourceRedirect*(self: NCClient, browser: NCBrowser, frame: NCFrame,
 # The |response| object cannot be modified in this callback.
 method OnResourceResponse*(self: NCClient,
   browser: NCBrowser, frame: NCFrame,
-  request: NCRequest, response: ptr cef_response): bool {.base.} =
+  request: NCRequest, response: NCResponse): bool {.base.} =
   result = false
   
 #--Request Handler
@@ -441,7 +441,7 @@ method OnResourceResponse*(self: NCClient,
 # and cannot be modified in this callback.
 method GetResourceResponseFilter*(self: NCClient, browser: NCBrowser,
   frame: NCFrame, request: NCRequest,
-  response: ptr cef_response): ptr cef_response_filter {.base.} =
+  response: NCResponse): ptr cef_response_filter {.base.} =
   result = nil
   
 #--Request Handler
@@ -451,7 +451,7 @@ method GetResourceResponseFilter*(self: NCClient, browser: NCBrowser,
 # |received_content_length| is the number of response bytes actually read.
 method OnResourceLoadComplete*(self: NCClient, browser: NCBrowser,
   frame: NCFrame, request: NCRequest,
-  response: ptr cef_response, status: cef_urlrequest_status,
+  response: NCResponse, status: cef_urlrequest_status,
   received_content_length: int64) {.base.} =
   discard
   

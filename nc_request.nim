@@ -66,21 +66,27 @@ proc SetPostData*(self: NCRequest, postData: NCPostData) =
   self.set_post_data(self, postData)
 
 # Get the header values. Will not include the Referer value if any.
-proc GetHeaderMap*(self: NCRequest, headerMap: cef_string_multimap) =
-  self.get_header_map(self, headerMap)
-
+proc GetHeaderMap*(self: NCRequest): NCStringMultiMap =
+  var map = cef_string_multimap_alloc()
+  self.get_header_map(self, map)
+  result = to_nim_and_free(map)
+  
 # Set the header values. If a Referer value exists in the header map it will
 # be removed and ignored.
-proc SetHeaderMap*(self: NCRequest, headerMap: cef_string_multimap) =
-  self.set_header_map(self, headerMap)
+proc SetHeaderMap*(self: NCRequest, headerMap: NCStringMultiMap) =
+  let cmap = nim_to_string_multimap(headerMap)
+  self.set_header_map(self, cmap)
+  cef_string_multimap_free(cmap)
 
 # Set all values at one time.
-proc SetValues*(self: NCRequest, url: string, pmethod: string, postData: NCPostData, headerMap: cef_string_multimap) =
+proc SetValues*(self: NCRequest, url: string, pmethod: string, postData: NCPostData, headerMap: NCStringMultiMap) =
   let curl = to_cef_string(url)
   let cmethod = to_cef_string(pmethod)
-  self.set_values(self, curl, cmethod, postData, headerMap)
+  let cmap = nim_to_string_multimap(headerMap)
+  self.set_values(self, curl, cmethod, postData, cmap)
   cef_string_userfree_free(curl)
   cef_string_userfree_free(cmethod)
+  cef_string_multimap_free(cmap)
 
 # Get the flags used in combination with cef_urlrequest_t. See
 # cef_urlrequest_flags_t for supported values.

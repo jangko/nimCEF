@@ -53,8 +53,8 @@ type
     # function will return true (1). On failure |exception| will be set to the
     # exception, if any, and the function will return false (0).
     eval*: proc(self: ptr cef_v8context,
-      code: ptr cef_string, retval: ptr ptr cef_v8value,
-      exception: ptr ptr cef_v8exception): cint {.cef_callback.}
+      code: ptr cef_string, retval: var ptr cef_v8value,
+      exception: var ptr cef_v8exception): cint {.cef_callback.}
 
   # Structure that should be implemented to handle V8 function calls. The
   # functions of this structure will be called on the thread associated with the
@@ -71,7 +71,7 @@ type
     execute*: proc(self: ptr cef_v8handler,
       name: ptr cef_string, obj: ptr cef_v8value,
       argumentsCount: csize, arguments: ptr ptr cef_v8value,
-      retval: ptr ptr cef_v8value, exception: ptr cef_string): cint {.cef_callback.}
+      retval: var ptr cef_v8value, exception: ptr cef_string): cint {.cef_callback.}
 
   # Structure that should be implemented to handle V8 accessor calls. Accessor
   # identifiers are registered by calling cef_v8value_t::set_value(). The
@@ -88,7 +88,7 @@ type
     # handled.
     get_value*: proc(self: ptr cef_v8accessor,
       name: ptr cef_string, obj: ptr cef_v8value,
-      retval: ptr ptr cef_v8value, exception: ptr cef_string): cint {.cef_callback.}
+      retval: var ptr cef_v8value, exception: ptr cef_string): cint {.cef_callback.}
   
     # Handle assignment of the accessor value identified by |name|. |object| is
     # the receiver ('this' object) of the accessor. |value| is the new value

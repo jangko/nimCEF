@@ -433,35 +433,35 @@ type
   # URL component parts.
   cef_urlparts* = object
     # The complete URL specification.
-    spec: cef_string
+    spec*: cef_string
   
     # Scheme component not including the colon (e.g., "http").
-    scheme: cef_string
+    scheme*: cef_string
   
     # User name component.
-    username: cef_string
+    username*: cef_string
       
     # Password component.
-    password: cef_string
+    password*: cef_string
   
     # Host component. This may be a hostname, an IPv4 address or an IPv6 literal
     # surrounded by square brackets (e.g., "[2001:db8::1]").
-    host: cef_string
+    host*: cef_string
   
     # Port number component.
-    port: cef_string
+    port*: cef_string
   
     # Origin contains just the scheme, host, and port from a URL. Equivalent to
     # clearing any username and password, replacing the path with a slash, and
     # clearing everything after that. This value will be empty for non-standard
     # URLs.
-    origin: cef_string
+    origin*: cef_string
       
     # Path component including the first slash following the host.
-    path: cef_string
+    path*: cef_string
   
     # Query string component (i.e., everything following the '?').
-    query: cef_string
+    query*: cef_string
 
   # Cookie information.
   cef_cookie* = object

@@ -53,6 +53,7 @@ include/
 sample/
 rtlib32/
 rtlib64/
+cefclient/
 *.exe
 *.dll
 *.pak

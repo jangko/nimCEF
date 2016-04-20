@@ -78,7 +78,11 @@ method Create*(self: NCSchemeHandlerFactory, browser: NCBrowser,
 proc scheme_handler_factory_create(self: ptr cef_scheme_handler_factory, browser: ptr_cef_browser, 
   frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
   var factory = type_to_type(NCSchemeHandlerFactory, self)
-  result = factory.Create(b_to_b(browser), frame, $schemeName, request).GetHandler()
+  var brow = b_to_b(browser)
+  result = factory.Create(brow, frame, $schemeName, request).GetHandler()
+  release(brow)
+  release(frame)
+  release(request)
 
 proc init_scheme_handler_factory(handler: ptr cef_scheme_handler_factory) =
   init_base(handler)

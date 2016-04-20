@@ -58,7 +58,6 @@ cefclient/
 *.dll
 *.pak
 *.bin
-*.html
 *.lib
 *.h
 *.log

@@ -63,9 +63,6 @@ proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
   cef_string_userfree_free(curl)
   if result: cef_to_nim(cparts.addr, parts)
 
-proc `<=`(cstr: var cef_string, str: string) =
-  discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
-  
 proc nim_to_cef(parts: NCUrlParts, cparts: var cef_urlparts) =
   cparts.spec <= parts.spec
   cparts.scheme <= parts.scheme

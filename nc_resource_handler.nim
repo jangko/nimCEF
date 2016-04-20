@@ -1,6 +1,6 @@
 import cef/cef_resource_handler_api, cef/cef_callback_api, cef/cef_types
 import cef/cef_request_api, cef/cef_response_api
-import nc_request, nc_response, nc_util, nc_types
+import nc_request, nc_response, nc_util, nc_types, nc_cookie, nc_callback
 include cef/cef_import
 
 type
@@ -12,7 +12,7 @@ type
 # available (cef_callback_t::cont() can also be called from inside this
 # function if header information is available immediately). To cancel the
 # request return false (0).
-method ProcessRequest*(self: NCResourceHandler, request: NCRequest, callback: ptr cef_callback): bool {.base.} =
+method ProcessRequest*(self: NCResourceHandler, request: NCRequest, callback: NCCallback): bool {.base.} =
   result = false
 
 # Retrieve response header information. If the response length is not known
@@ -33,18 +33,18 @@ method GetResponseHeaders*(self: NCResourceHandler, response: NCResponse,
 # |bytes_read| to 0, return true (1) and call cef_callback_t::cont() when the
 # data is available. To indicate response completion return false (0).
 method ReadResponse*(self: NCResourceHandler, data_out: cstring, bytes_to_read: int, bytes_read: var int,
-  callback: ptr cef_callback): bool {.base.} =
+  callback: NCCallback): bool {.base.} =
   result = false
 
 # Return true (1) if the specified cookie can be sent with the request or
 # false (0) otherwise. If false (0) is returned for any cookie then no
 # cookies will be sent with the request.
-method CanGetCookie*(self: NCResourceHandler, cookie: ptr cef_cookie): bool {.base.} =
+method CanGetCookie*(self: NCResourceHandler, cookie: NCCookie): bool {.base.} =
   result = false
 
 # Return true (1) if the specified cookie returned with the response can be
 # set or false (0) otherwise.
-method CanSetCookie*(self: NCResourceHandler, cookie: ptr cef_cookie): bool {.base.} =
+method CanSetCookie*(self: NCResourceHandler, cookie: NCCookie): bool {.base.} =
   result = false
 
 # Request processing has been canceled.
@@ -77,12 +77,12 @@ proc read_response(self: ptr cef_resource_handler,
 proc can_get_cookie(self: ptr cef_resource_handler,
   cookie: ptr cef_cookie): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
-  result = handler.CanGetCookie(cookie).cint
+  result = handler.CanGetCookie(to_nim(cookie)).cint
   
 proc can_set_cookie(self: ptr cef_resource_handler,
   cookie: ptr cef_cookie): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
-  result = handler.CanSetCookie(cookie).cint
+  result = handler.CanSetCookie(to_nim(cookie)).cint
   
 proc cancel(self: ptr cef_resource_handler) {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
@@ -97,5 +97,10 @@ proc initialize_resource_handler(handler: ptr cef_resource_handler) =
   handler.can_set_cookie = can_set_cookie
   handler.cancel = cancel
 
+proc makeResourceHandler*(T: typedesc): auto =
+  var res = new(T)
+  initialize_resource_handler(res.handler.addr)
+  result = res
+    
 proc GetHandler*(self: NCResourceHandler): ptr cef_resource_handler =
   result = self.handler.addr

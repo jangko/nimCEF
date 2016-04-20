@@ -466,37 +466,37 @@ type
   # Cookie information.
   cef_cookie* = object
     # The cookie name.
-    name: cef_string
+    name*: cef_string
     
     # The cookie value.
-    value: cef_string
+    value*: cef_string
     
     # If |domain| is empty a host cookie will be created instead of a domain
     # cookie. Domain cookies are stored with a leading "." and are visible to
     # sub-domains whereas host cookies are not.
-    domain: cef_string
+    domain*: cef_string
     
     # If |path| is non-empty only URLs at or below the path will get the cookie
     # value.
-    path: cef_string
+    path*: cef_string
     
     # If |secure| is true the cookie will only be sent for HTTPS requests.
-    secure: cint
+    secure*: cint
     
     # If |httponly| is true the cookie will only be sent for HTTP requests.
-    httponly: cint
+    httponly*: cint
     
     # The cookie creation date. This is automatically populated by the system on
     # cookie creation.
-    creation: cef_time
+    creation*: cef_time
   
     # The cookie last access date. This is automatically populated by the system
     # on access.
-    last_access: cef_time
+    last_access*: cef_time
   
     # The cookie expiration date is only valid if |has_expires| is true.
-    has_expires: cint
-    expires: cef_time
+    has_expires*: cint
+    expires*: cef_time
 
   # Process termination status values.
   cef_termination_status* = enum

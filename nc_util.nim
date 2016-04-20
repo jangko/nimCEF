@@ -27,6 +27,9 @@ proc to_nim_string*(str: cef_string_userfree, dofree = true): string =
 
 proc `$`*(str: ptr cef_string): string = to_nim_string(str, false)
 
+proc `<=`*(cstr: var cef_string, str: string) =
+  discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
+  
 proc to_nim_and_free*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
   result = newSeq[string](len)

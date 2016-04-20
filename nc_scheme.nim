@@ -80,10 +80,14 @@ proc scheme_handler_factory_create(self: ptr cef_scheme_handler_factory, browser
   var factory = type_to_type(NCSchemeHandlerFactory, self)
   result = factory.Create(b_to_b(browser), frame, $schemeName, request).GetHandler()
 
+proc init_scheme_handler_factory(handler: ptr cef_scheme_handler_factory) =
+  init_base(handler)
+  handler.create = scheme_handler_factory_create
+  
 proc makeNCSchemeHandlerFactory*(T: typedesc): auto =
-  var factory: T
-  new(factory)
-  factory.create = scheme_handler_factory_create
+  var factory = new(T)
+  init_scheme_handler_factory(factory.handler.addr)
+  result = factory
   
 proc GetHandler*(self: NCSchemeHandlerFactory): ptr cef_scheme_handler_factory =
   result = self.handler.addr

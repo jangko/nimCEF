@@ -1,4 +1,4 @@
-import winapi, os, strutils
+import winapi, os, strutils, streams
 import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response
@@ -50,6 +50,45 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
     var host = browser.get_host(browser)
     host.close_browser(host, 1)
     
+proc DumpRequestContents(request: NCRequest): string =
+  var ss = newStringStream()
+
+  ss.write "URL: "
+  ss.write request.GetURL()
+  ss.write "\nMethod: "
+  ss.write request.GetMethod()
+
+  var headerMap = request.GetHeaderMap()
+  
+  if headerMap.len > 0:
+    ss.write "\nHeaders:"
+    for k, v in pairs(headerMap):
+      ss.write "\n\t"
+      ss.write k
+      ss.write ": "
+      ss.write $v
+    
+  var postData = request.GetPostData()
+  if postData != nil:
+    var elements = postData.GetElements()
+    if elements.len > 0:
+      ss.write "\nPost Data:"
+      for it in elements:
+        if it.GetType() == PDE_TYPE_BYTES:
+          #the element is composed of bytes
+          ss.write "\n\tBytes: "
+          if it.GetBytesCount() == 0:
+            ss.write "(empty)"
+          else:
+            #retrieve the data.            
+            ss.write it.GetBytes()
+        elif it.GetType() == PDE_TYPE_FILE:
+          ss.write "\n\tFile: "
+          ss.write it.GetFile()
+        release(it)
+    release(postData)        
+  result = ss.data
+
     
 method ProcessRequest*(self: myScheme, request: NCRequest, callback: NCCallback): bool =
   NC_REQUIRE_IO_THREAD()
@@ -66,8 +105,7 @@ myScheme object handling the client:// protocol.
 <br/><img src="client://tests/logo.png"><pre>"""
 
     #Output a string representation of the request
-    #const std::string& dump = test_runner::DumpRequestContents(request);
-    #data_.append(dump);
+    self.mData.add DumpRequestContents(request)
 
     self.mData.add """</pre><br/>Try the test form:
 <form method="POST" action="handler.html">

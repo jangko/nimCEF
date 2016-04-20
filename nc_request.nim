@@ -70,7 +70,7 @@ proc GetHeaderMap*(self: NCRequest): NCStringMultiMap =
   var map = cef_string_multimap_alloc()
   self.get_header_map(self, map)
   result = to_nim_and_free(map)
-  
+
 # Set the header values. If a Referer value exists in the header map it will
 # be removed and ignored.
 proc SetHeaderMap*(self: NCRequest, headerMap: NCStringMultiMap) =
@@ -144,9 +144,11 @@ proc GetElementCount*(self: NCPostData): int =
   result = self.get_element_count(self).int
 
 # Retrieve the post data elements.
-proc GetElements*(self: NCPostData, elementsCount: var csize, elements: ptr NCPostDataElement) =
-  #self.get_elements(self,
-  discard
+proc GetElements*(self: NCPostData): seq[NCPostDataElement] =
+  result = newSeq[NCPostDataElement](self.GetElementCount())
+  var buf = cast[ptr NCPostDataElement](result[0].addr)
+  var size = result.len.csize
+  self.get_elements(self, size, buf)
 
 # Remove the specified post data element.  Returns true (1) if the removal
 # succeeds.
@@ -197,6 +199,11 @@ proc GetBytesCount*(self: NCPostDataElement): int =
 # actually read.
 proc GetBytes*(self: NCPostDataElement, size: int, bytes: pointer): int =
   result = self.get_bytes(self, size.csize, bytes).int
+
+proc GetBytes*(self: NCPostDataElement): string =
+  let len = self.get_bytes_count(self)
+  result = newString(len.int)
+  discard self.get_bytes(self, len, result.cstring)
 
 # Create a new cef_post_data_element_t object.
 proc NCPostDataElementCreate*(): NCPostDataElement = cef_post_data_element_create()

@@ -74,8 +74,8 @@ proc to_nim_and_free*(map: cef_string_multimap, doFree = true): NCStringMultiMap
       let count = cef_string_multimap_find_count(map, key.addr)
       var elem = newSeq[string](count)
       for j in 0.. <count:
-        discard cef_string_multimap_enumerate(map, key.addr, i, val.addr)
-        elem[i] = $(val.addr)
+        discard cef_string_multimap_enumerate(map, key.addr, j, val.addr)
+        elem[j] = $(val.addr)
         cef_string_clear(val.addr)
       result.add($(key.addr), elem)
       cef_string_clear(key.addr)

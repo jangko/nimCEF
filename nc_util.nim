@@ -33,8 +33,7 @@ proc to_nim_and_free*(strlist: cef_string_list, dofree = true): seq[string] =
   var res: cef_string
   for i in 0.. <len:
     if cef_string_list_value(strlist, i.cint, res.addr) == 1.cint:
-      result[i] = newString(res.length)
-      copyMem(result[i].cstring, res.str, res.length)
+      result[i] = $(res.addr)
       cef_string_clear(res.addr)
     else:
       result[i] = ""

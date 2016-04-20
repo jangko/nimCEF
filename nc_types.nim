@@ -73,3 +73,6 @@ template client_to_client*(client: expr): expr =
 
 template to_cclient*(client: expr): expr =
   client.client_handler.addr
+  
+template type_to_type*(ctype: typedesc, obj: expr): expr =
+  cast[ctype](cast[ByteAddress](obj) - sizeof(pointer))

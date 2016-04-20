@@ -219,7 +219,7 @@ proc Clear*(self: NCDictionaryValue): bool =
   result = self.clear(self) == 1.cint
 
 # Returns true (1) if the current dictionary has a value for the given key.
-proc HasHey*(self: NCDictionaryValue, key: string): bool =
+proc HasKey*(self: NCDictionaryValue, key: string): bool =
   let ckey = to_cef_string(key)
   result = self.has_key(self, ckey) == 1.cint
   cef_string_userfree_free(ckey)

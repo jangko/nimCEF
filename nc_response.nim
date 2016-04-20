@@ -3,7 +3,7 @@ import cef/cef_response_api, cef/cef_string_multimap_api, nc_util
 type
   # Structure used to represent a web response. The functions of this structure
   # may be called on any thread.
-  NCResponse = ptr cef_response
+  NCResponse* = ptr cef_response
   
 # Returns true (1) if this object is read-only.
 proc IsReadOnly*(self: NCResponse): bool =

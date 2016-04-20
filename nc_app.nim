@@ -1,5 +1,6 @@
 import cef/cef_app_api, cef/cef_load_handler_api, cef/cef_print_handler_api
 import nc_command_line, nc_values, nc_types, nc_dom, nc_v8, nc_request, nc_process_message
+import nc_scheme
 
 type
   NCBase*[T, C] = object
@@ -53,7 +54,7 @@ method OnBeforeCommandLineProcessing*(self: NCApp, process_type: string, command
 # to the |registrar| object. This function is called on the main thread for
 # each process and the registered schemes should be the same across all
 # processes.
-method OnRegisterCustomSchemes*(self: NCApp, registrar: ptr cef_scheme_registrar) {.base.} =
+method OnRegisterCustomSchemes*(self: NCApp, registrar: NCSchemeRegistrar) {.base.} =
   discard
 
 #--NCAF_RENDER_PROCESS

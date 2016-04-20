@@ -3,7 +3,7 @@ import cef/cef_base_api, cef/cef_client_api, cef/cef_browser_api
 import cef/cef_resource_handler_api, cef/cef_response_api, cef/cef_response_filter_api
 import cef/cef_auth_callback_api, cef/cef_ssl_info_api
 
-import nc_process_message, nc_types, nc_download_item, nc_request
+import nc_process_message, nc_types, nc_download_item, nc_request, nc_response, nc_drag_data
 
 #moved to nc_types.nim to avoid circular import
 #type
@@ -23,7 +23,7 @@ method OnRenderProcessMessageReceived*(self: NCClient, browser: NCBrowser,
 # contains the drag event data and |mask| represents the type of drag
 # operation. Return false (0) for default drag handling behavior or true (1)
 # to cancel the drag event.
-method OnDragEnter*(self: NCClient, browser: NCBrowser, dragData: ptr cef_drag_data,
+method OnDragEnter*(self: NCClient, browser: NCBrowser, dragData: NCDragData,
   mask: cef_drag_operations_mask): bool {.base.} =
   result = false
   

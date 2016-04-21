@@ -1,5 +1,5 @@
 import cef/cef_base_api, cef/cef_browser_api, cef/cef_client_api, cef/cef_frame_api
-import cef/cef_string_api, cef/cef_string_list_api
+import cef/cef_string_api, cef/cef_string_list_api, cef/cef_types
 
 export cef_base_api, cef_string_api, cef_string_list_api
 
@@ -76,3 +76,35 @@ template to_cclient*(client: expr): expr =
   
 template type_to_type*(ctype: typedesc, obj: expr): expr =
   cast[ctype](cast[ByteAddress](obj) - sizeof(pointer))
+  
+type
+  NCMainArgs* = ref object
+    handler: cef_main_args
+    
+proc GetHandler*(arg: NCMainArgs): ptr cef_main_args =
+  result = arg.handler.addr
+  
+when defined(windows):
+  import winapi
+  
+  proc makeNCMainArgs*(): NCMainArgs =
+    new(result)
+    result.handler.instance = getModuleHandle(nil)
+else:
+  import os
+  
+  var nim_params: seq[string]
+  var c_params: seq[cstring]
+  
+  proc makeNCMainArgs*(): NCMainArgs =
+    new(result)
+    let count = paramCount()
+    result.handler.argc = count
+    nim_params = newSeq[string](count)
+    c_params = newSeq[cstring](count+1)
+    for i in 0.. <count: 
+      nim_params[i] = paramStr(i)
+      c_params[i] = nim_params[i][0].addr
+    c_params[count] = nil
+    result.handler.argv = cparams[0].addr
+  

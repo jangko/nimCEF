@@ -1,7 +1,7 @@
 import winapi, os, strutils, streams
 import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
-import nc_request, nc_callback, nc_util, nc_response
+import nc_request, nc_callback, nc_util, nc_response, nc_settings
 
 type
   myClient = ref object of NCClient
@@ -23,7 +23,7 @@ proc newClient(no: int, name: string): myClient =
   result.name = name
 
 method OnBeforeClose(self: myClient, browser: NCBrowser) =
-  cef_quit_message_loop()
+  NCQuitMessageLoop()
   echo "close: ", self.name, " no: ", self.abc
 
 const
@@ -47,8 +47,8 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
     echo "Hello There Clicked"
 
   if command_id == MY_QUIT_ID:
-    var host = browser.get_host(browser)
-    host.close_browser(host, 1)
+    var host = browser.GetHost()
+    host.CloseBrowser(true)
     
 proc DumpRequestContents(request: NCRequest): string =
   var ss = newStringStream()
@@ -169,22 +169,18 @@ proc RegisterSchemeHandler() =
   
 proc main() =
   # Main args.
-  var mainArgs: cef_main_args
-  mainArgs.instance = getModuleHandle(nil)
-
+  var mainArgs = makeNCMainArgs()
   var app = makeNCApp(myApp, {})
 
-  var code = cef_execute_process(mainArgs.addr, app.GetHandler(), nil)
+  var code = NCExecuteProcess(mainArgs, app)
   if code >= 0:
     echo "failure execute process ", code
     quit(code)
 
-  var settings: cef_settings
-  settings.size = sizeof(settings)
-  settings.no_sandbox = 1
-  discard cef_initialize(mainArgs.addr, settings.addr, app.GetHandler(), nil)
-  echo "cef_initialize thread id: ", getCurrentThreadId()
-
+  var settings = makeNCSettings()
+  settings.no_sandbox = true
+  discard NCInitialize(mainArgs, settings, app)
+  
   var windowInfo: cef_window_info
   windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
   windowInfo.parent_window = cef_window_handle(0)
@@ -202,17 +198,14 @@ proc main() =
 
   #Browser settings.
   #It is mandatory to set the "size" member.
-  var browserSettings: cef_browser_settings
-  browserSettings.size = sizeof(browserSettings)
-
+  var browserSettings = makeNCBrowserSettings()
   var client = newClient(123, "hello")
 
   # Create browser.
-  echo "cef_browser_host_create_browser"
-  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings.addr, nil)
+  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings)
 
   # Message loop.
-  cef_run_message_loop()
-  cef_shutdown()
+  NCRunMessageLoop()
+  NCShutdown()
 
 main()

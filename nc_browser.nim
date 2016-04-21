@@ -1,4 +1,5 @@
 import nc_types, cef/cef_browser_api, nc_util, nc_process_message, nc_client
+import nc_request_context, nc_settings
 
 type
   # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
@@ -451,17 +452,23 @@ proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
 # context will be used. This function can be called on any browser process
 # thread and will not block.
 proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClient,
-  url: string, settings: ptr cef_browser_settings, request_context: ptr cef_request_context): bool =
+  url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): bool =
   let curl = to_cef_string(url)
-  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, settings, request_context) == 1.cint
+  var csettings: cef_browser_settings
+  to_cef(settings, csettings)
+  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr, request_context) == 1.cint
   cef_string_userfree_free(curl)
+  csettings.clear()
 
 # Create a new browser window using the window parameters specified by
 # |windowInfo|. If |request_context| is NULL the global request context will be
 # used. This function can only be called on the browser process UI thread.
 proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NCClient,
-  url: string, settings: ptr cef_browser_settings,
-  request_context: ptr cef_request_context): NCBrowser =
+  url: string, settings: NCBrowserSettings,
+  request_context: NCRequestContext = nil): NCBrowser =
   let curl = to_cef_string(url)
-  result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, settings, request_context)
+  var csettings: cef_browser_settings
+  to_cef(settings, csettings)
+  result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, csettings.addr, request_context)
   cef_string_userfree_free(curl)
+  csettings.clear()

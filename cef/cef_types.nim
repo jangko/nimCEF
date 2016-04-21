@@ -246,7 +246,7 @@ type
   # recommended default values.
   cef_request_context_settings* = object
     # Size of this structure.
-    size: csize
+    size*: csize
   
     # The location where cache data will be stored on disk. If empty then
     # browsers will be created in "incognito mode" where in-memory caches are
@@ -254,7 +254,7 @@ type
     # localStorage will only persist across sessions if a cache path is
     # specified. To share the global browser cache and related configuration set
     # this value to match the CefSettings.cache_path value.
-    cache_path: cef_string
+    cache_path*: cef_string
       
     # To persist session cookies (cookies without an expiry date or validity
     # interval) by default when using the global cookie manager set this value to
@@ -262,13 +262,13 @@ type
     # Web browsers do not persist them. Can be set globally using the
     # CefSettings.persist_session_cookies value. This value will be ignored if
     # |cache_path| is empty or if it matches the CefSettings.cache_path value.
-    persist_session_cookies: cint
+    persist_session_cookies*: cint
       
     # To persist user preferences as a JSON file in the cache path directory set
     # this value to true (1). Can be set globally using the
     # CefSettings.persist_user_preferences value. This value will be ignored if
     # |cache_path| is empty or if it matches the CefSettings.cache_path value.
-    persist_user_preferences: cint
+    persist_user_preferences*: cint
       
     # Set to true (1) to ignore errors related to invalid SSL certificates.
     # Enabling this setting can lead to potential security vulnerabilities like
@@ -276,7 +276,7 @@ type
     # internet should not enable this setting. Can be set globally using the
     # CefSettings.ignore_certificate_errors value. This value will be ignored if
     # |cache_path| matches the CefSettings.cache_path value.
-    ignore_certificate_errors: cint
+    ignore_certificate_errors*: cint
       
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. Can be set globally
@@ -284,7 +284,7 @@ type
     # browser basis using the CefBrowserSettings.accept_language_list value. If
     # all values are empty then "en-US,en" will be used. This value will be
     # ignored if |cache_path| matches the CefSettings.cache_path value.
-    accept_language_list: cef_string
+    accept_language_list*: cef_string
 
   # Browser initialization settings. Specify NULL or 0 to get the recommended
   # default values. The consequences of using custom values may not be well

@@ -12,7 +12,7 @@ type
   cef_cursor_handle* = HCURSOR
   
   # Structure representing CefExecuteProcess arguments.
-  cef_main_args* {.pure.} = object
+  cef_main_args* = object
     instance*: HINST
 
   # Structure representing window information.

@@ -1,4 +1,5 @@
 import nc_util, cef/cef_xml_reader_api, cef/cef_types, cef/cef_stream_api
+import nc_stream, cef/cef_base_api
 
 type
   # Structure that supports the reading of XML data via the libxml streaming API.
@@ -174,8 +175,9 @@ proc MoveToCarryingElement*(self: NCXmlReader): bool =
 
 # Create a new cef_xml_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
-proc NCXmlReaderCreate*(stream: ptr cef_stream_reader, encodingType: cef_xml_encoding_type, URI: string): NCXmlReader =
+proc NCXmlReaderCreate*(stream: NCStreamReader, encodingType: cef_xml_encoding_type, URI: string): NCXmlReader =
   let curi = to_cef_string(URI)
+  add_ref(stream)
   result = cef_xml_reader_create(stream, encodingType, curi)
   cef_string_userfree_free(curi)
 

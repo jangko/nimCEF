@@ -94,7 +94,7 @@ proc nim_to_string_multimap*(map: NCStringMultiMap): cef_string_multimap =
   result = cmap
   
 template add_ref*(elem: expr) =
-  discard elem.base.add_ref(cast[ptr cef_base](elem))
+  if elem != nil: elem.base.add_ref(cast[ptr cef_base](elem))
 
 template release*(elem: expr) =
   if elem != nil: discard elem.base.release(cast[ptr cef_base](elem))

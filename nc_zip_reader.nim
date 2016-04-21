@@ -1,5 +1,5 @@
 import cef/cef_stream_api, cef/cef_time_api, cef/cef_zip_reader_api
-import nc_util
+import nc_util, nc_stream
 
 type
   # Structure that supports the reading of zip archives via the zlib unzip API.
@@ -70,6 +70,6 @@ proc Eof*(self: NCZipReader): bool =
 
 # Create a new cef_zip_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
-proc NCZipReaderCreate*(stream: ptr cef_stream_reader): NCZipReader =
+proc NCZipReaderCreate*(stream: NCStreamReader): NCZipReader =
   result = cef_zip_reader_create(stream)
 

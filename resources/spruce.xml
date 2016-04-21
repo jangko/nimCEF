@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<spruce>
+	<description
+		size="A4"
+		margin-left = "10"
+		margin-right = "10"
+		margin-top = "10"
+		margin-bottom = "10"
+		background = "brown"
+		zoom="1">
+	</description>
+	
+	<page size="A4" color="white" margin-width="0">
+		<image src="jec.png" scale="0.8"/>
+		<text y="0" width="190" align="right" size="14" style="bold">ACME Laboratories</text>
+		<text y="8" width="190" align="right" size="12">ACME Loop 1</text>
+		<text y="15" width="190" align="right" size="12">New York</text>
+		<text y="23" width="190" align="right">US 9210330</text>
+		<text y="29" width="190" align="right" color="red">office@acme.com</text>
+		<text y="35" width="190" align="right" color="crimson">http://www.acme.com</text>
+		<text y="41" width="190" align="right" color="crimson" family="monospace">+1 555 928 878</text>
+		<line color="pink" x1="0" x2="190" y1="49" y2="49"/>
+		<text y="53" width="190" align="right" color="red" size="13">INVOICE 004</text>
+		<text y="59" width="190" align="right" family="Verdana">January 04 2010</text>
+		<text y="65" width="190" align="right" family="Verdana">Jatuh tempo 2 February 2010</text>
+		<text y="53" width="190">Silver Surfer Inc.</text>
+		<text y="59" width="190">Silver Street 55</text>
+		<text y="65" width="190">London</text>
+		<text y="71" width="190">UK-28918</text>
+		
+		<rect x="0" y="79" w="25" h="9" line-width="0.2" fill="lightgray"><text x="1" y="1">Quantity</text></rect>
+		<rect x="25" y="79" w="80" h="9" line-width="0.2" fill="lightgray"><text x="1" y="1">Details</text></rect>
+		<rect x="105" y="79" w="25" h="9" line-width="0.2" fill="lightgray"><text width="24" y="1" align="right">Unit Price</text></rect>
+		<rect x="130" y="79" w="25" h="9" line-width="0.2" fill="lightgray"><text width="25" x="1" y="1" align="center">VAT</text></rect>
+		<rect x="155" y="79" w="35" h="9" line-width="0.2" fill="lightgray"><text x="1" y="1" align="right">Subtotal</text></rect>
+		
+		<text x="1" y="89" w="25">1 hour</text>
+		<text x="26" y="89" w="80">Development</text>
+		<text x="105" y="89" w="24" align="right">20.000</text>
+		<text x="131" y="89" w="25" align="center">VAT</text>
+		<text x="155" y="89" w="34" align="right">20.000</text>
+		
+		<text x="1" y="95" w="25">1 pcs</text>
+		<text x="26" y="95" w="80">Super Cool Development</text>
+		<text x="105" y="95" w="24" align="right">1.000</text>
+		<text x="131" y="95" w="25" align="center">VAT</text>
+		<text x="155" y="95" w="34" align="right">1.000</text>
+		
+		<text x="1" y="101" w="25">2 psg</text>
+		<text x="26" y="101" w="80">Maintenance Server</text>
+		<text x="105" y="101" w="24" align="right">300</text>
+		<text x="131" y="101" w="25" align="center">VAT</text>
+		<text x="155" y="101" w="34" align="right">300</text>
+		
+		<rect x="0" y="109" w="155" h="9" line-width="0" fill="lightgray"><text y="1" w="154" align="right">Total</text></rect>
+		<rect x="155" y="109" w="35" h="9" line-width="0" fill="lightgray"><text y="1" w="34" align="right">21.300</text></rect>
+		
+		<text y="260" w="190" align="center" size="9">Thank you for your business</text>
+		
+		<text x="10" y="5" size="70" style="bold" color="linear-gradient/(0,0,0,30)/white/red" opacity="0.5" family="Microsoft Yahei" outline-width="0.8">美花日子</text>
+		
+		<rect x="0" y="20" w="100" h="90" fill="linear-gradient/(0,0,100,90)/white/orange" color="orangered" line-width="1.2" opacity="0.5">
+			<ellipse x="10" y="10" w="25" h="20" fill="white" line-width="0"/>
+		</rect>
+	</page>
+	
+	<page size="A4" color="white" margin-width="0">
+		<rect x="0" y="0" w="190" h="40" line-width="0" fill="linear-gradient/(0,0,0,40)/white/lightgray">
+			<rect x="140" y="0" w="40" h="40" rotate="45" pivot="top-left"/>
+			<image x="140" src="toucan.png" scale="1" rotate="45" pivot="top-left"/>
+			<text x="3" y="10" size="25" family="Goudy Stout" color="linear-gradient/(0,0,0,8.8)/pink/red">INVOICE INV007</text>
+			<text x="3" y="22" style="italic" color="darkgray">21 September 2012 (Payment due by 30 Dec 2012)</text>
+			<text x="3" y="26" size="24" color="deepskyblue">$ 340</text>
+			<text x="0" y="30" w="185" align="right" size="30" color="brown" style="bold" family="simsun">小鸟公司</text>
+		</rect>
+		
+		<text x="0" y="43" style="bold" size="13" color="red" family="Fortex;Ravie">ABC Company</text>
+		<text x="0" y="49" >Blv Wet Gate</text>
+		<text x="0" y="55" >Dragon City</text>
+		<text x="0" y="61" >Jawa Barat 1890</text>
+		<text x="0" y="67" >Client ID: #001</text>
+				
+		<text x="0" y="43" w="190" align="right" style="bold" size="13" color="red">Adhitya Rissa</text>
+		<text x="0" y="49" w="190" align="right">Melong Cijerah 4 No 6</text>
+		<text x="0" y="55" w="190" align="right">Bandung 40213</text>
+		<text x="0" y="61" w="190" align="right">Jawa Barat</text>
+		<text x="0" y="67" w="190" align="right">jangko128@yahoo.com</text>
+		
+		<rect x="0" y="80" w="30" h="9" color="darkblue" fill="deepskyblue" line-width="0.4">
+			<text x="0" y="0" w="30" h="9" align="center" v-align="center" color="white">ID</text>
+		</rect>
+		<rect x="30" y="80" w="80" h="9" color="darkblue" line-width="0.4" fill="deepskyblue">
+			<text x="0" y="0" w="80" h="9" align="center" v-align="center" color="white">Description</text>
+		</rect>
+		<rect x="100" y="80" w="30" h="9" color="darkblue" fill="deepskyblue" line-width="0.4">
+			<text x="0" y="0" w="30" h="9" align="center" v-align="center" color="white">Qty</text>
+		</rect>
+		<rect x="130" y="80" w="30" h="9" color="darkblue" line-width="0.4" fill="deepskyblue">
+			<text x="0" y="0" w="30" h="9" align="center" v-align="center" color="white">Unit Price</text>
+		</rect>
+		<rect x="160" y="80" w="30" h="9" color="darkblue" line-width="0.4" fill="deepskyblue">
+			<text x="0" y="0" w="30" h="9" align="center" v-align="center" color="white">Line Total</text>
+		</rect>
+		
+		<text x="1" y="100" w="30" color="brown">23</text>
+		<text x="31" y="100" w="80" color="brown" family="Simsun">汽车</text>
+		<text x="101" y="100" w="30" color="brown">1 pcs</text>
+		<text x="131" y="100" w="28" align="right" color="brown">100</text>
+		<text x="161" y="100" w="28" align="right" color="brown">100</text>
+		
+		<text x="1" y="106" w="30" color="brown">24</text>
+		<text x="31" y="106" w="80" color="brown" family="Simsun">罗马书</text>
+		<text x="101" y="106" w="30" color="brown">4 pcs</text>
+		<text x="131" y="106" w="28" align="right" color="brown">30</text>
+		<text x="161" y="106" w="28" align="right" color="brown">120</text>
+		
+		<text x="1" y="112" w="30" color="brown">30</text>
+		<text x="31" y="112" w="80" color="brown"  family="Simsun">木板 Elantra</text>
+		<text x="101" y="112" w="30" color="brown">1 pcs</text>
+		<text x="131" y="112" w="28" align="right" color="brown">200</text>
+		<text x="161" y="112" w="28" align="right" color="brown">200</text>
+		
+		<text x="1" y="118" w="30" color="brown">5</text>
+		<text x="31" y="118" w="80" color="brown">Olive oil</text>
+		<text x="101" y="118" w="30" color="brown">1 oz</text>
+		<text x="131" y="118" w="28" align="right" color="brown">20</text>
+		<text x="161" y="118" w="28" align="right" color="brown">20</text>
+		
+		<line color="pink" x1="0" x2="190" y1="130" y2="130"/>
+		
+		<text x="81" y="140" w="58" align="right" color="black">Subtotal</text>
+		<text x="161" y="140" w="28" align="right" color="black">350</text>
+		<text x="81" y="146" w="58" align="right" color="black">Disount</text>
+		<text x="161" y="146" w="28" align="right" color="black">10%</text>
+		<text x="81" y="160" w="58" align="right" color="brown" style="bold" size="15">TOTAL</text>
+		<text x="161" y="160" w="28" align="right" color="brown" style="bold" size="15">330</text>
+		
+		
+		<text x="1" y="140" w="30" color="brown">Notes:</text>
+		<rect x="0" y="146" w="110" h="30">
+			<text x="1" y="1" w="108" h="30" color="red">barang yang sudah dibeli tidak dapat ditukar kembali. mohon dimaklumi ya</text>
+		</rect>
+		
+		<rect x="0" y="270" w="190" h="10" fill="lightgray" color="darkgray">
+			<text x="0" y="0" w="188" h="10" v-align="center" color="white" align="center">Thank you for your business!</text>
+		</rect>
+	</page>
+	
+	<page color="white" size="A4" margin-width="0">
+		<image x="0" y="0" src="codextel.png" scale="0.7"/>
+		
+		<text x="55" y="3" width="190" color="red" size="13">CODEXTEL</text>
+		<text x="55" y="9" width="190" family="Verdana">Jl. Melong Cijerah 4 No 6</text>
+		<text x="55" y="15" width="190" family="Verdana">Bandung 40213</text>
+		<text x="55" y="21" width="190">Jawa Barat</text>
+		
+		<text y="3" width="190" family="Verdana" align="right" size="20" color="lightgray">INVOICE</text>
+		<text y="13" width="190" family="Verdana" align="right">Date: 19 Oktober 2012</text>
+		<text y="19" width="190" align="right">Invoice #: 12345</text>
+		
+		<rect fill="pink" x="0" y="30" w="190" h="3" line-width="0.5" color="maroon"/>
+		
+		<text x="10" y="37" >Bill To: C007</text>
+		<text x="10" y="43" >ABC Company</text>
+		<text x="10" y="49" >Blv Wet Gate</text>
+		<text x="10" y="55" >Dragon City</text>
+		<text x="10" y="61" >Jawa Barat 1890</text>
+		
+		<text x="110" y="37" >Ship To:</text>
+		<text x="110" y="43" >Adhitya Rissa</text>
+		<text x="110" y="49" >Melong Cijerah 4 No 6</text>
+		<text x="110" y="55" >Bandung 40213</text>
+		<text x="110" y="61" >Jawa Barat</text>
+		
+		<rect x="0" y="68" w="30" h="9" color="darkgray" fill="lightgray" line-width="0.4">
+			<text x="1" y="1" w="30" color="white">PO #</text>
+		</rect>
+		<rect x="30" y="68" w="40" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="40" color="white">Sales Rep.</text>
+		</rect>
+		<rect x="70" y="68" w="30" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="30" color="white">Ship Date</text>
+		</rect>
+		<rect x="100" y="68" w="30" h="9" color="darkgray" fill="lightgray" line-width="0.4">
+			<text x="1" y="1" w="30" color="white">Ship Via</text>
+		</rect>
+		<rect x="130" y="68" w="30" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="30" color="white">Terms</text>
+		</rect>
+		<rect x="160" y="68" w="30" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="30" color="white">Due Date</text>
+		</rect>
+
+		<rect x="0" y="77" w="30" h="9" color="darkgray" line-width="0.4">
+			<text x="1" y="1" w="30" >CY/34/99</text>
+		</rect>
+		<rect x="30" y="77" w="40" h="9" color="darkgray" line-width="0.4" >
+			<text x="1" y="1" w="40" trim="ellipsis-char">Megan What do you know</text>
+		</rect>
+		<rect x="70" y="77" w="30" h="9" color="darkgray" line-width="0.4" >
+			<text x="1" y="1" w="30" >12/12/12</text>
+		</rect>
+		<rect x="100" y="77" w="30" h="9" color="darkgray" line-width="0.4">
+			<text x="1" y="1" w="30" >UPS</text>
+		</rect>
+		<rect x="130" y="77" w="30" h="9" color="darkgray" line-width="0.4" >
+			<text x="1" y="1" w="30" >30 Days</text>
+		</rect>
+		<rect x="160" y="77" w="30" h="9" color="darkgray" line-width="0.4" >
+			<text x="1" y="1" w="30" >12/12/13</text>
+		</rect>
+		
+		<rect x="0" y="90" w="30" h="9" color="darkgray" fill="lightgray" line-width="0.4">
+			<text x="1" y="1" w="30" color="white">ID</text>
+		</rect>
+		<rect x="30" y="90" w="80" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="80" color="white">Description</text>
+		</rect>
+		<rect x="100" y="90" w="30" h="9" color="darkgray" fill="lightgray" line-width="0.4">
+			<text x="1" y="1" w="30" color="white">Qty</text>
+		</rect>
+		<rect x="130" y="90" w="30" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="30" color="white">Unit Price</text>
+		</rect>
+		<rect x="160" y="90" w="30" h="9" color="darkgray" line-width="0.4" fill="lightgray">
+			<text x="1" y="1" w="30" color="white">Line Total</text>
+		</rect>
+		
+		<text x="1" y="100" w="30" color="brown">23</text>
+		<text x="31" y="100" w="80" color="brown">中文词典</text>
+		<text x="101" y="100" w="30" color="brown">1 pcs</text>
+		<text x="131" y="100" w="28" align="right" color="brown">100</text>
+		<text x="161" y="100" w="28" align="right" color="brown">100</text>
+		
+		<text x="1" y="106" w="30" color="brown">24</text>
+		<text x="31" y="106" w="80" color="brown">味の素</text>
+		<text x="101" y="106" w="30" color="brown">4 pcs</text>
+		<text x="131" y="106" w="28" align="right" color="brown">30</text>
+		<text x="161" y="106" w="28" align="right" color="brown">120</text>
+		
+		<text x="1" y="112" w="30" color="brown">30</text>
+		<text x="31" y="112" w="80" color="brown">현대 Elantra</text>
+		<text x="101" y="112" w="30" color="brown">1 pcs</text>
+		<text x="131" y="112" w="28" align="right" color="brown">200</text>
+		<text x="161" y="112" w="28" align="right" color="brown">200</text>
+		
+		<text x="1" y="118" w="30" color="brown">5</text>
+		<text x="31" y="118" w="80" color="brown">Olive oil</text>
+		<text x="101" y="118" w="30" color="brown">1 oz</text>
+		<text x="131" y="118" w="28" align="right" color="brown">20</text>
+		<text x="161" y="118" w="28" align="right" color="brown">20</text>
+		
+		<line color="pink" x1="0" x2="190" y1="130" y2="130"/>
+		
+		<text x="81" y="140" w="58" align="right" color="black">Subtotal</text>
+		<text x="161" y="140" w="28" align="right" color="black">350</text>
+		<text x="81" y="146" w="58" align="right" color="black">Disount</text>
+		<text x="161" y="146" w="28" align="right" color="black">10%</text>
+		<text x="81" y="160" w="58" align="right" color="brown" style="bold" size="15">TOTAL</text>
+		<text x="161" y="160" w="28" align="right" color="brown" style="bold" size="15">330</text>
+		
+		
+		<text x="1" y="140" w="30" color="brown">Notes:</text>
+		<rect x="0" y="146" w="110" h="30">
+			<text x="1" y="1" w="108" h="30" color="red">barang yang sudah dibeli tidak dapat ditukar kembali. harap maklum ya</text>
+		</rect>
+		
+		<rect x="0" y="270" w="190" h="10" fill="lightgray" color="darkgray">
+			<text x="1" y="1" w="188" color="white" align="center">Thank you for your business!</text>
+		</rect>
+	</page>
+	
+	<page size="A4" color="white" margin-width="0">
+		<text y="0" width="190" align="center" color="gray" size="15">INVOICE</text>
+		
+		<image x="120" y="15" src="are.png" scale="0.5"/>
+		
+		<text y="13" width="190" color="red" size="13">Adhitya Rissa</text>
+		<text y="19" width="190" family="Verdana">Jl. Melong Cijerah 4 No 6</text>
+		<text y="25" width="190" family="Verdana">Bandung 40213</text>
+		<text y="31" width="190">Jawa Barat</text>
+		
+		<text y="50" width="190">Decepticons LLC</text>
+		<text y="56" width="190">Megatron Jones</text>
+		<text y="62" width="190">668 Evildoer Way</text>
+		<text y="68" width="190">Cybertron</text>
+		<text y="74" width="190">PH3-ARC-MMI</text>
+		
+		<rect x="90" y="50" w="35" h="8" line-width="0.2" fill="lightgray"><text x="1" y="1">Invoice #</text></rect>
+		<rect x="90" y="58" w="35" h="8" line-width="0.2" fill="lightgray"><text x="1" y="1">Date</text></rect>
+		<rect x="90" y="66" w="35" h="8" line-width="0.2" fill="lightgray"><text x="1" y="1">Amount Due</text></rect>
+		<rect x="90" y="74" w="35" h="8" line-width="0.2" fill="lightgray"><text x="1" y="1">PO #</text></rect>
+		
+		<rect x="125" y="50" w="60" h="8" line-width="0.2" fill="linen"><text width="59" y="1" align="right">004</text></rect>
+		<rect x="125" y="58" w="60" h="8" line-width="0.2" fill="linen"><text width="59" y="1" align="right">21 January 2012</text></rect>
+		<rect x="125" y="66" w="60" h="8" line-width="0.2" fill="linen"><text width="59" y="1" align="right">$ 500.00</text></rect>
+		<rect x="125" y="74" w="60" h="8" line-width="0.2" fill="linen"><text width="59" y="1" align="right">3233/333</text></rect>
+		
+		<line color="pink" x1="0" x2="190" y1="85" y2="85"/>
+		
+		<rect x="0" y="90" w="25" h="9" line-width="0.2" fill="lightgray"><text x="1" y="1">Item</text></rect>
+		<rect x="25" y="90" w="80" h="9" line-width="0.2" fill="lightgray"><text x="1" y="1">Description</text></rect>
+		<rect x="105" y="90" w="25" h="9" line-width="0.2" fill="lightgray"><text width="24" y="1" align="right">Unit Price</text></rect>
+		<rect x="130" y="90" w="25" h="9" line-width="0.2" fill="lightgray"><text width="25" x="1" y="1" align="center">Qty</text></rect>
+		<rect x="155" y="90" w="30" h="9" line-width="0.2" fill="lightgray"><text x="1" y="1" align="right">Subtotal</text></rect>
+		
+		<text x="1" y="102" w="25">DEC</text>
+		<text x="26" y="102" w="80">Development</text>
+		<text x="105" y="102" w="24" align="right">20.000</text>
+		<text x="131" y="102" w="25" align="center">4 pcs</text>
+		<text x="155" y="102" w="29" align="right">20.000</text>
+		
+		<text x="1" y="110" w="25">SCD</text>
+		<text x="26" y="110" w="80">Super Cool Development</text>
+		<text x="105" y="110" w="24" align="right">1.000</text>
+		<text x="131" y="110" w="25" align="center">10 pcs</text>
+		<text x="155" y="110" w="29" align="right">1.000</text>
+		
+		<text x="1" y="118" w="25">UPC</text>
+		<text x="26" y="118" w="80">Maintenance Server</text>
+		<text x="105" y="118" w="24" align="right">300</text>
+		<text x="131" y="118" w="25" align="center">1 pcs</text>
+		<text x="155" y="118" w="29" align="right">300</text>
+		
+		<line color="pink" x1="0" x2="190" y1="200" y2="200"/>
+		
+		<rect x="0" y="202" w="94" h="50" radius="5">
+			<text x="5" y="1" w="89" h="50">NOTE: If you have any question about this thing, hopefully you have learned your lesson about pocket kings</text>
+		</rect>
+		
+		<rect x="95" y="202" w="90" h="50">
+			<text x="1" y="1" >Subtotal</text>
+			<text x="1" y="7" >Discount</text>
+			<text x="1" y="13">Tax</text>
+			<text x="1" y="19">Total</text>
+			<text x="1" y="25">Amount Paid</text>
+		
+			<text x="46" y="1" w="41" align="right">9.000</text>
+			<text x="46" y="7" w="41" align="right">10%</text>
+			<text x="46" y="13" w="41" align="right">1%</text>
+			<text x="46" y="19" w="41" align="right">9.5000</text>
+			<text x="46" y="25" w="41" align="right">0</text>
+		</rect>
+		
+		<rect x="95" y="240" w="90" h="12" fill="lightgray">
+			<text x="1" y="2" size="12" color="brown">Balance Due</text>
+			<text x="46" y="2" w="41" align="right" size="12" color="brown">95.500</text>
+		</rect>
+		
+		<text x="0" y="255" w="190" align="center">Payment upon due receipt. Thank you for your business!</text>
+	</page>
+	
+</spruce>

@@ -39,11 +39,13 @@ proc IsReadOnly*(self: NCValue): bool =
 # data. If true (1) modifications to this object will also affect |that|
 # object and vice-versa.
 proc IsSame*(self, that: NCValue): bool =
+  add_ref(that)
   result = self.is_same(self, that) == 1.cint
 
 # Returns true (1) if this object and |that| object have an equivalent
 # underlying value but are not necessarily the same object.
 proc IsEqual*(self, that: NCValue): bool =
+  add_ref(that)
   result = self.is_equal(self, that) == 1.cint
 
 # Returns a copy of this object. The underlying data will also be copied.
@@ -130,18 +132,21 @@ proc SetString*(self: NCValue, value: string): bool =
 # set successfully. This object keeps a reference to |value| and ownership of
 # the underlying data remains unchanged.
 proc SetBinary*(self: NCValue, value: NCBinaryValue): bool =
+  add_ref(value)
   result = self.set_binary(self, value) == 1.cint
 
 # Sets the underlying value as type dict. Returns true (1) if the value was
 # set successfully. This object keeps a reference to |value| and ownership of
 # the underlying data remains unchanged.
 proc SetDictionary*(self: NCValue, value: NCDictionaryValue): bool =
+  add_ref(value)
   result = self.set_dictionary(self, value) == 1.cint
 
 # Sets the underlying value as type list. Returns true (1) if the value was
 # set successfully. This object keeps a reference to |value| and ownership of
 # the underlying data remains unchanged.
 proc SetList*(self: NCValue, value: NCListValue): bool =
+  add_ref(value)
   result = self.set_list(self, value) == 1.cint
 
 # Returns true (1) if this object is valid. This object may become invalid if
@@ -158,11 +163,13 @@ proc IsOwned*(self: NCBinaryValue): bool =
 # Returns true (1) if this object and |that| object have the same underlying
 # data.
 proc IsSame*(self, that: NCBinaryValue): bool =
+  add_ref(that)
   result = self.is_same(self, that) == 1.cint
 
 # Returns true (1) if this object and |that| object have an equivalent
 # underlying value but are not necessarily the same object.
 proc IsEqual*(self, that: NCBinaryValue): bool =
+  add_ref(that)
   result = self.is_equal(self, that) == 1.cint
 
 # Returns a copy of this object. The data in this object will also be copied.
@@ -198,11 +205,13 @@ proc IsReadOnly*(self: NCDictionaryValue): bool =
 # data. If true (1) modifications to this object will also affect |that|
 # object and vice-versa.
 proc IsSame*(self, that: NCDictionaryValue): bool =
+  add_ref(that)
   result = self.is_same(self, that) == 1.cint
 
 # Returns true (1) if this object and |that| object have an equivalent
 # underlying value but are not necessarily the same object.
 proc IsEqual*(self, that: NCDictionaryValue): bool =
+  add_ref(that)
   result = self.is_equal(self, that) == 1.cint
 
 # Returns a writable copy of this object. If |exclude_NULL_children| is true
@@ -311,6 +320,7 @@ proc GetList*(self: NCDictionaryValue, key: string): NCListValue =
 # underlying data will be referenced and modifications to |value| will modify
 # this object.
 proc SetValue*(self: NCDictionaryValue, key: string, value: NCValue): bool =
+  add_ref(value)
   let ckey = to_cef_string(key)
   result = self.set_value(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
@@ -358,6 +368,7 @@ proc SetString*(self: NCDictionaryValue, key: string, value: string): bool =
 # Otherwise, ownership will be transferred to this object and the |value|
 # reference will be invalidated.
 proc SetBinary*(self: NCDictionaryValue, key: string, value: NCBinaryValue): bool =
+  add_ref(value)
   let ckey = to_cef_string(key)
   result = self.set_binary(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
@@ -368,6 +379,7 @@ proc SetBinary*(self: NCDictionaryValue, key: string, value: NCBinaryValue): boo
 # Otherwise, ownership will be transferred to this object and the |value|
 # reference will be invalidated.
 proc SetDictionary*(self: NCDictionaryValue, key: string, value: NCDictionaryValue): bool =
+  add_ref(value)
   let ckey = to_cef_string(key)
   result = self.set_dictionary(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
@@ -378,6 +390,7 @@ proc SetDictionary*(self: NCDictionaryValue, key: string, value: NCDictionaryVal
 # Otherwise, ownership will be transferred to this object and the |value|
 # reference will be invalidated.
 proc SetList*(self: NCDictionaryValue, key: string, value: NCListValue): bool =
+  add_ref(value)
   let ckey = to_cef_string(key)
   result = self.set_list(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
@@ -402,11 +415,13 @@ proc IsReadOnly*(self: NCListValue): bool =
 # data. If true (1) modifications to this object will also affect |that|
 # object and vice-versa.
 proc IsSame*(self, that: NCListValue): bool =
+  add_ref(that)
   result = self.is_same(self, that) == 1.cint
 
 # Returns true (1) if this object and |that| object have an equivalent
 # underlying value but are not necessarily the same object.
 proc IsEqual*(self, that: NCListValue): bool =
+  add_ref(that)
   result = self.is_equal(self, that) == 1.cint
 
 # Returns a writable copy of this object.
@@ -484,6 +499,7 @@ proc GetList*(self: NCListValue, index: int): NCListValue =
 # then the underlying data will be referenced and modifications to |value|
 # will modify this object.
 proc SetValue*(self: NCListValue, index: int, value: NCValue): bool =
+  add_ref(value)
   result = self.set_value(self, index.cint, value) == 1.cint
 
 # Sets the value at the specified index as type null. Returns true (1) if the
@@ -519,6 +535,7 @@ proc SetString*(self: NCListValue, index: int, value: string): bool =
 # change. Otherwise, ownership will be transferred to this object and the
 # |value| reference will be invalidated.
 proc SetBinary*(self: NCListValue, index: int, value: NCBinaryValue): bool =
+  add_ref(value)
   result = self.set_binary(self, index.cint, value) == 1.cint
 
 # Sets the value at the specified index as type dict. Returns true (1) if the
@@ -527,6 +544,7 @@ proc SetBinary*(self: NCListValue, index: int, value: NCBinaryValue): bool =
 # Otherwise, ownership will be transferred to this object and the |value|
 # reference will be invalidated.
 proc SetDictionary*(self: NCListValue, index: int, value: NCDictionaryValue): bool =
+  add_ref(value)
   result = self.set_dictionary(self, index.cint, value) == 1.cint
 
 # Sets the value at the specified index as type list. Returns true (1) if the
@@ -535,6 +553,7 @@ proc SetDictionary*(self: NCListValue, index: int, value: NCDictionaryValue): bo
 # Otherwise, ownership will be transferred to this object and the |value|
 # reference will be invalidated.
 proc SetList*(self: NCListValue, index: int, value: NCListValue): bool =
+  add_ref(value)
   result = self.set_list(self, index.cint, value) == 1.cint
 
 # Creates a new object.

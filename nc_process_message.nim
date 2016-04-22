@@ -1,4 +1,4 @@
-import cef/cef_process_message_api, cef/cef_base_api, nc_util, cef/cef_values_api
+import cef/cef_process_message_api, nc_util, nc_values, nc_types
 
 type
   # Structure representing a message. Can be used on any process and thread.
@@ -24,7 +24,7 @@ proc GetName*(self: NCProcessMessage): string =
   result = to_nim_string(self.get_name(self))
 
 # Returns the list of arguments.
-proc GetArgumentList*(self: NCProcessMessage): ptr cef_list_value =
+proc GetArgumentList*(self: NCProcessMessage): NCListValue =
   result = self.get_argument_list(self)
 
 # Create a new cef_process_message_t object with the specified name.

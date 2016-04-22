@@ -87,6 +87,7 @@ proc Exit*(self: NCV8Context): bool =
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCV8Context): bool =
+  add_ref(that)
   result = self.is_same(self, that) == 1.cint
 
 # Evaluates the specified JavaScript code using this context's global object.
@@ -105,6 +106,8 @@ proc Eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: va
 # that will be thrown. Return true (1) if execution was handled.
 proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
   retval: var NCV8Value, exception: string): bool =
+  add_ref(obj)
+  for c in args: add_ref(c)
   let cname = to_cef_string(name)
   let cexception = to_cef_string(exception)
   result = self.execute(self, cname, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr), retval, cexception) == 1.cint
@@ -118,6 +121,7 @@ proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Val
 # handled.
 proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
   retval: var NCV8Value, exception: string): bool =
+  add_ref(obj)
   let cname = to_cef_string(name)
   let cexception = to_cef_string(exception)
   result = self.get_value(self, cname, obj, retval, cexception) == 1.cint
@@ -131,6 +135,8 @@ proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
 # handled.
 proc SetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
   value: NCV8Value, exception: string): bool =
+  add_ref(obj)
+  add_ref(value)
   let cname = to_cef_string(name)
   let cexception = to_cef_string(exception)
   result = self.set_value(self, cname, obj, value, cexception) == 1.cint
@@ -343,6 +349,7 @@ proc GetValueByIndex*(self: NCV8Value, index: int): NCV8Value =
 # (1) even though assignment failed.
 proc SetValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
   attribute: cef_v8_propertyattribute): bool =
+  add_ref(value)
   let ckey = to_cef_string(key)
   result = self.set_ValueByKey(self, ckey, value, attribute) == 1.cint
   cef_string_userfree_free(ckey)
@@ -352,6 +359,7 @@ proc SetValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
 # exception is thrown. For read-only values this function will return true
 # (1) even though assignment failed.
 proc SetValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
+  add_ref(value)
   result = self.set_ValueByIndex(self, index.cint, value) == 1.cint
 
 # Registers an identifier and returns true (1) on success. Access to the
@@ -376,6 +384,7 @@ proc GetKeys*(self: NCV8Value, keys: var seq[string]): bool =
 # false (0) if this function is called incorrectly. This function can only be
 # called on user created objects.
 proc SetUserData*(self: NCV8Value, user_data: ptr cef_base): bool =
+  user_data.add_ref(user_data)
   result = self.set_user_data(self, user_data) == 1.cint
 
 # Returns the user data, if any, assigned to this object.
@@ -424,6 +433,8 @@ proc GetFunctionHandler*(self: NCV8Value): NCV8Handler =
 # Returns NULL if this function is called incorrectly or an exception is
 # thrown.
 proc ExecuteFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
+  add_ref(obj)
+  for c in args: add_ref(c)
   result = self.execute_function(self, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr))
 
 # Execute the function using the specified V8 context. |object| is the
@@ -434,6 +445,9 @@ proc ExecuteFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NC
 # exception is thrown.
 proc ExecuteFunctionWithContext*(self: NCV8Value, context: NCV8Context,
   obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
+  add_ref(context)
+  add_ref(obj)
+  for c in args: add_ref(c)
   result = self.execute_function_with_context(self, context, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr))
 
 # Returns true (1) if the underlying handle is valid and it can be accessed
@@ -548,6 +562,7 @@ proc IsConstructor*(self: NCV8StackFrame): bool =
 
 proc NCRegisterExtension*(extension_name: string,
   javascript_code: string, handler: NCV8Handler): bool =
+  add_ref(handler)
   let cname = to_cef_string(extension_name)
   let ccode = to_cef_string(javascript_code)
   result = cef_register_extension(cname, ccode, handler) == 1.cint
@@ -609,6 +624,7 @@ proc NCV8ValueCreatestring*(value: string): NCV8Value =
 # or in combination with calling enter() and exit() on a stored cef_v8context_t
 # reference.
 proc NCV8ValueCreateobject*(accessor: NCV8Accessor): NCV8Value =
+  add_ref(accessor)
   result = cef_v8value_create_object(accessor)
 
 # Create a new cef_v8value_t object of type array with the specified |length|.
@@ -625,6 +641,7 @@ proc NCV8ValueCreatearray*(length: int): NCV8Value =
 # cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
 # enter() and exit() on a stored cef_v8context_t reference.
 proc NCV8ValueCreatefunction*(name: string, handler: NCV8Handler): NCV8Value =
+  add_ref(handler)
   let cname = to_cef_string(name)
   result = cef_v8value_create_function(cname, handler)
   cef_string_userfree_free(cname)

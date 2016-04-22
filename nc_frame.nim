@@ -1,6 +1,6 @@
 import nc_browser, nc_util, nc_types
-import cef/cef_string_visitor_api, cef/cef_request_api
-import cef/cef_v8_api, cef/cef_dom_api
+import nc_string_visitor, nc_request, nc_dom, nc_v8
+
 
 # Structure used to represent a frame in the browser window. When used in the
 # browser process the functions of this structure may be called on any thread
@@ -50,16 +50,19 @@ proc ViewSource*(self: NCFrame) =
 
 # Retrieve this frame's HTML source as a string sent to the specified
 # visitor.
-proc GetSource*(self: NCFrame, visitor: ptr cef_string_visitor) =
-  self.get_source(self, visitor)
+proc GetSource*(self: NCFrame, visitor: NCStringVisitor) =
+  add_ref(visitor.GetHandler())
+  self.get_source(self, visitor.GetHandler())
 
 # Retrieve this frame's display text as a string sent to the specified
 # visitor.
-proc GetText*(self: NCFrame, visitor: ptr cef_string_visitor) =
-  self.get_text(self, visitor)
+proc GetText*(self: NCFrame, visitor: NCStringVisitor) =
+  add_ref(visitor.GetHandler())
+  self.get_text(self, visitor.GetHandler())
 
 # Load the request represented by the |request| object.
-proc LoadRequest*(self: NCFrame, request: ptr cef_request) =
+proc LoadRequest*(self: NCFrame, request: NCRequest) =
+  add_ref(request)
   self.load_request(self, request)
 
 # Load the specified |url|.
@@ -128,10 +131,11 @@ proc GetBrowser*(self: NCFrame): NCBrowser =
 
 # Get the V8 context associated with the frame. This function can only be
 # called from the render process.
-proc GetV8context*(self: NCFrame): ptr cef_v8context =
+proc GetV8context*(self: NCFrame): NCV8context =
   result = self.get_v8context(self)
 
 # Visit the DOM document. This function can only be called from the render
 # process.
-proc VisitDom*(self: NCFrame, visitor: ptr cef_domvisitor) =
-  self.visit_dom(self, visitor)
+proc VisitDom*(self: NCFrame, visitor: NCDomvisitor) =
+  add_ref(visitor.GetHandler())
+  self.visit_dom(self, visitor.GetHandler())

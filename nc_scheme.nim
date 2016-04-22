@@ -110,9 +110,10 @@ proc GetHandler*(self: NCSchemeHandlerFactory): ptr cef_scheme_handler_factory =
 # ntext::cef_request_context_get_global_context()->register_scheme_handler_fact
 # ory().
 proc NCRegisterSchemeHandlerFactory*(schemeName, domainName: string, factory: NCSchemeHandlerFactory) =
+  add_ref(factory.GetHandler())
   let cscheme = to_cef_string(schemeName)
   let cdomain = to_cef_string(domainName)
-  cef_register_scheme_handler_factory(cscheme, cdomain, factory.handler.addr)
+  cef_register_scheme_handler_factory(cscheme, cdomain, factory.GetHandler())
   cef_string_userfree_free(cscheme)
   cef_string_userfree_free(cdomain)
 

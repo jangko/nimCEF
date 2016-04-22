@@ -7,4 +7,4 @@ type
     base*: cef_base
 
     # Method that will be executed.
-    visit: proc(self: ptr cef_string_visitor, str: ptr cef_string) {.cef_callback.}
+    visit*: proc(self: ptr cef_string_visitor, str: ptr cef_string) {.cef_callback.}

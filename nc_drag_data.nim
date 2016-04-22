@@ -1,4 +1,4 @@
-import cef/cef_drag_data_api, nc_util, cef/cef_stream_api
+import cef/cef_drag_data_api, nc_util, nc_stream
 
 type
   # Structure used to represent drag data. The functions of this structure may be
@@ -65,7 +65,8 @@ proc GetFileName*(self: NCDragData): string =
 # |writer|. Returns the number of bytes sent to |writer|. If |writer| is NULL
 # this function will return the size of the file contents in bytes. Call
 # get_file_name() to get a suggested name for the file.
-proc GetFileContents*(self: NCDragData, writer: ptr cef_stream_writer): int =
+proc GetFileContents*(self: NCDragData, writer: NCStreamWriter): int =
+  add_ref(writer)
   result = self.get_file_contents(self, writer).int
 
 # Retrieve the list of file names that are being dragged into the browser

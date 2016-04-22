@@ -1,4 +1,5 @@
-import cef/cef_dom_api, nc_util, cef/cef_types
+import cef/cef_dom_api, nc_util, nc_types, cef/cef_types
+include cef/cef_import
 
 type
   # Structure to implement for visiting the DOM. The functions of this structure
@@ -20,8 +21,24 @@ type
 # executed. DOM objects are only valid for the scope of this function. Do not
 # keep references to or attempt to access any DOM objects outside the scope
 # of this function.
-method Visit*(self: NCDomVisitor, document: NCDomDocument) {.base.} =
+method DomVisit*(self: NCDomVisitor, document: NCDomDocument) {.base.} =
   discard
+
+proc GetHandler*(self: NCDomVisitor): ptr cef_dom_visitor =
+  result = self.handler.addr
+  
+proc visit_document(self: ptr cef_domvisitor, document: ptr cef_domdocument) {.cef_callback.} =
+  var handler = type_to_type(NCDomVisitor, self)
+  handler.DomVisit(document)
+  release(document)
+        
+proc init_dom_visitor(handler: ptr cef_dom_visitor) =
+  init_base(handler)
+  handler.visit = visit_document
+  
+proc makeNCDomVisitor*(T: typedesc): auto =
+  result = new(T)
+  init_dom_visitor(result.GetHandler())
 
 # Returns the document type.
 proc GetType*(self: NCDomDocument): cef_dom_document_type =

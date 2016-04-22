@@ -71,5 +71,6 @@ proc Eof*(self: NCZipReader): bool =
 # Create a new cef_zip_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
 proc NCZipReaderCreate*(stream: NCStreamReader): NCZipReader =
+  add_ref(stream)
   result = cef_zip_reader_create(stream)
 

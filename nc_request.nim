@@ -63,6 +63,7 @@ proc GetPostData*(self: NCRequest): NCPostData =
 
 # Set the post data.
 proc SetPostData*(self: NCRequest, postData: NCPostData) =
+  add_ref(postData)
   self.set_post_data(self, postData)
 
 # Get the header values. Will not include the Referer value if any.
@@ -80,6 +81,7 @@ proc SetHeaderMap*(self: NCRequest, headerMap: NCStringMultiMap) =
 
 # Set all values at one time.
 proc SetValues*(self: NCRequest, url: string, pmethod: string, postData: NCPostData, headerMap: NCStringMultiMap) =
+  add_ref(postData)
   let curl = to_cef_string(url)
   let cmethod = to_cef_string(pmethod)
   let cmap = nim_to_string_multimap(headerMap)
@@ -153,10 +155,12 @@ proc GetElements*(self: NCPostData): seq[NCPostDataElement] =
 # Remove the specified post data element.  Returns true (1) if the removal
 # succeeds.
 proc RemoveElement*(self: NCPostData, element: NCPostDataElement): bool =
+  add_ref(element)
   result = self.remove_element(self, element) == 1.cint
 
 # Add the specified post data element.  Returns true (1) if the add succeeds.
 proc AddElement*(self: NCPostData, element: NCPostDataElement): bool =
+  add_ref(element)
   result = self.add_element(self, element) == 1.cint
 
 # Remove all existing post data elements.

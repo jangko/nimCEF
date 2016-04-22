@@ -1,6 +1,6 @@
 import winapi, os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
-import nc_context_menu_params, nc_browser
+import nc_context_menu_params, nc_browser, nc_settings
 
 type
   myClient = ref object of NCClient
@@ -44,20 +44,17 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
 
 proc main() =
   # Main args.
-  var mainArgs: cef_main_args
-  mainArgs.instance = getModuleHandle(nil)
-
+  var mainArgs = makeNCMainArgs()
   var app = makeNCApp(myApp, {})
 
-  var code = cef_execute_process(mainArgs.addr, app.GetHandler(), nil)
+  var code = NCExecuteProcess(mainArgs, app)
   if code >= 0:
     echo "failure execute process ", code
     quit(code)
 
-  var settings: cef_settings
-  settings.size = sizeof(settings)
-  settings.no_sandbox = 1
-  discard cef_initialize(mainArgs.addr, settings.addr, app.GetHandler(), nil)
+  var settings = makeNCSettings()
+  settings.no_sandbox = true
+  discard NCInitialize(mainArgs, settings, app)
   echo "cef_initialize thread id: ", getCurrentThreadId()
 
   var windowInfo: cef_window_info
@@ -74,14 +71,12 @@ proc main() =
 
   #Browser settings.
   #It is mandatory to set the "size" member.
-  var browserSettings: cef_browser_settings
-  browserSettings.size = sizeof(browserSettings)
-
+  var browserSettings = makeNCBrowserSettings()
   var client = newClient(123, "hello")
 
   # Create browser.
   echo "cef_browser_host_create_browser"
-  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings.addr, nil)
+  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings)
 
   # Message loop.
   cef_run_message_loop()

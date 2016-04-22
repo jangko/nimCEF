@@ -1,6 +1,6 @@
 import cef/cef_base_api, strtabs, cef/cef_string_map_api
 import cef/cef_string_api, cef/cef_string_list_api, tables
-import cef/cef_string_multimap_api, nc_task
+import cef/cef_string_multimap_api
 include cef/cef_import
 
 export strtabs, cef_string_api, cef_string_list_api, cef_string_map_api, tables
@@ -121,16 +121,3 @@ proc init_base*[T](elem: T) =
   initialize_cef_base(cast[ptr cef_base](elem))
 
 template b_to_b*(brow: expr): expr = cast[ptr cef_browser](brow)
-
-
-template NC_REQUIRE_UI_THREAD*(): expr =
-  doAssert(NCCurrentlyOn(TID_UI))
-  
-template NC_REQUIRE_IO_THREAD*(): expr =
-  doAssert(NCCurrentlyOn(TID_IO))
-  
-template NC_REQUIRE_FILE_THREAD*(): expr =
-  doAssert(NCCurrentlyOn(TID_FILE))
-  
-template NC_REQUIRE_RENDERER_THREAD*(): expr =
-  doAssert(NCCurrentlyOn(TID_RENDERER))

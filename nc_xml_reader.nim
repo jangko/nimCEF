@@ -180,8 +180,3 @@ proc NCXmlReaderCreate*(stream: NCStreamReader, encodingType: cef_xml_encoding_t
   add_ref(stream)
   result = cef_xml_reader_create(stream, encodingType, curi)
   cef_string_userfree_free(curi)
-
-iterator attrs*(self: NCXmlReader): string =
-  let count = self.GetAttributeCount()
-  for i in 0.. <count:
-    yield self.GetAttributeByIndex(i)

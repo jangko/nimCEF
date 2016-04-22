@@ -1,46 +1,46 @@
 import nc_types, cef/cef_browser_api, nc_util, nc_process_message, nc_client
-import nc_request_context, nc_settings
+import nc_request_context, nc_settings, nc_navigation_entry
 
 type
   # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
   # this structure will be called on the browser process UI thread.
-  NCRunFileDialogCallback* = ref object
+  NCRunFileDialogCallback* = ref object of RootObj
     handler: cef_run_file_dialog_callback
-
-
-
-    # Called asynchronously after the file dialog is dismissed.
-    # |selected_accept_filter| is the 0-based index of the value selected from
-    # the accept filters array passed to cef_browser_host_t::RunFileDialog.
-    # |file_paths| will be a single value or a list of values depending on the
-    # dialog mode. If the selection was cancelled |file_paths| will be NULL.
-
-   # on_file_dialog_dismissed*(self: ptr cef_run_file_dialog_callback,
-    #  selected_accept_filter: cint, file_paths: cef_string_list) =
 
   # Callback structure for cef_browser_host_t::GetNavigationEntries. The
   # functions of this structure will be called on the browser process UI thread.
-
-  #cef_navigation_entry_visitor* = object
-    # Method that will be executed. Do not keep a reference to |entry| outside of
-    # this callback. Return true (1) to continue visiting entries or false (0) to
-    # stop. |current| is true (1) if this entry is the currently loaded
-    # navigation entry. |index| is the 0-based index of this entry and |total| is
-    # the total number of entries.
-
-   # visit*(self: ptr cef_navigation_entry_visitor,
-    #  entry: ptr cef_navigation_entry, current, index, total: cint): cint =
-
+  NCNavigationEntryVisitor* = ref object of RootObj
+    handler: cef_navigation_entry_visitor
+    
   # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
   # structure will be called on the browser process UI thread.
+  NCPdfPrintCallback* = ref object of RootObj
+    handler: cef_pdf_print_callback
+      
+      
+# Called asynchronously after the file dialog is dismissed.
+# |selected_accept_filter| is the 0-based index of the value selected from
+# the accept filters array passed to cef_browser_host_t::RunFileDialog.
+# |file_paths| will be a single value or a list of values depending on the
+# dialog mode. If the selection was cancelled |file_paths| will be NULL.
+method OnFileDialogDismissed*(self: NCRunFileDialogCallback,
+  selected_accept_filter: int, file_paths: seq[string]) {.base.} =
+  discard
+    
+# Method that will be executed. Do not keep a reference to |entry| outside of
+# this callback. Return true (1) to continue visiting entries or false (0) to
+# stop. |current| is true (1) if this entry is the currently loaded
+# navigation entry. |index| is the 0-based index of this entry and |total| is
+# the total number of entries.
+method NavigationVisit*(self: NCNavigationEntryVisitor, entry: NCNavigationEntry, 
+  current, index, total: int): bool =
+  result = false
 
-  #cef_pdf_print_callback* = object
-    # Method that will be executed when the PDF printing has completed. |path| is
-    # the output path. |ok| will be true (1) if the printing completed
-    # successfully or false (0) otherwise.
-
-    #on_pdf_print_finished*(self: ptr cef_pdf_print_callback, path: ptr cef_string,
-      #ok: cint): cint =
+# Method that will be executed when the PDF printing has completed. |path| is
+# the output path. |ok| will be true (1) if the printing completed
+# successfully or false (0) otherwise.
+method OnPdfPrintFinished*(self: NCPdfPrintCallback, path: string, ok: bool): bool =
+  result = false
 
 # Returns the browser host object. This function can only be called in the
 # browser process.
@@ -86,6 +86,7 @@ proc GetIdentifier*(self: NCBrowser): int =
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCBrowser): bool =
+  add_ref(that)
   result = self.is_same(self, that) == 1.cint
 
 # Returns true (1) if the window is a popup window.
@@ -134,6 +135,7 @@ proc GetFrameNames*(self: NCBrowser): seq[string] =
 # message was sent successfully.
 proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id,
   message: NCProcessMessage): bool =
+  add_ref(message)
   result = self.send_process_message(self, target_process, message) == 1.cint
 
 
@@ -176,7 +178,7 @@ proc GetClient*(self: NCBrowserHost): NCClient =
   result = client_to_client(self.get_client(self))
 
 # Returns the request context for this browser.
-proc GetRequestContext*(self: NCBrowserHost): ptr cef_request_context =
+proc GetRequestContext*(self: NCBrowserHost): NCRequestContext =
   result = self.get_request_context(self)
 
 # Get the current zoom level. The default zoom level is 0.0. This function

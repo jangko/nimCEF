@@ -8,7 +8,7 @@ type
     attributes: StringTableRef
     children: seq[NCXmlObject]
   
-proc newNCXmlObject*(name: string): NCXmlObject =
+proc makeNCXmlObject*(name: string): NCXmlObject =
   new(result)
   result.name = name
   result.children = @[]
@@ -161,7 +161,7 @@ proc Set*(self, other: NCXmlObject) =
 # Return a new object with the same name, children and attributes as this
 # object. The parent of the new object will be NULL.
 proc Duplicate(self: NCXmlObject): NCXmlObject =
-  result = newNCXmlObject(self.name)
+  result = makeNCXmlObject(self.name)
   result.Append(self, true)
     
 proc Append(self, other: NCXmlObject, overwriteAttributes: bool) =
@@ -190,7 +190,7 @@ proc LoadXml*(stream: NCStreamReader, encodingType: cef_xml_encoding_type,
     return nil
   
   var
-    cur_object = newNCXmlObject("document")
+    cur_object = makeNCXmlObject("document")
     new_object: NCXmlObject
     queue: seq[NCXmlObject] = @[]
     cur_depth = 0
@@ -206,7 +206,7 @@ proc LoadXml*(stream: NCStreamReader, encodingType: cef_xml_encoding_type,
     cur_depth = reader.GetDepth()
     if value_depth >= 0 and (cur_depth > value_depth):
       # The current node has already been parsed as part of a value.
-      discard reader.MoveToNextNode()
+      if not reader.MoveToNextNode(): break
       continue
 
     cur_type = reader.GetType()
@@ -214,7 +214,7 @@ proc LoadXml*(stream: NCStreamReader, encodingType: cef_xml_encoding_type,
       if cur_depth == value_depth:
         # Add to the current value.
         cur_value.add reader.GetOuterXml()
-        discard reader.MoveToNextNode()
+        if not reader.MoveToNextNode(): break
         continue
       elif last_has_ns and reader.GetPrefix().len == 0:
         if not cur_object.HasChildren():
@@ -230,7 +230,7 @@ proc LoadXml*(stream: NCStreamReader, encodingType: cef_xml_encoding_type,
           break
       else:
         # Start a new element.
-        new_object = newNCXmlObject(reader.GetQualifiedName())
+        new_object = makeNCXmlObject(reader.GetQualifiedName())
         discard cur_object.AddChild(new_object)
         last_has_ns = reader.GetPrefix().len != 0
         if not reader.IsEmptyElement():
@@ -247,7 +247,7 @@ proc LoadXml*(stream: NCStreamReader, encodingType: cef_xml_encoding_type,
     elif cur_type == XML_NODE_ELEMENT_END:
       if cur_depth == value_depth:
         # Ending an element that is already in the value.
-        discard reader.MoveToNextNode()
+        if not reader.MoveToNextNode(): break
         continue
       elif cur_depth < value_depth:
         # Done with parsing the value portion of the current element.

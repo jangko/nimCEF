@@ -1,4 +1,6 @@
-import cef/cef_download_item_api, nc_util
+import cef/cef_download_item_api, cef/cef_client_api, cef/cef_browser_api
+import cef/cef_response_api, cef/cef_auth_callback_api, cef/cef_ssl_info_api
+import cef/cef_response_filter_api
 
 include cef/cef_import
 
@@ -497,7 +499,8 @@ proc get_resource_response_filter*(self: ptr cef_request_handler, browser: ptr_c
   response: ptr cef_response): ptr cef_response_filter {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.GetResourceResponseFilter(brow, frame, request, response)
+  var res = client.GetResourceResponseFilter(brow, frame, request, response)
+  if res != nil: result = res.GetHandler()
   release(brow)
   release(frame)
   release(request)

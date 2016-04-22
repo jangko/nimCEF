@@ -613,7 +613,7 @@ proc NCV8ValueCreateDate*(date: ptr cef_time): NCV8Value =
   result = cef_v8value_create_date(date)
 
 # Create a new cef_v8value_t object of type string.
-proc NCV8ValueCreatestring*(value: string): NCV8Value =
+proc NCV8ValueCreateString*(value: string): NCV8Value =
   let cval = to_cef_string(value)
   result = cef_v8value_create_string(cval)
   cef_string_userfree_free(cval)
@@ -623,7 +623,7 @@ proc NCV8ValueCreatestring*(value: string): NCV8Value =
 # cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
 # or in combination with calling enter() and exit() on a stored cef_v8context_t
 # reference.
-proc NCV8ValueCreateobject*(accessor: NCV8Accessor): NCV8Value =
+proc NCV8ValueCreateObject*(accessor: NCV8Accessor): NCV8Value =
   add_ref(accessor)
   result = cef_v8value_create_object(accessor)
 
@@ -633,14 +633,14 @@ proc NCV8ValueCreateobject*(accessor: NCV8Accessor): NCV8Value =
 # cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
 # or in combination with calling enter() and exit() on a stored cef_v8context_t
 # reference.
-proc NCV8ValueCreatearray*(length: int): NCV8Value =
+proc NCV8ValueCreateArray*(length: int): NCV8Value =
   result = cef_v8value_create_array(length.cint)
 
 # Create a new cef_v8value_t object of type function. This function should only
 # be called from within the scope of a cef_render_process_handler_t,
 # cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
 # enter() and exit() on a stored cef_v8context_t reference.
-proc NCV8ValueCreatefunction*(name: string, handler: NCV8Handler): NCV8Value =
+proc NCV8ValueCreateFunction*(name: string, handler: NCV8Handler): NCV8Value =
   add_ref(handler)
   let cname = to_cef_string(name)
   result = cef_v8value_create_function(cname, handler)
@@ -648,5 +648,5 @@ proc NCV8ValueCreatefunction*(name: string, handler: NCV8Handler): NCV8Value =
   
 # Returns the stack trace for the currently active context. |frame_limit| is
 # the maximum number of frames that will be captured.
-proc cef_v8stack_trace_get_current*(frame_limit: int): NCV8StackTrace =
+proc NCV8StackTraceGetCurrent*(frame_limit: int): NCV8StackTrace =
   result = cef_v8stack_trace_get_current(frame_limit.cint)

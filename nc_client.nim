@@ -1,16 +1,33 @@
-import cef/cef_base_api, cef/cef_client_api, cef/cef_browser_api
-
-import cef/cef_resource_handler_api, cef/cef_response_api, cef/cef_response_filter_api
-import cef/cef_auth_callback_api, cef/cef_ssl_info_api
-
+import cef/cef_request_handler_api, cef/cef_string_list_api, cef/cef_dialog_handler_api
+import cef/cef_download_handler_api, cef/cef_geolocation_handler_api, cef/cef_jsdialog_handler_api
+import cef/cef_resource_handler_api
 import nc_process_message, nc_types, nc_download_item, nc_request, nc_response, nc_drag_data
+import nc_auth_callback, nc_ssl_info, nc_util, nc_response_filter
 
 #moved to nc_types.nim to avoid circular import
 #type
 #  NCClient* = ref object of RootObj
 
 type
+  # Callback structure used for asynchronous continuation of url requests.
   NCRequestCallback* = ptr cef_request_callback
+  
+  # Callback structure for asynchronous continuation of file dialog requests.
+  NCFileDialogCallback* = ptr cef_file_dialog_callback
+  
+  # Callback structure used to asynchronously continue a download.
+  NCBeforeDownloadCallback* = ptr cef_before_download_callback
+  
+  # Callback structure used to asynchronously cancel a download.
+  NCDownloadItemCallback* = ptr cef_download_item_callback
+  
+  # Callback structure used for asynchronous continuation of geolocation
+  # permission requests.
+  NCGeolocationCallback* = ptr cef_geolocation_callback
+    
+  # Callback structure used for asynchronous continuation of JavaScript dialog
+  # requests.
+  NCJsDialogCallback* = ptr cef_jsdialog_callback
 
 # Continue the url request. If |allow| is true (1) the request will be
 # continued. Otherwise, the request will be canceled.
@@ -21,6 +38,52 @@ proc Continue*(self: NCRequestCallback, allow: bool) =
 proc Cancel*(self: NCRequestCallback) =
   self.cancel(self)
 
+# Continue the file selection. |selected_accept_filter| should be the 0-based
+# index of the value selected from the accept filters array passed to
+# cef_dialog_handler_t::OnFileDialog. |file_paths| should be a single value
+# or a list of values depending on the dialog mode. An NULL |file_paths|
+# value is treated the same as calling cancel().
+proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
+  let clist = nim_to_string_list(file_paths)
+  self.cont(self, selected_accept_filter.cint, clist)
+  cef_string_list_free(clist)
+  
+# Cancel the file selection.
+proc Cancel*(self: NCFileDialogCallback) =
+  self.cancel(self)
+    
+# Call to continue the download. Set |download_path| to the full file path
+# for the download including the file name or leave blank to use the
+# suggested name and the default temp directory. Set |show_dialog| to true
+# (1) if you do wish to show the default "Save As" dialog.
+proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
+  let cpath = to_cef_string(download_path)
+  self.cont(self, cpath, show_dialog.cint)
+  cef_string_userfree_free(cpath)
+
+# Call to cancel the download.
+proc Cancel*(self: NCDownloadItemCallback) =
+  self.cancel(self)
+  
+# Call to pause the download.
+proc Pause*(self: NCDownloadItemCallback) =
+  self.pause(self)
+  
+# Call to resume the download.
+proc Resume*(self: NCDownloadItemCallback) =
+  self.resume(self)
+
+# Call to allow or deny geolocation access.
+proc Continue(self: NCGeolocationCallback, allow: bool): bool =
+  result = self.cont(self, allow.cint) == 1.cint
+
+# Continue the JS dialog request. Set |success| to true (1) if the OK button
+# was pressed. The |user_input| value should be specified for prompt dialogs.
+proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
+  let cinput = to_cef_string(user_input)
+  self.cont(self, success.cint, cinput)
+  cef_string_userfree_free(cinput)
+  
 #--Client Handler
 # Called when a new message is received from a different process. Return true
 # (1) if the message was handled or false (0) otherwise. Do not keep a
@@ -250,7 +313,7 @@ method OnCursorChange*(self: NCClient, browser: NCBrowser, cursor: cef_cursor_ha
 # cef_browser_host_t::DragSourceEndedAt and DragSourceSystemDragEnded either
 # synchronously or asynchronously to inform the web view that the drag
 # operation has ended.
-method StartDragging*(self: NCClient, browser: NCBrowser, drag_data: ptr cef_drag_data,
+method StartDragging*(self: NCClient, browser: NCBrowser, drag_data: NCDragData,
   allowed_ops: cef_drag_operations_mask, x, y: int): bool {.base.} =
   result = false
 
@@ -285,7 +348,7 @@ method OnFileDialog*(self: NCClient,
   browser: NCBrowser, mode: cef_file_dialog_mode,
   title, default_file_path: string,
   accept_filters: seq[string], selected_accept_filter: int,
-  callback: ptr cef_file_dialog_callback): bool {.base.} =
+  callback: NCFileDialogCallback): bool {.base.} =
   result = false
 
 #--Download Handler
@@ -296,7 +359,7 @@ method OnFileDialog*(self: NCClient,
 # this function.
 method OnBeforeDownload*(self: NCClient, browser: NCBrowser,
   download_item: NCDownloadItem, suggested_name: string,
-  callback: ptr cef_before_download_callback) {.base.} =
+  callback: NCBeforeDownloadCallback) {.base.} =
   discard
 
 #--Download Handler
@@ -306,7 +369,7 @@ method OnBeforeDownload*(self: NCClient, browser: NCBrowser,
 # download if desired. Do not keep a reference to |download_item| outside of
 # this function.
 method OnDownloadUpdated*(self: NCClient, browser: NCBrowser,
-  download_item: NCDownloadItem, callback: ptr cef_download_item_callback) {.base.} =
+  download_item: NCDownloadItem, callback: NCDownloadItemCallback) {.base.} =
   discard
 
 #--Geolocation Handler
@@ -318,7 +381,7 @@ method OnDownloadUpdated*(self: NCClient, browser: NCBrowser,
 # request immediately.
 method OnRequestGeolocationPermission*(self: NCClient,
   browser: NCBrowser, requesting_url: string, request_id: int,
-  callback: ptr cef_geolocation_callback): bool {.base.} =
+  callback: NCGeolocationCallback): bool {.base.} =
   result = false
 
 #--Geolocation Handler
@@ -348,7 +411,7 @@ method OnJsdialog*(self: NCClient,
     browser: NCBrowser, origin_url, accept_lang: string,
     dialog_type: cef_jsdialog_type,
     message_text, default_prompt_text: string,
-    callback: ptr cef_jsdialog_callback, suppress_message: var bool): bool {.base.} =
+    callback: NCJsDialogCallback, suppress_message: var bool): bool {.base.} =
     result = false
 
 #--JSDialog Handler
@@ -360,7 +423,7 @@ method OnJsdialog*(self: NCClient,
 # dialog is dismissed.
 method OnBeforeUnloadDialog*(self: NCClient,
   browser: NCBrowser, message_text: string, is_reload: bool,
-  callback: ptr cef_jsdialog_callback): bool {.base.} =
+  callback: NCJsDialogCallback): bool {.base.} =
   result = false
 
 #--JSDialog Handler
@@ -452,7 +515,7 @@ method OnResourceResponse*(self: NCClient,
 # and cannot be modified in this callback.
 method GetResourceResponseFilter*(self: NCClient, browser: NCBrowser,
   frame: NCFrame, request: NCRequest,
-  response: NCResponse): ptr cef_response_filter {.base.} =
+  response: NCResponse): NCResponseFilter {.base.} =
   result = nil
 
 #--Request Handler
@@ -478,7 +541,7 @@ method OnResourceLoadComplete*(self: NCClient, browser: NCBrowser,
 # request immediately.
 method GetAuthCredentials*(self: NCClient, browser: NCBrowser, frame: NCFrame, isProxy: bool,
   host: string, port: int, realm: string,
-  scheme: string, callback: ptr cef_auth_callback): bool {.base.} =
+  scheme: string, callback: NCAuthCallback): bool {.base.} =
   result = false
 
 #--Request Handler
@@ -513,7 +576,7 @@ method OnProtocolExecution*(self: NCClient, browser: NCBrowser,
 # be accepted without calling this function.
 method OnCertificateError*(self: NCClient,
     browser: NCBrowser, cert_error: cef_errorcode,
-    request_url: string, ssl_info: ptr cef_sslinfo,
+    request_url: string, ssl_info: NCSslInfo,
     callback: NCRequestCallback): bool {.base.} =
   result = false
 

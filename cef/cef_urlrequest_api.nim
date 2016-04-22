@@ -91,5 +91,5 @@ type
 # NULL the global request context will be used. In the render process
 # |request_context| must be NULL and the context associated with the current
 # renderer process' browser will be used.
-proc cef_urlrequest_create*(request: ptr cef_request, clinet: ptr cef_urlrequest_client,
+proc cef_urlrequest_create*(request: ptr cef_request, client: ptr cef_urlrequest_client,
     request_context: ptr cef_request_context): ptr cef_urlrequest {.cef_import.}

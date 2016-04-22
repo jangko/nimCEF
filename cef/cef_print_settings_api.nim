@@ -54,7 +54,7 @@ type
   
     # Retrieve the page ranges.
     get_page_ranges*: proc(self: ptr cef_print_settings,
-      rangesCount: var csize, ranges: var cef_page_range) {.cef_callback.}
+      rangesCount: var csize, ranges: ptr cef_page_range) {.cef_callback.}
   
     # Set whether only the selection will be printed.
     set_selection_only*: proc(self: ptr cef_print_settings,

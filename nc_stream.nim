@@ -122,7 +122,7 @@ proc makeNCWriteHandler*(): NCWriteHandler =
 
 # Create a new cef_stream_reader_t object from a file.
 proc NCStreamReaderCreateForFile*(fileName: string): NCStreamReader =
-  let cname = to_cef_string(fileName)
+  let cname = to_cef(fileName)
   result = cef_stream_reader_create_for_file(cname)
   cef_string_userfree_free(cname)
 
@@ -137,7 +137,7 @@ proc NCStreamReaderCreateForHandler*(handler: NCReadHandler): NCStreamReader =
     
 # Create a new cef_stream_writer_t object for a file.
 proc NCStreamWriterCreateForFile*(fileName: string): NCStreamWriter =
-  let cname = to_cef_string(fileName)
+  let cname = to_cef(fileName)
   result = cef_stream_writer_create_for_file(cname)
   cef_string_userfree_free(cname)
 

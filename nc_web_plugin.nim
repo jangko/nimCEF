@@ -18,22 +18,22 @@ type
 # Returns the plugin name (i.e. Flash).
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetName*(self: NCWebPluginInfo): string =
-  result = to_nim_string(self.get_name(self))
+  result = to_nim(self.get_name(self))
 
 # Returns the plugin file path (DLL/bundle/library).
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetPath*(self: NCWebPluginInfo): string =
-  result = to_nim_string(self.get_path(self))
+  result = to_nim(self.get_path(self))
   
 # Returns the version of the plugin (may be OS-specific).
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetVersion*(self: NCWebPluginInfo): string =
-  result = to_nim_string(self.get_version(self))
+  result = to_nim(self.get_version(self))
   
 # Returns a description of the plugin from the version information.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetDescription*(self: NCWebPluginInfo): string =
-  result = to_nim_string(self.get_description(self))
+  result = to_nim(self.get_description(self))
   
 # Method that will be called once for each plugin. |count| is the 0-based
 # index for the current plugin. |total| is the total number of plugins.
@@ -95,7 +95,7 @@ proc NCRefreshWebPlugins*() = cef_refresh_web_plugins()
 # after cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc NCAddWebPluginPath*(path: string) =
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   cef_add_web_plugin_path(cpath)
   cef_string_userfree_free(cpath)
   
@@ -103,7 +103,7 @@ proc NCAddWebPluginPath*(path: string) =
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc cef_add_web_plugin_directory*(dir: string) =
-  let cpath = to_cef_string(dir)
+  let cpath = to_cef(dir)
   cef_add_web_plugin_directory(cpath)
   cef_string_userfree_free(cpath)
   
@@ -111,7 +111,7 @@ proc cef_add_web_plugin_directory*(dir: string) =
 # until after cef_refresh_web_plugins() is called. Can be called on any thread
 # in the browser process.
 proc cef_remove_web_plugin_path*(path: string) =
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   cef_remove_web_plugin_path(cpath)
   cef_string_userfree_free(cpath)
   
@@ -119,21 +119,21 @@ proc cef_remove_web_plugin_path*(path: string) =
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc cef_unregister_internal_web_plugin*(path: string) =
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   cef_unregister_internal_web_plugin(cpath)
   cef_string_userfree_free(cpath)
   
 # Force a plugin to shutdown. Can be called on any thread in the browser
 # process but will be executed on the IO thread.
 proc cef_force_web_plugin_shutdown*(path: string) =
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   cef_force_web_plugin_shutdown(cpath)
   cef_string_userfree_free(cpath)
   
 # Register a plugin crash. Can be called on any thread in the browser process
 # but will be executed on the IO thread.
 proc cef_register_web_plugin_crash*(path: string) =
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   cef_register_web_plugin_crash(cpath)
   cef_string_userfree_free(cpath)
   
@@ -141,6 +141,6 @@ proc cef_register_web_plugin_crash*(path: string) =
 # process.
 proc NCIsWebPluginUnstable*(path: string, callback: NCWebPluginUnstableCallback) =
   add_ref(callback.GetHandler())
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   cef_is_web_plugin_unstable(cpath, callback.GetHandler())
   cef_string_userfree_free(cpath)

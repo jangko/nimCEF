@@ -38,14 +38,14 @@ proc set_printer_printable_area*(self: NCPrintSettings,
 
 # Set the device name.
 proc SetDeviceName*(self: NCPrintSettings, name: string) =
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   self.set_device_name(self, cname)
   cef_string_userfree_free(cname)
 
 # Get the device name.
 # The resulting string must be freed by calling string_free().
 proc GetDeviceName*(self: NCPrintSettings): string =
-  result = to_nim_string(self.get_device_name(self))
+  result = to_nim(self.get_device_name(self))
 
 # Set the DPI (dots per inch).
 proc SetDpi*(self: NCPrintSettings, dpi: int) =

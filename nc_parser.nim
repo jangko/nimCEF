@@ -57,7 +57,7 @@ proc to_nim(cparts: cef_urlparts, parts: var NCUrlParts) =
 # Parse the specified |url| into its component parts. Returns false *(0) if the
 # URL is NULL or invalid.  
 proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   var cparts: cef_urlparts
   result = cef_parse_url(curl, cparts.addr) == 1.cint
   cef_string_userfree_free(curl)
@@ -108,9 +108,9 @@ proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
 
 # The resulting string must be freed by calling string_free*().
 proc NCFormatUrlForSecurityDisplay*(origin_url, languages: string): string =
-  let curl = to_cef_string(origin_url)
-  let clang = to_cef_string(languages)
-  result = to_nim_string(cef_format_url_for_security_display(curl, clang))
+  let curl = to_cef(origin_url)
+  let clang = to_cef(languages)
+  result = to_nim(cef_format_url_for_security_display(curl, clang))
   cef_string_userfree_free(curl)
   cef_string_userfree_free(clang)
 
@@ -119,8 +119,8 @@ proc NCFormatUrlForSecurityDisplay*(origin_url, languages: string): string =
 
 # The resulting string must be freed by calling string_free*().
 proc NCGetMimeType*(extension: string): string =
-  let cext = to_Cef_string(extension)
-  result = to_nim_string(cef_get_mime_type(cext))
+  let cext = to_cef(extension)
+  result = to_nim(cef_get_mime_type(cext))
   cef_string_userfree_free(cext)
 
 # Get the extensions associated with the given mime type. This should be passed
@@ -128,21 +128,21 @@ proc NCGetMimeType*(extension: string): string =
 # "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
 # elements in the provided vector will not be erased.
 proc NCGetExtensionsForMimeType*(mime_type: string): seq[string] =
-  let cmime = to_cef_string(mime_type)
+  let cmime = to_cef(mime_type)
   var clist = cef_string_list_alloc()
   cef_get_extensions_for_mime_type(cmime, clist)
   cef_string_userfree_free(cmime)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
 
 # Encodes |data| as a base64 string.
 # The resulting string must be freed by calling string_free*().
 proc NCBase64Encode*(data: pointer, data_size: int): string =
-  result = to_nim_string(cef_base64encode(data, data_size.csize))
+  result = to_nim(cef_base64encode(data, data_size.csize))
 
 # Decodes the base64 encoded string |data|. The returned value will be NULL if
 # the decoding fails.
 proc NCBase64Decode*(data: string): string =
-  let cdata = to_cef_string(data)
+  let cdata = to_cef(data)
   var bin = cef_base64decode(cdata)
   if bin == nil: return nil
   cef_string_userfree_free(cdata)
@@ -157,8 +157,8 @@ proc NCBase64Decode*(data: string): string =
 
 # The resulting string must be freed by calling string_free*().
 proc NCUriEncode*(text: string, use_plus: bool): string =
-  let ctext = to_cef_string(text)
-  result = to_nim_string(cef_uriencode(ctext, use_plus.cint))
+  let ctext = to_cef(text)
+  result = to_nim(cef_uriencode(ctext, use_plus.cint))
   cef_string_userfree_free(ctext)
 
 type
@@ -221,8 +221,8 @@ proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
 
 # The resulting string must be freed by calling string_free*().
 proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): string =
-  let ctext = to_cef_string(text)
-  result = to_nim_string(cef_uridecode(ctext, convert_to_utf8.cint, to_cef(unescape_rule)))
+  let ctext = to_cef(text)
+  result = to_nim(cef_uridecode(ctext, convert_to_utf8.cint, to_cef(unescape_rule)))
   cef_string_userfree_free(ctext)
 
 # Parses |string| which represents a CSS color value. If |strict| is true *(1)
@@ -230,7 +230,7 @@ proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): st
 # *(0) on error. If parsing succeeds |color| will be set to the color value
 # otherwise |color| will remain unchanged.
 proc NCParseCssColor*(str: string, strict: int, color: var cef_color): bool =
-  let cstr = to_cef_string(str)
+  let cstr = to_cef(str)
   result = cef_parse_csscolor(cstr, strict.cint, color) == 1.cint
   cef_string_userfree_free(cstr)
 
@@ -255,7 +255,7 @@ proc to_cef(flags: NCJPO): cef_json_parser_options =
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL.
 proc NCParseJson*(json_string: string, options: NCJPO): NCValue =
-  let cstr = to_cef_string(json_string)
+  let cstr = to_cef(json_string)
   result = cef_parse_json(cstr, to_cef(options))
   cef_string_userfree_free(cstr)
 
@@ -265,7 +265,7 @@ proc NCParseJson*(json_string: string, options: NCJPO): NCValue =
 # formatted error message respectively.
 proc NCParseJsonAndReturnError*(json_string: string, options: NCJPO,
   error_code_out: var cef_json_parser_error, error_msg_out: var string): NCValue =
-  let cstr = to_cef_string(json_string)
+  let cstr = to_cef(json_string)
   var cmsg: cef_string
   result = cef_parse_jsonand_return_error(cstr, to_cef(options), error_code_out, cmsg.addr)
   cef_string_userfree_free(cstr)
@@ -311,4 +311,4 @@ proc to_cef(flags: NCJWO): cef_json_writer_options =
 
 # The resulting string must be freed by calling string_free*().
 proc NCWriteJson*(node: NCValue, options: NCJWO): string =
-  result = to_nim_string(cef_write_json(node, to_cef(options)))
+  result = to_nim(cef_write_json(node, to_cef(options)))

@@ -467,3 +467,65 @@ proc clear*(cs: var cef_browser_settings) =
   cef_string_clear(cs.fantasy_font_family.addr)
   cef_string_clear(cs.default_encoding.addr)
   cef_string_clear(cs.accept_language_list.addr)
+  
+type
+  # Structure representing PDF print settings.
+  NCPdfPrintSettings* = ref object
+    # Page title to display in the header. Only used if |header_footer_enabled|
+    # is set to true (1).
+    header_footer_title: string
+
+    # URL to display in the footer. Only used if |header_footer_enabled| is set
+    # to true (1).
+    header_footer_url: string
+
+    # Output page size in microns. If either of these values is less than or
+    # equal to zero then the default paper size (A4) will be used.
+    page_width: int
+    page_height: int
+
+    # Margins in millimeters. Only used if |margin_type| is set to
+    # PDF_PRINT_MARGIN_CUSTOM.
+    margin_top: float64
+    margin_right: float64
+    margin_bottom: float64
+    margin_left: float64
+  
+    # Margin type.
+    margin_type: cef_pdf_print_margin_type
+
+    # Set to true (1) to print headers and footers or false (0) to not print
+    # headers and footers.
+    header_footer_enabled: bool
+
+    # Set to true (1) to print the selection only or false (0) to print all.
+    selection_only: bool
+
+    # Set to true (1) for landscape mode or false (0) for portrait mode.
+    landscape: bool
+
+    # Set to true (1) to print background graphics or false (0) to not print
+    # background graphics.
+    backgrounds_enabled: bool
+    
+proc makeNCPdfPrintSettings(): NCPdfPrintSettings =
+  new(result)
+  
+proc to_cef*(ns: NCPdfPrintSettings, cs: var cef_pdf_print_settings) =
+  cs.header_footer_title <= ns.header_footer_title
+  cs.header_footer_url <= ns.header_footer_url
+  cs.page_width = ns.page_width.cint
+  cs.page_height = ns.page_height.cint
+  cs.margin_top = ns.margin_top
+  cs.margin_right = ns.margin_right
+  cs.margin_bottom = ns.margin_bottom
+  cs.margin_left = ns.margin_left
+  cs.margin_type = ns.margin_type
+  cs.header_footer_enabled = ns.header_footer_enabled.cint
+  cs.selection_only = ns.selection_only.cint
+  cs.landscape = ns.landscape.cint
+  cs.backgrounds_enabled = ns.backgrounds_enabled.cint
+    
+proc clear*(cs: var cef_pdf_print_settings) =
+  cef_string_clear(cs.header_footer_title.addr)
+  cef_string_clear(cs.header_footer_url.addr)

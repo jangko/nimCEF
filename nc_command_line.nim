@@ -34,7 +34,7 @@ proc InitFromArgv*(self: NCCommandLine, argc: cint, argv: ptr cstring) =
 # Initialize the command line with the string returned by calling
 # GetCommandLineW(). This function is only supported on Windows.
 proc InitFromString*(self: NCCommandLine, command_line: string) =
-  let ccmd = to_cef_string(command_line)
+  let ccmd = to_cef(command_line)
   self.init_from_string(self, ccmd)
   cef_string_userfree_free(ccmd)
 
@@ -48,22 +48,22 @@ proc Reset*(self: NCCommandLine) =
 proc GetArgv*(self: NCCommandLine): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_argv(self, clist)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
 
 # Constructs and returns the represented command line string. Use this
 # function cautiously because quoting behavior is unclear.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetCommandLineString*(self: NCCommandLine): string =
-  result = to_nim_string(self.get_command_line_string(self))
+  result = to_nim(self.get_command_line_string(self))
 
 # Get the program part of the command line string (the first item).
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetProgram*(self: NCCommandLine): string =
-  result = to_nim_string(self.get_program(self))
+  result = to_nim(self.get_program(self))
 
 # Set the program part of the command line string (the first item).
 proc SetProgram*(self: NCCommandLine, program: string) =
-  let cprogram = to_cef_string(program)
+  let cprogram = to_cef(program)
   self.set_program(self, cprogram)
   cef_string_userfree_free(cprogram)
 
@@ -73,7 +73,7 @@ proc HasSwitches*(self: NCCommandLine): bool =
 
 # Returns true (1) if the command line contains the given switch.
 proc HasSwitch*(self: NCCommandLine, name: string): bool =
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   result = self.has_switch(self, cname) == 1.cint
   cef_string_userfree_free(cname)
 
@@ -81,8 +81,8 @@ proc HasSwitch*(self: NCCommandLine, name: string): bool =
 # value or isn't present this function returns the NULL string.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetSwitchValue*(self: NCCommandLine, name: string): string =
-  let cname = to_cef_string(name)
-  result = to_nim_string(self.get_switch_value(self, cname))
+  let cname = to_cef(name)
+  result = to_nim(self.get_switch_value(self, cname))
   cef_string_userfree_free(cname)
 
 # Returns the map of switch names and values. If a switch has no value an
@@ -90,19 +90,19 @@ proc GetSwitchValue*(self: NCCommandLine, name: string): string =
 proc GetSwitches*(self: NCCommandLine): StringTableRef =
   var cmap = cef_string_map_alloc()
   self.get_switches(self, cmap)
-  result = to_nim_and_free(cmap)
+  result = to_nim(cmap)
 
 # Add a switch to the end of the command line. If the switch has no value
 # pass an NULL value string.
 proc AppendSwitch*(self: NCCommandLine, name: string) =
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   self.append_switch(self, cname)
   cef_string_userfree_free(cname)
 
 # Add a switch with the specified value to the end of the command line.
 proc AppendSwitchWithValue*(self: NCCommandLine, name, value: string) =
-  let cname = to_cef_string(name)
-  let cvalue = to_cef_string(value)
+  let cname = to_cef(name)
+  let cvalue = to_cef(value)
   self.append_switch_with_value(self, cname, cvalue)
   cef_string_userfree_free(cname)
   cef_string_userfree_free(cvalue)
@@ -115,18 +115,18 @@ proc HasArguments*(self: NCCommandLine): bool =
 proc GetArguments*(self: NCCommandLine): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_arguments(self, clist)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
 
 # Add an argument to the end of the command line.
 proc AppendArgument*(self: NCCommandLine, argument: string) =
-  let carg = to_cef_string(argument)
+  let carg = to_cef(argument)
   self.append_argument(self, carg)
   cef_string_userfree_free(carg)
 
 # Insert a command before the current command. Common for debuggers, like
 # "valgrind" or "gdb --args".
 proc PrependWrapper*(self: NCCommandLine, wrapper: string) =
-  let cwrap = to_cef_string(wrapper)
+  let cwrap = to_cef(wrapper)
   self.prepend_wrapper(self, cwrap)
   cef_string_userfree_free(cwrap)
 

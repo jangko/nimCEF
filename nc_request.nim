@@ -20,11 +20,11 @@ proc IsReadOnly*(self: NCRequest): bool =
 # Get the fully qualified URL.
 # The resulting string must be freed by calling string_free().
 proc GetUrl*(self: NCRequest): string =
-  result = to_nim_string(self.get_url(self))
+  result = to_nim(self.get_url(self))
 
 # Set the fully qualified URL.
 proc SetUrl*(self: NCRequest, url: string) =
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   self.set_url(self, curl)
   cef_string_userfree_free(curl)
 
@@ -32,11 +32,11 @@ proc SetUrl*(self: NCRequest, url: string) =
 # is provided and GET otherwise.
 # The resulting string must be freed by calling string_free().
 proc GetMethod*(self: NCRequest): string =
-  result = to_nim_string(self.get_method(self))
+  result = to_nim(self.get_method(self))
 
 # Set the request function type.
 proc SetMethod*(self: NCRequest, pmethod: string) =
-  let cmethod = to_cef_string(pmethod)
+  let cmethod = to_cef(pmethod)
   self.set_method(self, cmethod)
   cef_string_userfree_free(cmethod)
 
@@ -44,14 +44,14 @@ proc SetMethod*(self: NCRequest, pmethod: string) =
 # qualified with an HTTP or HTTPS scheme component. Any username, password or
 # ref component will be removed.
 proc SetReferrer*(self: NCRequest, referrer_url: string, policy: cef_referrer_policy) =
-  let curl = to_cef_string(referrer_url)
+  let curl = to_cef(referrer_url)
   self.set_referrer(self, curl, policy)
   cef_string_userfree_free(curl)
 
 # Get the referrer URL.
 # The resulting string must be freed by calling string_free().
 proc GetReferrer_url*(self: NCRequest): string =
-  result = to_nim_string(self.get_referrer_url(self))
+  result = to_nim(self.get_referrer_url(self))
 
 # Get the referrer policy.
 proc Getreferrer_policy*(self: NCRequest): cef_referrer_policy =
@@ -70,21 +70,21 @@ proc SetPostData*(self: NCRequest, postData: NCPostData) =
 proc GetHeaderMap*(self: NCRequest): NCStringMultiMap =
   var map = cef_string_multimap_alloc()
   self.get_header_map(self, map)
-  result = to_nim_and_free(map)
+  result = to_nim(map)
 
 # Set the header values. If a Referer value exists in the header map it will
 # be removed and ignored.
 proc SetHeaderMap*(self: NCRequest, headerMap: NCStringMultiMap) =
-  let cmap = nim_to_string_multimap(headerMap)
+  let cmap = to_cef(headerMap)
   self.set_header_map(self, cmap)
   cef_string_multimap_free(cmap)
 
 # Set all values at one time.
 proc SetValues*(self: NCRequest, url: string, pmethod: string, postData: NCPostData, headerMap: NCStringMultiMap) =
   add_ref(postData)
-  let curl = to_cef_string(url)
-  let cmethod = to_cef_string(pmethod)
-  let cmap = nim_to_string_multimap(headerMap)
+  let curl = to_cef(url)
+  let cmethod = to_cef(pmethod)
+  let cmap = to_cef(headerMap)
   self.set_values(self, curl, cmethod, postData, cmap)
   cef_string_userfree_free(curl)
   cef_string_userfree_free(cmethod)
@@ -104,12 +104,12 @@ proc SetFlags*(self: NCRequest, flags: int) =
 # cef_urlrequest_t.
 # The resulting string must be freed by calling string_free().
 proc GetFirstPartyForCookies*(self: NCRequest): string =
-  result = to_nim_string(self.get_first_party_for_cookies(self))
+  result = to_nim(self.get_first_party_for_cookies(self))
 
 # Get the URL to the first party for cookies used in combination with
 # cef_urlrequest_t.
 proc SetFirstPartyForCookies*(self: NCRequest, url: string) =
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   self.set_first_party_for_cookies(self, curl)
   cef_string_userfree_free(curl)
 
@@ -177,7 +177,7 @@ proc SetToEmpty*(self: NCPostDataElement) =
 
 # The post data element will represent a file.
 proc SetToFile*(self: NCPostDataElement, fileName: string) =
-  let cname = to_cef_string(fileName)
+  let cname = to_cef(fileName)
   self.set_to_file(self, cname)
   cef_string_userfree_free(cname)
 
@@ -193,7 +193,7 @@ proc GetType*(self: NCPostDataElement): cef_postdataelement_type =
 # Return the file name.
 # The resulting string must be freed by calling string_free().
 proc GetFile*(self: NCPostDataElement): string =
-  result = to_nim_string(self.get_file(self))
+  result = to_nim(self.get_file(self))
 
 # Return the number of bytes.
 proc GetBytesCount*(self: NCPostDataElement): int =

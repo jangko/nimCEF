@@ -28,38 +28,38 @@ proc IsFile*(self: NCDragData): bool =
 # Return the link URL that is being dragged.
 # The resulting string must be freed by calling string_free().
 proc GetLinkUrl*(self: NCDragData): string =
-  result = to_nim_string(self.get_link_url(self))
+  result = to_nim(self.get_link_url(self))
 
 # Return the title associated with the link being dragged.
 # The resulting string must be freed by calling string_free().
 proc GetLinkTitle*(self: NCDragData): string =
-  result = to_nim_string(self.get_link_title(self))
+  result = to_nim(self.get_link_title(self))
 
 # Return the metadata, if any, associated with the link being dragged.
 # The resulting string must be freed by calling string_free().
 proc GetLinkMetadata*(self: NCDragData): string =
-  result = to_nim_string(self.get_link_metadata(self))
+  result = to_nim(self.get_link_metadata(self))
 
 # Return the plain text fragment that is being dragged.
 # The resulting string must be freed by calling string_free().
 proc GetFragmentText*(self: NCDragData): string =
-  result = to_nim_string(self.get_fragment_text(self))
+  result = to_nim(self.get_fragment_text(self))
 
 # Return the text/html fragment that is being dragged.
 # The resulting string must be freed by calling string_free().
 proc GetFragmentHtml*(self: NCDragData): string =
-  result = to_nim_string(self.get_fragment_html(self))
+  result = to_nim(self.get_fragment_html(self))
 
 # Return the base URL that the fragment came from. This value is used for
 # resolving relative URLs and may be NULL.
 # The resulting string must be freed by calling string_free().
 proc GetFragmentBaseUrl*(self: NCDragData): string =
-  result = to_nim_string(self.get_fragment_base_url(self))
+  result = to_nim(self.get_fragment_base_url(self))
 
 # Return the name of the file being dragged out of the browser window.
 # The resulting string must be freed by calling string_free().
 proc GetFileName*(self: NCDragData): string =
-  result = to_nim_string(self.get_file_name(self))
+  result = to_nim(self.get_file_name(self))
 
 # Write the contents of the file being dragged out of the web view into
 # |writer|. Returns the number of bytes sent to |writer|. If |writer| is NULL
@@ -74,43 +74,43 @@ proc GetFileContents*(self: NCDragData, writer: NCStreamWriter): int =
 proc GetFileNames*(self: NCDragData): seq[string] =
   var list = cef_string_list_alloc()
   if self.get_file_names(self, list) == 1.cint:
-    result = to_nim_and_free(list)
+    result = to_nim(list)
   else:
     result = @[]
 
 # Set the link URL that is being dragged.
 proc SetLinkUrl*(self: NCDragData, url: string) =
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   self.set_link_url(self, curl)
   cef_string_userfree_free(curl)
 
 # Set the title associated with the link being dragged.
 proc SetLinkTitle*(self: NCDragData, title: string) =
-  let ctitle = to_cef_string(title)
+  let ctitle = to_cef(title)
   self.set_link_title(self, ctitle)
   cef_string_userfree_free(ctitle)
 
 # Set the metadata associated with the link being dragged.
 proc SetLinkMetadata*(self: NCDragData, data: string) =
-  let cdata = to_cef_string(data)
+  let cdata = to_cef(data)
   self.set_link_metadata(self, cdata)
   cef_string_userfree_free(cdata)
   
 # Set the plain text fragment that is being dragged.
 proc SetFragmentText*(self: NCDragData, text: string) =
-  let ctext = to_cef_string(text)
+  let ctext = to_cef(text)
   self.set_fragment_text(self, ctext)
   cef_string_userfree_free(ctext)
 
 # Set the text/html fragment that is being dragged.
 proc SetFragmentHtml*(self: NCDragData, html: string) =
-  let chtml = to_cef_string(html)
+  let chtml = to_cef(html)
   self.set_fragment_html(self, chtml)
   cef_string_userfree_free(chtml)
   
 # Set the base URL that the fragment came from.
 proc SetFragmentBaseUrl*(self: NCDragData, base_url: string) =
-  let curl = to_cef_string(base_url)
+  let curl = to_cef(base_url)
   self.set_fragment_base_url(self, curl)
   cef_string_userfree_free(curl)
 
@@ -122,8 +122,8 @@ proc ResetFileContents*(self: NCDragData) =
 
 # Add a file that is being dragged into the webview.
 proc AddFile*(self: NCDragData, path, display_name: string) =
-  let cpath = to_cef_string(path)
-  let cname = to_cef_string(display_name)
+  let cpath = to_cef(path)
+  let cname = to_cef(display_name)
   self.add_file(self, cpath, cname)
   cef_string_userfree_free(cpath)
   cef_string_userfree_free(cname)

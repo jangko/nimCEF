@@ -37,9 +37,9 @@ import cef/cef_origin_whitelist_api, nc_util, nc_types
 
 proc cef_add_cross_origin_whitelist_entry*(source_origin, target_protocol, target_domain: string, 
   allow_target_subdomains: bool): bool =
-  let csource = to_cef_string(source_origin)
-  let ctarget = to_cef_string(target_protocol)
-  let cdomain = to_cef_string(target_domain)
+  let csource = to_cef(source_origin)
+  let ctarget = to_cef(target_protocol)
+  let cdomain = to_cef(target_domain)
   result = cef_add_cross_origin_whitelist_entry(csource, ctarget, cdomain, allow_target_subdomains.cint) == 1.cint
   cef_string_userfree_free(csource)
   cef_string_userfree_free(ctarget)
@@ -50,9 +50,9 @@ proc cef_add_cross_origin_whitelist_entry*(source_origin, target_protocol, targe
 
 proc NCRemoveCrossOriginWhitelistEntry*(source_origin, target_protocol, target_domain: string, 
   allow_target_subdomains: bool): bool =
-  let csource = to_cef_string(source_origin)
-  let ctarget = to_cef_string(target_protocol)
-  let cdomain = to_cef_string(target_domain)
+  let csource = to_cef(source_origin)
+  let ctarget = to_cef(target_protocol)
+  let cdomain = to_cef(target_domain)
   result = cef_remove_cross_origin_whitelist_entry(csource, ctarget, cdomain, allow_target_subdomains.cint) == 1.cint
   cef_string_userfree_free(csource)
   cef_string_userfree_free(ctarget)

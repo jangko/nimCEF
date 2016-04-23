@@ -75,8 +75,7 @@ type
       identifiersCount: var csize, identifiers: ptr int64) {.cef_callback.}
   
     # Returns the names of all existing frames.
-    get_frame_names*: proc(self: ptr cef_browser,
-      names: cef_string_list) {.cef_callback.}
+    get_frame_names*: proc(self: ptr cef_browser, names: cef_string_list) {.cef_callback.}
     
     # Send a message to the specified |target_process|. Returns true (1) if the
     # message was sent successfully.

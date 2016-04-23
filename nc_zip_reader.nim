@@ -21,7 +21,7 @@ proc MoveToNextFile*(self: NCZipReader): bool =
 # is true (1) then the search will be case sensitive. Returns true (1) if the
 # cursor position was set successfully.
 proc MoveToFile*(self: NCZipReader, fileName: string, caseSensitive: bool): bool =
-  let cname = to_cef_string(fileName)
+  let cname = to_cef(fileName)
   result = self.move_to_file(self, cname, caseSensitive.cint) == 1.cint
   cef_string_userfree_free(cname)
 
@@ -34,7 +34,7 @@ proc Close*(self: NCZipReader): bool =
 # Returns the name of the file.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetFileName*(self: NCZipReader): string =
-  result = to_nim_string(self.get_file_name(self))
+  result = to_nim(self.get_file_name(self))
 
 # Returns the uncompressed size of the file.
 proc GetFileSize*(self: NCZipReader): int64 =
@@ -47,7 +47,7 @@ proc GetFileLastModified*(self: NCZipReader): cef_time =
 # Opens the file for reading of uncompressed data. A read password may
 # optionally be specified.
 proc OpenFile*(self: NCZipReader, password: string): bool =
-  let cpass = to_cef_string(password)
+  let cpass = to_cef(password)
   result = self.open_file(self, cpass) == 1.cint
   cef_string_userfree_free(cpass)
 

@@ -53,7 +53,7 @@ type
 # if an error occurs this function will return false (0).
 
 proc AddCustomScheme*(self: NCSchemeRegistrar, schemeName: string, isStandard, isLocal, isDisplayIsolated: bool): bool =
-  let cname = to_cef_string(schemeName)
+  let cname = to_cef(schemeName)
   result = self.add_custom_scheme(self, cname, isStandard.cint, isLocal.cint, isDisplayIsolated.cint) == 1.cint
   cef_string_userfree_free(cname)
   
@@ -111,8 +111,8 @@ proc GetHandler*(self: NCSchemeHandlerFactory): ptr cef_scheme_handler_factory {
 # ory().
 proc NCRegisterSchemeHandlerFactory*(schemeName, domainName: string, factory: NCSchemeHandlerFactory) =
   add_ref(factory.GetHandler())
-  let cscheme = to_cef_string(schemeName)
-  let cdomain = to_cef_string(domainName)
+  let cscheme = to_cef(schemeName)
+  let cdomain = to_cef(domainName)
   cef_register_scheme_handler_factory(cscheme, cdomain, factory.GetHandler())
   cef_string_userfree_free(cscheme)
   cef_string_userfree_free(cdomain)

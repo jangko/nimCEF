@@ -160,7 +160,7 @@ proc get_localized_string(self: ptr cef_resource_bundle_handler, string_id: cint
   str: ptr cef_string): cint {.cef_callback.} =
   var res: string
   result = toApp(self).GetLocalizedString(string_id.int, res).cint
-  let cres = to_cef_string(res)
+  let cres = to_cef(res)
   discard cef_string_copy(cres.str, cres.length, str)
   cef_string_userfree_free(cres)
 

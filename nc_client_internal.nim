@@ -123,7 +123,7 @@ proc on_tooltip(self: ptr cef_display_handler, browser: ptr_cef_browser, text: p
   var tip = $text
   result = client.OnTooltip(brow, tip).cint
   cef_string_clear(text)
-  let ctext = to_cef_string(tip)
+  let ctext = to_cef(tip)
   discard cef_string_copy(ctext.str, ctext.length, text)
   cef_string_userfree_free(ctext)
   release(brow)

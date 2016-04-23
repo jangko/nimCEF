@@ -57,3 +57,7 @@ if child != nil:
 #    
 #release(xml)
 release(stream)
+
+var xx: int = 0
+atomicInc(xx)
+echo "xx: ", xx

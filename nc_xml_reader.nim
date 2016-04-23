@@ -25,7 +25,7 @@ proc HasError*(self: NCXmlReader): bool =
 # Returns the error string.
 # The resulting string must be freed by calling string_free().
 proc GetError*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_error(self))
+  result = to_nim(self.get_error(self))
 
 # The below functions retrieve data for the node at the current cursor
 # position.
@@ -42,37 +42,37 @@ proc GetDepth*(self: NCXmlReader): int =
 # LocalPart for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetLocalName*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_local_name(self))
+  result = to_nim(self.get_local_name(self))
 
 # Returns the namespace prefix. See http:#www.w3.org/TR/REC-xml-names/ for
 # additional details.
 # The resulting string must be freed by calling string_free().
 proc GetPrefix*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_prefix(self))
+  result = to_nim(self.get_prefix(self))
 
 # Returns the qualified name, equal to (Prefix:)LocalName. See
 # http:#www.w3.org/TR/REC-xml-names/#ns-qualnames for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetQualifiedName*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_qualified_name(self))
+  result = to_nim(self.get_qualified_name(self))
 
 # Returns the URI defining the namespace associated with the node. See
 # http:#www.w3.org/TR/REC-xml-names/ for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetNamespaceUri*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_namespace_uri(self))
+  result = to_nim(self.get_namespace_uri(self))
 
 # Returns the base URI of the node. See http:#www.w3.org/TR/xmlbase/ for
 # additional details.
 # The resulting string must be freed by calling string_free().
 proc GetBaseUri*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_base_uri(self))
+  result = to_nim(self.get_base_uri(self))
 
 # Returns the xml:lang scope within which the node resides. See
 # http:#www.w3.org/TR/REC-xml/#sec-lang-tag for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetXmlLang*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_xml_lang(self))
+  result = to_nim(self.get_xml_lang(self))
 
 # Returns true (1) if the node represents an NULL element. <a/> is considered
 # NULL but <a></a> is not.
@@ -86,7 +86,7 @@ proc HasValue*(self: NCXmlReader): bool =
 # Returns the text value.
 # The resulting string must be freed by calling string_free().
 proc GetValue*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_value(self))
+  result = to_nim(self.get_value(self))
 
 # Returns true (1) if the node has attributes.
 proc HasAttributes*(self: NCXmlReader): bool =
@@ -99,34 +99,34 @@ proc GetAttributeCount*(self: NCXmlReader): int =
 # Returns the value of the attribute at the specified 0-based index.
 # The resulting string must be freed by calling string_free().
 proc GetAttributeByIndex*(self: NCXmlReader, index: int): string =
-  result = to_nim_string(self.get_attribute_byindex(self, index.cint))
+  result = to_nim(self.get_attribute_byindex(self, index.cint))
 
 # Returns the value of the attribute with the specified qualified name.
 # The resulting string must be freed by calling string_free().
 proc GetAttributeByQname*(self: NCXmlReader, qualifiedName: string): string =
-  let qname = to_cef_string(qualifiedName)
-  result = to_nim_string(self.get_attribute_byqname(self, qname))
+  let qname = to_cef(qualifiedName)
+  result = to_nim(self.get_attribute_byqname(self, qname))
   cef_string_userfree_free(qname)
 
 # Returns the value of the attribute with the specified local name and
 # namespace URI.
 # The resulting string must be freed by calling string_free().
 proc GetAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string): string =
-  let clname = to_cef_string(localName)
-  let cnsuri = to_cef_string(namespaceURI)
-  result = to_nim_string(self.get_attribute_bylname(self, clname, cnsuri))
+  let clname = to_cef(localName)
+  let cnsuri = to_cef(namespaceURI)
+  result = to_nim(self.get_attribute_bylname(self, clname, cnsuri))
   cef_string_userfree_free(clname)
   cef_string_userfree_free(cnsuri)
 
 # Returns an XML representation of the current node's children.
 # The resulting string must be freed by calling string_free().
 proc GetInnerXml*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_inner_xml(self))
+  result = to_nim(self.get_inner_xml(self))
 
 # Returns an XML representation of the current node including its children.
 # The resulting string must be freed by calling string_free().
 proc GetOuterXml*(self: NCXmlReader): string =
-  result = to_nim_string(self.get_outer_xml(self))
+  result = to_nim(self.get_outer_xml(self))
 
 # Returns the line number for the current node.
 proc GetLineNumber*(self: NCXmlReader): int =
@@ -144,7 +144,7 @@ proc MoveToAttributeByIndex*(self: NCXmlReader, index: int): bool =
 # Moves the cursor to the attribute with the specified qualified name.
 # Returns true (1) if the cursor position was set successfully.
 proc MoveToAttributeByQname*(self: NCXmlReader, qualifiedName: string): bool =
-  let qname = to_cef_string(qualifiedName)
+  let qname = to_cef(qualifiedName)
   result = self.move_to_attribute_byqname(self, qname) == 1.cint
   cef_string_userfree_free(qname)
 
@@ -152,8 +152,8 @@ proc MoveToAttributeByQname*(self: NCXmlReader, qualifiedName: string): bool =
 # namespace URI. Returns true (1) if the cursor position was set
 # successfully.
 proc MoveToAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string): bool =
-  let clname = to_cef_string(localName)
-  let cnsuri = to_cef_string(namespaceURI)
+  let clname = to_cef(localName)
+  let cnsuri = to_cef(namespaceURI)
   result = self.move_to_attribute_bylname(self, clname, cnsuri) == 1.cint
   cef_string_userfree_free(clname)
   cef_string_userfree_free(cnsuri)
@@ -176,7 +176,7 @@ proc MoveToCarryingElement*(self: NCXmlReader): bool =
 # Create a new cef_xml_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
 proc NCXmlReaderCreate*(stream: NCStreamReader, encodingType: cef_xml_encoding_type, URI: string): NCXmlReader =
-  let curi = to_cef_string(URI)
+  let curi = to_cef(URI)
   add_ref(stream)
   result = cef_xml_reader_create(stream, encodingType, curi)
   cef_string_userfree_free(curi)

@@ -13,51 +13,51 @@ type
 # order: CN, O and OU and returns the first non-NULL one found.
 # The resulting string must be freed by calling string_free().
 proc GetDisplayName*(self: NCSslCertPrincipal): string =
-  result = to_nim_string(self.get_display_name(self))
+  result = to_nim(self.get_display_name(self))
 
 # Returns the common name.
 # The resulting string must be freed by calling string_free().
 proc GetCommonName*(self: NCSslCertPrincipal): string =
-  result = to_nim_string(self.get_common_name(self))
+  result = to_nim(self.get_common_name(self))
 
 # Returns the locality name.
 # The resulting string must be freed by calling string_free().
 proc GetLocalityName*(self: NCSslCertPrincipal): string =
-  result = to_nim_string(self.get_locality_name(self))
+  result = to_nim(self.get_locality_name(self))
 
 # Returns the state or province name.
 # The resulting string must be freed by calling string_free().
 proc GetStateOrProvinceName*(self: NCSslCertPrincipal): string =
-  result = to_nim_string(self.get_state_or_province_name(self))
+  result = to_nim(self.get_state_or_province_name(self))
 
 # Returns the country name.
 # The resulting string must be freed by calling string_free().
 proc GetCountryName*(self: NCSslCertPrincipal): string =
-  result = to_nim_string(self.get_country_name(self))
+  result = to_nim(self.get_country_name(self))
 
 # Retrieve the list of street addresses.
 proc GetStreetAddresses*(self: NCSslCertPrincipal): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_street_addresses(self, clist)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
 
 # Retrieve the list of organization names.
 proc GetOrganizationNames*(self: NCSslCertPrincipal): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_organization_names(self, clist)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
 
 # Retrieve the list of organization unit names.
 proc GetOrganizationUnitNames*(self: NCSslCertPrincipal): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_organization_unit_names(self, clist)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
   
 # Retrieve the list of domain components.
 proc GetDomainComponents*(self: NCSslCertPrincipal): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_domain_components(self, clist)
-  result = to_nim_and_free(clist)
+  result = to_nim(clist)
   
 # Returns a bitmask containing any and all problems verifying the server
 # certificate.

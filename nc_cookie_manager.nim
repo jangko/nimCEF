@@ -37,7 +37,7 @@ proc GetHandler*(self: NCDeleteCookiesCallback): ptr cef_delete_cookies_callback
 # has been applied. Must be called before any cookies are accessed.
 proc SetSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback: NCCompletionCallback) =
   add_ref(callback.GetHandler())
-  var cscheme = nim_to_string_list(schemes)
+  var cscheme = to_cef(schemes)
   self.set_supported_schemes(self, cscheme, callback.GetHandler())
   cef_string_list_free(cscheme)
   
@@ -55,7 +55,7 @@ proc VisitAllCookies*(self: NCCookieManager, visitor: NCCookieVisitor): bool =
 # Returns false (0) if cookies cannot be accessed.
 proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool, visitor: NCCookieVisitor): bool =
   add_ref(visitor.GetHandler())
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   result = self.visit_url_cookies(self, curl, includeHttpOnly.cint, visitor.GetHandler()) == 1.cint
   cef_string_userfree_free(curl)
   
@@ -68,7 +68,7 @@ proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool,
 # false (0) if an invalid URL is specified or if cookies cannot be accessed.
 proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: NCSetCookieCallback): bool =
   add_ref(callback.GetHandler())
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   var ccookie: cef_cookie
   to_cef(cookie, ccookie)
   result = self.set_cookie(self, curl, ccookie.addr, callback.GetHandler()) == 1.cint
@@ -86,8 +86,8 @@ proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: 
 # the Visit*Cookies() functions.
 proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string,  callback: NCDeleteCookiesCallback): bool =
   add_ref(callback.GetHandler())
-  let curl = to_cef_string(url)
-  let cname = to_cef_string(cookie_name)
+  let curl = to_cef(url)
+  let cname = to_cef(cookie_name)
   result = self.delete_cookies(self, curl, cname, callback.GetHandler()) == 1.cint
   cef_string_userfree_free(curl)
   cef_string_userfree_free(cname)
@@ -103,7 +103,7 @@ proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string,  callback: 
 proc SetStoragePath*(self: NCCookieManager, path: string, persist_session_cookies: bool,
   callback: NCCompletionCallback): bool =
   add_ref(callback.GetHandler())
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   result = self.set_storage_path(self, cpath, persist_session_cookies.cint, callback.GetHandler()) == 1.cint
   cef_string_userfree_free(cpath)
   
@@ -191,6 +191,6 @@ proc NCCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieM
 proc NCCookieManagerCreateManager*(path: string, persist_session_cookies: bool,
   callback: NCCompletionCallback): NCCookieManager =
   add_ref(callback.GetHandler())
-  let cpath = to_cef_string(path)
+  let cpath = to_cef(path)
   result = cef_cookie_manager_create_manager(cpath, persist_session_cookies.cint, callback.GetHandler())
   cef_string_userfree_free(cpath)

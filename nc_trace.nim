@@ -45,7 +45,7 @@ proc makeNCEndTracingCallback*(T: typedesc): auto =
 #
 # This function must be called on the browser process UI thread.
 proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
-  let ccat = to_cef_string(categories)
+  let ccat = to_cef(categories)
   result = cef_begin_tracing(ccat, callback.GetHandler()) == 1.cint
   cef_string_userfree_free(ccat)
 
@@ -61,7 +61,7 @@ proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
 #
 # This function must be called on the browser process UI thread.
 proc NCEndTracing*(tracing_file: string, callback: NCEndTracingCallback): bool =
-  let cfile = to_cef_string(tracing_file)
+  let cfile = to_cef(tracing_file)
   result = cef_end_tracing(cfile, callback.GetHandler()) == 1.cint
   cef_string_userfree_free(cfile)
 

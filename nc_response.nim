@@ -20,41 +20,41 @@ proc SetStatus*(self: NCResponse, status: int) =
 # Get the response status text.
 # The resulting string must be freed by calling string_free().
 proc GetStatusText*(self: NCResponse): string =
-  result = to_nim_string(self.get_status_text(self))
+  result = to_nim(self.get_status_text(self))
 
 # Set the response status text.
 proc SetStatusText*(self: NCResponse, statusText: string) =
-  let cstatus = to_cef_string(statusText)
+  let cstatus = to_cef(statusText)
   self.set_status_text(self, cstatus)
   cef_string_userfree_free(cstatus)
 
 # Get the response mime type.
 # The resulting string must be freed by calling string_free().
 proc GetMimeType*(self: NCResponse): string =
-  result = to_nim_string(self.get_mime_type(self))
+  result = to_nim(self.get_mime_type(self))
 
 # Set the response mime type.
 proc SetMimeType*(self: NCResponse, mimeType: string) =
-  let cmime = to_cef_string(mimeType)
+  let cmime = to_cef(mimeType)
   self.set_mime_type(self, cmime)
   cef_string_userfree_free(cmime)
 
 # Get the value for the specified response header field.
 # The resulting string must be freed by calling string_free().
 proc GetHeader*(self: NCResponse, name: string): string =
-  let cname = to_cef_string(name)
-  result = to_nim_string(self.get_header(self, cname))
+  let cname = to_cef(name)
+  result = to_nim(self.get_header(self, cname))
   cef_string_userfree_free(cname)
 
 # Get all response header fields.
 proc GetHeaderMap*(self: NCResponse): NCStringMultiMap =
   var map = cef_string_multimap_alloc()
   self.get_header_map(self, map)
-  result = to_nim_and_free(map)
+  result = to_nim(map)
   
 # Set all response header fields.
 proc SetHeaderMap*(self: NCResponse, headerMap: NCStringMultiMap) =
-  let cmap = nim_to_string_multimap(headerMap)
+  let cmap = to_cef(headerMap)
   self.set_header_map(self, cmap)
   cef_string_multimap_free(cmap)
 

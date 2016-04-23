@@ -10,11 +10,11 @@ type
   
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
-proc to_cef_string*(str: string): ptr cef_string =
+proc to_cef*(str: string): ptr cef_string =
   result = cef_string_userfree_alloc()
   discard cef_string_from_utf8(str.cstring, str.len.csize, result)
 
-proc to_nim_string*(str: cef_string_userfree, dofree = true): string =
+proc to_nim*(str: cef_string_userfree, dofree = true): string =
   if str == nil: return nil
   var res: cef_string_utf8
   if cef_string_to_utf8(str.str, str.length, res.addr) == 1:
@@ -25,13 +25,13 @@ proc to_nim_string*(str: cef_string_userfree, dofree = true): string =
     result = ""
   if dofree: cef_string_userfree_free(str)
 
-proc `$`*(str: ptr cef_string): string = to_nim_string(str, false)
+proc `$`*(str: ptr cef_string): string = to_nim(str, false)
 
 proc `<=`*(cstr: var cef_string, str: string) =
   if str != nil:
     discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
   
-proc to_nim_and_free*(strlist: cef_string_list, dofree = true): seq[string] =
+proc to_nim*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
   result = newSeq[string](len)
   var res: cef_string
@@ -43,9 +43,10 @@ proc to_nim_and_free*(strlist: cef_string_list, dofree = true): seq[string] =
       result[i] = ""
   if dofree: cef_string_list_free(strlist)
 
-proc `$`*(list: cef_string_list): seq[string] = to_nim_and_free(list, false)
+proc `$`*(list: cef_string_list): seq[string] = to_nim(list, false)
 
-proc nim_to_string_list*(input: seq[string]): cef_string_list =
+#don't forget to call cef_string_list_free
+proc to_cef*(input: seq[string]): cef_string_list =
   var list = cef_string_list_alloc()
   var res: cef_string
   for x in input:
@@ -54,7 +55,7 @@ proc nim_to_string_list*(input: seq[string]): cef_string_list =
       cef_string_clear(res.addr)
   result = list
 
-proc to_nim_and_free*(map: cef_string_map, doFree = true): StringTableRef =
+proc to_nim*(map: cef_string_map, doFree = true): StringTableRef =
   let count = cef_string_map_size(map)
   result = newStringTable(modeCaseSensitive)
   var key, value: cef_string
@@ -65,8 +66,8 @@ proc to_nim_and_free*(map: cef_string_map, doFree = true): StringTableRef =
     cef_string_clear(key.addr)
     cef_string_clear(value.addr)
   if doFree: cef_string_map_free(map)
-  
-proc to_nim_and_free*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
+
+proc to_nim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
   result = newTable[string, seq[string]]()
   let len = cef_string_multimap_size(map)
   var key, val: cef_string
@@ -81,13 +82,14 @@ proc to_nim_and_free*(map: cef_string_multimap, doFree = true): NCStringMultiMap
       result.add($(key.addr), elem)
       cef_string_clear(key.addr)
   if doFree: cef_string_multimap_free(map)
-
-proc nim_to_string_multimap*(map: NCStringMultiMap): cef_string_multimap =
+  
+#don't forget to call cef_string_multi_map_free  
+proc to_cef*(map: NCStringMultiMap): cef_string_multimap =
   let cmap = cef_string_multimap_alloc()
   for key, elem in map:
-    let ckey = to_cef_string(key)
+    let ckey = to_cef(key)
     for val in elem:
-      let cval = to_cef_string(val)
+      let cval = to_cef(val)
       discard cef_string_multimap_append(cmap, ckey, cval)
       cef_string_userfree_free(cval)
     cef_string_userfree_free(ckey)

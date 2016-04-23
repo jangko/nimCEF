@@ -72,7 +72,7 @@ proc GetDouble*(self: NCValue): float64 =
 
 # The resulting string must be freed by calling string_free().
 proc GetString*(self: NCValue): string =
-  result = to_nim_string(self.get_string(self))
+  result = to_nim(self.get_string(self))
 
 # Returns the underlying value as type binary. The returned reference may
 # become invalid if the value is owned by another object or if ownership is
@@ -108,7 +108,7 @@ proc SetNull*(self: NCValue): bool =
 
 # Sets the underlying value as type bool. Returns true (1) if the value was
 # set successfully.
-proc SetNool*(self: NCValue, value: bool): bool =
+proc SetBool*(self: NCValue, value: bool): bool =
   result = self.set_bool(self, value.cint) == 1.cint
 
 # Sets the underlying value as type cint. Returns true (1) if the value was
@@ -124,7 +124,7 @@ proc SetDouble*(self: NCValue, value: float64): bool =
 # Sets the underlying value as type string. Returns true (1) if the value was
 # set successfully.
 proc SetString*(self: NCValue, value: string): bool =
-  let cvalue = to_cef_string(value)
+  let cvalue = to_cef(value)
   result = self.set_string(self, cvalue) == 1.cint
   cef_string_userfree_free(cvalue)
 
@@ -229,7 +229,7 @@ proc Clear*(self: NCDictionaryValue): bool =
 
 # Returns true (1) if the current dictionary has a value for the given key.
 proc HasKey*(self: NCDictionaryValue, key: string): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.has_key(self, ckey) == 1.cint
   cef_string_userfree_free(ckey)
 
@@ -237,20 +237,20 @@ proc HasKey*(self: NCDictionaryValue, key: string): bool =
 proc GetKeys*(self: NCDictionaryValue): seq[string] =
   var clist = cef_string_list_alloc()
   if self.get_keys(self, clist) == 1.cint:
-    result = to_nim_and_free(clist)
+    result = to_nim(clist)
   else:
     result = @[]
 
 # Removes the value at the specified key. Returns true (1) is the value was
 # removed successfully.
 proc Remove*(self: NCDictionaryValue, key: string): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.remove(self, ckey) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Returns the value type for the specified key.
 proc GetType*(self: NCDictionaryValue, key: string): cef_value_type =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_type(self, ckey)
   cef_string_userfree_free(ckey)
 
@@ -260,25 +260,25 @@ proc GetType*(self: NCDictionaryValue, key: string): cef_value_type =
 # will reference existing data and modifications to the value will modify
 # this object.
 proc GetValue*(self: NCDictionaryValue, key: string): NCValue =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_value(self, ckey)
   cef_string_userfree_free(ckey)
 
 # Returns the value at the specified key as type bool.
 proc GetBool*(self: NCDictionaryValue, key: string): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_bool(self, ckey) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Returns the value at the specified key as type cint.
 proc GetInt*(self: NCDictionaryValue, key: string): int =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_int(self, ckey).int
   cef_string_userfree_free(ckey)
 
 # Returns the value at the specified key as type double.
 proc GetDouble*(self: NCDictionaryValue, key: string): float64 =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_double(self, ckey).float64
   cef_string_userfree_free(ckey)
 
@@ -286,14 +286,14 @@ proc GetDouble*(self: NCDictionaryValue, key: string): float64 =
 
 # The resulting string must be freed by calling string_free().
 proc GetString*(self: NCDictionaryValue, key: string): string =
-  let ckey = to_cef_string(key)
-  result = to_nim_string(self.get_string(self, ckey))
+  let ckey = to_cef(key)
+  result = to_nim(self.get_string(self, ckey))
   cef_string_userfree_free(ckey)
 
 # Returns the value at the specified key as type binary. The returned value
 # will reference existing data.
 proc GetBinary*(self: NCDictionaryValue, key: string): NCBinaryValue =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_binary(self, ckey)
   cef_string_userfree_free(ckey)
 
@@ -301,7 +301,7 @@ proc GetBinary*(self: NCDictionaryValue, key: string): NCBinaryValue =
 # value will reference existing data and modifications to the value will
 # modify this object.
 proc GetDictionary*(self: NCDictionaryValue, key: string): NCDictionaryValue =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_dictionary(self, ckey)
   cef_string_userfree_free(ckey)
 
@@ -309,7 +309,7 @@ proc GetDictionary*(self: NCDictionaryValue, key: string): NCDictionaryValue =
 # will reference existing data and modifications to the value will modify
 # this object.
 proc GetList*(self: NCDictionaryValue, key: string): NCListValue =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.get_list(self, ckey)
   cef_string_userfree_free(ckey)
 
@@ -321,43 +321,43 @@ proc GetList*(self: NCDictionaryValue, key: string): NCListValue =
 # this object.
 proc SetValue*(self: NCDictionaryValue, key: string, value: NCValue): bool =
   add_ref(value)
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_value(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Sets the value at the specified key as type null. Returns true (1) if the
 # value was set successfully.
 proc SetNull*(self: NCDictionaryValue, key: string): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_null(self, ckey) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Sets the value at the specified key as type bool. Returns true (1) if the
 # value was set successfully.
 proc SetBool*(self: NCDictionaryValue, key: string, value: bool): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_bool(self, ckey, value.cint) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Sets the value at the specified key as type cint. Returns true (1) if the
 # value was set successfully.
 proc SetInt*(self: NCDictionaryValue, key: string, value: int): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_int(self, ckey, value.cint) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Sets the value at the specified key as type double. Returns true (1) if the
 # value was set successfully.
 proc SetDouble*(self: NCDictionaryValue, key: string, value: float64): bool =
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_double(self, ckey, value.cdouble) == 1.cint
   cef_string_userfree_free(ckey)
 
 # Sets the value at the specified key as type string. Returns true (1) if the
 # value was set successfully.
 proc SetString*(self: NCDictionaryValue, key: string, value: string): bool =
-  let ckey = to_cef_string(key)
-  let cval = to_cef_string(value)
+  let ckey = to_cef(key)
+  let cval = to_cef(value)
   result = self.set_string(self, ckey, cval) == 1.cint
   cef_string_userfree_free(ckey)
   cef_string_userfree_free(cval)
@@ -369,7 +369,7 @@ proc SetString*(self: NCDictionaryValue, key: string, value: string): bool =
 # reference will be invalidated.
 proc SetBinary*(self: NCDictionaryValue, key: string, value: NCBinaryValue): bool =
   add_ref(value)
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_binary(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
 
@@ -380,7 +380,7 @@ proc SetBinary*(self: NCDictionaryValue, key: string, value: NCBinaryValue): boo
 # reference will be invalidated.
 proc SetDictionary*(self: NCDictionaryValue, key: string, value: NCDictionaryValue): bool =
   add_ref(value)
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_dictionary(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
 
@@ -391,7 +391,7 @@ proc SetDictionary*(self: NCDictionaryValue, key: string, value: NCDictionaryVal
 # reference will be invalidated.
 proc SetList*(self: NCDictionaryValue, key: string, value: NCListValue): bool =
   add_ref(value)
-  let ckey = to_cef_string(key)
+  let ckey = to_cef(key)
   result = self.set_list(self, ckey, value) == 1.cint
   cef_string_userfree_free(ckey)
 
@@ -473,7 +473,7 @@ proc GetDouble*(self: NCListValue, index: int): float64 =
 
 # The resulting string must be freed by calling string_free().
 proc GetString*(self: NCListValue, index: int): string =
-  result = to_nim_string(self.get_string(self, index.cint))
+  result = to_nim(self.get_string(self, index.cint))
 
 # Returns the value at the specified index as type binary. The returned value
 # will reference existing data.
@@ -525,7 +525,7 @@ proc SetDouble*(self: NCListValue, index: int, value: float64): bool =
 # Sets the value at the specified index as type string. Returns true (1) if
 # the value was set successfully.
 proc SetString*(self: NCListValue, index: int, value: string): bool =
-  let cvalue = to_cef_string(value)
+  let cvalue = to_cef(value)
   result = self.set_string(self, index.cint, cvalue) == 1.cint
   cef_string_userfree_free(cvalue)
 

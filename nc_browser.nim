@@ -111,7 +111,7 @@ proc GetFrameByident*(self: NCBrowser, identifier: int64): NCFrame =
 
 # Returns the frame with the specified name, or NULL if not found.
 proc GetFrame*(self: NCBrowser, name: string): NCFrame =
-  var cname = to_cef_string(name)
+  var cname = to_cef(name)
   result = self.get_frame(self, cname)
   cef_string_userfree_free(cname)
 
@@ -121,23 +121,21 @@ proc GetFrameCount*(self: NCBrowser): int =
 
 # Returns the identifiers of all existing frames.
 proc GetFrameIdentifiers*(self: NCBrowser): seq[int64] =
-  var count = self.get_frame_count(self).int
-  result = newSeq[int64](count)
-  var buf = cast[ptr int64](result[0].addr)
-  self.get_frame_identifiers(self, count, buf)
+  var count = self.get_frame_count(self)
+  result = newSeq[int64](count.int)
+  self.get_frame_identifiers(self, count, result[0].addr)
 
 # Returns the names of all existing frames.
 proc GetFrameNames*(self: NCBrowser): seq[string] =
-  var strlist = cef_string_list_alloc()
-  result = to_nim_and_free(strlist)
+  var names = cef_string_list_alloc()
+  self.get_frame_names(self, names)
+  result = to_nim(names)
 
 # Send a message to the specified |target_process|. Returns true (1) if the
 # message was sent successfully.
-proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id,
-  message: NCProcessMessage): bool =
+proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id, message: NCProcessMessage): bool =
   add_ref(message)
   result = self.send_process_message(self, target_process, message) == 1.cint
-
 
 # Returns the hosted browser object.
 proc GetBrowser*(self: NCBrowserHost): NCBrowser =
@@ -160,8 +158,8 @@ proc SetFocus*(self: NCBrowserHost, focus: bool) =
 
 # Set whether the window containing the browser is visible
 # (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
-proc SetWindowVisibility*(self: NCBrowserHost, visible: cint) =
-  self.set_window_visibility(self, visible)
+proc SetWindowVisibility*(self: NCBrowserHost, visible: int) =
+  self.set_window_visibility(self, visible.cint)
 
 # Retrieve the window handle for this browser.
 proc GetWindowGandle*(self: NCBrowserHost): cef_window_handle =
@@ -211,9 +209,9 @@ proc RunFileDialog*(self: NCBrowserHost,
   accept_filters: seq[string], selected_accept_filter: int,
   callback: ptr cef_run_file_dialog_callback) =
 
-  let ctitle = to_cef_string(title)
-  let cpath = to_cef_string(default_file_path)
-  let clist = nim_to_string_list(accept_filters)
+  let ctitle = to_cef(title)
+  let cpath = to_cef(default_file_path)
+  let clist = to_cef(accept_filters)
   self.run_file_dialog(self, mode, ctitle, cpath, clist, selected_accept_filter.cint, callback)
   cef_string_list_free(clist)
   cef_string_userfree_free(ctitle)
@@ -221,7 +219,7 @@ proc RunFileDialog*(self: NCBrowserHost,
 
 # Download the file at |url| using cef_download_handler_t.
 proc StartDownload*(self: NCBrowserHost, url: string) =
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   self.start_download(self, curl)
   cef_string_userfree_free(curl)
 
@@ -233,11 +231,12 @@ proc Print*(self: NCBrowserHost) =
 # execute |callback| on completion. The caller is responsible for deleting
 # |path| when done. For PDF printing to work on Linux you must implement the
 # cef_print_handler_t::GetPdfPaperSize function.
-proc PrintToPdf*(self: NCBrowserHost, path: string, settings: ptr cef_pdf_print_settings,
-  callback: ptr cef_pdf_print_callback) =
-  let cpath = to_cef_string(path)
-  self.print_to_pdf(self, cpath, settings, callback)
+proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings, callback: ptr cef_pdf_print_callback) =
+  let cpath = to_cef(path)
+  var csettings: cef_pdf_print_settings
+  self.print_to_pdf(self, cpath, csettings.addr, callback)
   cef_string_userfree_free(cpath)
+  csettings.clear()
 
 # Search for |searchText|. |identifier| can be used to have multiple searches
 # running simultaniously. |forward| indicates whether to search forward or
@@ -245,9 +244,8 @@ proc PrintToPdf*(self: NCBrowserHost, path: string, settings: ptr cef_pdf_print_
 # be case-sensitive. |findNext| indicates whether this is the first request
 # or a follow-up. The cef_find_handler_t instance, if any, returned via
 # cef_client_t::GetFindHandler will be called to report find results.
-proc Find*(self: NCBrowserHost, identifier: int,
-  searchText: string, forward, matchCase, findNext: bool) =
-  let ctext = to_cef_string(searchText)
+proc Find*(self: NCBrowserHost, identifier: int, searchText: string, forward, matchCase, findNext: bool) =
+  let ctext = to_cef(searchText)
   self.find(self, identifier.cint, ctext, forward.cint, matchCase.cint, findNext.cint)
   cef_string_userfree_free(ctext)
 
@@ -258,8 +256,11 @@ proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
 # Open developer tools in its own window. If |inspect_element_at| is non-
 # NULL the element at the specified (x,y) location will be inspected.
 proc ShowDevTools*(self: NCBrowserHost, windowInfo: ptr cef_window_info, client: NCClient,
-  setting: ptr cef_browser_settings, inspect_element_at: ptr cef_point) =
-  self.show_dev_tools(self, windowInfo, to_cclient(client), setting, inspect_element_at)
+  setting: NCBrowserSettings, inspect_element_at: ptr cef_point) =
+  var csettings: cef_browser_settings
+  to_cef(setting, csettings)
+  self.show_dev_tools(self, windowInfo, to_cclient(client), csettings.addr, inspect_element_at)
+  csettings.clear()
 
 # Explicitly close the developer tools window if one exists for this browser
 # instance.
@@ -285,13 +286,13 @@ proc IsMouseCursorChangeDisabled*(self: NCBrowserHost): bool =
 # If a misspelled word is currently selected in an editable node calling this
 # function will replace it with the specified |word|.
 proc ReplaceMisspelling*(self: NCBrowserHost, word: string) =
-  let cword = to_cef_string(word)
+  let cword = to_cef(word)
   self.replace_misspelling(self, cword)
   cef_string_userfree_free(cword)
 
 # Add the specified |word| to the spelling dictionary.
 proc AddWordToDictionary*(self: NCBrowserHost, word: string) =
-  let cword = to_cef_string(word)
+  let cword = to_cef(word)
   self.add_word_to_dictionary(self, cword)
   cef_string_userfree_free(cword)
 
@@ -455,7 +456,7 @@ proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
 # thread and will not block.
 proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): bool =
-  let curl = to_cef_string(url)
+  let curl = to_cef(url)
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
   result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr, request_context) == 1.cint
@@ -466,9 +467,8 @@ proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClie
 # |windowInfo|. If |request_context| is NULL the global request context will be
 # used. This function can only be called on the browser process UI thread.
 proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NCClient,
-  url: string, settings: NCBrowserSettings,
-  request_context: NCRequestContext = nil): NCBrowser =
-  let curl = to_cef_string(url)
+  url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): NCBrowser =
+  let curl = to_cef(url)
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
   result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, csettings.addr, request_context)

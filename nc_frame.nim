@@ -67,7 +67,7 @@ proc LoadRequest*(self: NCFrame, request: NCRequest) =
 
 # Load the specified |url|.
 proc LoadUrl*(self: NCFrame, url: string) =
-  var curl = to_cef_string(url)
+  var curl = to_cef(url)
   self.load_url(self, curl)
   cef_string_userfree_free(curl)
 
@@ -75,8 +75,8 @@ proc LoadUrl*(self: NCFrame, url: string) =
 # should have a standard scheme (for example, http scheme) or behaviors like
 # link clicks and web security restrictions may not behave as expected.
 proc LoadString*(self: NCFrame, string_val, url: string) =
-  var cval = to_cef_string(string_val)
-  var curl = to_cef_string(url)
+  var cval = to_cef(string_val)
+  var curl = to_cef(url)
   self.load_string(self, cval, curl)
   cef_string_userfree_free(curl)
   cef_string_userfree_free(cval)
@@ -87,8 +87,8 @@ proc LoadString*(self: NCFrame, string_val, url: string) =
 # error.  The |start_line| parameter is the base line number to use for error
 # reporting.
 proc ExecuteJavaScript*(self: NCFrame, code, script_url: string, start_line: int) =
-  var ccode = to_cef_string(code)
-  var curl = to_cef_string(script_url)
+  var ccode = to_cef(code)
+  var curl = to_cef(script_url)
   self.execute_java_script(self, ccode, curl, start_line.cint)
   cef_string_userfree_free(ccode)
   cef_string_userfree_free(curl)
@@ -108,7 +108,7 @@ proc IsFocused*(self: NCFrame): bool =
 # value.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetName*(self: NCFrame): string =
-  result = to_nim_string(self.get_name(self))
+  result = to_nim(self.get_name(self))
 
 # Returns the globally unique identifier for this frame or < 0 if the
 # underlying frame does not yet exist.
@@ -123,7 +123,7 @@ proc GetParent*(self: NCFrame): NCFrame =
 # Returns the URL currently loaded in this frame.
 # The resulting string must be freed by calling cef_string_userfree_free().
 proc GetUrl*(self: NCFrame): string =
-  result = to_nim_string(self.get_url(self))
+  result = to_nim(self.get_url(self))
 
 # Returns the browser that this frame belongs to.
 proc GetBrowser*(self: NCFrame): NCBrowser =

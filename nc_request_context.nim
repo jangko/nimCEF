@@ -60,7 +60,7 @@ proc GetHandler*(self: NCRequestContext): ptr cef_request_context_handler {.inli
 # memory cache is being used.
 # The resulting string must be freed by calling string_free().
 proc GetCachePath*(self: NCRequestContext): string =
-  result = to_nim_string(self.get_cache_path(self))
+  result = to_nim(self.get_cache_path(self))
 
 # Returns the default cookie manager for this object. This will be the global
 # cookie manager if this object is the global request context. Otherwise,
@@ -87,8 +87,8 @@ proc GetDefaultCookieManager*(self: NCRequestContext,
 proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_name: string,
   factory: NCSchemeHandlerFactory): bool =
   add_ref(factory.GetHandler())
-  let cscheme = to_cef_string(scheme_name)
-  let cdomain = to_cef_string(domain_name)
+  let cscheme = to_cef(scheme_name)
+  let cdomain = to_cef(domain_name)
   result = self.register_scheme_handler_factory(self, cscheme, cdomain, 
     cast[ptr_cef_scheme_handler_factory](factory.GetHandler())) == 1.cint
   cef_string_userfree_free(cscheme)
@@ -110,7 +110,7 @@ proc PurgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
 # Returns true (1) if a preference with the specified |name| exists. This
 # function must be called on the browser process UI thread.
 proc has_preference*(self: NCRequestContext, name: string): bool =
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   result = self.has_preference(self, cname) == 1.cint
   cef_string_userfree_free(cname)
 
@@ -120,7 +120,7 @@ proc has_preference*(self: NCRequestContext, name: string): bool =
 # will not modify the underlying preference value. This function must be
 # called on the browser process UI thread.
 proc GetPreference*(self: NCRequestContext, name: string): NCValue =
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   result = self.get_preference(self, cname)
   cef_string_userfree_free(cname)
 
@@ -138,7 +138,7 @@ proc GetAllPreferences*(self: NCRequestContext, include_defaults: bool): NCDicti
 # command-line usually cannot be modified. This function must be called on
 # the browser process UI thread.
 proc CanSetPreference*(self: NCRequestContext, name: string): bool =
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   result = self.can_set_preference(self, cname) == 1.cint
   cef_string_userfree_free(cname)
 
@@ -149,7 +149,7 @@ proc CanSetPreference*(self: NCRequestContext, name: string): bool =
 # problem. This function must be called on the browser process UI thread.
 proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error: var string): bool =
   add_ref(value)
-  let cname = to_cef_string(name)
+  let cname = to_cef(name)
   var err_str: cef_string
   result = self.set_preference(self, cname, value, err_str.addr) == 1.cint
   cef_string_userfree_free(cname)
@@ -179,7 +179,7 @@ proc CloseAllConnections*(self: NCRequestContext, callback: NCCompletionCallback
 # |callback| will be executed on the UI thread after completion.
 proc ResolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCallback) =
   add_ref(callback.GetHandler())
-  let corigin = to_cef_string(origin)
+  let corigin = to_cef(origin)
   self.resolve_host(self, corigin, callback.GetHandler())
   cef_string_userfree_free(corigin)
 
@@ -189,8 +189,8 @@ proc ResolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCal
 # success. This function must be called on the browser process IO thread.
 proc resolve_host_cached*(self: NCRequestContext, origin: string,
   resolved_ips: seq[string]): cef_errorcode =
-  let corigin = to_cef_string(origin)
-  let clist = nim_to_string_list(resolved_ips)
+  let corigin = to_cef(origin)
+  let clist = to_cef(resolved_ips)
   result = self.resolve_host_cached(self, corigin, clist)
   cef_string_userfree_free(corigin)
   cef_string_list_free(clist)

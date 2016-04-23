@@ -14,22 +14,22 @@ proc IsValid*(self: NCNavigationEntry): bool =
 # similar. Use get_display_url() to return a display-friendly version.
 # The resulting string must be freed by calling string_free().
 proc GetUrl*(self: NCNavigationEntry): string =
-  result = to_nim_string(self.get_url(self))
+  result = to_nim(self.get_url(self))
 
 # Returns a display-friendly version of the URL.
 # The resulting string must be freed by calling string_free().
 proc GetDisplayUrl*(self: NCNavigationEntry): string =
-  result = to_nim_string(self.get_display_url(self))
+  result = to_nim(self.get_display_url(self))
 
 # Returns the original URL that was entered by the user before any redirects.
 # The resulting string must be freed by calling string_free().
 proc GetOriginalUrl*(self: NCNavigationEntry): string =
-  result = to_nim_string(self.get_original_url(self))
+  result = to_nim(self.get_original_url(self))
 
 # Returns the title set by the page. This value may be NULL.
 # The resulting string must be freed by calling string_free().
 proc GetTitle*(self: NCNavigationEntry): string =
-  result = to_nim_string(self.get_title(self))
+  result = to_nim(self.get_title(self))
 
 # Returns the transition type which indicates what the user did to move to
 # this page from the previous page.

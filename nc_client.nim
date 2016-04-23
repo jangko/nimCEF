@@ -44,7 +44,7 @@ proc Cancel*(self: NCRequestCallback) =
 # or a list of values depending on the dialog mode. An NULL |file_paths|
 # value is treated the same as calling cancel().
 proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
-  let clist = nim_to_string_list(file_paths)
+  let clist = to_cef(file_paths)
   self.cont(self, selected_accept_filter.cint, clist)
   cef_string_list_free(clist)
   
@@ -57,7 +57,7 @@ proc Cancel*(self: NCFileDialogCallback) =
 # suggested name and the default temp directory. Set |show_dialog| to true
 # (1) if you do wish to show the default "Save As" dialog.
 proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
-  let cpath = to_cef_string(download_path)
+  let cpath = to_cef(download_path)
   self.cont(self, cpath, show_dialog.cint)
   cef_string_userfree_free(cpath)
 
@@ -80,7 +80,7 @@ proc Continue*(self: NCGeolocationCallback, allow: bool): bool =
 # Continue the JS dialog request. Set |success| to true (1) if the OK button
 # was pressed. The |user_input| value should be specified for prompt dialogs.
 proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
-  let cinput = to_cef_string(user_input)
+  let cinput = to_cef(user_input)
   self.cont(self, success.cint, cinput)
   cef_string_userfree_free(cinput)
   

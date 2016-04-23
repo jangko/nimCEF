@@ -28,7 +28,7 @@ proc initialize_completion_callback(cb: ptr cef_completion_callback) =
   init_base(cb)
   cb.on_complete = on_complete
 
-proc GetHandler*(self: NCCompletionCallback): ptr cef_completion_callback =
+proc GetHandler*(self: NCCompletionCallback): ptr cef_completion_callback {.inline.} =
   result = self.handler.addr
   
 proc makeNCCompletionCallback*(T: typedesc): auto =

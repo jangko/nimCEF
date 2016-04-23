@@ -9,7 +9,7 @@ type
 method StringVisit*(self: NCStringVisitor, str: string) {.base.} =
   discard
 
-proc GetHandler*(self: NCStringVisitor): ptr cef_string_visitor =
+proc GetHandler*(self: NCStringVisitor): ptr cef_string_visitor {.inline.} =
   result = self.handler.addr
   
 proc visit_string(self: ptr cef_string_visitor, str: ptr cef_string) {.cef_callback.} =

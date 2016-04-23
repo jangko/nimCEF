@@ -74,7 +74,7 @@ proc Resume*(self: NCDownloadItemCallback) =
   self.resume(self)
 
 # Call to allow or deny geolocation access.
-proc Continue(self: NCGeolocationCallback, allow: bool): bool =
+proc Continue*(self: NCGeolocationCallback, allow: bool): bool =
   result = self.cont(self, allow.cint) == 1.cint
 
 # Continue the JS dialog request. Set |success| to true (1) if the OK button
@@ -602,4 +602,4 @@ method OnRenderProcessTerminated*(self: NCClient, browser: NCBrowser,
 
 include nc_client_internal
 
-proc GetHandler*(client: NCClient): ptr cef_client = client.client_handler.addr
+proc GetHandler*(client: NCClient): ptr cef_client {.inline.} = client.client_handler.addr

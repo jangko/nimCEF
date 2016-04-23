@@ -30,7 +30,7 @@ proc initialize_task(handler: ptr cef_task) =
   init_base(handler)
   handler.execute = execute_task
 
-proc GetHandler*(self: NCTask): ptr cef_task =
+proc GetHandler*(self: NCTask): ptr cef_task {.inline.} =
   result = self.handler.addr
   
 proc makeTask*(T: typedesc): auto =

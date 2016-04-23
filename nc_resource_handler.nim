@@ -102,5 +102,5 @@ proc makeResourceHandler*(T: typedesc): auto =
   initialize_resource_handler(res.handler.addr)
   result = res
     
-proc GetHandler*(self: NCResourceHandler): ptr cef_resource_handler =
+proc GetHandler*(self: NCResourceHandler): ptr cef_resource_handler {.inline.} =
   result = self.handler.addr

@@ -33,26 +33,26 @@ type
     # Query string component (i.e., everything following the '?').
     query*: string
     
-proc cef_to_nim(cparts: ptr cef_urlparts, parts: var NCUrlParts) =
-  parts.spec = $cparts.spec.addr
-  parts.scheme = $cparts.scheme.addr
-  parts.username = $cparts.username.addr
-  parts.password = $cparts.password.addr
-  parts.host = $cparts.host.addr
-  parts.port = $cparts.port.addr
-  parts.origin = $cparts.origin.addr
-  parts.path = $cparts.path.addr
-  parts.query = $cparts.query.addr
+proc to_nim(cparts: cef_urlparts, parts: var NCUrlParts) =
+  parts.spec = $cparts.spec.unsafeAddr
+  parts.scheme = $cparts.scheme.unsafeAddr
+  parts.username = $cparts.username.unsafeAddr
+  parts.password = $cparts.password.unsafeAddr
+  parts.host = $cparts.host.unsafeAddr
+  parts.port = $cparts.port.unsafeAddr
+  parts.origin = $cparts.origin.unsafeAddr
+  parts.path = $cparts.path.unsafeAddr
+  parts.query = $cparts.query.unsafeAddr
   
-  cef_string_clear(cparts.spec.addr)
-  cef_string_clear(cparts.scheme.addr)
-  cef_string_clear(cparts.username.addr)
-  cef_string_clear(cparts.password.addr)
-  cef_string_clear(cparts.host.addr)
-  cef_string_clear(cparts.port.addr)
-  cef_string_clear(cparts.origin.addr)
-  cef_string_clear(cparts.path.addr)
-  cef_string_clear(cparts.query.addr)
+  cef_string_clear(cparts.spec.unsafeAddr)
+  cef_string_clear(cparts.scheme.unsafeAddr)
+  cef_string_clear(cparts.username.unsafeAddr)
+  cef_string_clear(cparts.password.unsafeAddr)
+  cef_string_clear(cparts.host.unsafeAddr)
+  cef_string_clear(cparts.port.unsafeAddr)
+  cef_string_clear(cparts.origin.unsafeAddr)
+  cef_string_clear(cparts.path.unsafeAddr)
+  cef_string_clear(cparts.query.unsafeAddr)
   
 # Parse the specified |url| into its component parts. Returns false *(0) if the
 # URL is NULL or invalid.  
@@ -61,9 +61,9 @@ proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
   var cparts: cef_urlparts
   result = cef_parse_url(curl, cparts.addr) == 1.cint
   cef_string_userfree_free(curl)
-  if result: cef_to_nim(cparts.addr, parts)
+  if result: to_nim(cparts, parts)
 
-proc nim_to_cef(parts: NCUrlParts, cparts: var cef_urlparts) =
+proc to_cef(parts: NCUrlParts, cparts: var cef_urlparts) =
   cparts.spec <= parts.spec
   cparts.scheme <= parts.scheme
   cparts.username <= parts.username
@@ -91,7 +91,7 @@ proc clear(cparts: var cef_urlparts) =
 proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
   var curl: cef_string
   var cparts: cef_urlparts
-  nim_to_cef(parts, cparts)
+  to_cef(parts, cparts)
   result = cef_create_url(cparts.addr, curl.addr) == 1.cint
   url = $curl.addr
   cef_string_clear(curl.addr)

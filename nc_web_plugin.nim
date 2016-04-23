@@ -42,7 +42,7 @@ proc GetDescription*(self: NCWebPluginInfo): string =
 method WebPluginVisit*(self: NCWebPluginInfoVisitor, info: NCWebPluginInfo, count, total: int): bool {.base.} =
   result = false
   
-proc GetHandler*(self: NCWebPluginInfoVisitor): ptr cef_web_plugin_info_visitor =
+proc GetHandler*(self: NCWebPluginInfoVisitor): ptr cef_web_plugin_info_visitor {.inline.} =
   result = self.handler.addr
   
 proc visit(self: ptr cef_web_plugin_info_visitor,
@@ -65,7 +65,7 @@ proc makeNCWebPluginInfoVisitor*(T: typedesc): auto =
 method IsUnstable*(self: NCWebPluginUnstableCallback, path: string, unstable: bool) {.base.} =
   discard
   
-proc GetHandler*(self: NCWebPluginUnstableCallback): ptr cef_web_plugin_unstable_callback =
+proc GetHandler*(self: NCWebPluginUnstableCallback): ptr cef_web_plugin_unstable_callback {.inline.} =
   result = self.handler.addr
   
 proc is_unstable(self: ptr cef_web_plugin_unstable_callback, path: ptr cef_string, unstable: cint) {.cef_callback.} =

@@ -7,7 +7,7 @@ type
   NCResponseFilter* = ref object of RootObj
     handler: cef_response_filter
     
-proc GetHandler*(self: NCResponseFilter): ptr cef_response_filter =
+proc GetHandler*(self: NCResponseFilter): ptr cef_response_filter {.inline.} =
   result = self.handler.addr
   
 # Initialize the response filter. Will only be called a single time. The

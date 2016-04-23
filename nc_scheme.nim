@@ -93,7 +93,7 @@ proc makeNCSchemeHandlerFactory*(T: typedesc): auto =
   init_scheme_handler_factory(factory.handler.addr)
   result = factory
   
-proc GetHandler*(self: NCSchemeHandlerFactory): ptr cef_scheme_handler_factory =
+proc GetHandler*(self: NCSchemeHandlerFactory): ptr cef_scheme_handler_factory {.inline.} =
   result = self.handler.addr
   
 # Register a scheme handler factory with the global request context. An NULL

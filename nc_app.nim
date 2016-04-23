@@ -200,7 +200,7 @@ method GetDataResourceForScale*(self: NCApp, resource_id: int,
   scale_factor: cef_scale_factor, data: var pointer, data_size: var csize): bool {.base.} =
   result = false
       
-proc GetHandler*(app: NCApp): ptr cef_app = app.app_handler.addr
+proc GetHandler*(app: NCApp): ptr cef_app {.inline.} = app.app_handler.addr
 
 include nc_app_internal
 

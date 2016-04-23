@@ -18,7 +18,7 @@ proc on_end_tracing_complete(self: ptr cef_end_tracing_callback, tracing_file: p
   var handler = type_to_type(NCEndTracingCallback, self)
   handler.OnEndTracingComplete($tracing_file)
 
-proc GetHandler*(self: NCEndTracingCallback): ptr cef_end_tracing_callback =
+proc GetHandler*(self: NCEndTracingCallback): ptr cef_end_tracing_callback {.inline.} =
   result = self.handler.addr
   
 proc initialize_end_tracing_callback(handler: ptr cef_end_tracing_callback) =

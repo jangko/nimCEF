@@ -81,7 +81,7 @@ type
   NCMainArgs* = ref object
     handler: cef_main_args
     
-proc GetHandler*(arg: NCMainArgs): ptr cef_main_args =
+proc GetHandler*(arg: NCMainArgs): ptr cef_main_args {.inline.} =
   result = arg.handler.addr
   
 when defined(windows):

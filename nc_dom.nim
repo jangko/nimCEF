@@ -24,7 +24,7 @@ type
 method DomVisit*(self: NCDomVisitor, document: NCDomDocument) {.base.} =
   discard
 
-proc GetHandler*(self: NCDomVisitor): ptr cef_dom_visitor =
+proc GetHandler*(self: NCDomVisitor): ptr cef_dom_visitor {.inline.} =
   result = self.handler.addr
   
 proc visit_document(self: ptr cef_domvisitor, document: ptr cef_domdocument) {.cef_callback.} =

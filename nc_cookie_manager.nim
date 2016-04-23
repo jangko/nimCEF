@@ -1,4 +1,5 @@
-import cef/cef_cookie_manager_api, nc_types, nc_util, nc_callback, cef/cef_string_list_api
+import cef/cef_cookie_manager_api, cef/cef_string_list_api
+import nc_cookie, nc_types, nc_util, nc_callback
 include cef/cef_import
 
 type
@@ -21,13 +22,13 @@ type
   NCDeleteCookiesCallback* = ref object of RootObj
     handler: cef_delete_cookies_callback
   
-proc GetHandler*(self: NCCookieVisitor): ptr cef_cookie_visitor =
+proc GetHandler*(self: NCCookieVisitor): ptr cef_cookie_visitor {.inline.} =
   result = self.handler.addr
 
-proc GetHandler*(self: NCSetCookieCallback): ptr cef_set_cookie_callback =
+proc GetHandler*(self: NCSetCookieCallback): ptr cef_set_cookie_callback {.inline.} =
   result = self.handler.addr
 
-proc GetHandler*(self: NCDeleteCookiesCallback): ptr cef_delete_cookies_callback =
+proc GetHandler*(self: NCDeleteCookiesCallback): ptr cef_delete_cookies_callback {.inline.} =
   result = self.handler.addr
   
 # Set the schemes supported by this manager. The default schemes ("http",
@@ -65,11 +66,14 @@ proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool,
 # such characters are found. If |callback| is non-NULL it will be executed
 # asnychronously on the IO thread after the cookie has been set. Returns
 # false (0) if an invalid URL is specified or if cookies cannot be accessed.
-proc SetCookie*(self: NCCookieManager, url: string, cookie: ptr cef_cookie, callback: NCSetCookieCallback): bool =
+proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: NCSetCookieCallback): bool =
   add_ref(callback.GetHandler())
   let curl = to_cef_string(url)
-  result = self.set_cookie(self, curl, cookie, callback.GetHandler()) == 1.cint
+  var ccookie: cef_cookie
+  to_cef(cookie, ccookie)
+  result = self.set_cookie(self, curl, ccookie.addr, callback.GetHandler()) == 1.cint
   cef_string_userfree_free(curl)
+  ccookie.clear()
   
 # Delete all cookies that match the specified parameters. If both |url| and
 # |cookie_name| values are specified all host and domain cookies matching
@@ -116,13 +120,13 @@ proc FlushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
 # |deleteCookie| to true (1) to delete the cookie currently being visited.
 # Return false (0) to stop visiting cookies. This function may never be
 # called if no cookies are found.
-method CookieVisit*(self: NCCookieVisitor, cookie: ptr cef_cookie, count, total: int, deleteCookie: var bool): bool {.base.} =
+method CookieVisit*(self: NCCookieVisitor, cookie: NCCookie, count, total: int, deleteCookie: var bool): bool {.base.} =
   result = false
     
 proc cookie_visit(self: ptr cef_cookie_visitor, cookie: ptr cef_cookie, count, total: cint, deleteCookie: var cint): cint {.cef_callback.} =
   var handler = type_to_type(NCCookieVisitor, self)
   var delCookie = deleteCookie == 1.cint
-  result = handler.CookieVisit(cookie, count.int, total.int, delCookie).cint
+  result = handler.CookieVisit(to_nim(cookie), count.int, total.int, delCookie).cint
   deleteCookie = delCookie.cint
 
 proc initialize_cookie_visitor(handler: ptr cef_cookie_visitor) =

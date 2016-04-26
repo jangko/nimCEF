@@ -2,8 +2,8 @@ import cef/cef_request_handler_api, cef/cef_string_list_api, cef/cef_dialog_hand
 import cef/cef_download_handler_api, cef/cef_geolocation_handler_api, cef/cef_jsdialog_handler_api
 import cef/cef_resource_handler_api
 import nc_process_message, nc_types, nc_download_item, nc_request, nc_response, nc_drag_data
-import nc_auth_callback, nc_ssl_info, nc_util, nc_response_filter
-
+import nc_auth_callback, nc_ssl_info, nc_util, nc_response_filter, nc_context_menu_handler
+import nc_life_span_handler
 #moved to nc_types.nim to avoid circular import
 #type
 #  NCClient* = ref object of RootObj
@@ -46,7 +46,7 @@ proc Cancel*(self: NCRequestCallback) =
 proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
   let clist = to_cef(file_paths)
   self.cont(self, selected_accept_filter.cint, clist)
-  cef_string_list_free(clist)
+  nc_free(clist)
   
 # Cancel the file selection.
 proc Cancel*(self: NCFileDialogCallback) =
@@ -59,7 +59,7 @@ proc Cancel*(self: NCFileDialogCallback) =
 proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
   let cpath = to_cef(download_path)
   self.cont(self, cpath, show_dialog.cint)
-  cef_string_userfree_free(cpath)
+  nc_free(cpath)
 
 # Call to cancel the download.
 proc Cancel*(self: NCDownloadItemCallback) =
@@ -82,7 +82,7 @@ proc Continue*(self: NCGeolocationCallback, allow: bool): bool =
 proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
   let cinput = to_cef(user_input)
   self.cont(self, success.cint, cinput)
-  cef_string_userfree_free(cinput)
+  nc_free(cinput)
   
 #--Client Handler
 # Called when a new message is received from a different process. Return true
@@ -603,3 +603,77 @@ method OnRenderProcessTerminated*(self: NCClient, browser: NCBrowser,
 include nc_client_internal
 
 proc GetHandler*(client: NCClient): ptr cef_client {.inline.} = client.client_handler.addr
+
+proc client_finalizer[T](client: T) =
+  if client.context_menu_handler != nil: freeShared(client.context_menu_handler)
+  if client.life_span_handler != nil: freeShared(client.life_span_handler)
+  if client.drag_handler != nil: freeShared(client.drag_handler)
+  if client.display_handler != nil: freeShared(client.display_handler)
+  if client.focus_handler != nil: freeShared(client.focus_handler)
+  if client.keyboard_handler != nil: freeShared(client.keyboard_handler)
+  if client.load_handler != nil: freeShared(client.load_handler)
+  if client.render_handler != nil: freeShared(client.render_handler)
+  if client.dialog_handler != nil: freeShared(client.dialog_handler)
+  if client.download_handler != nil: freeShared(client.download_handler)
+  if client.geolocation_handler != nil: freeShared(client.geolocation_handler)
+  if client.jsdialog_handler != nil: freeShared(client.jsdialog_handler)
+  if client.request_handler != nil: freeShared(client.request_handler)
+
+proc makeNCClient*(T: typedesc, flags: NCCFS = {}): auto =
+  var client: T
+  new(client, client_finalizer)
+
+  initialize_client_handler(client.client_handler.addr)
+
+  if NCCF_CONTEXT_MENU in flags:
+    client.context_menu_handler = createShared(cef_context_menu_handler)
+    initialize_context_menu_handler(client.context_menu_handler)
+
+  if NCCF_LIFE_SPAN in flags:
+    client.life_span_handler = createShared(cef_life_span_handler)
+    initialize_life_span_handler(client.life_span_handler)
+
+  if NCCF_DRAG in flags:
+    client.drag_handler = createShared(cef_drag_handler)
+    initialize_drag_handler(client.drag_handler)
+
+  if NCCF_DISPLAY in flags:
+    client.display_handler = createShared(cef_display_handler)
+    initialize_display_handler(client.display_handler)
+
+  if NCCF_FOCUS in flags:
+    client.focus_handler = createShared(cef_focus_handler)
+    initialize_focus_handler(client.focus_handler)
+
+  if NCCF_KEYBOARD in flags:
+    client.keyboard_handler = createShared(cef_keyboard_handler)
+    initialize_keyboard_handler(client.keyboard_handler)
+
+  if NCCF_LOAD in flags:
+    client.load_handler = createShared(cef_load_handler)
+    initialize_load_handler(client.load_handler)
+
+  if NCCF_RENDER in flags:
+    client.render_handler = createShared(cef_render_handler)
+    initialize_render_handler(client.render_handler)
+
+  if NCCF_DIALOG in flags:
+    client.dialog_handler = createShared(cef_dialog_handler)
+    initialize_dialog_handler(client.dialog_handler)
+
+  if NCCF_DOWNLOAD in flags:
+    client.download_handler = createShared(cef_download_handler)
+    initialize_download_handler(client.download_handler)
+
+  if NCCF_GEOLOCATION in flags:
+    client.geolocation_handler = createShared(cef_geolocation_handler)
+    initialize_geolocation_handler(client.geolocation_handler)
+
+  if NCCF_JSDIALOG in flags:
+    client.jsdialog_handler = createShared(cef_jsdialog_handler)
+    initialize_jsdialog_handler(client.jsdialog_handler)
+
+  if NCCF_REQUEST in flags:
+    client.request_handler = createShared(cef_request_handler)
+    initialize_request_handler(client.request_handler)
+  return client

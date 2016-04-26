@@ -97,7 +97,7 @@ proc IsSame*(self, that: NCV8Context): bool =
 proc Eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: var NCV8Exception): bool =
   let ccode = to_cef(code)
   result = self.eval(self, ccode, retval, exception) == 1.cint
-  cef_string_userfree_free(ccode)
+  nc_free(ccode)
 
 # Handle execution of the function identified by |name|. |object| is the
 # receiver ('this' object) of the function. |arguments| is the list of
@@ -111,8 +111,8 @@ proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Val
   let cname = to_cef(name)
   let cexception = to_cef(exception)
   result = self.execute(self, cname, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr), retval, cexception) == 1.cint
-  cef_string_userfree_free(cname)
-  cef_string_userfree_free(cexception)
+  nc_free(cname)
+  nc_free(cexception)
 
 # Handle retrieval the accessor value identified by |name|. |object| is the
 # receiver ('this' object) of the accessor. If retrieval succeeds set
@@ -125,8 +125,8 @@ proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
   let cname = to_cef(name)
   let cexception = to_cef(exception)
   result = self.get_value(self, cname, obj, retval, cexception) == 1.cint
-  cef_string_userfree_free(cname)
-  cef_string_userfree_free(cexception)
+  nc_free(cname)
+  nc_free(cexception)
   
 # Handle assignment of the accessor value identified by |name|. |object| is
 # the receiver ('this' object) of the accessor. |value| is the new value
@@ -140,8 +140,8 @@ proc SetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
   let cname = to_cef(name)
   let cexception = to_cef(exception)
   result = self.set_value(self, cname, obj, value, cexception) == 1.cint
-  cef_string_userfree_free(cname)
-  cef_string_userfree_free(cexception)
+  nc_free(cname)
+  nc_free(cexception)
 
 # Returns the exception message.
 # The resulting string must be freed by calling string_free().
@@ -309,7 +309,7 @@ proc SetRethrowExceptions*(self: NCV8Value, rethrow: bool): bool =
 proc HasValueByKey*(self: NCV8Value, key: string): bool =
   let ckey = to_cef(key)
   result = self.has_ValueByKey(self, ckey) == 1.cint
-  cef_string_userfree_free(ckey)
+  nc_free(ckey)
 
 # Returns true (1) if the object has a value with the specified identifier.
 proc HasValueByIndex*(self: NCV8Value, index: int): bool =
@@ -322,7 +322,7 @@ proc HasValueByIndex*(self: NCV8Value, index: int): bool =
 proc DeleteValueByKey*(self: NCV8Value, key: string): bool =
   let ckey = to_cef(key)
   result = self.delete_ValueByKey(self, ckey) == 1.cint
-  cef_string_userfree_free(ckey)
+  nc_free(ckey)
 
 # Deletes the value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly, deletion
@@ -336,7 +336,7 @@ proc DeleteValueByIndex*(self: NCV8Value, index: int): bool =
 proc GetValueByKey*(self: NCV8Value, key: string): NCV8Value =
   let ckey = to_cef(key)
   result = self.get_ValueByKey(self, ckey)
-  cef_string_userfree_free(ckey)
+  nc_free(ckey)
   
 # Returns the value with the specified identifier on success. Returns NULL if
 # this function is called incorrectly or an exception is thrown.
@@ -352,7 +352,7 @@ proc SetValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
   add_ref(value)
   let ckey = to_cef(key)
   result = self.set_ValueByKey(self, ckey, value, attribute) == 1.cint
-  cef_string_userfree_free(ckey)
+  nc_free(ckey)
   
 # Associates a value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
@@ -371,7 +371,7 @@ proc SetValueByAccessor*(self: NCV8Value, key: string, settings: cef_v8_accessco
   attribute: cef_v8_propertyattribute): bool =
   let ckey = to_cef(key)
   result = self.set_ValueByAccessor(self, ckey, settings, attribute) == 1.cint
-  cef_string_userfree_free(ckey)
+  nc_free(ckey)
 
 # Read the keys for the object's values into the specified vector. Integer-
 # based keys will also be returned as strings.
@@ -566,8 +566,8 @@ proc NCRegisterExtension*(extension_name: string,
   let cname = to_cef(extension_name)
   let ccode = to_cef(javascript_code)
   result = cef_register_extension(cname, ccode, handler) == 1.cint
-  cef_string_userfree_free(cname)
-  cef_string_userfree_free(ccode)
+  nc_free(cname)
+  nc_free(ccode)
   
 # Returns the current (top) context object in the V8 context stack.
 proc NCV8ContexGetCurrentContext*(): NCV8Context =
@@ -616,7 +616,7 @@ proc NCV8ValueCreateDate*(date: ptr cef_time): NCV8Value =
 proc NCV8ValueCreateString*(value: string): NCV8Value =
   let cval = to_cef(value)
   result = cef_v8value_create_string(cval)
-  cef_string_userfree_free(cval)
+  nc_free(cval)
 
 # Create a new cef_v8value_t object of type object with optional accessor. This
 # function should only be called from within the scope of a
@@ -644,7 +644,7 @@ proc NCV8ValueCreateFunction*(name: string, handler: NCV8Handler): NCV8Value =
   add_ref(handler)
   let cname = to_cef(name)
   result = cef_v8value_create_function(cname, handler)
-  cef_string_userfree_free(cname)
+  nc_free(cname)
   
 # Returns the stack trace for the currently active context. |frame_limit| is
 # the maximum number of frames that will be captured.

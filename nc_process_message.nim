@@ -19,7 +19,7 @@ proc Copy*(self: NCProcessMessage): NCProcessMessage =
   result = self.copy(self)
 
 # Returns the message name.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetName*(self: NCProcessMessage): string =
   result = to_nim(self.get_name(self))
 
@@ -31,4 +31,4 @@ proc GetArgumentList*(self: NCProcessMessage): NCListValue =
 proc CreateProcessMessage*(name: string): NCProcessMessage =
   var cname = to_cef(name)
   result = cef_process_message_create(cname)
-  cef_string_userfree_free(cname)
+  nc_free(cname)

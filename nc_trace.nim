@@ -47,7 +47,7 @@ proc makeNCEndTracingCallback*(T: typedesc): auto =
 proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
   let ccat = to_cef(categories)
   result = cef_begin_tracing(ccat, callback.GetHandler()) == 1.cint
-  cef_string_userfree_free(ccat)
+  nc_free(ccat)
 
 # Stop tracing events on all processes.
 #
@@ -63,7 +63,7 @@ proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
 proc NCEndTracing*(tracing_file: string, callback: NCEndTracingCallback): bool =
   let cfile = to_cef(tracing_file)
   result = cef_end_tracing(cfile, callback.GetHandler()) == 1.cint
-  cef_string_userfree_free(cfile)
+  nc_free(cfile)
 
 # Returns the current system trace time or, if none is defined, the current
 # high-res time. Can be used by clients to synchronize with the time

@@ -1,5 +1,5 @@
 import winapi, os, strutils
-import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
+import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_settings
 
 type
@@ -15,7 +15,7 @@ proc newClient(no: int, name: string): myClient =
   result.name = name
 
 method OnBeforeClose(self: myClient, browser: NCBrowser) =
-  cef_quit_message_loop()
+  NCQuitMessageLoop()
   echo "close: ", self.name, " no: ", self.abc
 
 const
@@ -79,7 +79,7 @@ proc main() =
   discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings)
 
   # Message loop.
-  cef_run_message_loop()
-  cef_shutdown()
+  NCRunMessageLoop()
+  NCShutdown()
 
 main()

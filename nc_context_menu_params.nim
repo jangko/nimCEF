@@ -22,19 +22,19 @@ proc GetTypeFlags*(self: NCContextMenuParams): cef_context_menu_type_flags =
 
 # Returns the URL of the link, if any, that encloses the node that the
 # context menu was invoked on.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetLinkUrl*(self: NCContextMenuParams): string =
   result = to_nim(self.get_link_url(self))
 
 # Returns the link URL, if any, to be used ONLY for "copy link address". We
 # don't validate this field in the frontend process.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetUnfilteredLinkUrl*(self: NCContextMenuParams): string =
   result = to_nim(self.get_unfiltered_link_url(self))
 
 # Returns the source URL, if any, for the element that the context menu was
 # invoked on. Example of elements with source URLs are img, audio, and video.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetSourceUrl*(self: NCContextMenuParams): string =
   result = to_nim(self.get_source_url(self))
 
@@ -44,18 +44,18 @@ proc HasImageContents*(self: NCContextMenuParams): bool =
   result = self.has_image_contents(self) == 1.cint
 
 # Returns the URL of the top level page that the context menu was invoked on.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetPageUrl*(self: NCContextMenuParams): string =
   result = to_nim(self.get_page_url(self))
 
 # Returns the URL of the subframe that the context menu was invoked on.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetFrameUrl*(self: NCContextMenuParams): string =
   result = to_nim(self.get_frame_url(self))
 
 # Returns the character encoding of the subframe that the context menu was
 # invoked on.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetFrameCharset*(self: NCContextMenuParams): string =
   result = to_nim(self.get_frame_charset(self))
 
@@ -70,13 +70,13 @@ proc GetMediaStateFlags*(self: NCContextMenuParams): cef_context_menu_media_stat
 
 # Returns the text of the selection, if any, that the context menu was
 # invoked on.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetSelectionText*(self: NCContextMenuParams): string =
   result = to_nim(self.get_selection_text(self))
 
 # Returns the text of the misspelled word, if any, that the context menu was
 # invoked on.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetMisspelledWord*(self: NCContextMenuParams): string =
   result = to_nim(self.get_misspelled_word(self))
 
@@ -88,7 +88,7 @@ proc GetDictionarySuggestions*(self: NCContextMenuParams): seq[string] =
   if self.get_dictionary_suggestions(self, suggestions) == 1.cint:
     result = to_nim(suggestions)
   else:
-    cef_string_list_free(suggestions)
+    nc_free(suggestions)
     result = nil
 
 # Returns true (1) if the context menu was invoked on an editable node.

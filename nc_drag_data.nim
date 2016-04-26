@@ -82,37 +82,37 @@ proc GetFileNames*(self: NCDragData): seq[string] =
 proc SetLinkUrl*(self: NCDragData, url: string) =
   let curl = to_cef(url)
   self.set_link_url(self, curl)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Set the title associated with the link being dragged.
 proc SetLinkTitle*(self: NCDragData, title: string) =
   let ctitle = to_cef(title)
   self.set_link_title(self, ctitle)
-  cef_string_userfree_free(ctitle)
+  nc_free(ctitle)
 
 # Set the metadata associated with the link being dragged.
 proc SetLinkMetadata*(self: NCDragData, data: string) =
   let cdata = to_cef(data)
   self.set_link_metadata(self, cdata)
-  cef_string_userfree_free(cdata)
+  nc_free(cdata)
   
 # Set the plain text fragment that is being dragged.
 proc SetFragmentText*(self: NCDragData, text: string) =
   let ctext = to_cef(text)
   self.set_fragment_text(self, ctext)
-  cef_string_userfree_free(ctext)
+  nc_free(ctext)
 
 # Set the text/html fragment that is being dragged.
 proc SetFragmentHtml*(self: NCDragData, html: string) =
   let chtml = to_cef(html)
   self.set_fragment_html(self, chtml)
-  cef_string_userfree_free(chtml)
+  nc_free(chtml)
   
 # Set the base URL that the fragment came from.
 proc SetFragmentBaseUrl*(self: NCDragData, base_url: string) =
   let curl = to_cef(base_url)
   self.set_fragment_base_url(self, curl)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Reset the file contents. You should do this before calling
 # cef_browser_host_t::DragTargetDragEnter as the web view does not allow us
@@ -125,5 +125,5 @@ proc AddFile*(self: NCDragData, path, display_name: string) =
   let cpath = to_cef(path)
   let cname = to_cef(display_name)
   self.add_file(self, cpath, cname)
-  cef_string_userfree_free(cpath)
-  cef_string_userfree_free(cname)
+  nc_free(cpath)
+  nc_free(cname)

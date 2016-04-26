@@ -39,7 +39,7 @@ proc SetSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback:
   add_ref(callback.GetHandler())
   var cscheme = to_cef(schemes)
   self.set_supported_schemes(self, cscheme, callback.GetHandler())
-  cef_string_list_free(cscheme)
+  nc_free(cscheme)
   
 # Visit all cookies on the IO thread. The returned cookies are ordered by
 # longest path, then by earliest creation date. Returns false (0) if cookies
@@ -57,7 +57,7 @@ proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool,
   add_ref(visitor.GetHandler())
   let curl = to_cef(url)
   result = self.visit_url_cookies(self, curl, includeHttpOnly.cint, visitor.GetHandler()) == 1.cint
-  cef_string_userfree_free(curl)
+  nc_free(curl)
   
 # Sets a cookie given a valid URL and explicit user-provided cookie
 # attributes. This function expects each attribute to be well-formed. It will
@@ -72,7 +72,7 @@ proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: 
   var ccookie: cef_cookie
   to_cef(cookie, ccookie)
   result = self.set_cookie(self, curl, ccookie.addr, callback.GetHandler()) == 1.cint
-  cef_string_userfree_free(curl)
+  nc_free(curl)
   ccookie.clear()
   
 # Delete all cookies that match the specified parameters. If both |url| and
@@ -89,8 +89,8 @@ proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string,  callback: 
   let curl = to_cef(url)
   let cname = to_cef(cookie_name)
   result = self.delete_cookies(self, curl, cname, callback.GetHandler()) == 1.cint
-  cef_string_userfree_free(curl)
-  cef_string_userfree_free(cname)
+  nc_free(curl)
+  nc_free(cname)
   
 # Sets the directory path that will be used for storing cookie data. If
 # |path| is NULL data will be stored in memory only. Otherwise, data will be
@@ -105,7 +105,7 @@ proc SetStoragePath*(self: NCCookieManager, path: string, persist_session_cookie
   add_ref(callback.GetHandler())
   let cpath = to_cef(path)
   result = self.set_storage_path(self, cpath, persist_session_cookies.cint, callback.GetHandler()) == 1.cint
-  cef_string_userfree_free(cpath)
+  nc_free(cpath)
   
 # Flush the backing store (if any) to disk. If |callback| is non-NULL it will
 # be executed asnychronously on the IO thread after the flush is complete.
@@ -193,4 +193,4 @@ proc NCCookieManagerCreateManager*(path: string, persist_session_cookies: bool,
   add_ref(callback.GetHandler())
   let cpath = to_cef(path)
   result = cef_cookie_manager_create_manager(cpath, persist_session_cookies.cint, callback.GetHandler())
-  cef_string_userfree_free(cpath)
+  nc_free(cpath)

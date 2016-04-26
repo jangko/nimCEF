@@ -69,7 +69,7 @@ proc LoadRequest*(self: NCFrame, request: NCRequest) =
 proc LoadUrl*(self: NCFrame, url: string) =
   var curl = to_cef(url)
   self.load_url(self, curl)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Load the contents of |string_val| with the specified dummy |url|. |url|
 # should have a standard scheme (for example, http scheme) or behaviors like
@@ -78,8 +78,8 @@ proc LoadString*(self: NCFrame, string_val, url: string) =
   var cval = to_cef(string_val)
   var curl = to_cef(url)
   self.load_string(self, cval, curl)
-  cef_string_userfree_free(curl)
-  cef_string_userfree_free(cval)
+  nc_free(curl)
+  nc_free(cval)
 
 # Execute a string of JavaScript code in this frame. The |script_url|
 # parameter is the URL where the script in question can be found, if any. The
@@ -90,8 +90,8 @@ proc ExecuteJavaScript*(self: NCFrame, code, script_url: string, start_line: int
   var ccode = to_cef(code)
   var curl = to_cef(script_url)
   self.execute_java_script(self, ccode, curl, start_line.cint)
-  cef_string_userfree_free(ccode)
-  cef_string_userfree_free(curl)
+  nc_free(ccode)
+  nc_free(curl)
 
 # Returns true (1) if this is the main (top-level) frame.
 proc IsMain*(self: NCFrame): bool =
@@ -106,7 +106,7 @@ proc IsFocused*(self: NCFrame): bool =
 # returned. Otherwise a unique name will be constructed based on the frame
 # parent hierarchy. The main (top-level) frame will always have an NULL name
 # value.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetName*(self: NCFrame): string =
   result = to_nim(self.get_name(self))
 
@@ -121,7 +121,7 @@ proc GetParent*(self: NCFrame): NCFrame =
   result = self.get_parent(self)
 
 # Returns the URL currently loaded in this frame.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetUrl*(self: NCFrame): string =
   result = to_nim(self.get_url(self))
 

@@ -508,7 +508,7 @@ type
     # background graphics.
     backgrounds_enabled: bool
     
-proc makeNCPdfPrintSettings(): NCPdfPrintSettings =
+proc makeNCPdfPrintSettings*(): NCPdfPrintSettings =
   new(result)
   
 proc to_cef*(ns: NCPdfPrintSettings, cs: var cef_pdf_print_settings) =

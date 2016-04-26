@@ -23,26 +23,26 @@ proc AddSeparator*(self: NCMenuModel): bool =
 proc AddItem*(self: NCMenuModel, command_id: cef_menu_id, label: string): bool =
   var clabel = to_cef(label)
   result = self.add_item(self, command_id.cint, clabel) == 1.cint
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Add a check item to the menu. Returns true *(1) on success.
 proc AddCheckItem*(self: NCMenuModel, command_id: cef_menu_id, label: string): bool =
   var clabel = to_cef(label)
   result = self.add_check_item(self, command_id.cint, clabel) == 1.cint
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Add a radio item to the menu. Only a single item with the specified
 # |group_id| can be checked at a time. Returns true *(1) on success.
 proc AddRadioItem*(self: NCMenuModel, command_id: cef_menu_id, label: string, group_id: int): bool =
   var clabel = to_cef(label)
   result = self.add_radio_item(self, command_id.cint, clabel, group_id.cint) == 1.cint
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Add a sub-menu to the menu. The new sub-menu is returned.
 proc AddSubMenu*(self: NCMenuModel, command_id: cef_menu_id, label: string): NCMenuModel =
   var clabel = to_cef(label)
   result = self.add_sub_menu(self, command_id.cint, clabel)
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Insert a separator in the menu at the specified |index|. Returns true *(1)
 # on success.
@@ -54,14 +54,14 @@ proc InsertSeparatorAt*(self: NCMenuModel, index: int): bool =
 proc InsertItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): bool =
   var clabel = to_cef(label)
   result = self.insert_item_at(self, index.cint, command_id.cint, clabel) == 1.cint
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Insert a check item in the menu at the specified |index|. Returns true *(1)
 # on success.
 proc InsertCheckItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): bool =
   var clabel = to_cef(label)
   result = self.insert_check_item_at(self, index.cint, command_id.cint, clabel) == 1.cint
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Insert a radio item in the menu at the specified |index|. Only a single
 # item with the specified |group_id| can be checked at a time. Returns true
@@ -69,14 +69,14 @@ proc InsertCheckItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, 
 proc InsertRadioItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string, group_id: int): bool =
   var clabel = to_cef(label)
   result = self.insert_radio_item_at(self, index.cint, command_id.cint, clabel, group_id.cint) == 1.cint
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Insert a sub-menu in the menu at the specified |index|. The new sub-menu is
 # returned.
 proc InsertSubMenuAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): NCMenuModel =
   var clabel = to_cef(label)
   result = self.insert_sub_menu_at(self, index.cint, command_id.cint, clabel)
-  cef_string_userfree_free(clabel)
+  nc_free(clabel)
 
 # Removes the item with the specified |command_id|. Returns true *(1) on
 # success.
@@ -102,14 +102,14 @@ proc SetCommandIdAt*(self: NCMenuModel, index: int, command_id: cef_menu_id): bo
   result = self.set_command_id_at(self, index.cint, command_id.cint) == 1.cint
 
 # Returns the label for the specified |command_id| or NULL if not found.
-# The resulting string must be freed by calling cef_string_userfree_free*().
+# The resulting string must be freed by calling nc_free*().
 proc GetLabel*(self: NCMenuModel, command_id: cef_menu_id): string =
   var clabel = self.get_label(self, command_id.cint)
   result = to_nim(clabel)
 
 # Returns the label at the specified |index| or NULL if not found due to
 # invalid range or the index being a separator.
-# The resulting string must be freed by calling cef_string_userfree_free*().
+# The resulting string must be freed by calling nc_free*().
 proc GetLabelAt*(self: NCMenuModel, index: int): string =
   var clabel = self.get_label_at(self, index.cint)
   result = to_nim(clabel)

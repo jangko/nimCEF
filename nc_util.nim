@@ -30,6 +30,9 @@ proc `$`*(str: ptr cef_string): string = to_nim(str, false)
 proc `<=`*(cstr: var cef_string, str: string) =
   if str != nil:
     discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
+    
+template nc_free*(str: ptr cef_string) =
+  cef_string_userfree_free(str)
   
 proc to_nim*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
@@ -54,6 +57,9 @@ proc to_cef*(input: seq[string]): cef_string_list =
       cef_string_list_append(list, res.addr)
       cef_string_clear(res.addr)
   result = list
+
+template nc_free*(list: cef_string_list) =
+  cef_string_list_free(list)
 
 proc to_nim*(map: cef_string_map, doFree = true): StringTableRef =
   let count = cef_string_map_size(map)

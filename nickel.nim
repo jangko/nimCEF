@@ -1,5 +1,5 @@
 import winapi, os, strutils, streams
-import nc_menu_model, nc_process_message, nc_app, nc_client, ncapi, nc_types
+import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
 

@@ -113,7 +113,7 @@ proc GetFrameByident*(self: NCBrowser, identifier: int64): NCFrame =
 proc GetFrame*(self: NCBrowser, name: string): NCFrame =
   var cname = to_cef(name)
   result = self.get_frame(self, cname)
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Returns the number of frames that currently exist.
 proc GetFrameCount*(self: NCBrowser): int =
@@ -213,15 +213,15 @@ proc RunFileDialog*(self: NCBrowserHost,
   let cpath = to_cef(default_file_path)
   let clist = to_cef(accept_filters)
   self.run_file_dialog(self, mode, ctitle, cpath, clist, selected_accept_filter.cint, callback)
-  cef_string_list_free(clist)
-  cef_string_userfree_free(ctitle)
-  cef_string_userfree_free(cpath)
+  nc_free(clist)
+  nc_free(ctitle)
+  nc_free(cpath)
 
 # Download the file at |url| using cef_download_handler_t.
 proc StartDownload*(self: NCBrowserHost, url: string) =
   let curl = to_cef(url)
   self.start_download(self, curl)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Print the current browser contents.
 proc Print*(self: NCBrowserHost) =
@@ -235,7 +235,7 @@ proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings
   let cpath = to_cef(path)
   var csettings: cef_pdf_print_settings
   self.print_to_pdf(self, cpath, csettings.addr, callback)
-  cef_string_userfree_free(cpath)
+  nc_free(cpath)
   csettings.clear()
 
 # Search for |searchText|. |identifier| can be used to have multiple searches
@@ -247,7 +247,7 @@ proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings
 proc Find*(self: NCBrowserHost, identifier: int, searchText: string, forward, matchCase, findNext: bool) =
   let ctext = to_cef(searchText)
   self.find(self, identifier.cint, ctext, forward.cint, matchCase.cint, findNext.cint)
-  cef_string_userfree_free(ctext)
+  nc_free(ctext)
 
 # Cancel all searches that are currently going on.
 proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
@@ -288,13 +288,13 @@ proc IsMouseCursorChangeDisabled*(self: NCBrowserHost): bool =
 proc ReplaceMisspelling*(self: NCBrowserHost, word: string) =
   let cword = to_cef(word)
   self.replace_misspelling(self, cword)
-  cef_string_userfree_free(cword)
+  nc_free(cword)
 
 # Add the specified |word| to the spelling dictionary.
 proc AddWordToDictionary*(self: NCBrowserHost, word: string) =
   let cword = to_cef(word)
   self.add_word_to_dictionary(self, cword)
-  cef_string_userfree_free(cword)
+  nc_free(cword)
 
 # Returns true (1) if window rendering is disabled.
 proc IsWindowRenderingDisabled*(self: NCBrowserHost): bool =
@@ -460,7 +460,7 @@ proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClie
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
   result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr, request_context) == 1.cint
-  cef_string_userfree_free(curl)
+  nc_free(curl)
   csettings.clear()
 
 # Create a new browser window using the window parameters specified by
@@ -472,5 +472,5 @@ proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NC
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
   result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, csettings.addr, request_context)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
   csettings.clear()

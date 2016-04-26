@@ -40,7 +40,7 @@ proc set_printer_printable_area*(self: NCPrintSettings,
 proc SetDeviceName*(self: NCPrintSettings, name: string) =
   let cname = to_cef(name)
   self.set_device_name(self, cname)
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Get the device name.
 # The resulting string must be freed by calling string_free().

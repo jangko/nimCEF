@@ -5,4 +5,4 @@ import cef/cef_path_util_api, nc_util, nc_types, cef/cef_types
 proc NCGetPath*(key: cef_path_key, path: string): bool =
   let cpath = to_cef(path)
   result = cef_get_path(key, cpath) == 1.cint
-  cef_string_userfree_free(cpath)
+  nc_free(cpath)

@@ -125,7 +125,7 @@ proc on_tooltip(self: ptr cef_display_handler, browser: ptr_cef_browser, text: p
   cef_string_clear(text)
   let ctext = to_cef(tip)
   discard cef_string_copy(ctext.str, ctext.length, text)
-  cef_string_userfree_free(ctext)
+  nc_free(ctext)
   release(brow)
 
 proc on_status_message(self: ptr cef_display_handler, browser: ptr_cef_browser, value: ptr cef_string) {.cef_callback.} =

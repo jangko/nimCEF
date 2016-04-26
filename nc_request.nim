@@ -26,7 +26,7 @@ proc GetUrl*(self: NCRequest): string =
 proc SetUrl*(self: NCRequest, url: string) =
   let curl = to_cef(url)
   self.set_url(self, curl)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Get the request function type. The value will default to POST if post data
 # is provided and GET otherwise.
@@ -38,7 +38,7 @@ proc GetMethod*(self: NCRequest): string =
 proc SetMethod*(self: NCRequest, pmethod: string) =
   let cmethod = to_cef(pmethod)
   self.set_method(self, cmethod)
-  cef_string_userfree_free(cmethod)
+  nc_free(cmethod)
 
 # Set the referrer URL and policy. If non-NULL the referrer URL must be fully
 # qualified with an HTTP or HTTPS scheme component. Any username, password or
@@ -46,7 +46,7 @@ proc SetMethod*(self: NCRequest, pmethod: string) =
 proc SetReferrer*(self: NCRequest, referrer_url: string, policy: cef_referrer_policy) =
   let curl = to_cef(referrer_url)
   self.set_referrer(self, curl, policy)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Get the referrer URL.
 # The resulting string must be freed by calling string_free().
@@ -86,8 +86,8 @@ proc SetValues*(self: NCRequest, url: string, pmethod: string, postData: NCPostD
   let cmethod = to_cef(pmethod)
   let cmap = to_cef(headerMap)
   self.set_values(self, curl, cmethod, postData, cmap)
-  cef_string_userfree_free(curl)
-  cef_string_userfree_free(cmethod)
+  nc_free(curl)
+  nc_free(cmethod)
   cef_string_multimap_free(cmap)
 
 # Get the flags used in combination with cef_urlrequest_t. See
@@ -111,7 +111,7 @@ proc GetFirstPartyForCookies*(self: NCRequest): string =
 proc SetFirstPartyForCookies*(self: NCRequest, url: string) =
   let curl = to_cef(url)
   self.set_first_party_for_cookies(self, curl)
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Get the resource type for this request. Only available in the browser
 # process.
@@ -179,7 +179,7 @@ proc SetToEmpty*(self: NCPostDataElement) =
 proc SetToFile*(self: NCPostDataElement, fileName: string) =
   let cname = to_cef(fileName)
   self.set_to_file(self, cname)
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # The post data element will represent bytes.  The bytes passed in will be
 # copied.

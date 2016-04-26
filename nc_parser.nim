@@ -60,7 +60,7 @@ proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
   let curl = to_cef(url)
   var cparts: cef_urlparts
   result = cef_parse_url(curl, cparts.addr) == 1.cint
-  cef_string_userfree_free(curl)
+  nc_free(curl)
   if result: to_nim(cparts, parts)
 
 proc to_cef(parts: NCUrlParts, cparts: var cef_urlparts) =
@@ -111,8 +111,8 @@ proc NCFormatUrlForSecurityDisplay*(origin_url, languages: string): string =
   let curl = to_cef(origin_url)
   let clang = to_cef(languages)
   result = to_nim(cef_format_url_for_security_display(curl, clang))
-  cef_string_userfree_free(curl)
-  cef_string_userfree_free(clang)
+  nc_free(curl)
+  nc_free(clang)
 
 # Returns the mime type for the specified file extension or an NULL string if
 # unknown.
@@ -121,7 +121,7 @@ proc NCFormatUrlForSecurityDisplay*(origin_url, languages: string): string =
 proc NCGetMimeType*(extension: string): string =
   let cext = to_cef(extension)
   result = to_nim(cef_get_mime_type(cext))
-  cef_string_userfree_free(cext)
+  nc_free(cext)
 
 # Get the extensions associated with the given mime type. This should be passed
 # in lower case. There could be multiple extensions for a given mime type, like
@@ -131,7 +131,7 @@ proc NCGetExtensionsForMimeType*(mime_type: string): seq[string] =
   let cmime = to_cef(mime_type)
   var clist = cef_string_list_alloc()
   cef_get_extensions_for_mime_type(cmime, clist)
-  cef_string_userfree_free(cmime)
+  nc_free(cmime)
   result = to_nim(clist)
 
 # Encodes |data| as a base64 string.
@@ -145,7 +145,7 @@ proc NCBase64Decode*(data: string): string =
   let cdata = to_cef(data)
   var bin = cef_base64decode(cdata)
   if bin == nil: return nil
-  cef_string_userfree_free(cdata)
+  nc_free(cdata)
   result = newString(bin.GetSize())
   if bin.GetData(result.cstring, result.len, 0) != result.len: doAssert(false)
   release(bin)
@@ -159,7 +159,7 @@ proc NCBase64Decode*(data: string): string =
 proc NCUriEncode*(text: string, use_plus: bool): string =
   let ctext = to_cef(text)
   result = to_nim(cef_uriencode(ctext, use_plus.cint))
-  cef_string_userfree_free(ctext)
+  nc_free(ctext)
 
 type
   # URI unescape rules passed to CefURIDecode().
@@ -223,7 +223,7 @@ proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
 proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): string =
   let ctext = to_cef(text)
   result = to_nim(cef_uridecode(ctext, convert_to_utf8.cint, to_cef(unescape_rule)))
-  cef_string_userfree_free(ctext)
+  nc_free(ctext)
 
 # Parses |string| which represents a CSS color value. If |strict| is true *(1)
 # strict parsing rules will be applied. Returns true *(1) on success or false
@@ -232,7 +232,7 @@ proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): st
 proc NCParseCssColor*(str: string, strict: int, color: var cef_color): bool =
   let cstr = to_cef(str)
   result = cef_parse_csscolor(cstr, strict.cint, color) == 1.cint
-  cef_string_userfree_free(cstr)
+  nc_free(cstr)
 
 type
   # Options that can be passed to CefParseJSON.
@@ -257,7 +257,7 @@ proc to_cef(flags: NCJPO): cef_json_parser_options =
 proc NCParseJson*(json_string: string, options: NCJPO): NCValue =
   let cstr = to_cef(json_string)
   result = cef_parse_json(cstr, to_cef(options))
-  cef_string_userfree_free(cstr)
+  nc_free(cstr)
 
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL and
@@ -268,7 +268,7 @@ proc NCParseJsonAndReturnError*(json_string: string, options: NCJPO,
   let cstr = to_cef(json_string)
   var cmsg: cef_string
   result = cef_parse_jsonand_return_error(cstr, to_cef(options), error_code_out, cmsg.addr)
-  cef_string_userfree_free(cstr)
+  nc_free(cstr)
   error_msg_out = $cmsg.addr
   cef_string_clear(cmsg.addr)
 

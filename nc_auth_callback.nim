@@ -10,8 +10,8 @@ proc Continue*(self: NCAuthCallback, username, password: string) =
   let cuser = to_cef(username)
   let cpass = to_cef(password)
   self.cont(self, cuser, cpass)
-  cef_string_userfree_free(cuser)
-  cef_string_userfree_free(cpass)
+  nc_free(cuser)
+  nc_free(cpass)
 
 # Cancel the authentication request.
 proc Cancel*(self: NCAuthCallback) =

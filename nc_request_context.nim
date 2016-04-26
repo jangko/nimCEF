@@ -91,8 +91,8 @@ proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_n
   let cdomain = to_cef(domain_name)
   result = self.register_scheme_handler_factory(self, cscheme, cdomain, 
     cast[ptr_cef_scheme_handler_factory](factory.GetHandler())) == 1.cint
-  cef_string_userfree_free(cscheme)
-  cef_string_userfree_free(cdomain)
+  nc_free(cscheme)
+  nc_free(cdomain)
 
 # Clear all registered scheme handler factories. Returns false (0) on error.
 # This function may be called on any thread in the browser process.
@@ -112,7 +112,7 @@ proc PurgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
 proc has_preference*(self: NCRequestContext, name: string): bool =
   let cname = to_cef(name)
   result = self.has_preference(self, cname) == 1.cint
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Returns the value for the preference with the specified |name|. Returns
 # NULL if the preference does not exist. The returned object contains a copy
@@ -122,7 +122,7 @@ proc has_preference*(self: NCRequestContext, name: string): bool =
 proc GetPreference*(self: NCRequestContext, name: string): NCValue =
   let cname = to_cef(name)
   result = self.get_preference(self, cname)
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Returns all preferences as a dictionary. If |include_defaults| is true (1)
 # then preferences currently at their default value will be included. The
@@ -140,7 +140,7 @@ proc GetAllPreferences*(self: NCRequestContext, include_defaults: bool): NCDicti
 proc CanSetPreference*(self: NCRequestContext, name: string): bool =
   let cname = to_cef(name)
   result = self.can_set_preference(self, cname) == 1.cint
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Set the |value| associated with preference |name|. Returns true (1) if the
 # value is set successfully and false (0) otherwise. If |value| is NULL the
@@ -152,7 +152,7 @@ proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error:
   let cname = to_cef(name)
   var err_str: cef_string
   result = self.set_preference(self, cname, value, err_str.addr) == 1.cint
-  cef_string_userfree_free(cname)
+  nc_free(cname)
   if not result:
     error = $(err_str.addr)
     cef_string_clear(err_str.addr)
@@ -181,7 +181,7 @@ proc ResolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCal
   add_ref(callback.GetHandler())
   let corigin = to_cef(origin)
   self.resolve_host(self, corigin, callback.GetHandler())
-  cef_string_userfree_free(corigin)
+  nc_free(corigin)
 
 # Attempts to resolve |origin| to a list of associated IP addresses using
 # cached data. |resolved_ips| will be populated with the list of resolved IP
@@ -192,8 +192,8 @@ proc resolve_host_cached*(self: NCRequestContext, origin: string,
   let corigin = to_cef(origin)
   let clist = to_cef(resolved_ips)
   result = self.resolve_host_cached(self, corigin, clist)
-  cef_string_userfree_free(corigin)
-  cef_string_list_free(clist)
+  nc_free(corigin)
+  nc_free(clist)
   
 # Returns the global context object.
 #proc cef_request_context_get_global_context*(): NCRequestContext =

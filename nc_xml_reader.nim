@@ -106,7 +106,7 @@ proc GetAttributeByIndex*(self: NCXmlReader, index: int): string =
 proc GetAttributeByQname*(self: NCXmlReader, qualifiedName: string): string =
   let qname = to_cef(qualifiedName)
   result = to_nim(self.get_attribute_byqname(self, qname))
-  cef_string_userfree_free(qname)
+  nc_free(qname)
 
 # Returns the value of the attribute with the specified local name and
 # namespace URI.
@@ -115,8 +115,8 @@ proc GetAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string): s
   let clname = to_cef(localName)
   let cnsuri = to_cef(namespaceURI)
   result = to_nim(self.get_attribute_bylname(self, clname, cnsuri))
-  cef_string_userfree_free(clname)
-  cef_string_userfree_free(cnsuri)
+  nc_free(clname)
+  nc_free(cnsuri)
 
 # Returns an XML representation of the current node's children.
 # The resulting string must be freed by calling string_free().
@@ -146,7 +146,7 @@ proc MoveToAttributeByIndex*(self: NCXmlReader, index: int): bool =
 proc MoveToAttributeByQname*(self: NCXmlReader, qualifiedName: string): bool =
   let qname = to_cef(qualifiedName)
   result = self.move_to_attribute_byqname(self, qname) == 1.cint
-  cef_string_userfree_free(qname)
+  nc_free(qname)
 
 # Moves the cursor to the attribute with the specified local name and
 # namespace URI. Returns true (1) if the cursor position was set
@@ -155,8 +155,8 @@ proc MoveToAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string)
   let clname = to_cef(localName)
   let cnsuri = to_cef(namespaceURI)
   result = self.move_to_attribute_bylname(self, clname, cnsuri) == 1.cint
-  cef_string_userfree_free(clname)
-  cef_string_userfree_free(cnsuri)
+  nc_free(clname)
+  nc_free(cnsuri)
 
 # Moves the cursor to the first attribute in the current element. Returns
 # true (1) if the cursor position was set successfully.
@@ -179,4 +179,4 @@ proc NCXmlReaderCreate*(stream: NCStreamReader, encodingType: cef_xml_encoding_t
   let curi = to_cef(URI)
   add_ref(stream)
   result = cef_xml_reader_create(stream, encodingType, curi)
-  cef_string_userfree_free(curi)
+  nc_free(curi)

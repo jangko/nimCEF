@@ -23,7 +23,7 @@ proc MoveToNextFile*(self: NCZipReader): bool =
 proc MoveToFile*(self: NCZipReader, fileName: string, caseSensitive: bool): bool =
   let cname = to_cef(fileName)
   result = self.move_to_file(self, cname, caseSensitive.cint) == 1.cint
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Closes the archive. This should be called directly to ensure that cleanup
 # occurs on the correct thread.
@@ -32,7 +32,7 @@ proc Close*(self: NCZipReader): bool =
 
 # The below functions act on the file at the current cursor position.
 # Returns the name of the file.
-# The resulting string must be freed by calling cef_string_userfree_free().
+# The resulting string must be freed by calling nc_free().
 proc GetFileName*(self: NCZipReader): string =
   result = to_nim(self.get_file_name(self))
 
@@ -49,7 +49,7 @@ proc GetFileLastModified*(self: NCZipReader): cef_time =
 proc OpenFile*(self: NCZipReader, password: string): bool =
   let cpass = to_cef(password)
   result = self.open_file(self, cpass) == 1.cint
-  cef_string_userfree_free(cpass)
+  nc_free(cpass)
 
 # Closes the file.
 proc CloseFile*(self: NCZipReader): bool =

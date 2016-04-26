@@ -65,7 +65,7 @@ proc GetTitle*(self: NCDomDocument): string =
 proc GetElementById*(self: NCDomDocument, id: string): NCDomNode =
   let cid = to_cef(id)
   result = self.get_element_by_id(self, cid)
-  cef_string_userfree_free(cid)
+  nc_free(cid)
 
 # Returns the node that currently has keyboard focus.
 proc GetFocusedNode*(self: NCDomDocument): NCDomNode =
@@ -104,7 +104,7 @@ proc GetBaseUrl*(self: NCDomDocument): string =
 proc GetCompleteUrl*(self: NCDomDocument, partialURL: string): string =
   let curl = to_cef(partialURL)
   result = to_nim(self.get_complete_url(self, curl))
-  cef_string_userfree_free(curl)
+  nc_free(curl)
 
 # Returns the type for this node.
 proc GetType*(self: NCDomNode): cef_dom_node_type =
@@ -150,7 +150,7 @@ proc GetValue*(self: NCDomNode): string =
 proc SetValue*(self: NCDomNode, value: string): bool =
   let cval = to_cef(value)
   result = self.set_value(self, cval) == 1.cint
-  cef_string_userfree_free(cval)
+  nc_free(cval)
 
 # Returns the contents of this node as markup.
 # The resulting string must be freed by calling string_free().
@@ -199,14 +199,14 @@ proc HasElementAttributes*(self: NCDomNode): bool =
 proc HasElementAttribute*(self: NCDomNode, attrName: string): bool =
   let cname = to_cef(attrName)
   result = self.has_element_attribute(self, cname) == 1.cint
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Returns the element attribute named |attrName|.
 # The resulting string must be freed by calling string_free().
 proc GetElementAttribute*(self: NCDomNode, attrName: string): string =
   let cname = to_cef(attrName)
   result = to_nim(self.get_element_attribute(self, cname))
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Returns a map of all element attributes.
 proc GetElementAttributes*(self: NCDomNode): StringTableRef =
@@ -220,8 +220,8 @@ proc SetElementAttribute*(self: NCDomNode, attrName, value: string): bool =
   let cname = to_cef(attrName)
   let cvalue = to_cef(value)
   result = self.set_element_attribute(self, cname, cvalue) == 1.cint
-  cef_string_userfree_free(cname)
-  cef_string_userfree_free(cvalue)
+  nc_free(cname)
+  nc_free(cvalue)
 
 # Returns the inner text of the element.
 # The resulting string must be freed by calling string_free().

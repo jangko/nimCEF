@@ -26,7 +26,7 @@ proc GetStatusText*(self: NCResponse): string =
 proc SetStatusText*(self: NCResponse, statusText: string) =
   let cstatus = to_cef(statusText)
   self.set_status_text(self, cstatus)
-  cef_string_userfree_free(cstatus)
+  nc_free(cstatus)
 
 # Get the response mime type.
 # The resulting string must be freed by calling string_free().
@@ -37,14 +37,14 @@ proc GetMimeType*(self: NCResponse): string =
 proc SetMimeType*(self: NCResponse, mimeType: string) =
   let cmime = to_cef(mimeType)
   self.set_mime_type(self, cmime)
-  cef_string_userfree_free(cmime)
+  nc_free(cmime)
 
 # Get the value for the specified response header field.
 # The resulting string must be freed by calling string_free().
 proc GetHeader*(self: NCResponse, name: string): string =
   let cname = to_cef(name)
   result = to_nim(self.get_header(self, cname))
-  cef_string_userfree_free(cname)
+  nc_free(cname)
 
 # Get all response header fields.
 proc GetHeaderMap*(self: NCResponse): NCStringMultiMap =

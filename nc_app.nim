@@ -1,6 +1,6 @@
 import cef/cef_app_api, cef/cef_load_handler_api, cef/cef_print_handler_api
 import nc_command_line, nc_values, nc_types, nc_dom, nc_v8, nc_request, nc_process_message
-import nc_scheme, nc_settings
+import nc_scheme, nc_settings, nc_sandbox_info
 
 type
   NCBase*[T, C] = object
@@ -241,8 +241,8 @@ proc makeNCApp*(T: typedesc, flags: NCAFS = {}): auto =
 # the process exit code. The |application| parameter may be NULL. The
 # |windows_sandbox_info| parameter is only used on Windows and may be NULL (see
 # cef_sandbox_win.h for details).
-proc NCExecuteProcess*(args: NCMainArgs, application: NCApp, windows_sandbox_info: pointer = nil): int =
-  result = cef_execute_process(args.GetHandler(), application.GetHandler(), windows_sandbox_info).int
+proc NCExecuteProcess*(args: NCMainArgs, application: NCApp, windows_sandbox_info: NCSandboxInfo = nil): int =
+  result = cef_execute_process(args.GetHandler(), application.GetHandler(), windows_sandbox_info.GetHandler()).int
 
 # This function should be called on the main application thread to initialize
 # the CEF browser process. The |application| parameter may be NULL. A return
@@ -250,11 +250,11 @@ proc NCExecuteProcess*(args: NCMainArgs, application: NCApp, windows_sandbox_inf
 # failed. The |windows_sandbox_info| parameter is only used on Windows and may
 # be NULL (see cef_sandbox_win.h for details).
 proc NCInitialize*(args: NCMainArgs, settings: NCSettings, 
-  application: NCApp, windows_sandbox_info: pointer = nil): bool =
+  application: NCApp, windows_sandbox_info: NCSandboxInfo = nil): bool =
   var csettings: cef_settings
   to_cef(settings, csettings)
   result = cef_initialize(args.GetHandler(), csettings.addr, 
-    application.GetHandler(), windows_sandbox_info) == 1.cint
+    application.GetHandler(), windows_sandbox_info.GetHandler()) == 1.cint
   clear(csettings)
 
 # This function should be called on the main application thread to shut down

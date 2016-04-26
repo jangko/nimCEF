@@ -1,5 +1,5 @@
 import cef/cef_request_context_api, cef/cef_request_context_handler_api, cef/cef_string_list_api
-import nc_request_context_handler, nc_callback
+import nc_request_context_handler, nc_callback, nc_settings
 import nc_cookie_manager, nc_scheme, nc_values, nc_util, nc_types
 include cef/cef_import
 
@@ -25,15 +25,27 @@ type
   NCRequestContext* = ptr cef_request_context
 
 
-    # Called after the ResolveHost request has completed. |result| will be the
-    # result code. |resolved_ips| will be the list of resolved IP addresses or
-    # NULL if the resolution failed.
-    #on_resolve_completed*(self: NCResolveCallback, result: cef_errorcode,
-      #resolved_ips: cef_string_list) =
+# Called after the ResolveHost request has completed. |result| will be the
+# result code. |resolved_ips| will be the list of resolved IP addresses or
+# NULL if the resolution failed.
+method OnResolveCompleted*(self: NCResolveCallback, result: cef_errorcode, resolved_ips: seq[string]) {.base.} =
+  discard
+      
+proc on_resolve_completed(self: ptr cef_resolve_callback, result: cef_errorcode, resolved_ips: cef_string_list) {.cef_callback.} =
+  var handler = type_to_type(NCResolveCallback, self)
+  handler.OnResolveCompleted(result, $resolved_ips)
 
 proc GetHandler*(self: NCResolveCallback): ptr cef_resolve_callback {.inline.} =
   result = self.handler.addr
-      
+  
+proc initialize_resolve_callback(handler: ptr cef_resolve_callback) =
+  init_base(handler)
+  handler.on_resolve_completed = on_resolve_completed
+  
+proc makeNCResolveCallback*(T: typedesc): auto =
+  result = new(T)
+  initialize_resolve_callback(result.handler.addr)
+  
 # Returns true (1) if this object is pointing to the same context as |that|
 # object.
 proc IsSame*(self, other: NCRequestContext): bool =
@@ -109,7 +121,7 @@ proc PurgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
 
 # Returns true (1) if a preference with the specified |name| exists. This
 # function must be called on the browser process UI thread.
-proc has_preference*(self: NCRequestContext, name: string): bool =
+proc HasPreference*(self: NCRequestContext, name: string): bool =
   let cname = to_cef(name)
   result = self.has_preference(self, cname) == 1.cint
   nc_free(cname)
@@ -187,7 +199,7 @@ proc ResolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCal
 # cached data. |resolved_ips| will be populated with the list of resolved IP
 # addresses or NULL if no cached data is available. Returns ERR_NONE on
 # success. This function must be called on the browser process IO thread.
-proc resolve_host_cached*(self: NCRequestContext, origin: string,
+proc ResolveHostCached*(self: NCRequestContext, origin: string,
   resolved_ips: seq[string]): cef_errorcode =
   let corigin = to_cef(origin)
   let clist = to_cef(resolved_ips)
@@ -196,14 +208,18 @@ proc resolve_host_cached*(self: NCRequestContext, origin: string,
   nc_free(clist)
   
 # Returns the global context object.
-#proc cef_request_context_get_global_context*(): NCRequestContext =
+proc NCRequestContextGetGlobalContext*(): NCRequestContext =
+  result = cef_request_context_get_global_context()
 
 # Creates a new context object with the specified |settings| and optional
 # |handler|.
-#proc cef_request_context_create_context*(settings: NCRequestContext_settings,
-#  handler: NCRequestContext_handler): NCRequestContext =
+proc NCRequestContextCreateContext*(settings: NCRequestContextSettings, handler: NCRequestContextHandler): NCRequestContext =
+  var csettings: cef_request_context_settings
+  to_cef(settings, csettings)
+  result = cef_request_context_create_context(csettings.addr, handler.GetHandler())
+  csettings.clear()
 
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.
-#proc create_context_shared*(other: NCRequestContext,
- # handler: NCRequestContext_handler): NCRequestContext =
+proc CreateContextShared*(other: NCRequestContext, handler: NCRequestContextHandler): NCRequestContext =
+  result = create_context_shared(other, handler.GetHandler())

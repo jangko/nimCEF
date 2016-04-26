@@ -3,7 +3,7 @@ import cef/cef_download_handler_api, cef/cef_geolocation_handler_api, cef/cef_js
 import cef/cef_resource_handler_api
 import nc_process_message, nc_types, nc_download_item, nc_request, nc_response, nc_drag_data
 import nc_auth_callback, nc_ssl_info, nc_util, nc_response_filter, nc_context_menu_handler
-import nc_life_span_handler
+import nc_life_span_handler, nc_resource_handler
 #moved to nc_types.nim to avoid circular import
 #type
 #  NCClient* = ref object of RootObj
@@ -487,7 +487,7 @@ method OnBeforeResourceLoad*(self: NCClient,
 # a cef_resource_handler_t object. The |request| object should not be
 # modified in this callback.
 method GetResourceHandler*(self: NCClient, browser: NCBrowser,
-  frame: NCFrame, request: NCRequest): ptr cef_resource_handler {.base.} =
+  frame: NCFrame, request: NCRequest): NCResourceHandler {.base.} =
   result = nil
 
 #--Request Handler

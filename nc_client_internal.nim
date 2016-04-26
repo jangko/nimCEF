@@ -470,7 +470,7 @@ proc get_resource_handler*(self: ptr cef_request_handler, browser: ptr_cef_brows
   frame: ptr cef_frame, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.GetResourceHandler(brow, frame, request)
+  result = client.GetResourceHandler(brow, frame, request).GetHandler()
   release(brow)
   release(frame)
   release(request)

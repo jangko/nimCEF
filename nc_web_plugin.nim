@@ -3,7 +3,8 @@ include cef/cef_import
 
 type
   # Information about a specific web plugin.
-  NCWebPluginInfo* = ptr cef_web_plugin_info
+  NCWebPluginInfo* = ref object
+    handler: ptr cef_web_plugin_info
 
   # Structure to implement for visiting web plugin information. The functions of
   # this structure will be called on the browser process UI thread.
@@ -14,26 +15,36 @@ type
   # functions of this structure will be called on the browser process IO thread.
   NCWebPluginUnstableCallback* = ref object of RootObj
     handler: cef_web_plugin_unstable_callback
+
+import impl/nc_util_impl
+
+proc GetHandler*(self: NCWebPluginInfo): ptr cef_web_plugin_info {.inline.} =
+  result = self.handler
+  
+proc nc_wrap*(handler: ptr cef_web_plugin_info): NCWebPluginInfo =
+  new(result, nc_finalizer[NCWebPluginInfo])
+  result.handler = handler
+  add_ref(handler)
   
 # Returns the plugin name (i.e. Flash).
 # The resulting string must be freed by calling nc_free().
 proc GetName*(self: NCWebPluginInfo): string =
-  result = to_nim(self.get_name(self))
+  result = to_nim(self.handler.get_name(self.handler))
 
 # Returns the plugin file path (DLL/bundle/library).
 # The resulting string must be freed by calling nc_free().
 proc GetPath*(self: NCWebPluginInfo): string =
-  result = to_nim(self.get_path(self))
+  result = to_nim(self.handler.get_path(self.handler))
   
 # Returns the version of the plugin (may be OS-specific).
 # The resulting string must be freed by calling nc_free().
 proc GetVersion*(self: NCWebPluginInfo): string =
-  result = to_nim(self.get_version(self))
+  result = to_nim(self.handler.get_version(self.handler))
   
 # Returns a description of the plugin from the version information.
 # The resulting string must be freed by calling nc_free().
 proc GetDescription*(self: NCWebPluginInfo): string =
-  result = to_nim(self.get_description(self))
+  result = to_nim(self.handler.get_description(self.handler))
   
 # Method that will be called once for each plugin. |count| is the 0-based
 # index for the current plugin. |total| is the total number of plugins.
@@ -48,7 +59,7 @@ proc GetHandler*(self: NCWebPluginInfoVisitor): ptr cef_web_plugin_info_visitor 
 proc visit(self: ptr cef_web_plugin_info_visitor,
   info: ptr cef_web_plugin_info, count, total: cint): cint {.cef_callback.} =
   var handler = type_to_type(NCWebPluginInfoVisitor, self)
-  result = handler.WebPluginVisit(info, count.int, total.int).cint
+  result = handler.WebPluginVisit(nc_wrap(info), count.int, total.int).cint
   release(info)
   
 proc init_web_plugin_info_visitor(handler: ptr cef_web_plugin_info_visitor) =

@@ -12,32 +12,32 @@ type
     impl: nc_urlrequest_i[NCUrlRequestClient]
     
 proc on_request_complete(self: ptr cef_urlrequest_client, request: ptr cef_urlrequest) {.cef_callback.} =
-  var handler = cast[ptr nc_urlrequest_client](self)
+  var handler = toType(nc_urlrequest_client, self)
   if handler.impl.OnRequestComplete != nil:
     handler.impl.OnRequestComplete(handler.container, nc_wrap(request))
 
 proc on_upload_progress(self: ptr cef_urlrequest_client,
   request: ptr cef_urlrequest, current, total: int64) {.cef_callback.} =
-  var handler = cast[ptr nc_urlrequest_client](self)
+  var handler = toType(nc_urlrequest_client, self)
   if handler.impl.OnUploadProgress != nil:
     handler.impl.OnUploadProgress(handler.container, nc_wrap(request), current, total)
 
 proc on_download_progress(self: ptr cef_urlrequest_client,
   request: ptr cef_urlrequest, current, total: int64) {.cef_callback.} =
-  var handler = cast[ptr nc_urlrequest_client](self)
+  var handler = toType(nc_urlrequest_client, self)
   if handler.impl.OnDownloadProgress != nil:
     handler.impl.OnDownloadProgress(handler.container, nc_wrap(request), current, total)
 
 proc on_download_data(self: ptr cef_urlrequest_client,
   request: ptr cef_urlrequest, data: pointer, data_length: csize) {.cef_callback.} =
-  var handler = cast[ptr nc_urlrequest_client](self)
+  var handler = toType(nc_urlrequest_client, self)
   if handler.impl.OnDownloadData != nil:
     handler.impl.OnDownloadData(handler.container, nc_wrap(request), data, data_length.int)
 
 proc get_auth_credentials(self: ptr cef_urlrequest_client,
   isProxy: cint, host: ptr cef_string, port: cint, realm: ptr cef_string,
   scheme: ptr cef_string, callback: ptr cef_auth_callback): cint {.cef_callback.} =
-  var handler = cast[ptr nc_urlrequest_client](self)
+  var handler = toType(nc_urlrequest_client, self)
   if handler.impl.GetAuthCredentials != nil:
     result = handler.impl.GetAuthCredentials(handler.container, isProxy == 1.cint,
       $host, port.int, $realm, $scheme, callback).cint

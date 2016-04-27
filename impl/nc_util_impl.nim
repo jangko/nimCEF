@@ -7,17 +7,20 @@ type
     refCount: int
     container*: C
     
+template toType*(T: typedesc, obj: expr): expr =
+  cast[ptr T](cast[ByteAddress](obj) - sizeof(pointer))
+
 proc generic_add_ref[T](self: ptr cef_base) {.cef_callback.} =
-  var handler = cast[T](self)
+  var handler = cast[T](cast[ByteAddress](self) - sizeof(pointer))
   atomicInc(handler.refCount)
 
 proc generic_release[T](self: ptr cef_base): cint {.cef_callback.} =
-  var handler = cast[T](self)
+  var handler = cast[T](cast[ByteAddress](self) - sizeof(pointer))
   if atomicDec(handler.refCount) == 0:
     freeShared(self)
 
 proc generic_has_one_ref[T](self: ptr cef_base): cint {.cef_callback.} =
-  var handler = cast[T](self)
+  var handler = cast[T](cast[ByteAddress](self) - sizeof(pointer))
   result = (handler.refCount == 1).cint
 
 proc nc_initialize_base[T](base: ptr cef_base) =
@@ -44,6 +47,6 @@ template nc_init*(T, X: typedesc, impl: expr) =
   result.handler = handler.handler.addr
   add_ref(handler.handler.addr)
   handler.container = result
-  handler.impl = impl
+  copyMem(handler.impl.addr, impl.unsafeAddr, sizeof(impl))
   
   

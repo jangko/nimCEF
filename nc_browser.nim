@@ -33,13 +33,13 @@ method OnFileDialogDismissed*(self: NCRunFileDialogCallback,
 # navigation entry. |index| is the 0-based index of this entry and |total| is
 # the total number of entries.
 method NavigationVisit*(self: NCNavigationEntryVisitor, entry: NCNavigationEntry, 
-  current, index, total: int): bool =
+  current, index, total: int): bool {.base.} =
   result = false
 
 # Method that will be executed when the PDF printing has completed. |path| is
 # the output path. |ok| will be true (1) if the printing completed
 # successfully or false (0) otherwise.
-method OnPdfPrintFinished*(self: NCPdfPrintCallback, path: string, ok: bool): bool =
+method OnPdfPrintFinished*(self: NCPdfPrintCallback, path: string, ok: bool): bool {.base.} =
   result = false
 
 # Returns the browser host object. This function can only be called in the

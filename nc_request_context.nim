@@ -93,7 +93,7 @@ proc GetCachePath*(self: NCRequestContext): string =
 proc GetDefaultCookieManager*(self: NCRequestContext,
   callback: NCCompletionCallback): NCCookieManager =
   add_ref(callback.GetHandler())
-  result = self.handler.get_default_cookie_manager(self.handler, callback.GetHandler())
+  result = nc_wrap(self.handler.get_default_cookie_manager(self.handler, callback.GetHandler()))
 
 # Register a scheme handler factory for the specified |scheme_name| and
 # optional |domain_name|. An NULL |domain_name| value for a standard scheme

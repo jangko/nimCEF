@@ -34,5 +34,5 @@ type
     on_before_plugin_load*: proc(self: ptr cef_request_context_handler,
       mime_type, plugin_url, top_origin_url: ptr cef_string,
       plugin_info: ptr cef_web_plugin_info,
-      plugin_policy: ptr cef_plugin_policy): cint {.cef_callback.}
+      plugin_policy: var cef_plugin_policy): cint {.cef_callback.}
 

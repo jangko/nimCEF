@@ -4,7 +4,7 @@ include cef_import
 # Implement this structure to receive geolocation updates. The functions of
 # this structure will be called on the browser process UI thread.
 type
-  cef_get_geolocation_callback = object
+  cef_get_geolocation_callback* = object
     base*: cef_base
 
     # Called with the 'best available' location information or, if the location

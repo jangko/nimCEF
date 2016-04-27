@@ -172,10 +172,10 @@ proc RegisterSchemeHandler() =
   NCRegisterSchemeHandlerFactory("client", "tests", makeNCSchemeHandlerFactory(myFactory))
   
 proc OnRequestComplete(self: myUrlRequestClient, request: NCUrlRequest) =
-  discard
+  echo "hello"
   
 proc OnUploadProgress(self: myUrlRequestClient, request: NCUrlRequest, current, total: int64) =
-  discard
+  echo "progress: ", current, " ", total
   
 proc OnDownloadProgress(self: myUrlRequestClient, request: NCUrlRequest, current, total: int64) =
   discard
@@ -195,9 +195,6 @@ let uc_impl = nc_urlrequest_i[myUrlRequestClient](
   GetAuthCredentials: GetAuthCredentials
 )
   
-let uc = makeNCUrlRequestClient(uc_impl)
-
-
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()

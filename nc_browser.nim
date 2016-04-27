@@ -177,7 +177,7 @@ proc GetClient*(self: NCBrowserHost): NCClient =
 
 # Returns the request context for this browser.
 proc GetRequestContext*(self: NCBrowserHost): NCRequestContext =
-  result = self.get_request_context(self)
+  result = nc_wrap(self.get_request_context(self))
 
 # Get the current zoom level. The default zoom level is 0.0. This function
 # can only be called on the UI thread.
@@ -459,7 +459,8 @@ proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClie
   let curl = to_cef(url)
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
-  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr, request_context) == 1.cint
+  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr, 
+    if request_context == nil: nil else: request_context.GetHandler()) == 1.cint
   nc_free(curl)
   csettings.clear()
 
@@ -471,6 +472,7 @@ proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NC
   let curl = to_cef(url)
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
-  result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, csettings.addr, request_context)
+  result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, csettings.addr, 
+    if request_context == nil: nil else: request_context.GetHandler())
   nc_free(curl)
   csettings.clear()

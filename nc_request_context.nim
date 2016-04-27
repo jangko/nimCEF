@@ -22,9 +22,19 @@ type
   # in single-process mode will share the same request context. This will be the
   # first request context passed into a cef_browser_host_t static factory
   # function and all other request context objects will be ignored.
-  NCRequestContext* = ptr cef_request_context
+  NCRequestContext* = ref object
+    handler: ptr cef_request_context
 
+import impl/nc_util_impl
 
+proc GetHandler*(self: NCRequestContext): ptr cef_request_context {.inline.} =
+  result = self.handler
+  
+proc nc_wrap*(handler: ptr cef_request_context): NCRequestContext =
+  new(result, nc_finalizer[NCRequestContext])
+  result.handler = handler
+  add_ref(handler)
+  
 # Called after the ResolveHost request has completed. |result| will be the
 # result code. |resolved_ips| will be the list of resolved IP addresses or
 # NULL if the resolution failed.
@@ -49,30 +59,30 @@ proc makeNCResolveCallback*(T: typedesc): auto =
 # Returns true (1) if this object is pointing to the same context as |that|
 # object.
 proc IsSame*(self, other: NCRequestContext): bool =
-  add_ref(other)
-  result = self.is_same(self, other) == 1.cint
+  add_ref(other.handler)
+  result = self.handler.is_same(self.handler, other.handler) == 1.cint
 
 # Returns true (1) if this object is sharing the same storage as |that|
 # object.
 proc IsSharingWith*(self, other: NCRequestContext): bool =
-  add_ref(other)
-  result = self.is_sharing_with(self, other) == 1.cint
+  add_ref(other.handler)
+  result = self.handler.is_sharing_with(self.handler, other.handler) == 1.cint
 
 # Returns true (1) if this object is the global context. The global context
 # is used by default when creating a browser or URL request with a NULL
 # context argument.
 proc IsGlobal*(self: NCRequestContext): bool =
-  result = self.is_global(self) == 1.cint
+  result = self.handler.is_global(self.handler) == 1.cint
 
 # Returns the handler for this context if any.
-proc GetHandler*(self: NCRequestContext): ptr cef_request_context_handler {.inline.} =
-  result = self.get_handler(self)
+proc GetContextHandler*(self: NCRequestContext): NCRequestContextHandler {.inline.} =
+  result = nc_wrap(self.handler.get_handler(self.handler))
 
 # Returns the cache path for this object. If NULL an "incognito mode" in-
 # memory cache is being used.
 # The resulting string must be freed by calling string_free().
 proc GetCachePath*(self: NCRequestContext): string =
-  result = to_nim(self.get_cache_path(self))
+  result = to_nim(self.handler.get_cache_path(self.handler))
 
 # Returns the default cookie manager for this object. This will be the global
 # cookie manager if this object is the global request context. Otherwise,
@@ -83,7 +93,7 @@ proc GetCachePath*(self: NCRequestContext): string =
 proc GetDefaultCookieManager*(self: NCRequestContext,
   callback: NCCompletionCallback): NCCookieManager =
   add_ref(callback.GetHandler())
-  result = self.get_default_cookie_manager(self, callback.GetHandler())
+  result = self.handler.get_default_cookie_manager(self.handler, callback.GetHandler())
 
 # Register a scheme handler factory for the specified |scheme_name| and
 # optional |domain_name|. An NULL |domain_name| value for a standard scheme
@@ -101,7 +111,7 @@ proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_n
   add_ref(factory.GetHandler())
   let cscheme = to_cef(scheme_name)
   let cdomain = to_cef(domain_name)
-  result = self.register_scheme_handler_factory(self, cscheme, cdomain, 
+  result = self.handler.register_scheme_handler_factory(self.handler, cscheme, cdomain, 
     cast[ptr_cef_scheme_handler_factory](factory.GetHandler())) == 1.cint
   nc_free(cscheme)
   nc_free(cdomain)
@@ -109,7 +119,7 @@ proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_n
 # Clear all registered scheme handler factories. Returns false (0) on error.
 # This function may be called on any thread in the browser process.
 proc ClearSchemeHandlerFactories*(self: NCRequestContext): bool =
-  result = self.clear_scheme_handler_factories(self) == 1.cint
+  result = self.handler.clear_scheme_handler_factories(self.handler) == 1.cint
 
 # Tells all renderer processes associated with this context to throw away
 # their plugin list cache. If |reload_pages| is true (1) they will also
@@ -117,13 +127,13 @@ proc ClearSchemeHandlerFactories*(self: NCRequestContext): bool =
 # cef_request_tContextHandler::OnBeforePluginLoad may be called to rebuild
 # the plugin list cache.
 proc PurgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
-  self.purge_plugin_list_cache(self, reload_pages.cint)
+  self.handler.purge_plugin_list_cache(self.handler, reload_pages.cint)
 
 # Returns true (1) if a preference with the specified |name| exists. This
 # function must be called on the browser process UI thread.
 proc HasPreference*(self: NCRequestContext, name: string): bool =
   let cname = to_cef(name)
-  result = self.has_preference(self, cname) == 1.cint
+  result = self.handler.has_preference(self.handler, cname) == 1.cint
   nc_free(cname)
 
 # Returns the value for the preference with the specified |name|. Returns
@@ -133,7 +143,7 @@ proc HasPreference*(self: NCRequestContext, name: string): bool =
 # called on the browser process UI thread.
 proc GetPreference*(self: NCRequestContext, name: string): NCValue =
   let cname = to_cef(name)
-  result = self.get_preference(self, cname)
+  result = self.handler.get_preference(self.handler, cname)
   nc_free(cname)
 
 # Returns all preferences as a dictionary. If |include_defaults| is true (1)
@@ -143,7 +153,7 @@ proc GetPreference*(self: NCRequestContext, name: string): NCValue =
 # preference values. This function must be called on the browser process UI
 # thread.
 proc GetAllPreferences*(self: NCRequestContext, include_defaults: bool): NCDictionaryValue =
-  result = self.get_all_preferences(self, include_defaults.cint)
+  result = self.handler.get_all_preferences(self.handler, include_defaults.cint)
 
 # Returns true (1) if the preference with the specified |name| can be
 # modified using SetPreference. As one example preferences set via the
@@ -151,7 +161,7 @@ proc GetAllPreferences*(self: NCRequestContext, include_defaults: bool): NCDicti
 # the browser process UI thread.
 proc CanSetPreference*(self: NCRequestContext, name: string): bool =
   let cname = to_cef(name)
-  result = self.can_set_preference(self, cname) == 1.cint
+  result = self.handler.can_set_preference(self.handler, cname) == 1.cint
   nc_free(cname)
 
 # Set the |value| associated with preference |name|. Returns true (1) if the
@@ -163,7 +173,7 @@ proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error:
   add_ref(value)
   let cname = to_cef(name)
   var err_str: cef_string
-  result = self.set_preference(self, cname, value, err_str.addr) == 1.cint
+  result = self.handler.set_preference(self.handler, cname, value, err_str.addr) == 1.cint
   nc_free(cname)
   if not result:
     error = $(err_str.addr)
@@ -177,7 +187,7 @@ proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error:
 # completion.
 proc ClearCertificateExceptions*(self: NCRequestContext, callback: NCCompletionCallback) =
   add_ref(callback.GetHandler())
-  self.clear_certificate_exceptions(self, callback.GetHandler())
+  self.handler.clear_certificate_exceptions(self.handler, callback.GetHandler())
 
 # Clears all active and idle connections that Chromium currently has. This is
 # only recommended if you have released all other CEF objects but don't yet
@@ -185,14 +195,14 @@ proc ClearCertificateExceptions*(self: NCRequestContext, callback: NCCompletionC
 # on the UI thread after completion.
 proc CloseAllConnections*(self: NCRequestContext, callback: NCCompletionCallback) =
   add_ref(callback.GetHandler())
-  self.close_all_connections(self, callback.GetHandler())
+  self.handler.close_all_connections(self.handler, callback.GetHandler())
 
 # Attempts to resolve |origin| to a list of associated IP addresses.
 # |callback| will be executed on the UI thread after completion.
 proc ResolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCallback) =
   add_ref(callback.GetHandler())
   let corigin = to_cef(origin)
-  self.resolve_host(self, corigin, callback.GetHandler())
+  self.handler.resolve_host(self.handler, corigin, callback.GetHandler())
   nc_free(corigin)
 
 # Attempts to resolve |origin| to a list of associated IP addresses using
@@ -203,23 +213,23 @@ proc ResolveHostCached*(self: NCRequestContext, origin: string,
   resolved_ips: seq[string]): cef_errorcode =
   let corigin = to_cef(origin)
   let clist = to_cef(resolved_ips)
-  result = self.resolve_host_cached(self, corigin, clist)
+  result = self.handler.resolve_host_cached(self.handler, corigin, clist)
   nc_free(corigin)
   nc_free(clist)
   
 # Returns the global context object.
 proc NCRequestContextGetGlobalContext*(): NCRequestContext =
-  result = cef_request_context_get_global_context()
+  result = nc_wrap(cef_request_context_get_global_context())
 
 # Creates a new context object with the specified |settings| and optional
 # |handler|.
 proc NCRequestContextCreateContext*(settings: NCRequestContextSettings, handler: NCRequestContextHandler): NCRequestContext =
   var csettings: cef_request_context_settings
   to_cef(settings, csettings)
-  result = cef_request_context_create_context(csettings.addr, handler.GetHandler())
+  result = nc_wrap(cef_request_context_create_context(csettings.addr, handler.GetHandler()))
   csettings.clear()
 
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.
 proc CreateContextShared*(other: NCRequestContext, handler: NCRequestContextHandler): NCRequestContext =
-  result = create_context_shared(other, handler.GetHandler())
+  result = nc_wrap(create_context_shared(other.handler, handler.GetHandler()))

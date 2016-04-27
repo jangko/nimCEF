@@ -2,6 +2,7 @@ import winapi, os, strutils, streams
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
+import nc_urlrequest, nc_auth_callback
 
 type
   myClient = ref object of NCClient
@@ -16,6 +17,9 @@ type
     mData: string
     mMimeType: string
     mOffset: int
+  
+  myUrlRequestClient = ref object of NCUrlRequestClient
+    name: string
   
 proc newClient(no: int, name: string): myClient =
   result = makeNCClient(myClient, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
@@ -167,6 +171,33 @@ method Create*(self: myFactory, browser: NCBrowser, frame: NCFrame, schemeName: 
 proc RegisterSchemeHandler() =
   NCRegisterSchemeHandlerFactory("client", "tests", makeNCSchemeHandlerFactory(myFactory))
   
+proc OnRequestComplete(self: myUrlRequestClient, request: NCUrlRequest) =
+  discard
+  
+proc OnUploadProgress(self: myUrlRequestClient, request: NCUrlRequest, current, total: int64) =
+  discard
+  
+proc OnDownloadProgress(self: myUrlRequestClient, request: NCUrlRequest, current, total: int64) =
+  discard
+
+proc OnDownloadData(self: myUrlRequestClient, request: NCUrlRequest, data: pointer, data_length: int) =
+  discard
+  
+proc GetAuthCredentials(self: myUrlRequestClient, isProxy: bool, host: string, port: int, realm: string,
+  scheme: string, callback: NCAuthCallback): bool =
+  result = false
+  
+let uc_impl = nc_urlrequest_i[myUrlRequestClient](
+  OnRequestComplete: OnRequestComplete,
+  OnUploadProgress: OnUploadProgress,
+  OnDownloadProgress: OnDownloadProgress,
+  OnDownloadData: OnDownloadData,
+  GetAuthCredentials: GetAuthCredentials
+)
+  
+let uc = makeNCUrlRequestClient(uc_impl)
+
+
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()

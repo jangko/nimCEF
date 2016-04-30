@@ -7,5 +7,5 @@ import nc_print_settings, nc_ssl_info, nc_web_plugin, nc_trace
 import nc_auth_callback, nc_cookie_manager, nc_response_filter
 import nc_request_context, nc_pack_strings, nc_pack_resources
 import nc_sandbox_info, nc_version, nc_urlrequest, nc_request_context_handler
-import nc_geolocation, nc_print_handler
+import nc_geolocation, nc_print_handler, nc_xml_object
 

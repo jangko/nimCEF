@@ -59,12 +59,12 @@ proc on_web_kit_initialized(self: ptr cef_render_process_handler) {.cef_callback
 
 proc on_browser_created(self: ptr cef_render_process_handler,
   browser: ptr cef_browser) {.cef_callback.} =
-  toApp(self).OnBrowserCreated(browser)
+  toApp(self).OnBrowserCreated(nc_wrap(browser))
   release(browser)
 
 proc on_browser_destroyed(self: ptr cef_render_process_handler,
   browser: ptr cef_browser) {.cef_callback.} =
-  toApp(self).OnBrowserDestroyed(browser)
+  toApp(self).OnBrowserDestroyed(nc_wrap(browser))
   release(browser)
 
 proc get_load_handler(self: ptr cef_render_process_handler): ptr cef_load_handler {.cef_callback.} =
@@ -74,7 +74,7 @@ proc on_before_navigation(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   request: ptr cef_request, navigation_type: cef_navigation_type,
   is_redirect: cint): cint {.cef_callback.} =
-  result = toApp(self).OnBeforeNavigation(browser, frame, request, navigation_type, is_redirect == 1.cint).cint
+  result = toApp(self).OnBeforeNavigation(nc_wrap(browser), frame, request, navigation_type, is_redirect == 1.cint).cint
   release(browser)
   release(frame)
   release(request)
@@ -82,7 +82,7 @@ proc on_before_navigation(self: ptr cef_render_process_handler,
 proc on_context_created(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   context: ptr cef_v8context) {.cef_callback.} =
-  toApp(self).OnContextCreated(browser, frame, context)
+  toApp(self).OnContextCreated(nc_wrap(browser), frame, context)
   release(browser)
   release(frame)
   release(context)
@@ -90,7 +90,7 @@ proc on_context_created(self: ptr cef_render_process_handler,
 proc on_context_released(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   context: ptr cef_v8context) {.cef_callback.} =
-  toApp(self).OnContextReleased(browser, frame, context)
+  toApp(self).OnContextReleased(nc_wrap(browser), frame, context)
   release(browser)
   release(frame)
   release(context)
@@ -99,7 +99,7 @@ proc on_uncaught_exception(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   context: ptr cef_v8context, exception: ptr cef_v8exception,
   stackTrace: ptr cef_v8stack_trace) {.cef_callback.} =
-  toApp(self).OnUncaughtException(browser, frame, context, exception, stackTrace)
+  toApp(self).OnUncaughtException(nc_wrap(browser), frame, context, exception, stackTrace)
   release(browser)
   release(frame)
   release(context)
@@ -109,7 +109,7 @@ proc on_uncaught_exception(self: ptr cef_render_process_handler,
 proc on_focused_node_changed(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   node: ptr cef_domnode) {.cef_callback.} =
-  toApp(self).OnFocusedNodeChanged(browser, frame, node)
+  toApp(self).OnFocusedNodeChanged(nc_wrap(browser), frame, node)
   release(browser)
   release(frame)
   release(node)
@@ -117,7 +117,7 @@ proc on_focused_node_changed(self: ptr cef_render_process_handler,
 proc on_process_message_received(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, source_process: cef_process_id,
   message: ptr cef_process_message): cint {.cef_callback.} =
-  result = toApp(self).OnBrowserProcessMessageReceived(browser, source_process, message).cint
+  result = toApp(self).OnBrowserProcessMessageReceived(nc_wrap(browser), source_process, message).cint
   release(browser)
   release(message)
 

@@ -24,4 +24,4 @@ And many of the ref-count related issues already handled for you.
 | 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0  |
 | 3  | Simple Client Example | yes      | no      | yes      | no      | no       | 0.13.0  |
 | 4  | CefClient Example     | 20%      | no      | no       | no      | no       | 0.13.0  |
-| 5  | Convenience Layer     | 80%      | 75%     | 80%      | 75%     | no       | 0.13.0  |
+| 5  | Convenience Layer     | 90%      | 75%     | 90%      | 75%     | 60%      | 0.13.0  |

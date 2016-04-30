@@ -45,101 +45,101 @@ method OnPdfPrintFinished*(self: NCPdfPrintCallback, path: string, ok: bool): bo
 # Returns the browser host object. This function can only be called in the
 # browser process.
 proc GetHost*(self: NCBrowser): NCBrowserHost =
-  result = self.get_host(self)
+  result = self.handler.get_host(self.handler)
 
 # Returns true (1) if the browser can navigate backwards.
 proc CanGoBack*(self: NCBrowser): bool =
-  result = self.can_go_back(self) == 1.cint
+  result = self.handler.can_go_back(self.handler) == 1.cint
 
 # Navigate backwards.
 proc GoBack*(self: NCBrowser) =
-  self.go_back(self)
+  self.handler.go_back(self.handler)
 
 # Returns true (1) if the browser can navigate forwards.
 proc CanGoForward*(self: NCBrowser): bool =
-  self.can_go_forward(self) == 1.cint
+  self.handler.can_go_forward(self.handler) == 1.cint
 
 # Navigate forwards.
 proc GoGorward*(self: NCBrowser) =
-  self.go_forward(self)
+  self.handler.go_forward(self.handler)
 
 # Returns true (1) if the browser is currently loading.
 proc IsLoading*(self: NCBrowser): bool =
-  result = self.is_loading(self) == 1.cint
+  result = self.handler.is_loading(self.handler) == 1.cint
 
 # Reload the current page.
 proc Reload*(self: NCBrowser) =
-  self.reload(self)
+  self.handler.reload(self.handler)
 
 # Reload the current page ignoring any cached data.
 proc ReloadIgnoreCache*(self: NCBrowser) =
-  self.reload_ignore_cache(self)
+  self.handler.reload_ignore_cache(self.handler)
 
 # Stop loading the page.
 proc StopLoad*(self: NCBrowser) =
-  self.stop_load(self)
+  self.handler.stop_load(self.handler)
 
 # Returns the globally unique identifier for this browser.
 proc GetIdentifier*(self: NCBrowser): int =
-  result = self.get_identifier(self).int
+  result = self.handler.get_identifier(self.handler).int
 
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCBrowser): bool =
-  add_ref(that)
-  result = self.is_same(self, that) == 1.cint
+  add_ref(that.handler)
+  result = self.handler.is_same(self.handler, that.handler) == 1.cint
 
 # Returns true (1) if the window is a popup window.
 proc IsPopup*(self: NCBrowser): bool =
-  result = self.is_popup(self) == 1.cint
+  result = self.handler.is_popup(self.handler) == 1.cint
 
 # Returns true (1) if a document has been loaded in the browser.
 proc HasDocument*(self: NCBrowser): bool =
-  result = self.has_document(self) == 1.cint
+  result = self.handler.has_document(self.handler) == 1.cint
 
 # Returns the main (top-level) frame for the browser window.
 proc GetMainFrame*(self: NCBrowser): NCFrame =
-  result = self.get_main_frame(self)
+  result = self.handler.get_main_frame(self.handler)
 
 # Returns the focused frame for the browser window.
 proc GetFocusedFrame*(self: NCBrowser): NCFrame =
-  result = self.get_focused_frame(self)
+  result = self.handler.get_focused_frame(self.handler)
 
 # Returns the frame with the specified identifier, or NULL if not found.
 proc GetFrameByident*(self: NCBrowser, identifier: int64): NCFrame =
-  result = self.get_frame_byident(self, identifier)
+  result = self.handler.get_frame_byident(self.handler, identifier)
 
 # Returns the frame with the specified name, or NULL if not found.
 proc GetFrame*(self: NCBrowser, name: string): NCFrame =
   var cname = to_cef(name)
-  result = self.get_frame(self, cname)
+  result = self.handler.get_frame(self.handler, cname)
   nc_free(cname)
 
 # Returns the number of frames that currently exist.
 proc GetFrameCount*(self: NCBrowser): int =
-  result = self.get_frame_count(self).int
+  result = self.handler.get_frame_count(self.handler).int
 
 # Returns the identifiers of all existing frames.
 proc GetFrameIdentifiers*(self: NCBrowser): seq[int64] =
-  var count = self.get_frame_count(self)
+  var count = self.handler.get_frame_count(self.handler)
   result = newSeq[int64](count.int)
-  self.get_frame_identifiers(self, count, result[0].addr)
+  self.handler.get_frame_identifiers(self.handler, count, result[0].addr)
 
 # Returns the names of all existing frames.
 proc GetFrameNames*(self: NCBrowser): seq[string] =
   var names = cef_string_list_alloc()
-  self.get_frame_names(self, names)
+  self.handler.get_frame_names(self.handler, names)
   result = to_nim(names)
 
 # Send a message to the specified |target_process|. Returns true (1) if the
 # message was sent successfully.
 proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id, message: NCProcessMessage): bool =
   add_ref(message)
-  result = self.send_process_message(self, target_process, message) == 1.cint
+  result = self.handler.send_process_message(self.handler, target_process, message) == 1.cint
 
 # Returns the hosted browser object.
 proc GetBrowser*(self: NCBrowserHost): NCBrowser =
-  result = self.get_browser(self)
+  result = nc_wrap(self.get_browser(self))
 
 # Request that the browser close. The JavaScript 'onbeforeunload' event will
 # be fired. If |force_close| is false (0) the event handler, if any, will be
@@ -470,9 +470,10 @@ proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClie
 proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): NCBrowser =
   let curl = to_cef(url)
+  var context = if request_context == nil: nil else: request_context.GetHandler()
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
-  result = cef_browser_host_create_browser_sync(windowInfo, client.GetHandler(), curl, csettings.addr, 
-    if request_context == nil: nil else: request_context.GetHandler())
+  result = nc_wrap(cef_browser_host_create_browser_sync(windowInfo, 
+    client.GetHandler(), curl, csettings.addr, context))
   nc_free(curl)
   csettings.clear()

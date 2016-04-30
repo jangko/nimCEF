@@ -39,8 +39,8 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
     echo "Hello There Clicked"
 
   if command_id == MY_QUIT_ID:
-    var host = browser.get_host(browser)
-    host.close_browser(host, 1)
+    var host = browser.GetHost()
+    host.CloseBrowser(true)
 
 proc main() =
   # Main args.

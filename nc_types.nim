@@ -49,7 +49,8 @@ type
   # process the functions of this structure may be called on any thread unless
   # otherwise indicated in the comments. When used in the render process the
   # functions of this structure may only be called on the main thread.
-  NCBrowser* = ptr cef_browser
+  NCBrowser* = ref object
+    handler*: ptr cef_browser
 
   # Structure used to represent the browser process aspects of a browser window.
   # The functions of this structure can only be called in the browser process.
@@ -57,6 +58,15 @@ type
   # in the comments.
   NCBrowserHost* = ptr cef_browser_host
 
+import impl/nc_util_impl, nc_util
+
+proc GetHandler*(self: NCBrowser): ptr cef_browser {.inline.} =
+  result = self.handler
+
+proc nc_wrap*(handler: ptr cef_browser): NCBrowser =
+  new(result, nc_finalizer[NCBrowser])
+  result.handler = handler
+  add_ref(handler)
 
 #these procs below are for internal uses
 proc get_client*(browser: ptr_cef_browser): NCClient =
@@ -73,38 +83,37 @@ template client_to_client*(client: expr): expr =
 
 template to_cclient*(client: expr): expr =
   client.client_handler.addr
-  
+
 template type_to_type*(ctype: typedesc, obj: expr): expr =
   cast[ctype](cast[ByteAddress](obj) - sizeof(pointer))
-  
+
 type
   NCMainArgs* = ref object
     handler: cef_main_args
-    
+
 proc GetHandler*(arg: NCMainArgs): ptr cef_main_args {.inline.} =
   result = arg.handler.addr
-  
+
 when defined(windows):
   import winapi
-  
+
   proc makeNCMainArgs*(): NCMainArgs =
     new(result)
     result.handler.instance = getModuleHandle(nil)
 else:
   import os
-  
+
   var nim_params: seq[string]
   var c_params: seq[cstring]
-  
+
   proc makeNCMainArgs*(): NCMainArgs =
     new(result)
     let count = paramCount()
     result.handler.argc = count
     nim_params = newSeq[string](count)
     c_params = newSeq[cstring](count+1)
-    for i in 0.. <count: 
+    for i in 0.. <count:
       nim_params[i] = paramStr(i)
       c_params[i] = nim_params[i][0].addr
     c_params[count] = nil
     result.handler.argv = cparams[0].addr
-  

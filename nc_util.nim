@@ -1,6 +1,6 @@
 import cef/cef_base_api, strtabs, cef/cef_string_map_api
 import cef/cef_string_api, cef/cef_string_list_api, tables
-import cef/cef_string_multimap_api
+import cef/cef_string_multimap_api, macros
 include cef/cef_import
 
 export strtabs, cef_string_api, cef_string_list_api, cef_string_map_api, tables
@@ -129,3 +129,23 @@ proc init_base*[T](elem: T) =
   initialize_cef_base(cast[ptr cef_base](elem))
 
 template b_to_b*(brow: expr): expr = cast[ptr cef_browser](brow)
+
+macro wrapAPI*(x, base: untyped): typed =  
+  result = parseStmt "import impl/nc_util_impl, cef/" & $base & "_api"
+  var res = newIdentNode("result")
+  
+  result.add quote do:
+    type
+      `x`* = ref object
+        handler: ptr `base`
+
+    proc GetHandler*(self: `x`): ptr `base` {.inline.} =
+      `res` = self.handler
+    
+    proc nc_finalizer(self: `x`) =
+      release(self.handler)
+  
+    proc nc_wrap*(handler: ptr `base`): `x` =
+      new(`res`, nc_finalizer)
+      `res`.handler = handler
+      add_ref(handler)

@@ -409,7 +409,7 @@ proc main() =
 
   #Initial url.
   let cwd = getCurrentDir()
-  let url = "file://$1/example.html" % [cwd]
+  let url = "file://$1/resources/example.html" % [cwd]
   #echo url
 
   #There is no _cef_string_t type.

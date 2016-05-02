@@ -1,11 +1,10 @@
-import cef/cef_web_plugin_api, nc_types, nc_util
+import nc_types, nc_util
 include cef/cef_import
 
-type
-  # Information about a specific web plugin.
-  NCWebPluginInfo* = ref object
-    handler: ptr cef_web_plugin_info
+# Information about a specific web plugin.
+wrapAPI(NCWebPluginInfo, cef_web_plugin_info)
 
+type
   # Structure to implement for visiting web plugin information. The functions of
   # this structure will be called on the browser process UI thread.
   NCWebPluginInfoVisitor* = ref object of RootObj
@@ -16,16 +15,7 @@ type
   NCWebPluginUnstableCallback* = ref object of RootObj
     handler: cef_web_plugin_unstable_callback
 
-import impl/nc_util_impl
-
-proc GetHandler*(self: NCWebPluginInfo): ptr cef_web_plugin_info {.inline.} =
-  result = self.handler
-  
-proc nc_wrap*(handler: ptr cef_web_plugin_info): NCWebPluginInfo =
-  new(result, nc_finalizer[NCWebPluginInfo])
-  result.handler = handler
-  add_ref(handler)
-  
+    
 # Returns the plugin name (i.e. Flash).
 # The resulting string must be freed by calling nc_free().
 proc GetName*(self: NCWebPluginInfo): string =

@@ -1,6 +1,5 @@
-{.deadCodeElim:on.}
-
-include cef_import , times
+import times
+include cef_import
 
 type
   cef_time* = object
@@ -16,18 +15,18 @@ type
 
 # Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)
 # on failure.
-proc cef_time_to_timet*(ctime: ptr cef_time, time: Time): cint {.cef_import.}
-proc cef_time_from_timet*(time: Time, ctime: ptr cef_time): cint {.cef_import.}
+proc cef_time_to_timet*(ctime: ptr cef_time, time: var Time): cint {.cef_import.}
+proc cef_time_from_timet*(time: Time, ctime: var cef_time): cint {.cef_import.}
 
 # Converts cef_time_t to/from a double which is the number of seconds since
 # epoch (Jan 1, 1970). Webkit uses this format to represent time. A value of 0
 # means "not initialized". Returns true (1) on success and false (0) on
 # failure.
 proc cef_time_to_doublet*(ctime: ptr cef_time, time: var cdouble): cint {.cef_import.}
-proc cef_time_from_doublet*(time: cdouble, ctime: ptr cef_time): cint {.cef_import.}
+proc cef_time_from_doublet*(time: cdouble, ctime: var cef_time): cint {.cef_import.}
 
 # Retrieve the current system time.
-proc cef_time_now*(ctime: ptr cef_time): cint {.cef_import.}
+proc cef_time_now*(ctime: var cef_time): cint {.cef_import.}
 
 # Retrieve the delta in milliseconds between two time values.
 proc cef_time_delta*(ctime1, ctime2: ptr cef_time, delta: var uint64): cint {.cef_import.}

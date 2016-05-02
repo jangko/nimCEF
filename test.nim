@@ -67,7 +67,7 @@ proc main() =
 
   #Initial url.
   let cwd = getCurrentDir()
-  let url = "file://$1/example.html" % [cwd]
+  let url = "file://$1/resources/example.html" % [cwd]
 
   #Browser settings.
   #It is mandatory to set the "size" member.

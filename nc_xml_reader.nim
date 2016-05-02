@@ -1,22 +1,9 @@
-import nc_util, cef/cef_xml_reader_api, cef/cef_types, cef/cef_stream_api
-import nc_stream, cef/cef_base_api
+import cef/cef_types, nc_util, nc_stream
 
-type
-  # Structure that supports the reading of XML data via the libxml streaming API.
-  # The functions of this structure should only be called on the thread that
-  # creates the object.
-  NCXmlReader* = ref object
-    handler: ptr cef_xml_reader
-
-import impl/nc_util_impl
-
-proc GetHandler*(self: NCXmlReader): ptr cef_xml_reader {.inline.} =
-  result = self.handler
-
-proc nc_wrap*(handler: ptr cef_xml_reader): NCXmlReader =
-  new(result, nc_finalizer[NCXmlReader])
-  result.handler = handler
-  add_ref(handler)
+# Structure that supports the reading of XML data via the libxml streaming API.
+# The functions of this structure should only be called on the thread that
+# creates the object.
+wrapAPI(NCXmlReader, cef_xml_reader)
 
 # Moves the cursor to the next node in the document. This function must be
 # called at least once to set the current cursor position. Returns true (1)

@@ -1,22 +1,9 @@
-import cef/cef_stream_api, cef/cef_time_api, cef/cef_zip_reader_api
-import nc_util, nc_stream
+import nc_util, nc_stream, nc_time
 
-type
-  # Structure that supports the reading of zip archives via the zlib unzip API.
-  # The functions of this structure should only be called on the thread that
-  # creates the object.
-  NCZipReader* = ref object
-    handler: ptr cef_zip_reader
-
-import impl/nc_util_impl
-
-proc GetHandler*(self: NCZipReader): ptr cef_zip_reader {.inline.} =
-  result = self.handler
-
-proc nc_wrap*(handler: ptr cef_zip_reader): NCZipReader =
-  new(result, nc_finalizer[NCZipReader])
-  result.handler = handler
-  add_ref(handler)
+# Structure that supports the reading of zip archives via the zlib unzip API.
+# The functions of this structure should only be called on the thread that
+# creates the object.
+wrapAPI(NCZipReader, cef_zip_reader)
 
 # Moves the cursor to the first file in the archive. Returns true (1) if the
 # cursor position was set successfully.
@@ -52,8 +39,8 @@ proc GetFileSize*(self: NCZipReader): int64 =
   result = self.handler.get_file_size(self.handler)
 
 # Returns the last modified timestamp for the file.
-proc GetFileLastModified*(self: NCZipReader): cef_time =
-  result = self.handler.get_file_last_modified(self.handler)
+proc GetFileLastModified*(self: NCZipReader): NCTime =
+  result = to_nim(self.handler.get_file_last_modified(self.handler))
 
 # Opens the file for reading of uncompressed data. A read password may
 # optionally be specified.

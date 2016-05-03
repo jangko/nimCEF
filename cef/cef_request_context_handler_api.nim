@@ -1,4 +1,4 @@
-import cef_base_api, cef_cookie_manager_api, cef_web_plugin_api
+import cef_base_api, cef_cookie_manager_api, cef_web_plugin_info_api
 include cef_import
 
 type

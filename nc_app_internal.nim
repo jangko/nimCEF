@@ -1,4 +1,4 @@
-import cef/cef_base_api, nc_util, nc_types, cef/cef_values_api, cef/cef_browser_api
+import cef/cef_base_api, nc_util, nc_types, cef/cef_value_api, cef/cef_browser_api
 import cef/cef_request_api, cef/cef_v8_api, cef/cef_dom_api, cef/cef_process_message_api
 include cef/cef_import
 

@@ -1,6 +1,7 @@
 import cef/cef_string_visitor_api, nc_util, nc_types
 include cef/cef_import
 
+# Implement this structure to receive string values asynchronously.
 type
   NCStringVisitor* = ref object of RootObj
     handler: cef_string_visitor

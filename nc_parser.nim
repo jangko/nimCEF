@@ -1,4 +1,4 @@
-import cef/cef_parser_api, cef/cef_types, nc_util, nc_values
+import cef/cef_parser_api, cef/cef_types, nc_util, nc_value
 
 type
   NCUrlParts* = object

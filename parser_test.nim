@@ -43,21 +43,3 @@ if xml == nil:
 var child = xml.FindChild("spruce").FindChild("description")
 if child != nil:
   echo child.GetAttributes()
-
-#var xml = NCXmlReaderCreate(stream, XML_ENCODING_UTF8, "")
-#assert(xml != nil)
-#
-#discard xml.MoveToNextNode() #move to first node
-#discard xml.MoveToNextNode()
-#echo xml.GetQualifiedName()
-#if xml.HasAttributes() and xml.MoveToFirstAttribute():
-#  while true:
-#    echo xml.GetQualifiedName(), " = ", xml.GetValue()
-#    if not xml.MoveToNextAttribute(): break
-#    
-#release(xml)
-release(stream)
-
-var xx: int = 0
-atomicInc(xx)
-echo "xx: ", xx

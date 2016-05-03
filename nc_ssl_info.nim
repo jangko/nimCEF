@@ -1,5 +1,5 @@
 import cef/cef_ssl_info_api, cef/cef_string_list_api, cef/cef_time_api
-import nc_util, nc_types, nc_values
+import nc_util, nc_types, nc_value
 
 type
   # Structure representing the issuer or subject field of an X.509 certificate.

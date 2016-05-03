@@ -1,4 +1,4 @@
-import cef_base_api, cef_command_line_api, cef_values_api, cef_print_handler_api
+import cef_base_api, cef_command_line_api, cef_value_api, cef_print_handler_api
 include cef_import
 
 type

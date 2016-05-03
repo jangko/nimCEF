@@ -34,7 +34,7 @@ type
       
       
 import impl/nc_util_impl
-import cef/cef_cookie_manager_api, cef/cef_web_plugin_api
+import cef/cef_cookie_manager_api, cef/cef_web_plugin_info_api
 include cef/cef_import
 
 type

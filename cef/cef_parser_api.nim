@@ -1,4 +1,4 @@
-import cef_base_api, cef_values_api
+import cef_base_api, cef_value_api
 include cef_import
 
 # Parse the specified |url| into its component parts. Returns false *(0) if the

@@ -130,8 +130,12 @@ proc init_base*[T](elem: T) =
 
 template b_to_b*(brow: expr): expr = cast[ptr cef_browser](brow)
 
-macro wrapAPI*(x, base: untyped): typed =  
-  result = parseStmt "import impl/nc_util_impl, cef/" & $base & "_api"
+macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =  
+  if importUtil.boolVal():
+    result = parseStmt "import impl/nc_util_impl, cef/" & $base & "_api"
+  else:
+    result = newNimNode(nnkStmtList)
+    
   var res = newIdentNode("result")
   
   result.add quote do:

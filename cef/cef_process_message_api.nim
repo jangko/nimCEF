@@ -1,4 +1,4 @@
-import cef_base_api, cef_values_api
+import cef_base_api, cef_value_api
 include cef_import
 
 # Structure representing a message. Can be used on any process and thread.

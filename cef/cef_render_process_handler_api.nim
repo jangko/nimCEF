@@ -1,4 +1,4 @@
-import cef_base_api, cef_values_api, cef_browser_api, cef_request_api, cef_frame_api
+import cef_base_api, cef_value_api, cef_browser_api, cef_request_api, cef_frame_api
 import cef_dom_api, cef_process_message_api, cef_v8_api, cef_load_handler_api
 include cef_import
 

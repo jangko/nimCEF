@@ -1,4 +1,4 @@
-import cef/cef_process_message_api, nc_util, nc_values, nc_types
+import cef/cef_process_message_api, nc_util, nc_value, nc_types
 
 type
   # Structure representing a message. Can be used on any process and thread.

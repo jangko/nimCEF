@@ -1,4 +1,4 @@
-import cef/cef_values_api, nc_util, cef/cef_types
+import cef/cef_value_api, nc_util, cef/cef_types
 
 type
   # Structure that wraps other data value types. Complex types (binary,

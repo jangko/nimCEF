@@ -1,5 +1,5 @@
 import cef_base_api, cef_request_context_handler_api, cef_callback_api
-import cef_cookie_manager_api, cef_scheme_api, cef_values_api
+import cef_cookie_manager_api, cef_scheme_api, cef_value_api
 include cef_import
 
 type

@@ -1,6 +1,6 @@
 import cef/cef_request_context_api, cef/cef_request_context_handler_api, cef/cef_string_list_api
 import nc_request_context_handler, nc_callback, nc_settings
-import nc_cookie_manager, nc_scheme, nc_values, nc_util, nc_types
+import nc_cookie_manager, nc_scheme, nc_value, nc_util, nc_types
 include cef/cef_import
 
 type

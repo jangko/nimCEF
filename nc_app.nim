@@ -1,5 +1,5 @@
 import cef/cef_app_api, cef/cef_load_handler_api, cef/cef_print_handler_api
-import nc_command_line, nc_values, nc_types, nc_dom, nc_v8, nc_request, nc_process_message
+import nc_command_line, nc_value, nc_types, nc_dom, nc_v8, nc_request, nc_process_message
 import nc_scheme, nc_settings, nc_sandbox_info
 
 type

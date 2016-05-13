@@ -30,7 +30,6 @@ proc Close*(self: NCZipReader): bool =
 
 # The below functions act on the file at the current cursor position.
 # Returns the name of the file.
-# The resulting string must be freed by calling nc_free().
 proc GetFileName*(self: NCZipReader): string =
   result = to_nim(self.handler.get_file_name(self.handler))
 
@@ -44,11 +43,11 @@ proc GetFileLastModified*(self: NCZipReader): NCTime =
 
 # Opens the file for reading of uncompressed data. A read password may
 # optionally be specified.
-proc OpenFile*(self: NCZipReader, password: string): bool =
+proc OpenFile*(self: NCZipReader, password: string = nil): bool =
   let cpass = to_cef(password)
   result = self.handler.open_file(self.handler, cpass) == 1.cint
   nc_free(cpass)
-
+  
 # Closes the file.
 proc CloseFile*(self: NCZipReader): bool =
   result = self.handler.close_file(self.handler) == 1.cint

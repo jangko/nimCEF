@@ -11,6 +11,7 @@ type
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
 proc to_cef*(str: string): ptr cef_string =
+  if str == nil: return nil
   result = cef_string_userfree_alloc()
   discard cef_string_from_utf8(str.cstring, str.len.csize, result)
 
@@ -32,7 +33,7 @@ proc `<=`*(cstr: var cef_string, str: string) =
     discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
     
 template nc_free*(str: ptr cef_string) =
-  cef_string_userfree_free(str)
+  if str != nil: cef_string_userfree_free(str)
   
 proc to_nim*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int

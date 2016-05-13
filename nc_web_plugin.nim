@@ -17,22 +17,18 @@ type
 
     
 # Returns the plugin name (i.e. Flash).
-# The resulting string must be freed by calling nc_free().
 proc GetName*(self: NCWebPluginInfo): string =
   result = to_nim(self.handler.get_name(self.handler))
 
 # Returns the plugin file path (DLL/bundle/library).
-# The resulting string must be freed by calling nc_free().
 proc GetPath*(self: NCWebPluginInfo): string =
   result = to_nim(self.handler.get_path(self.handler))
   
 # Returns the version of the plugin (may be OS-specific).
-# The resulting string must be freed by calling nc_free().
 proc GetVersion*(self: NCWebPluginInfo): string =
   result = to_nim(self.handler.get_version(self.handler))
   
 # Returns a description of the plugin from the version information.
-# The resulting string must be freed by calling nc_free().
 proc GetDescription*(self: NCWebPluginInfo): string =
   result = to_nim(self.handler.get_description(self.handler))
   

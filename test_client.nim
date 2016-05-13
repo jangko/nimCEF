@@ -10,17 +10,17 @@ type
     name: string
 
   myApp = ref object of NCApp
-  
+
   myFactory = ref object of NCSchemeHandlerFactory
-  
+
   myScheme = ref object of NCResourceHandler
     mData: string
     mMimeType: string
     mOffset: int
-  
+
   myUrlRequestClient = ref object of NCUrlRequestClient
     name: string
-  
+
 proc newClient(no: int, name: string): myClient =
   result = makeNCClient(myClient, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
   result.abc = no
@@ -54,7 +54,7 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
   if command_id == MY_QUIT_ID:
     var host = browser.GetHost()
     host.CloseBrowser(true)
-    
+
 proc DumpRequestContents(request: NCRequest): string =
   var ss = newStringStream()
 
@@ -64,7 +64,7 @@ proc DumpRequestContents(request: NCRequest): string =
   ss.write request.GetMethod()
 
   var headerMap = request.GetHeaderMap()
-  
+
   if headerMap.len > 0:
     ss.write "\nHeaders:"
     for k, v in pairs(headerMap):
@@ -72,7 +72,7 @@ proc DumpRequestContents(request: NCRequest): string =
       ss.write k
       ss.write ": "
       ss.write $v
-    
+
   var postData = request.GetPostData()
   if postData != nil:
     var elements = postData.GetElements()
@@ -85,19 +85,19 @@ proc DumpRequestContents(request: NCRequest): string =
           if it.GetBytesCount() == 0:
             ss.write "(empty)"
           else:
-            #retrieve the data.            
+            #retrieve the data.
             ss.write it.GetBytes()
         elif it.GetType() == PDE_TYPE_FILE:
           ss.write "\n\tFile: "
           ss.write it.GetFile()
         release(it)
-    release(postData)        
+    release(postData)
   result = ss.data
 
-    
+
 method ProcessRequest*(self: myScheme, request: NCRequest, callback: NCCallback): bool =
   NC_REQUIRE_IO_THREAD()
-  
+
   var handled = false
   var url = request.GetURL()
   if url.find("handler.html") != -1:
@@ -129,24 +129,24 @@ myScheme object handling the client:// protocol.
     handled = true
     #Set the resulting mime type
     self.mMimeType = "image/png"
-      
+
   if handled:
     #Indicate the headers are available.
     callback.Continue()
     return true
 
   result = false
-    
+
 method GetResponseHeaders*(self: myScheme, response: NCResponse, response_length: var int64, redirectUrl: var string) =
   NC_REQUIRE_IO_THREAD()
   doAssert(self.mData != nil and self.mData.len != 0)
-  
+
   response.SetMimeType(self.mMimeType)
   response.SetStatus(200)
 
   #Set the resulting response length
   response_length = self.mData.len
-    
+
 method ReadResponse*(self: myScheme, data_out: cstring, bytes_to_read: int, bytes_read: var int, callback: NCCallback): bool =
   NC_REQUIRE_IO_THREAD()
   var has_data = false
@@ -161,33 +161,33 @@ method ReadResponse*(self: myScheme, data_out: cstring, bytes_to_read: int, byte
     has_data = true
 
   result = has_data
-    
+
 method OnRegisterCustomSchemes*(self: myApp, registrar: NCSchemeRegistrar) =
   discard registrar.AddCustomScheme("client", true, false, false)
-  
+
 method Create*(self: myFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
   NC_REQUIRE_IO_THREAD()
   result = makeResourceHandler(myScheme)
-  
+
 proc RegisterSchemeHandler() =
   NCRegisterSchemeHandlerFactory("client", "tests", makeNCSchemeHandlerFactory(myFactory))
-  
+
 proc OnRequestComplete(self: myUrlRequestClient, request: NCUrlRequest) =
   echo "hello"
-  
+
 proc OnUploadProgress(self: myUrlRequestClient, request: NCUrlRequest, current, total: int64) =
   echo "progress: ", current, " ", total
-  
+
 proc OnDownloadProgress(self: myUrlRequestClient, request: NCUrlRequest, current, total: int64) =
   discard
 
 proc OnDownloadData(self: myUrlRequestClient, request: NCUrlRequest, data: pointer, data_length: int) =
   discard
-  
+
 proc GetAuthCredentials(self: myUrlRequestClient, isProxy: bool, host: string, port: int, realm: string,
   scheme: string, callback: NCAuthCallback): bool =
   result = false
-  
+
 let uc_impl = nc_urlrequest_i[myUrlRequestClient](
   OnRequestComplete: OnRequestComplete,
   OnUploadProgress: OnUploadProgress,
@@ -195,7 +195,7 @@ let uc_impl = nc_urlrequest_i[myUrlRequestClient](
   OnDownloadData: OnDownloadData,
   GetAuthCredentials: GetAuthCredentials
 )
-  
+
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
@@ -209,7 +209,7 @@ proc main() =
   var settings = makeNCSettings()
   settings.no_sandbox = true
   discard NCInitialize(mainArgs, settings, app)
-  
+
   var windowInfo: cef_window_info
   windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
   windowInfo.parent_window = cef_window_handle(0)

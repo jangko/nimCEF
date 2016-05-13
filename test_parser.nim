@@ -6,13 +6,13 @@ if NCParseUrl("http://admin:pass@www.myhost.net:8080/mypath/index.php?title=main
     echo key, " : ", val
 else:
   echo "NCParseUrl failed"
-  
+
 var url: string
 if NCCreateUrl(parts, url):
   echo url
 else:
   echo "NCCreateUrl failed"
-  
+
 echo NCFormatUrlForSecurityDisplay(url, "EN")
 let mime = NCGetMimeType("jpg")
 echo mime
@@ -20,7 +20,7 @@ echo mime
 let exts = NCGetExtensionsForMimeType("text/html")
 for x in exts:
   echo x
-  
+
 let base64 = NCBase64Encode(url.cstring, url.len)
 echo base64
 
@@ -39,7 +39,7 @@ var xml = LoadXml(stream, XML_ENCODING_UTF8, "", loadError)
 if xml == nil:
   echo loadError
   quit(1)
-  
+
 var child = xml.FindChild("spruce").FindChild("description")
 if child != nil:
   echo child.GetAttributes()

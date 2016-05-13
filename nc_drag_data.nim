@@ -4,7 +4,7 @@ type
   # Structure used to represent drag data. The functions of this structure may be
   # called on any thread.
   NCDragData* = ptr cef_drag_data
-    
+
 # Returns a copy of the current object.
 proc Clone*(self: NCDragData): NCDragData =
   result = self.clone(self)
@@ -95,7 +95,7 @@ proc SetLinkMetadata*(self: NCDragData, data: string) =
   let cdata = to_cef(data)
   self.set_link_metadata(self, cdata)
   nc_free(cdata)
-  
+
 # Set the plain text fragment that is being dragged.
 proc SetFragmentText*(self: NCDragData, text: string) =
   let ctext = to_cef(text)
@@ -107,7 +107,7 @@ proc SetFragmentHtml*(self: NCDragData, html: string) =
   let chtml = to_cef(html)
   self.set_fragment_html(self, chtml)
   nc_free(chtml)
-  
+
 # Set the base URL that the fragment came from.
 proc SetFragmentBaseUrl*(self: NCDragData, base_url: string) =
   let curl = to_cef(base_url)

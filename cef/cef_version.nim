@@ -11,7 +11,7 @@ const
   CHROME_VERSION_MINOR* = 0
   CHROME_VERSION_BUILD* = 2623
   CHROME_VERSION_PATCH* = 87
-  
+
   # The API hash is created by analyzing CEF header files for C API type
   # definitions. The hash value will change when header files are modified
   # in a way that may cause binary incompatibility with other builds. The
@@ -19,16 +19,16 @@ const
   # platform hash values will change only if that particular platform is
   # affected.
   CEF_API_HASH_UNIVERSAL* = "32c1d3523da124f2dea7b80b92c53c4d4a463c65"
-  
- 
+
+
 when defined(windows):
-  const 
+  const
     CEF_API_HASH_PLATFORM* = "64b27477b82b44b51ce817522f744fca6768cbbb"
 elif defined(MACOSX):
-  const 
+  const
     CEF_API_HASH_PLATFORM* = "e3b9c36454ae5ae4fb3509e17fb6a7d2877c847d"
 elif defined(UNIX):
-  const 
+  const
     CEF_API_HASH_PLATFORM* = "87a195efc055fb9f39c84f5ce8199cc8766290e3"
 
 # Returns CEF version information for the libcef library. The |entry|

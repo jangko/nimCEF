@@ -34,7 +34,7 @@ type
     # function will always be called for all frames irrespective of whether the
     # request completes successfully. For notification of overall browser load
     # status use OnLoadingStateChange instead.
-  
+
     on_load_end*: proc(self: ptr cef_load_handler,
       browser: ptr_cef_browser, frame: ptr cef_frame,
       httpStatusCode: cint) {.cef_callback.}
@@ -43,7 +43,7 @@ type
     # |errorCode| is the error code number, |errorText| is the error text and
     # |failedUrl| is the URL that failed to load. See net\base\net_error_list.h
     # for complete descriptions of the error codes.
-  
+
     on_load_error*: proc(self: ptr cef_load_handler,
       browser: ptr_cef_browser, frame: ptr cef_frame,
       errorCode: cef_errorcode, errorText, failedUrl: ptr cef_string) {.cef_callback.}

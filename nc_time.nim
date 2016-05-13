@@ -31,13 +31,13 @@ proc to_nim*(ct: cef_time): NCTime =
   result.minute = ct.minute.int
   result.second = ct.second.int
   result.millisecond = ct.millisecond.int
-  
+
 # Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)
 # on failure.
 proc toTime*(ntime: NCTime, time: var Time): bool =
   var ct = to_cef(ntime)
   result = cef_time_to_timet(ct.addr, time) == 1.cint
-  
+
 proc fromTime*(ntime: var NCTime, time: Time): bool =
   var ct: cef_time
   result = cef_time_from_timet(time, ct) == 1.cint
@@ -52,7 +52,7 @@ proc toFloat*(ntime: NCTime, time: var float64): bool =
   var res: float64
   result = cef_time_to_doublet(ct.addr, res) == 1.cint
   time = res
-  
+
 proc fromFloat*(ntime: var NCTime, time: float64): bool =
   var ct: cef_time
   result = cef_time_from_doublet(time.cdouble, ct) == 1.cint
@@ -63,7 +63,7 @@ proc Now*(ntime: var NCTime): bool =
   var ct: cef_time
   result = cef_time_now(ct) == 1.cint
   ntime = to_nim(ct)
-  
+
 # Retrieve the delta in milliseconds between two time values.
 proc Delta*(ntime1, ntime2: NCTime, delta: var uint64): bool =
   var ct1 = to_cef(ntime1)

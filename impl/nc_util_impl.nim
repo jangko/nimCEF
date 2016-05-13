@@ -6,7 +6,7 @@ type
     handler: T
     refCount: int
     container*: C
-    
+
 template toType*(T: typedesc, obj: expr): expr =
   cast[ptr T](cast[ByteAddress](obj) - sizeof(pointer))
 
@@ -48,5 +48,4 @@ template nc_init*(T, X: typedesc, impl: expr) =
   add_ref(handler.handler.addr)
   handler.container = result
   copyMem(handler.impl.addr, impl.unsafeAddr, sizeof(impl))
-  
-  
+

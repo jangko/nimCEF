@@ -2,23 +2,23 @@ const
   kNullCursorHandle* = nil
   kNullEventHandle*  = nil
   kNullWindowHandle* = nil
-  
+
 type
   cef_window_handle* = distinct pointer #NSView*
   cef_text_input_context* = distinct pointer #NSTextInputContext*
   cef_event_handle* = distinct pointer #NSEvent*
   cef_cursor_handle* = distinct pointer #NSCursor*
-  
+
   # Structure representing CefExecuteProcess arguments.
   cef_main_args* = object
     argc*: cint
     argv*: ptr cstring
-    
+
   # Class representing window information.
   cef_window_info* = object
     window_name*: cef_string
     x*, y*, width*, height*: cint
-    
+
     # Set to true (1) to create the view initially hidden.
     hidden*: cint
 

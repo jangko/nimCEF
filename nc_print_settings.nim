@@ -6,15 +6,15 @@ type
     handler: ptr cef_print_settings
 
 import impl/nc_util_impl
-    
+
 proc GetHandler*(self: NCPrintSettings): ptr cef_print_settings {.inline.} =
   result = self.handler
-  
+
 proc nc_wrap*(handler: ptr cef_print_settings): NCPrintSettings =
   new(result, nc_finalizer[NCPrintSettings])
   result.handler = handler
   add_ref(handler)
-  
+
 # Returns true (1) if this object is valid. Do not call any other functions
 # if this function returns false (0).
 proc IsValid*(self: NCPrintSettings): bool =

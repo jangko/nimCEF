@@ -529,7 +529,7 @@ proc get_auth_credentials*(self: ptr cef_request_handler,
   release(brow)
   release(frame)
   release(callback)
-  
+
 proc on_quota_request*(self: ptr cef_request_handler,
   browser: ptr_cef_browser, origin_url: ptr cef_string,
   new_size: int64, callback: ptr cef_request_callback): cint {.cef_callback.} =

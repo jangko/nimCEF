@@ -1,10 +1,10 @@
 import cef_base_api, cef_frame_api, cef_string_api
 include cef_import
 
-type 
-  cef_life_span_handler* = object 
+type
+  cef_life_span_handler* = object
     base*: cef_base
-    
+
     # Called on the IO thread before a new popup browser is created. The
     # |browser| and |frame| values represent the source of the popup request. The
     # |target_url| and |target_frame_name| values indicate where the popup
@@ -28,16 +28,16 @@ type
         popupFeatures: ptr cef_popup_features,
         windowInfo: ptr cef_window_info, client: var ptr_cef_client,
         settings: ptr cef_browser_settings, no_javascript_access: var cint): cint {.cef_callback.}
-      
+
     # Called after a new browser is created.
     on_after_created*: proc(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.}
-      
+
     # Called when a modal window is about to display and the modal loop should
     # begin running. Return false (0) to use the default modal loop
     # implementation or true (1) to use a custom implementation.
     run_modal*: proc(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.}
-  
-    
+
+
     # Called when a browser has recieved a request to close. This may result
     # directly from a call to cef_browser_host_t::close_browser() or indirectly
     # if the browser is a top-level OS window created by CEF and the user
@@ -94,7 +94,7 @@ type
     # browsers
     #     exist.
     do_close*: proc(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.}
-      
+
     # Called just before a browser is destroyed. Release all references to the
     # browser object and do not attempt to execute any functions on the browser
     # object after this callback returns. If this is a modal window and a custom

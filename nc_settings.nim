@@ -28,7 +28,7 @@ type
     # called from your application message loop. This option is only supported on
     # Windows.
     multi_threaded_message_loop*: bool
-  
+
     # Set to true (1) to enable windowless (off-screen) rendering support. Do not
     # enable this value if the application does not use windowless rendering as
     # it may reduce rendering performance on some systems.
@@ -65,7 +65,7 @@ type
     # individual CefRequestContext instances via the
     # CefRequestContextSettings.persist_session_cookies value.
     persist_session_cookies*: bool
-  
+
     # To persist user preferences as a JSON file in the cache path directory set
     # this value to true (1). A |cache_path| value must also be specified
     # to enable this feature. Also configurable using the
@@ -145,7 +145,7 @@ type
     # OnUncaughtException() will not be called. Also configurable using the
     # "uncaught-exception-stack-size" command-line switch.
     uncaught_exception_stack_size*: int
-  
+
     # By default CEF V8 references will be invalidated (the IsValid() method will
     # return false) after the owning context has been released. This reduces the
     # need for external record keeping and avoids crashes due to the use of V8
@@ -180,7 +180,7 @@ type
     # value will be used. The alpha component must greater than 0 to enable use
     # of the background color but will be otherwise ignored.
     background_color*: cef_color
-  
+
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. May be overridden on a
     # per-browser basis using the CefBrowserSettings.accept_language_list value.
@@ -188,10 +188,10 @@ type
     # for individual CefRequestContext instances via the
     # CefRequestContextSettings.accept_language_list value.
     accept_language_list*: string
-    
+
 proc makeNCSettings*(): NCSettings =
   new(result)
-  
+
 proc to_cef*(ns: NCSettings, cs: var cef_settings) =
   cs.size = sizeof(cef_settings)
   cs.single_process = ns.single_process.cint
@@ -211,7 +211,7 @@ proc to_cef*(ns: NCSettings, cs: var cef_settings) =
   cs.log_severity = ns.log_severity
   cs.javascript_flags <= ns.javascript_flags
   cs.resources_dir_path <= ns.resources_dir_path
-  cs.locales_dir_path <= ns.locales_dir_path  
+  cs.locales_dir_path <= ns.locales_dir_path
   cs.pack_loading_disabled = ns.pack_loading_disabled.cint
   cs.remote_debugging_port = ns.remote_debugging_port.cint
   cs.uncaught_exception_stack_size = ns.uncaught_exception_stack_size.cint
@@ -219,7 +219,7 @@ proc to_cef*(ns: NCSettings, cs: var cef_settings) =
   cs.ignore_certificate_errors = ns.ignore_certificate_errors.cint
   cs.background_color = ns.background_color
   cs.accept_language_list <= ns.accept_language_list
- 
+
 proc clear*(cs: var cef_settings) =
   cef_string_clear(cs.browser_subprocess_path.addr)
   cef_string_clear(cs.cache_path.addr)
@@ -233,7 +233,7 @@ proc clear*(cs: var cef_settings) =
   cef_string_clear(cs.locales_dir_path.addr)
   cef_string_clear(cs.accept_language_list.addr)
 
-type  
+type
   # Request context initialization settings. Specify NULL or 0 to get the
   # recommended default values.
   NCRequestContextSettings* = ref object
@@ -244,7 +244,7 @@ type
     # specified. To share the global browser cache and related configuration set
     # this value to match the CefSettings.cache_path value.
     cache_path*: string
-      
+
     # To persist session cookies (cookies without an expiry date or validity
     # interval) by default when using the global cookie manager set this value to
     # true (1). Session cookies are generally intended to be transient and most
@@ -252,13 +252,13 @@ type
     # CefSettings.persist_session_cookies value. This value will be ignored if
     # |cache_path| is empty or if it matches the CefSettings.cache_path value.
     persist_session_cookies*: bool
-      
+
     # To persist user preferences as a JSON file in the cache path directory set
     # this value to true (1). Can be set globally using the
     # CefSettings.persist_user_preferences value. This value will be ignored if
     # |cache_path| is empty or if it matches the CefSettings.cache_path value.
     persist_user_preferences*: bool
-      
+
     # Set to true (1) to ignore errors related to invalid SSL certificates.
     # Enabling this setting can lead to potential security vulnerabilities like
     # "man in the middle" attacks. Applications that load content from the
@@ -266,7 +266,7 @@ type
     # CefSettings.ignore_certificate_errors value. This value will be ignored if
     # |cache_path| matches the CefSettings.cache_path value.
     ignore_certificate_errors*: bool
-      
+
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. Can be set globally
     # using the CefSettings.accept_language_list value or overridden on a per-
@@ -286,9 +286,9 @@ type
     # value is 1 and the maximum value is 60 (default 30). This value can also be
     # changed dynamically via CefBrowserHost::SetWindowlessFrameRate.
     windowless_frame_rate*: int
-  
+
     # The below values map to WebPreferences settings.
-      
+
     # Font settings.
     standard_font_family*: string
     fixed_font_family*: string
@@ -300,124 +300,124 @@ type
     default_fixed_font_size*: int
     minimum_font_size*: int
     minimum_logical_font_size*: int
-      
+
     # Default encoding for Web content. If empty "ISO-8859-1" will be used. Also
     # configurable using the "default-encoding" command-line switch.
     default_encoding*: string
-  
+
     # Controls the loading of fonts from remote sources. Also configurable using
     # the "disable-remote-fonts" command-line switch.
     remote_fonts*: cef_state
-      
+
     # Controls whether JavaScript can be executed. Also configurable using the
     # "disable-javascript" command-line switch.
     javascript*: cef_state
-      
+
     # Controls whether JavaScript can be used for opening windows. Also
     # configurable using the "disable-javascript-open-windows" command-line
     # switch.
     javascript_open_windows*: cef_state
-      
+
     # Controls whether JavaScript can be used to close windows that were not
     # opened via JavaScript. JavaScript can still be used to close windows that
     # were opened via JavaScript or that have no back/forward history. Also
     # configurable using the "disable-javascript-close-windows" command-line
     # switch.
     javascript_close_windows*: cef_state
-      
+
     # Controls whether JavaScript can access the clipboard. Also configurable
     # using the "disable-javascript-access-clipboard" command-line switch.
     javascript_access_clipboard*: cef_state
-      
+
     # Controls whether DOM pasting is supported in the editor via
     # execCommand("paste"). The |javascript_access_clipboard| setting must also
     # be enabled. Also configurable using the "disable-javascript-dom-paste"
     # command-line switch.
     javascript_dom_paste*: cef_state
-      
+
     # Controls whether the caret position will be drawn. Also configurable using
     # the "enable-caret-browsing" command-line switch.
     caret_browsing*: cef_state
-      
+
     # Controls whether any plugins will be loaded. Also configurable using the
     # "disable-plugins" command-line switch.
     plugins*: cef_state
-      
+
     # Controls whether file URLs will have access to all URLs. Also configurable
     # using the "allow-universal-access-from-files" command-line switch.
     universal_access_from_file_urls*: cef_state
-      
+
     # Controls whether file URLs will have access to other file URLs. Also
     # configurable using the "allow-access-from-files" command-line switch.
     file_access_from_file_urls*: cef_state
-      
+
     # Controls whether web security restrictions (same-origin policy) will be
     # enforced. Disabling this setting is not recommend as it will allow risky
     # security behavior such as cross-site scripting (XSS). Also configurable
     # using the "disable-web-security" command-line switch.
     web_security*: cef_state
-      
+
     # Controls whether image URLs will be loaded from the network. A cached image
     # will still be rendered if requested. Also configurable using the
     # "disable-image-loading" command-line switch.
     image_loading*: cef_state
-      
+
     # Controls whether standalone images will be shrunk to fit the page. Also
     # configurable using the "image-shrink-standalone-to-fit" command-line
     # switch.
     image_shrink_standalone_to_fit*: cef_state
-      
+
     # Controls whether text areas can be resized. Also configurable using the
     # "disable-text-area-resize" command-line switch.
     text_area_resize*: cef_state
-      
+
     # Controls whether the tab key can advance focus to links. Also configurable
     # using the "disable-tab-to-links" command-line switch.
     tab_to_links*: cef_state
-      
+
     # Controls whether local storage can be used. Also configurable using the
     # "disable-local-storage" command-line switch.
     local_storage*: cef_state
-      
+
     # Controls whether databases can be used. Also configurable using the
     # "disable-databases" command-line switch.
     databases*: cef_state
-      
+
     # Controls whether the application cache can be used. Also configurable using
     # the "disable-application-cache" command-line switch.
     application_cache*: cef_state
-      
+
     # Controls whether WebGL can be used. Note that WebGL requires hardware
     # support and may not work on all systems even when enabled. Also
     # configurable using the "disable-webgl" command-line switch.
     webgl*: cef_state
-      
+
     # Opaque background color used for the browser before a document is loaded
     # and when no document color is specified. By default the background color
     # will be the same as CefSettings.background_color. Only the RGB compontents
     # of the specified value will be used. The alpha component must greater than
     # 0 to enable use of the background color but will be otherwise ignored.
     background_color*: cef_color
-      
+
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. May be set globally
     # using the CefBrowserSettings.accept_language_list value. If both values are
     # empty then "en-US,en" will be used.
     accept_language_list*: string
-    
+
 proc makeNCBrowserSettings*(): NCBrowserSettings =
   new(result)
-  
+
 proc makeNCRequestContextSettings*(): NCRequestContextSettings =
   new(result)
-  
+
 proc to_cef*(ns: NCRequestContextSettings, cs: var cef_request_context_settings) =
   cs.cache_path <= ns.cache_path
   cs.persist_session_cookies = ns.persist_session_cookies.cint
   cs.persist_user_preferences = ns.persist_user_preferences.cint
   cs.ignore_certificate_errors = ns.ignore_certificate_errors.cint
   cs.accept_language_list <= ns.accept_language_list
-    
+
 proc clear*(cs: var cef_request_context_settings) =
   cef_string_clear(cs.cache_path.addr)
   cef_string_clear(cs.accept_language_list.addr)
@@ -467,7 +467,7 @@ proc clear*(cs: var cef_browser_settings) =
   cef_string_clear(cs.fantasy_font_family.addr)
   cef_string_clear(cs.default_encoding.addr)
   cef_string_clear(cs.accept_language_list.addr)
-  
+
 type
   # Structure representing PDF print settings.
   NCPdfPrintSettings* = ref object
@@ -490,7 +490,7 @@ type
     margin_right: float64
     margin_bottom: float64
     margin_left: float64
-  
+
     # Margin type.
     margin_type: cef_pdf_print_margin_type
 
@@ -507,10 +507,10 @@ type
     # Set to true (1) to print background graphics or false (0) to not print
     # background graphics.
     backgrounds_enabled: bool
-    
+
 proc makeNCPdfPrintSettings*(): NCPdfPrintSettings =
   new(result)
-  
+
 proc to_cef*(ns: NCPdfPrintSettings, cs: var cef_pdf_print_settings) =
   cs.header_footer_title <= ns.header_footer_title
   cs.header_footer_url <= ns.header_footer_url
@@ -525,7 +525,7 @@ proc to_cef*(ns: NCPdfPrintSettings, cs: var cef_pdf_print_settings) =
   cs.selection_only = ns.selection_only.cint
   cs.landscape = ns.landscape.cint
   cs.backgrounds_enabled = ns.backgrounds_enabled.cint
-    
+
 proc clear*(cs: var cef_pdf_print_settings) =
   cef_string_clear(cs.header_footer_title.addr)
   cef_string_clear(cs.header_footer_url.addr)

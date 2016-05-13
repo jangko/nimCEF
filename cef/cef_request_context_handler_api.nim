@@ -12,7 +12,7 @@ type
     # Called on the browser process IO thread to retrieve the cookie manager. If
     # this function returns NULL the default cookie manager retrievable via
     # cef_request_tContext::get_default_cookie_manager() will be used.
-  
+
     get_cookie_manager*: proc(self: ptr cef_request_context_handler): ptr cef_cookie_manager {.cef_callback.}
 
     # Called on multiple browser process threads before a plugin instance is
@@ -30,7 +30,7 @@ type
     # PLUGIN_POLICY_DISABLED may be cached when |top_origin_url| is NULL. To
     # purge the plugin list cache and potentially trigger new calls to this
     # function call cef_request_tContext::PurgePluginListCache.
-  
+
     on_before_plugin_load*: proc(self: ptr cef_request_context_handler,
       mime_type, plugin_url, top_origin_url: ptr cef_string,
       plugin_info: ptr cef_web_plugin_info,

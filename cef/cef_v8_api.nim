@@ -15,39 +15,39 @@ type
     # be accessed from the thread on which they are created. This function can be
     # called on any render process thread.
     get_task_runner*: proc(self: ptr cef_v8context): ptr cef_task_runner {.cef_callback.}
-  
+
     # Returns true (1) if the underlying handle is valid and it can be accessed
     # on the current thread. Do not call any other functions if this function
     # returns false (0).
     is_valid*: proc(self: ptr cef_v8context): cint {.cef_callback.}
-  
+
     # Returns the browser for this context. This function will return an NULL
     # reference for WebWorker contexts.
     get_browser*: proc(self: ptr cef_v8context): ptr_cef_browser {.cef_callback.}
-  
+
     # Returns the frame for this context. This function will return an NULL
     # reference for WebWorker contexts.
     get_frame*: proc(self: ptr cef_v8context): ptr_cef_frame {.cef_callback.}
-  
+
     # Returns the global object for this context. The context must be entered
     # before calling this function.
     get_global*: proc(self: ptr cef_v8context): ptr cef_v8value {.cef_callback.}
-  
+
     # Enter this context. A context must be explicitly entered before creating a
     # V8 Object, Array, Function or Date asynchronously. exit() must be called
     # the same number of times as enter() before releasing this context. V8
     # objects belong to the context in which they are created. Returns true (1)
     # if the scope was entered successfully.
     enter*: proc(self: ptr cef_v8context): cint {.cef_callback.}
-  
+
     # Exit this context. Call this function only after calling enter(). Returns
     # true (1) if the scope was exited successfully.
     exit*: proc(self: ptr cef_v8context): cint {.cef_callback.}
-  
+
     # Returns true (1) if this object is pointing to the same handle as |that|
     # object.
     is_same*: proc(self, that: ptr cef_v8context): cint {.cef_callback.}
-  
+
     # Evaluates the specified JavaScript code using this context's global object.
     # On success |retval| will be set to the return value, if any, and the
     # function will return true (1). On failure |exception| will be set to the
@@ -89,7 +89,7 @@ type
     get_value*: proc(self: ptr cef_v8accessor,
       name: ptr cef_string, obj: ptr cef_v8value,
       retval: var ptr cef_v8value, exception: ptr cef_string): cint {.cef_callback.}
-  
+
     # Handle assignment of the accessor value identified by |name|. |object| is
     # the receiver ('this' object) of the accessor. |value| is the new value
     # being assigned to the accessor. If assignment fails set |exception| to the
@@ -129,7 +129,7 @@ type
     # Returns the index within the script of the last character where the error
     # occurred.
     get_end_position*: proc(self: ptr cef_v8exception): cint {.cef_callback.}
-  
+
     # Returns the index within the line of the first character where the error
     # occurred.
     get_start_column*: proc(self: ptr cef_v8exception): cint {.cef_callback.}
@@ -146,7 +146,7 @@ type
   cef_v8value* = object
     # Base structure.
     base* : cef_base
-    
+
     # Returns true (1) if the underlying handle is valid and it can be accessed
     # on the current thread. Do not call any other functions if this function
     # returns false (0).
@@ -160,7 +160,7 @@ type
 
     # True if the value type is bool.
     is_bool*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # True if the value type is cint.
     is_int*: proc(self: ptr cef_v8value): cint {.cef_callback.}
 
@@ -169,16 +169,16 @@ type
 
     # True if the value type is double.
     is_double*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # True if the value type is Date.
     is_date*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # True if the value type is string.
     is_string*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-    
+
     # True if the value type is object.
     is_object*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # True if the value type is array.
     is_array*: proc(self: ptr cef_v8value): cint {.cef_callback.}
 
@@ -231,7 +231,7 @@ type
 
     # Clears the last exception and returns true (1) on success.
     clear_exception*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # Returns true (1) if this object will re-throw future exceptions. This
     # attribute exists only in the scope of the current CEF value object.
     will_rethrow_exceptions*: proc(self: ptr cef_v8value): cint {.cef_callback.}
@@ -254,7 +254,7 @@ type
     # exception is thrown. For read-only and don't-delete values this function
     # will return true (1) even though deletion failed.
     delete_value_bykey*: proc(self: ptr cef_v8value, key: ptr cef_string): cint {.cef_callback.}
-  
+
     # Deletes the value with the specified identifier and returns true (1) on
     # success. Returns false (0) if this function is called incorrectly, deletion
     # fails or an exception is thrown. For read-only and don't-delete values this
@@ -283,7 +283,7 @@ type
     # (1) even though assignment failed.
     set_value_byindex*: proc(self: ptr cef_v8value, index: cint,
       value: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # Registers an identifier and returns true (1) on success. Access to the
     # identifier will be forwarded to the cef_v8accessor_t instance passed to
     # cef_v8value_t::cef_v8value_create_object(). Returns false (0) if this
@@ -306,7 +306,7 @@ type
 
     # Returns the user data, if any, assigned to this object.
     get_user_data*: proc(self: ptr cef_v8value): ptr cef_base {.cef_callback.}
-  
+
     # Returns the amount of externally allocated memory registered for the
     # object.
     get_externally_allocated_memory*: proc(self: ptr cef_v8value): cint {.cef_callback.}
@@ -325,7 +325,7 @@ type
     # ARRAY METHODS - These functions are only available on arrays.
     # Returns the number of elements in the array.
     get_array_length*: proc(self: ptr cef_v8value): cint {.cef_callback.}
-  
+
     # FUNCTION METHODS - These functions are only available on functions.
     # Returns the function name.
     # The resulting string must be freed by calling cef_string_userfree_free().
@@ -369,7 +369,7 @@ type
     # on the current thread. Do not call any other functions if this function
     # returns false (0).
     is_valid*: proc(self: ptr cef_v8stack_trace): cint {.cef_callback.}
-  
+
     # Returns the number of stack frames.
     get_frame_count*: proc(self: ptr cef_v8stack_trace): cint {.cef_callback.}
 
@@ -419,7 +419,7 @@ type
     # Returns true (1) if the function was called as a constructor via "new".
     is_constructor*: proc(self: ptr cef_v8stack_frame): cint {.cef_callback.}
 
-    
+
 # Register a new V8 extension with the specified JavaScript extension code and
 # handler. Functions implemented by the handler are prototyped using the
 # keyword 'native'. The calling of a native function is restricted to the scope
@@ -477,7 +477,7 @@ type
 
 proc cef_register_extension*(extension_name: ptr cef_string,
   javascript_code: ptr cef_string, handler: ptr cef_v8handler): cint {.cef_import.}
-    
+
 # Returns the current (top) context object in the V8 context stack.
 proc cef_v8context_get_current_context*(): ptr cef_v8context {.cef_import.}
 
@@ -535,7 +535,7 @@ proc cef_v8value_create_array*(length: cint): ptr cef_v8value {.cef_import.}
 # enter() and exit() on a stored cef_v8context_t reference.
 proc cef_v8value_create_function*(name: ptr cef_string,
     handler: ptr cef_v8handler): ptr cef_v8value {.cef_import.}
-    
+
 # Returns the stack trace for the currently active context. |frame_limit| is
 # the maximum number of frames that will be captured.
 proc cef_v8stack_trace_get_current*(frame_limit: cint): ptr cef_v8stack_trace {.cef_import.}

@@ -58,7 +58,7 @@ type
   cef_settings* = object
     # Size of this structure.
     size*: csize
-  
+
     # Set to true (1) to use a single process for the browser and renderer. This
     # run mode is not officially supported by Chromium and is less stable than
     # the multi-process default. Also configurable using the "single-process"
@@ -81,7 +81,7 @@ type
     # called from your application message loop. This option is only supported on
     # Windows.
     multi_threaded_message_loop*: cint
-  
+
     # Set to true (1) to enable windowless (off-screen) rendering support. Do not
     # enable this value if the application does not use windowless rendering as
     # it may reduce rendering performance on some systems.
@@ -118,7 +118,7 @@ type
     # individual CefRequestContext instances via the
     # CefRequestContextSettings.persist_session_cookies value.
     persist_session_cookies*: cint
-  
+
     # To persist user preferences as a JSON file in the cache path directory set
     # this value to true (1). A |cache_path| value must also be specified
     # to enable this feature. Also configurable using the
@@ -198,7 +198,7 @@ type
     # OnUncaughtException() will not be called. Also configurable using the
     # "uncaught-exception-stack-size" command-line switch.
     uncaught_exception_stack_size*: cint
-  
+
     # By default CEF V8 references will be invalidated (the IsValid() method will
     # return false) after the owning context has been released. This reduces the
     # need for external record keeping and avoids crashes due to the use of V8
@@ -233,7 +233,7 @@ type
     # value will be used. The alpha component must greater than 0 to enable use
     # of the background color but will be otherwise ignored.
     background_color*: cef_color
-  
+
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. May be overridden on a
     # per-browser basis using the CefBrowserSettings.accept_language_list value.
@@ -247,7 +247,7 @@ type
   cef_request_context_settings* = object
     # Size of this structure.
     size*: csize
-  
+
     # The location where cache data will be stored on disk. If empty then
     # browsers will be created in "incognito mode" where in-memory caches are
     # used for storage and no data is persisted to disk. HTML5 databases such as
@@ -255,7 +255,7 @@ type
     # specified. To share the global browser cache and related configuration set
     # this value to match the CefSettings.cache_path value.
     cache_path*: cef_string
-      
+
     # To persist session cookies (cookies without an expiry date or validity
     # interval) by default when using the global cookie manager set this value to
     # true (1). Session cookies are generally intended to be transient and most
@@ -263,13 +263,13 @@ type
     # CefSettings.persist_session_cookies value. This value will be ignored if
     # |cache_path| is empty or if it matches the CefSettings.cache_path value.
     persist_session_cookies*: cint
-      
+
     # To persist user preferences as a JSON file in the cache path directory set
     # this value to true (1). Can be set globally using the
     # CefSettings.persist_user_preferences value. This value will be ignored if
     # |cache_path| is empty or if it matches the CefSettings.cache_path value.
     persist_user_preferences*: cint
-      
+
     # Set to true (1) to ignore errors related to invalid SSL certificates.
     # Enabling this setting can lead to potential security vulnerabilities like
     # "man in the middle" attacks. Applications that load content from the
@@ -277,7 +277,7 @@ type
     # CefSettings.ignore_certificate_errors value. This value will be ignored if
     # |cache_path| matches the CefSettings.cache_path value.
     ignore_certificate_errors*: cint
-      
+
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. Can be set globally
     # using the CefSettings.accept_language_list value or overridden on a per-
@@ -293,16 +293,16 @@ type
   cef_browser_settings* = object
     # Size of this structure.
     size*: csize
-  
+
     # The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
     # will be called for a windowless browser. The actual fps may be lower if
     # the browser cannot generate frames at the requested rate. The minimum
     # value is 1 and the maximum value is 60 (default 30). This value can also be
     # changed dynamically via CefBrowserHost::SetWindowlessFrameRate.
     windowless_frame_rate*: cint
-  
+
     # The below values map to WebPreferences settings.
-      
+
     # Font settings.
     standard_font_family*: cef_string
     fixed_font_family*: cef_string
@@ -314,105 +314,105 @@ type
     default_fixed_font_size*: cint
     minimum_font_size*:cint
     minimum_logical_font_size*:cint
-      
+
     # Default encoding for Web content. If empty "ISO-8859-1" will be used. Also
     # configurable using the "default-encoding" command-line switch.
     default_encoding*: cef_string
-  
+
     # Controls the loading of fonts from remote sources. Also configurable using
     # the "disable-remote-fonts" command-line switch.
     remote_fonts*: cef_state
-      
+
     # Controls whether JavaScript can be executed. Also configurable using the
     # "disable-javascript" command-line switch.
     javascript*: cef_state
-      
+
     # Controls whether JavaScript can be used for opening windows. Also
     # configurable using the "disable-javascript-open-windows" command-line
     # switch.
     javascript_open_windows*: cef_state
-      
+
     # Controls whether JavaScript can be used to close windows that were not
     # opened via JavaScript. JavaScript can still be used to close windows that
     # were opened via JavaScript or that have no back/forward history. Also
     # configurable using the "disable-javascript-close-windows" command-line
     # switch.
     javascript_close_windows*: cef_state
-      
+
     # Controls whether JavaScript can access the clipboard. Also configurable
     # using the "disable-javascript-access-clipboard" command-line switch.
     javascript_access_clipboard*: cef_state
-      
+
     # Controls whether DOM pasting is supported in the editor via
     # execCommand("paste"). The |javascript_access_clipboard| setting must also
     # be enabled. Also configurable using the "disable-javascript-dom-paste"
     # command-line switch.
     javascript_dom_paste*: cef_state
-      
+
     # Controls whether the caret position will be drawn. Also configurable using
     # the "enable-caret-browsing" command-line switch.
     caret_browsing*: cef_state
-      
+
     # Controls whether any plugins will be loaded. Also configurable using the
     # "disable-plugins" command-line switch.
     plugins*: cef_state
-      
+
     # Controls whether file URLs will have access to all URLs. Also configurable
     # using the "allow-universal-access-from-files" command-line switch.
     universal_access_from_file_urls*: cef_state
-      
+
     # Controls whether file URLs will have access to other file URLs. Also
     # configurable using the "allow-access-from-files" command-line switch.
     file_access_from_file_urls*: cef_state
-      
+
     # Controls whether web security restrictions (same-origin policy) will be
     # enforced. Disabling this setting is not recommend as it will allow risky
     # security behavior such as cross-site scripting (XSS). Also configurable
     # using the "disable-web-security" command-line switch.
     web_security*: cef_state
-      
+
     # Controls whether image URLs will be loaded from the network. A cached image
     # will still be rendered if requested. Also configurable using the
     # "disable-image-loading" command-line switch.
     image_loading*: cef_state
-      
+
     # Controls whether standalone images will be shrunk to fit the page. Also
     # configurable using the "image-shrink-standalone-to-fit" command-line
     # switch.
     image_shrink_standalone_to_fit*: cef_state
-      
+
     # Controls whether text areas can be resized. Also configurable using the
     # "disable-text-area-resize" command-line switch.
     text_area_resize*: cef_state
-      
+
     # Controls whether the tab key can advance focus to links. Also configurable
     # using the "disable-tab-to-links" command-line switch.
     tab_to_links*: cef_state
-      
+
     # Controls whether local storage can be used. Also configurable using the
     # "disable-local-storage" command-line switch.
     local_storage*: cef_state
-      
+
     # Controls whether databases can be used. Also configurable using the
     # "disable-databases" command-line switch.
     databases*: cef_state
-      
+
     # Controls whether the application cache can be used. Also configurable using
     # the "disable-application-cache" command-line switch.
     application_cache*: cef_state
-      
+
     # Controls whether WebGL can be used. Note that WebGL requires hardware
     # support and may not work on all systems even when enabled. Also
     # configurable using the "disable-webgl" command-line switch.
     webgl*: cef_state
-      
+
     # Opaque background color used for the browser before a document is loaded
     # and when no document color is specified. By default the background color
     # will be the same as CefSettings.background_color. Only the RGB compontents
     # of the specified value will be used. The alpha component must greater than
     # 0 to enable use of the background color but will be otherwise ignored.
     background_color*: cef_color
-      
+
     # Comma delimited ordered list of language codes without any whitespace that
     # will be used in the "Accept-Language" HTTP header. May be set globally
     # using the CefBrowserSettings.accept_language_list value. If both values are
@@ -423,10 +423,10 @@ type
   cef_return_value* = enum
     # Cancel immediately.
     RV_CANCEL = 0,
-  
+
     # Continue immediately.
     RV_CONTINUE,
-  
+
     # Continue asynchronously (usually via a callback).
     RV_CONTINUE_ASYNC,
 
@@ -434,32 +434,32 @@ type
   cef_urlparts* = object
     # The complete URL specification.
     spec*: cef_string
-  
+
     # Scheme component not including the colon (e.g., "http").
     scheme*: cef_string
-  
+
     # User name component.
     username*: cef_string
-      
+
     # Password component.
     password*: cef_string
-  
+
     # Host component. This may be a hostname, an IPv4 address or an IPv6 literal
     # surrounded by square brackets (e.g., "[2001:db8::1]").
     host*: cef_string
-  
+
     # Port number component.
     port*: cef_string
-  
+
     # Origin contains just the scheme, host, and port from a URL. Equivalent to
     # clearing any username and password, replacing the path with a slash, and
     # clearing everything after that. This value will be empty for non-standard
     # URLs.
     origin*: cef_string
-      
+
     # Path component including the first slash following the host.
     path*: cef_string
-  
+
     # Query string component (i.e., everything following the '?').
     query*: cef_string
 
@@ -467,33 +467,33 @@ type
   cef_cookie* = object
     # The cookie name.
     name*: cef_string
-    
+
     # The cookie value.
     value*: cef_string
-    
+
     # If |domain| is empty a host cookie will be created instead of a domain
     # cookie. Domain cookies are stored with a leading "." and are visible to
     # sub-domains whereas host cookies are not.
     domain*: cef_string
-    
+
     # If |path| is non-empty only URLs at or below the path will get the cookie
     # value.
     path*: cef_string
-    
+
     # If |secure| is true the cookie will only be sent for HTTPS requests.
     secure*: cint
-    
+
     # If |httponly| is true the cookie will only be sent for HTTP requests.
     httponly*: cint
-    
+
     # The cookie creation date. This is automatically populated by the system on
     # cookie creation.
     creation*: cef_time
-  
+
     # The cookie last access date. This is automatically populated by the system
     # on access.
     last_access*: cef_time
-  
+
     # The cookie expiration date is only valid if |has_expires| is true.
     has_expires*: cint
     expires*: cef_time
@@ -519,7 +519,7 @@ type
 
     # Directory containing PK_FILE_MODULE.
     PK_DIR_MODULE,
-  
+
     # Temporary directory.
     PK_DIR_TEMP,
 
@@ -604,7 +604,7 @@ type
 const
   ERR_CERT_END* = ERR_CERT_VALIDITY_TOO_LONG
   ERR_CERT_BEGIN* = ERR_CERT_COMMON_NAME_INVALID
-  
+
 type
   # Supported certificate status code values. See net\cert\cert_status_flags.h
   # for more information. CERT_STATUS_NONE is new in CEF because we use an
@@ -627,7 +627,7 @@ type
     CERT_STATUS_PINNED_KEY_MISSING = 1 shl 13,
     CERT_STATUS_NAME_CONSTRAINT_VIOLATION = 1 shl 14,
     CERT_STATUS_VALIDITY_TOO_LONG = 1 shl 15,
-  
+
     # Bits 16 to 31 are for non-error statuses.
     CERT_STATUS_IS_EV = 1 shl 16,
     CERT_STATUS_REV_CHECKING_ENABLED = 1 shl 17,
@@ -687,13 +687,13 @@ type
   cef_resource_type* = enum
     # Top level page.
     RT_MAIN_FRAME = 0,
-  
+
     # Frame or iframe.
     RT_SUB_FRAME,
 
     # CSS stylesheet.
     RT_STYLESHEET,
-  
+
     # External script.
     RT_SCRIPT,
 
@@ -718,10 +718,10 @@ type
 
     # Main resource of a shared worker.
     RT_SHARED_WORKER,
-  
+
     # Explicitly requested prefetch.
     RT_PREFETCH,
-    
+
     # Favicon.
     RT_FAVICON,
 
@@ -730,13 +730,13 @@ type
 
     # A request for a <ping>
     RT_PING,
-  
+
     # Main resource of a service worker.
     RT_SERVICE_WORKER,
 
     # A report of Content Security Policy violations.
     RT_CSP_REPORT,
- 
+
     # A resource that a plugin requested.
     RT_PLUGIN_RESOURCE,
 
@@ -759,7 +759,7 @@ type
     # The user may not even realize the content in these pages is a separate
     # frame, so may not care about the URL.
     TT_AUTO_SUBFRAME = 3,
-  
+
     # Source is a subframe navigation explicitly requested by the user that will
     # generate new navigation entries in the back/forward list. These are
     # probably more important than frames that were automatically loaded in
@@ -783,28 +783,28 @@ type
     # Qualifiers.
     # Any of the core values above can be augmented by one or more qualifiers.
     # These qualifiers further define the transition.
-  
+
     # Attempted to visit a URL but was blocked.
     TT_BLOCKED_FLAG = 0x00800000,
 
     # Used the Forward or Back function to navigate among browsing history.
     TT_FORWARD_BACK_FLAG = 0x01000000,
-  
+
     # The beginning of a navigation chain.
     TT_CHAIN_START_FLAG = 0x10000000,
 
     # The last transition in a redirect chain.
     TT_CHAIN_END_FLAG = 0x20000000,
-  
+
     # Redirects caused by JavaScript or a meta refresh tag on the page.
     TT_CLIENT_REDIRECT_FLAG = 0x40000000,
 
     # Redirects sent from the server by HTTP headers.
     TT_SERVER_REDIRECT_FLAG = 0x80000000,
-  
+
     # Used to test whether a transition involves a redirect.
     TT_IS_REDIRECT_MASK = 0xC0000000,
-  
+
     # General mask defining the bits used for the qualifiers.
     TT_QUALIFIER_MASK = 0xFFFFFF00,
 
@@ -812,7 +812,7 @@ type
   cef_urlrequest_flags* = enum
     # Default behavior.
     UR_FLAG_NONE                      = 0,
-  
+
     # If set the cache will be skipped when handling the request.
     UR_FLAG_SKIP_CACHE                = 1 shl 0,
 
@@ -825,7 +825,7 @@ type
 
     # If set the CefURLRequestClient::OnDownloadData method will not be called.
     UR_FLAG_NO_DOWNLOAD_DATA          = 1 shl 6,
-  
+
     # If set 5XX redirect errors will be propagated to the observer instead of
     # automatically re-tried. This currently only applies for requests
     # originated in the browser process.
@@ -835,7 +835,7 @@ type
   cef_urlrequest_status* = enum
     # Unknown status.
     UR_UNKNOWN = 0,
-  
+
     # Request succeeded.
     UR_SUCCESS,
 
@@ -845,7 +845,7 @@ type
 
     # Request was canceled programatically.
     UR_CANCELED,
-  
+
     # Request failed for some reason.
     UR_FAILED,
 
@@ -870,7 +870,7 @@ type
   cef_draggable_region* = object
     # Bounds of the region.
     bounds*: cef_rect
-  
+
     # True (1) this this region is draggable and false (0) otherwise.
     draggable*: cint
 
@@ -884,7 +884,7 @@ type
   # Existing thread IDs.
   cef_thread_id* = enum
     # BROWSER PROCESS THREADS -- Only available in the browser process.
-  
+
     # The main thread in the browser. This will be the same as the main
     # application thread if CefInitialize() is called with a
     # CefSettings.multi_threaded_message_loop value of false.
@@ -902,15 +902,15 @@ type
 
     # Used to launch and terminate browser processes.
     TID_PROCESS_LAUNCHER,
-  
+
     # Used to handle slow HTTP cache operations.
     TID_CACHE,
-  
+
     # Used to process IPC and network messages.
     TID_IO,
 
     # RENDER PROCESS THREADS -- Only available in the render process.
-  
+
     # The main thread in the renderer. Used for all WebKit and V8 interaction.
     TID_RENDERER,
 
@@ -942,7 +942,7 @@ type
 
     # The screen depth in bits per pixel.
     depth*: cint
-  
+
     # The bits per color component. This assumes that the colors are balanced
     # equally.
     depth_per_component*: cint
@@ -1019,7 +1019,7 @@ type
 
 const
   MENU_ID_SPELLCHECK_SUGGESTION_LAST* = MENU_ID_SPELLCHECK_SUGGESTION_4
-  
+
 type
   # Mouse button types.
   cef_mouse_button_type* = enum
@@ -1031,7 +1031,7 @@ type
   cef_mouse_event* = object
     # X coordinate relative to the left side of the view.
     x*: cint
- 
+
     # Y coordinate relative to the top side of the view.
     y*: cint
 
@@ -1074,22 +1074,22 @@ type
   cef_context_menu_type_flags* = enum
     # No node is selected.
     CM_TYPEFLAG_NONE        = 0,
-  
+
     # The top page is selected.
     CM_TYPEFLAG_PAGE        = 1 shl 0,
-  
+
     # A subframe page is selected.
     CM_TYPEFLAG_FRAME       = 1 shl 1,
-  
+
     # A link is selected.
     CM_TYPEFLAG_LINK        = 1 shl 2,
-  
+
     # A media node is selected.
     CM_TYPEFLAG_MEDIA       = 1 shl 3,
-  
+
     # There is a textual or mixed selection that is selected.
     CM_TYPEFLAG_SELECTION   = 1 shl 4,
-  
+
     # An editable element is selected.
     CM_TYPEFLAG_EDITABLE    = 1 shl 5,
 
@@ -1132,7 +1132,7 @@ type
   cef_key_event_type* = enum
     # Notification that a key transitioned from "up" to "down".
     KEYEVENT_RAWKEYDOWN = 0,
- 
+
     # Notification that a key was pressed. This does not necessarily correspond
     # to a character depending on the key and language. Use KEYEVENT_CHAR for
     # character input.
@@ -1150,7 +1150,7 @@ type
   cef_key_event* = object
     # The type of keyboard event.
     key_event_type*: cef_key_event_type
-  
+
     # Bit flags describing any pressed modifier keys. See
     # cef_event_flags_t for values.
     modifiers*: uint32
@@ -1160,7 +1160,7 @@ type
     # Windows) and sometimes it's determined using a mapping function. See
     # WebCore/platform/chromium/KeyboardCodes.h for the list of values.
     windows_key_code*: cint
-  
+
     # The actual key code genenerated by the platform.
     native_key_code*: cint
 
@@ -1292,17 +1292,17 @@ type
   cef_file_dialog_mode* = enum
     # Requires that the file exists before allowing the user to pick it.
     FILE_DIALOG_OPEN = 0,
-    
+
     # Like Open, but allows picking multiple files to open.
     FILE_DIALOG_OPEN_MULTIPLE,
-  
+
     # Like Open, but selects a folder to open.
     FILE_DIALOG_OPEN_FOLDER,
-  
+
     # Allows picking a nonexistent file, and prompts to overwrite if the file
     # already exists.
     FILE_DIALOG_SAVE,
-  
+
     # General mask defining the bits used for the type values.
     FILE_DIALOG_TYPE_MASK = 0xFF,
 
@@ -1330,32 +1330,32 @@ type
   cef_geoposition* = object
     # Latitude in decimal degrees north (WGS84 coordinate frame).
     latitude*: cdouble
-  
+
     # Longitude in decimal degrees west (WGS84 coordinate frame).
     longitude*: cdouble
-  
+
     # Altitude in meters (above WGS84 datum).
     altitude*: cdouble
-  
+
     # Accuracy of horizontal position in meters.
     accuracy*: cdouble
-  
+
     # Accuracy of altitude in meters.
     altitude_accuracy*: cdouble
-  
+
     # Heading in decimal degrees clockwise from true north.
     heading*: cdouble
-  
+
     # Horizontal component of device velocity in meters per second.
     speed*: cdouble
-  
+
     # Time of position measurement in milliseconds since Epoch in UTC time. This
     # is taken from the host computer's system clock.
     timestamp*: cef_time
-  
+
     # Error code, see enum above.
     error_code*: cef_geoposition_error_code
-  
+
     # Human-readable error message.
     error_message*: cef_string
 
@@ -1475,7 +1475,7 @@ type
     # generating final output like filenames for URLs where we won't be
     # interpreting as a URL and want to do as much unescaping as possible.
     UU_URL_SPECIAL_CHARS = 4
-  
+
     # Unescapes control characters such as %01. This INCLUDES NULLs. This is
     # used for rare cases such as data: URL decoding where the result is binary
     # data. This flag also unescapes BiDi control characters.
@@ -1512,7 +1512,7 @@ type
   cef_json_writer_options* = enum
     # Default behavior.
     JSON_WRITER_DEFAULT = 0
-  
+
     # This option instructs the writer that if a Binary value is encountered,
     # the value (and key if within a dictionary) will be omitted from the
     # output, and success will be returned. Otherwise, if a binary value is
@@ -1534,13 +1534,13 @@ type
   cef_pdf_print_margin_type* = enum
     # Default margins.
     PDF_PRINT_MARGIN_DEFAULT
-  
+
     # No margins.
     PDF_PRINT_MARGIN_NONE
 
     # Minimum margins.
     PDF_PRINT_MARGIN_MINIMUM
-  
+
     # Custom margins using the |margin_*| values from cef_pdf_print_settings_t.
     PDF_PRINT_MARGIN_CUSTOM
 
@@ -1565,7 +1565,7 @@ type
     margin_right*: cdouble
     margin_bottom*: cdouble
     margin_left*: cdouble
-  
+
     # Margin type.
     margin_type*: cef_pdf_print_margin_type
 
@@ -1602,14 +1602,14 @@ type
   cef_plugin_policy* = enum
     # Allow the content.
     PLUGIN_POLICY_ALLOW
-  
+
     # Allow important content and block unimportant content based on heuristics.
     # The user can manually load blocked content.
     PLUGIN_POLICY_DETECT_IMPORTANT
 
     # Block the content. The user can manually load blocked content.
     PLUGIN_POLICY_BLOCK
-  
+
     # Disable the content. The user cannot load disabled content.
     PLUGIN_POLICY_DISABLE
 
@@ -1631,13 +1631,13 @@ type
 
     # Never send the Referrer value.
     REFERRER_POLICY_NEVER
-  
+
     # Only send the origin component of the Referrer value.
     REFERRER_POLICY_ORIGIN
 
     # When navigating cross-origin only send the origin component of the Referrer
     # value. Otherwise, send the complete Referrer value.
-  
+
     REFERRER_POLICY_ORIGIN_WHEN_CROSS_ORIGIN
 
   # Return values for CefResponseFilter::Filter().
@@ -1649,6 +1649,6 @@ type
     # Some or all of the pre-filter data was read successfully and all available
     # filtered output has been written.
     RESPONSE_FILTER_DONE
- 
+
     # An error occurred during filtering.
     RESPONSE_FILTER_ERROR

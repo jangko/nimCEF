@@ -11,20 +11,20 @@ import nc_life_span_handler, nc_resource_handler
 type
   # Callback structure used for asynchronous continuation of url requests.
   NCRequestCallback* = ptr cef_request_callback
-  
+
   # Callback structure for asynchronous continuation of file dialog requests.
   NCFileDialogCallback* = ptr cef_file_dialog_callback
-  
+
   # Callback structure used to asynchronously continue a download.
   NCBeforeDownloadCallback* = ptr cef_before_download_callback
-  
+
   # Callback structure used to asynchronously cancel a download.
   NCDownloadItemCallback* = ptr cef_download_item_callback
-  
+
   # Callback structure used for asynchronous continuation of geolocation
   # permission requests.
   NCGeolocationCallback* = ptr cef_geolocation_callback
-    
+
   # Callback structure used for asynchronous continuation of JavaScript dialog
   # requests.
   NCJsDialogCallback* = ptr cef_jsdialog_callback
@@ -47,11 +47,11 @@ proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_pat
   let clist = to_cef(file_paths)
   self.cont(self, selected_accept_filter.cint, clist)
   nc_free(clist)
-  
+
 # Cancel the file selection.
 proc Cancel*(self: NCFileDialogCallback) =
   self.cancel(self)
-    
+
 # Call to continue the download. Set |download_path| to the full file path
 # for the download including the file name or leave blank to use the
 # suggested name and the default temp directory. Set |show_dialog| to true
@@ -64,11 +64,11 @@ proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialo
 # Call to cancel the download.
 proc Cancel*(self: NCDownloadItemCallback) =
   self.cancel(self)
-  
+
 # Call to pause the download.
 proc Pause*(self: NCDownloadItemCallback) =
   self.pause(self)
-  
+
 # Call to resume the download.
 proc Resume*(self: NCDownloadItemCallback) =
   self.resume(self)
@@ -83,7 +83,7 @@ proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
   let cinput = to_cef(user_input)
   self.cont(self, success.cint, cinput)
   nc_free(cinput)
-  
+
 #--Client Handler
 # Called when a new message is received from a different process. Return true
 # (1) if the message was handled or false (0) otherwise. Do not keep a

@@ -4,10 +4,10 @@ import nc_util, nc_types, nc_value
 type
   # Structure representing the issuer or subject field of an X.509 certificate.
   NCSslCertPrincipal* = ptr cef_sslcert_principal
-    
+
   # Structure representing SSL information.
   NCSslInfo* = ptr cef_sslinfo
-    
+
 
 # Returns a name that can be used to represent the issuer.  It tries in this
 # order: CN, O and OU and returns the first non-NULL one found.
@@ -52,13 +52,13 @@ proc GetOrganizationUnitNames*(self: NCSslCertPrincipal): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_organization_unit_names(self, clist)
   result = to_nim(clist)
-  
+
 # Retrieve the list of domain components.
 proc GetDomainComponents*(self: NCSslCertPrincipal): seq[string] =
   var clist = cef_string_list_alloc()
   self.get_domain_components(self, clist)
   result = to_nim(clist)
-  
+
 # Returns a bitmask containing any and all problems verifying the server
 # certificate.
 proc GetCertStatus*(self: NCSslInfo): cef_cert_status =

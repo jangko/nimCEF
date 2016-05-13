@@ -19,10 +19,10 @@ type
   # cef_types.h list the common CEF threads. Task runners are also available for
   # other CEF threads as appropriate (for example, V8 WebWorker threads).
   NCTaskRunner* = ptr cef_task_runner
-  
+
 method ExecuteTask*(self: NCTask) {.base.} =
   discard
-  
+
 proc execute_task(self: ptr cef_task) {.cef_callback.} =
   type_to_type(NCTask, self).ExecuteTask()
 
@@ -32,7 +32,7 @@ proc initialize_task(handler: ptr cef_task) =
 
 proc GetHandler*(self: NCTask): ptr cef_task {.inline.} =
   result = self.handler.addr
-  
+
 proc makeTask*(T: typedesc): auto =
   result = new(T)
   initialize_task(result.handler.addr)
@@ -50,7 +50,7 @@ proc BelongsToCurrentThread*(self: NCTaskRunner): bool =
 # Returns true (1) if this task runner is for the specified CEF thread.
 proc BelongsToThread*(self: NCTaskRunner, threadId: cef_thread_id): bool =
   result = self.belongs_to_thread(self, threadId) == 1.cint
-  
+
 # Post a task for execution on the thread associated with this task runner.
 # Execution will occur asynchronously.
 proc PostTask*(self: NCTaskRunner, task: NCTask): bool =
@@ -93,15 +93,15 @@ proc NCPostTask*(threadId: cef_thread_id, task: NCTask): bool =
 proc NCPostDelayedTask*(threadId: cef_thread_id, task: NCTask, delay_ms: int64): bool =
   add_ref(task.GetHandler())
   result = cef_post_delayed_task(threadId, task.GetHandler(), delay_ms) == 1.cint
-  
+
 template NC_REQUIRE_UI_THREAD*(): expr =
   doAssert(NCCurrentlyOn(TID_UI))
-  
+
 template NC_REQUIRE_IO_THREAD*(): expr =
   doAssert(NCCurrentlyOn(TID_IO))
-  
+
 template NC_REQUIRE_FILE_THREAD*(): expr =
   doAssert(NCCurrentlyOn(TID_FILE))
-  
+
 template NC_REQUIRE_RENDERER_THREAD*(): expr =
   doAssert(NCCurrentlyOn(TID_RENDERER))

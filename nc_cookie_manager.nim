@@ -7,32 +7,32 @@ type
   # called on any thread unless otherwise indicated.
   NCCookieManager* = ref object
     handler: ptr cef_cookie_manager
-    
+
   # Structure to implement for visiting cookie values. The functions of this
   # structure will always be called on the IO thread.
   NCCookieVisitor* = ref object of RootObj
     handler: cef_cookie_visitor
-  
+
   # Structure to implement to be notified of asynchronous completion via
   # cef_cookie_manager_t::set_cookie().
   NCSetCookieCallback* = ref object of RootObj
     handler: cef_set_cookie_callback
-  
+
   # Structure to implement to be notified of asynchronous completion via
   # cef_cookie_manager_t::delete_cookies().
   NCDeleteCookiesCallback* = ref object of RootObj
     handler: cef_delete_cookies_callback
- 
+
 import impl/nc_util_impl
 
 proc GetHandler*(self: NCCookieManager): ptr cef_cookie_manager {.inline.} =
   result = self.handler
-  
+
 proc nc_wrap*(handler: ptr cef_cookie_manager): NCCookieManager =
   new(result, nc_finalizer[NCCookieManager])
   result.handler = handler
   add_ref(handler)
-  
+
 proc GetHandler*(self: NCCookieVisitor): ptr cef_cookie_visitor {.inline.} =
   result = self.handler.addr
 
@@ -41,7 +41,7 @@ proc GetHandler*(self: NCSetCookieCallback): ptr cef_set_cookie_callback {.inlin
 
 proc GetHandler*(self: NCDeleteCookiesCallback): ptr cef_delete_cookies_callback {.inline.} =
   result = self.handler.addr
-  
+
 # Set the schemes supported by this manager. The default schemes ("http",
 # "https", "ws" and "wss") will always be supported. If |callback| is non-
 # NULL it will be executed asnychronously on the IO thread after the change
@@ -51,7 +51,7 @@ proc SetSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback:
   var cscheme = to_cef(schemes)
   self.handler.set_supported_schemes(self.handler, cscheme, callback.GetHandler())
   nc_free(cscheme)
-  
+
 # Visit all cookies on the IO thread. The returned cookies are ordered by
 # longest path, then by earliest creation date. Returns false (0) if cookies
 # cannot be accessed.
@@ -69,7 +69,7 @@ proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool,
   let curl = to_cef(url)
   result = self.handler.visit_url_cookies(self.handler, curl, includeHttpOnly.cint, visitor.GetHandler()) == 1.cint
   nc_free(curl)
-  
+
 # Sets a cookie given a valid URL and explicit user-provided cookie
 # attributes. This function expects each attribute to be well-formed. It will
 # check for disallowed characters (e.g. the ';' character is disallowed
@@ -85,7 +85,7 @@ proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: 
   result = self.handler.set_cookie(self.handler, curl, ccookie.addr, callback.GetHandler()) == 1.cint
   nc_free(curl)
   ccookie.clear()
-  
+
 # Delete all cookies that match the specified parameters. If both |url| and
 # |cookie_name| values are specified all host and domain cookies matching
 # both will be deleted. If only |url| is specified all host cookies (but not
@@ -102,7 +102,7 @@ proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string,  callback: 
   result = self.handler.delete_cookies(self.handler, curl, cname, callback.GetHandler()) == 1.cint
   nc_free(curl)
   nc_free(cname)
-  
+
 # Sets the directory path that will be used for storing cookie data. If
 # |path| is NULL data will be stored in memory only. Otherwise, data will be
 # stored at the specified |path|. To persist session cookies (cookies without
@@ -117,7 +117,7 @@ proc SetStoragePath*(self: NCCookieManager, path: string, persist_session_cookie
   let cpath = to_cef(path)
   result = self.handler.set_storage_path(self.handler, cpath, persist_session_cookies.cint, callback.GetHandler()) == 1.cint
   nc_free(cpath)
-  
+
 # Flush the backing store (if any) to disk. If |callback| is non-NULL it will
 # be executed asnychronously on the IO thread after the flush is complete.
 # Returns false (0) if cookies cannot be accessed.
@@ -133,7 +133,7 @@ proc FlushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
 # called if no cookies are found.
 method CookieVisit*(self: NCCookieVisitor, cookie: NCCookie, count, total: int, deleteCookie: var bool): bool {.base.} =
   result = false
-    
+
 proc cookie_visit(self: ptr cef_cookie_visitor, cookie: ptr cef_cookie, count, total: cint, deleteCookie: var cint): cint {.cef_callback.} =
   var handler = type_to_type(NCCookieVisitor, self)
   var delCookie = deleteCookie == 1.cint
@@ -143,11 +143,11 @@ proc cookie_visit(self: ptr cef_cookie_visitor, cookie: ptr cef_cookie, count, t
 proc initialize_cookie_visitor(handler: ptr cef_cookie_visitor) =
   init_base(handler)
   handler.visit = cookie_visit
-  
+
 proc makeNCCookieVisitor*(T: typedesc): auto =
   result = new(T)
   initialize_cookie_visitor(result.GetHandler())
-  
+
 # Method that will be called upon completion. |success| will be true (1) if
 # the cookie was set successfully.
 method OnSetCookieComplete*(self: NCSetCookieCallback, success: bool) {.base.} =
@@ -160,7 +160,7 @@ proc on_set_cookie_complete(self: ptr cef_set_cookie_callback, success: cint) {.
 proc initialize_set_cookie_callback(handler: ptr cef_set_cookie_callback) =
   init_base(handler)
   handler.on_complete = on_set_cookie_complete
-  
+
 proc makeNCSetCookieCallback*(T: typedesc): auto =
   result = new(T)
   initialize_set_cookie_callback(result.GetHandler())
@@ -177,7 +177,7 @@ proc on_delete_cookies_complete(self: ptr cef_delete_cookies_callback, num_delet
 proc initialize_delete_cookies_callback(handler: ptr cef_delete_cookies_callback) =
   init_base(handler)
   handler.on_complete = on_delete_cookies_complete
-  
+
 proc makeNCDeleteCookiesCallback*(T: typedesc): auto =
   result = new(T)
   initialize_delete_cookies_callback(result.GetHandler())

@@ -10,7 +10,7 @@ type
   cef_text_input_context* = distinct pointer
   cef_event_handle* = ptr MSG
   cef_cursor_handle* = HCURSOR
-  
+
   # Structure representing CefExecuteProcess arguments.
   cef_main_args* = object
     instance*: HINST
@@ -24,7 +24,7 @@ type
     x*, y*, width*, height*: cint
     parent_window*: cef_window_handle
     menu*: HMENU
-  
+
     # Set to true (1) to create the browser using windowless (off-screen)
     # rendering. No window will be created for the browser and all rendering will
     # occur via the CefRenderHandler interface. The |parent_window| value will be

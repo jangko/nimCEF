@@ -24,7 +24,7 @@ type
 
     # Execute copy in this frame.
     copy*: proc(self: ptr cef_frame) {.cef_callback.}
-  
+
     # Execute paste in this frame.
     paste*: proc(self: ptr cef_frame) {.cef_callback.}
 
@@ -68,7 +68,7 @@ type
 
     # Returns true (1) if this is the main (top-level) frame.
     is_main*: proc(self: ptr cef_frame): cint {.cef_callback.}
-  
+
     # Returns true (1) if this is the focused frame.
     is_focused*: proc(self: ptr cef_frame): cint {.cef_callback.}
 
@@ -94,7 +94,7 @@ type
 
     # Returns the browser that this frame belongs to.
     get_browser*: proc(self: ptr cef_frame): ptr_cef_browser {.cef_callback.}
-  
+
     # Get the V8 context associated with the frame. This function can only be
     # called from the render process.
     get_v8context*: proc(self: ptr cef_frame): ptr cef_v8context {.cef_callback.}

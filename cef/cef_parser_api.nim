@@ -60,7 +60,7 @@ proc cef_uriencode*(text: ptr cef_string, use_plus: cint): cef_string_userfree {
 # supports further customization the decoding process.
 
 # The resulting string must be freed by calling cef_string_userfree_free*().
-proc cef_uridecode*(text: ptr cef_string, convert_to_utf8: cint, 
+proc cef_uridecode*(text: ptr cef_string, convert_to_utf8: cint,
   unescape_rule: cef_uri_unescape_rule): cef_string_userfree {.cef_import.}
 
 # Parses |string| which represents a CSS color value. If |strict| is true *(1)

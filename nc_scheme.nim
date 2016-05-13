@@ -6,7 +6,7 @@ include cef/cef_import
 type
   # Structure that manages custom scheme registrations.
   NCSchemeRegistrar* = ptr cef_scheme_registrar
-  
+
 # Register a custom scheme. This function should not be called for the built-
 # in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
 #
@@ -56,14 +56,14 @@ proc AddCustomScheme*(self: NCSchemeRegistrar, schemeName: string, isStandard, i
   let cname = to_cef(schemeName)
   result = self.add_custom_scheme(self, cname, isStandard.cint, isLocal.cint, isDisplayIsolated.cint) == 1.cint
   cef_string_userfree_free(cname)
-  
+
 # Structure that creates cef_resource_handler_t instances for handling scheme
 # requests. The functions of this structure will always be called on the IO
 # thread.
 type
   NCSchemeHandlerFactory* = ref object of RootObj
     handler: cef_scheme_handler_factory
-    
+
 # Return a new resource handler instance to handle the request or an NULL
 # reference to allow default handling of the request. |browser| and |frame|
 # will be the browser window and frame respectively that originated the
@@ -71,11 +71,11 @@ type
 # example, if the request came from cef_urlrequest_t). The |request| object
 # passed to this function will not contain cookie data.
 
-method Create*(self: NCSchemeHandlerFactory, browser: NCBrowser, 
+method Create*(self: NCSchemeHandlerFactory, browser: NCBrowser,
   frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler {.base.} =
   result = nil
 
-proc scheme_handler_factory_create(self: ptr cef_scheme_handler_factory, browser: ptr_cef_browser, 
+proc scheme_handler_factory_create(self: ptr cef_scheme_handler_factory, browser: ptr_cef_browser,
   frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
   var factory = type_to_type(NCSchemeHandlerFactory, self)
   var brow = b_to_b(browser)
@@ -87,15 +87,15 @@ proc scheme_handler_factory_create(self: ptr cef_scheme_handler_factory, browser
 proc init_scheme_handler_factory(handler: ptr cef_scheme_handler_factory) =
   init_base(handler)
   handler.create = scheme_handler_factory_create
-  
+
 proc makeNCSchemeHandlerFactory*(T: typedesc): auto =
   var factory = new(T)
   init_scheme_handler_factory(factory.handler.addr)
   result = factory
-  
+
 proc GetHandler*(self: NCSchemeHandlerFactory): ptr cef_scheme_handler_factory {.inline.} =
   result = self.handler.addr
-  
+
 # Register a scheme handler factory with the global request context. An NULL
 # |domain_name| value for a standard scheme will cause the factory to match all
 # domain names. The |domain_name| value will be ignored for non-standard

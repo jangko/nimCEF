@@ -38,7 +38,7 @@ type
   # functions of this structure will be called on the browser process IO thread.
   cef_web_plugin_unstable_callback* = object
     base*: cef_base
-  
+
     # Method that will be called for the requested plugin. |unstable| will be
     # true (1) if the plugin has reached the crash count threshold of 3 times in
     # 120 seconds.

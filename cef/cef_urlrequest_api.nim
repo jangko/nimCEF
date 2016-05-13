@@ -14,22 +14,22 @@ type
     # Returns the request object used to create this URL request. The returned
     # object is read-only and should not be modified.
     get_request*: proc(self: ptr cef_urlrequest): ptr cef_request {.cef_callback.}
-  
+
     # Returns the client.
     get_client*: proc(self: ptr cef_urlrequest): ptr cef_urlrequest_client {.cef_callback.}
-  
+
     # Returns the request status.
     get_request_status*: proc(self: ptr cef_urlrequest): cef_urlrequest_status {.cef_callback.}
-  
+
     # Returns the request error if status is UR_CANCELED or UR_FAILED_api, or 0
     # otherwise.
     get_request_error*: proc(self: ptr cef_urlrequest): cef_errorcode {.cef_callback.}
-  
+
     # Returns the response_api, or NULL if no response information is available.
     # Response information will only be available after the upload has completed.
     # The returned object is read-only and should not be modified.
     get_response*: proc(self: ptr cef_urlrequest): ptr cef_response {.cef_callback.}
-  
+
     # Cancel the request.
     cancel*: proc(self: ptr cef_urlrequest) {.cef_callback.}
 
@@ -45,27 +45,27 @@ type
     # successful or not.
     on_request_complete*: proc(self: ptr cef_urlrequest_client,
         request: ptr cef_urlrequest) {.cef_callback.}
-  
+
     # Notifies the client of upload progress. |current| denotes the number of
     # bytes sent so far and |total| is the total size of uploading data (or -1 if
     # chunked upload is enabled). This function will only be called if the
     # UR_FLAG_REPORT_UPLOAD_PROGRESS flag is set on the request.
     on_upload_progress*: proc(self: ptr cef_urlrequest_client,
         request: ptr cef_urlrequest, current, total: int64) {.cef_callback.}
-  
+
     # Notifies the client of download progress. |current| denotes the number of
     # bytes received up to the call and |total| is the expected total size of the
     # response (or -1 if not determined).
-    on_download_progress*: proc(self: ptr cef_urlrequest_client, 
+    on_download_progress*: proc(self: ptr cef_urlrequest_client,
       request: ptr cef_urlrequest, current, total: int64) {.cef_callback.}
-  
+
     # Called when some part of the response is read. |data| contains the current
     # bytes received since the last call. This function will not be called if the
     # UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request.
     on_download_data*: proc(self: ptr cef_urlrequest_client,
         request: ptr cef_urlrequest, data: pointer,
         data_length: csize) {.cef_callback.}
-  
+
     # Called on the IO thread when the browser needs credentials from the user.
     # |isProxy| indicates whether the host is a proxy server. |host| contains the
     # hostname and |port| contains the port number. Return true (1) to continue
@@ -73,11 +73,11 @@ type
     # information is available. Return false (0) to cancel the request. This
     # function will only be called for requests initiated from the browser
     # process.
-    get_auth_credentials*: proc(self: ptr cef_urlrequest_client, 
+    get_auth_credentials*: proc(self: ptr cef_urlrequest_client,
       isProxy: cint, host: ptr cef_string, port: cint, realm: ptr cef_string,
       scheme: ptr cef_string, callback: ptr cef_auth_callback): cint {.cef_callback.}
-      
-      
+
+
 # Create a new URL request. Only GET_api, POST_api, HEAD_api, DELETE and PUT request
 # functions are supported. Multiple post data elements are not supported and
 # elements of type PDE_TYPE_FILE are only supported for requests originating

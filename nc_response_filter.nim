@@ -6,10 +6,10 @@ type
   # of this structure will be called on the browser process IO thread.
   NCResponseFilter* = ref object of RootObj
     handler: cef_response_filter
-    
+
 proc GetHandler*(self: NCResponseFilter): ptr cef_response_filter {.inline.} =
   result = self.handler.addr
-  
+
 # Initialize the response filter. Will only be called a single time. The
 # filter will not be installed if this function returns false (0).
 method InitFilter*(self: NCResponseFilter): bool {.base.} =
@@ -50,12 +50,12 @@ proc filter(self: ptr cef_response_filter, data_in: pointer, data_in_size: csize
   result = handler.Filter(data_in, data_in_size.int, inRead, data_out, data_out_size.int, outWrite)
   data_in_read = inRead.csize
   data_out_written = outWrite.csize
-  
+
 proc initialize_response_filter(handler: ptr cef_response_filter) =
   init_base(handler)
   handler.init_filter = init_filter
   handler.filter = filter
-  
+
 proc makeNCResponseFilter*(T: typedesc): auto =
   result = new(T)
   initialize_response_filter(result.GetHandler())

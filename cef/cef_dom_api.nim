@@ -13,7 +13,7 @@ type
     # executed. DOM objects are only valid for the scope of this function. Do not
     # keep references to or attempt to access any DOM objects outside the scope
     # of this function.
-    
+
     visit*: proc(self: ptr cef_domvisitor,
       document: ptr cef_domdocument) {.cef_callback.}
 
@@ -34,7 +34,7 @@ type
 
     # Returns the HEAD node of an HTML document.
     get_head*: proc(self: ptr cef_domdocument): ptr cef_domnode {.cef_callback.}
-  
+
     # Returns the title of an HTML document.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_title*: proc(self: ptr cef_domdocument): cef_string_userfree {.cef_callback.}
@@ -50,14 +50,14 @@ type
 
     # Returns the selection offset within the start node.
     get_selection_start_offset*: proc(self: ptr cef_domdocument): cint {.cef_callback.}
-  
+
     # Returns the selection offset within the end node.
     get_selection_end_offset*: proc(self: ptr cef_domdocument): cint {.cef_callback.}
 
     # Returns the contents of this selection as markup.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_selection_as_markup*: proc(self: ptr cef_domdocument): cef_string_userfree {.cef_callback.}
-  
+
     # Returns the contents of this selection as text.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_selection_as_text*: proc(self: ptr cef_domdocument): cef_string_userfree {.cef_callback.}
@@ -76,7 +76,7 @@ type
   cef_domnode* = object
     # Base structure.
     base*: cef_base
-  
+
     # Returns the type for this node.
     get_type*: proc(self: ptr cef_domnode): cef_dom_node_type {.cef_callback.}
 
@@ -85,7 +85,7 @@ type
 
     # Returns true (1) if this is an element node.
     is_element*: proc(self: ptr cef_domnode): cint {.cef_callback.}
-  
+
     # Returns true (1) if this is an editable node.
     is_editable*: proc(self: ptr cef_domnode): cint {.cef_callback.}
 
@@ -129,7 +129,7 @@ type
 
     # Returns true (1) if this node has child nodes.
     has_children*: proc(self: ptr cef_domnode): cint {.cef_callback.}
-  
+
     # Return the first child node.
     get_first_child*: proc(self: ptr cef_domnode): ptr cef_domnode {.cef_callback.}
 
@@ -146,7 +146,7 @@ type
 
     # Returns true (1) if this element has an attribute named |attrName|.
     has_element_attribute*: proc(self: ptr cef_domnode, attrName: ptr cef_string): cint {.cef_callback.}
-  
+
     # Returns the element attribute named |attrName|.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_element_attribute*: proc(self: ptr cef_domnode, attrName: ptr cef_string): cef_string_userfree {.cef_callback.}

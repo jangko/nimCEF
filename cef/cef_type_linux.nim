@@ -1,11 +1,11 @@
 include cef_import
 
-const 
+const
   kNullCursorHandle* = 0
   kNullEventHandle*  = nil
   kNullWindowHandle* = 0
-  
-type  
+
+type
   cef_cursor_handle* = culong
   cef_event_handle*  = distinct pointer # XEvent*
   cef_window_handle* = culong
@@ -18,7 +18,7 @@ type
     argv*: ptr cstring
 
   # Class representing window information.
-  
+
   cef_window_info* = object
     x*: cuint
     y*: cuint
@@ -46,6 +46,6 @@ type
 
     #Pointer for the new browser window. Only used with windowed rendering.
     window*: cef_window_handle
-  
+
 proc cef_get_xdisplay*(): XDisplay {.cef_import.}
 

@@ -105,7 +105,7 @@ method OnBeforeNavigation*(self: NCApp, browser: NCBrowser, frame: NCFrame,
 method OnContextCreated*(self: NCApp, browser: NCBrowser, frame: NCFrame,
   context: NCV8Context) {.base.} =
   discard
-  
+
 #--NCAF_RENDER_PROCESS
 # Called immediately before the V8 context for a frame is released. No
 # references to the context should be kept after this function is called.
@@ -147,7 +147,7 @@ method OnBrowserProcessMessageReceived*(self: NCApp, browser: NCBrowser, source_
 method OnContextInitialized*(self: NCApp) {.base.} =
   discard
 
-#--NCAF_BROWSER_PROCESS  
+#--NCAF_BROWSER_PROCESS
 # Called before a child process is launched. Will be called on the browser
 # process UI thread when launching a render process and on the browser
 # process IO thread when launching a GPU or plugin process. Provides an
@@ -155,7 +155,7 @@ method OnContextInitialized*(self: NCApp) {.base.} =
 # reference to |command_line| outside of this function.
 method OnBeforeChildProcessLaunch*(self: NCApp, command_line: NCCommandLine) {.base.} =
   discard
-  
+
 #--NCAF_BROWSER_PROCESS
 # Called on the browser process IO thread after the main thread has been
 # created for a new render process. Provides an opportunity to specify extra
@@ -164,7 +164,7 @@ method OnBeforeChildProcessLaunch*(self: NCApp, command_line: NCCommandLine) {.b
 # process. Do not keep a reference to |extra_info| outside of this function.
 method OnRenderProcessThreadCreated*(self: NCApp, extra_info: NCListValue) {.base.} =
   discard
-  
+
 #--NCAF_BROWSER_PROCESS
 # Return the handler for printing on Linux. If a print handler is not
 # provided then printing will not be supported on the Linux platform.
@@ -199,7 +199,7 @@ method GetDataResource*(self: NCApp, resource_id: int, data: var pointer, data_s
 method GetDataResourceForScale*(self: NCApp, resource_id: int,
   scale_factor: cef_scale_factor, data: var pointer, data_size: var csize): bool {.base.} =
   result = false
-      
+
 proc GetHandler*(app: NCApp): ptr cef_app {.inline.} = app.app_handler.addr
 
 include nc_app_internal
@@ -230,7 +230,7 @@ proc makeNCApp*(T: typedesc, flags: NCAFS = {}): auto =
     app.resource_bundle_handler.container = app
     initialize_resource_bundle_handler(app.resource_bundle_handler.handler.addr)
   return app
-  
+
 # This function should be called from the application entry point function to
 # execute a secondary process. It can be used to run secondary processes from
 # the browser client executable (default behavior) or from a separate
@@ -249,11 +249,11 @@ proc NCExecuteProcess*(args: NCMainArgs, application: NCApp, windows_sandbox_inf
 # value of true (1) indicates that it succeeded and false (0) indicates that it
 # failed. The |windows_sandbox_info| parameter is only used on Windows and may
 # be NULL (see cef_sandbox_win.h for details).
-proc NCInitialize*(args: NCMainArgs, settings: NCSettings, 
+proc NCInitialize*(args: NCMainArgs, settings: NCSettings,
   application: NCApp, windows_sandbox_info: NCSandboxInfo = nil): bool =
   var csettings: cef_settings
   to_cef(settings, csettings)
-  result = cef_initialize(args.GetHandler(), csettings.addr, 
+  result = cef_initialize(args.GetHandler(), csettings.addr,
     application.GetHandler(), windows_sandbox_info.GetHandler()) == 1.cint
   clear(csettings)
 

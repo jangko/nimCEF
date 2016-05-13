@@ -45,7 +45,7 @@ type
       download_item: ptr cef_download_item,
       suggested_name: ptr cef_string,
       callback: ptr cef_before_download_callback) {.cef_callback.}
-  
+
     # Called when a download's status or progress information has been updated.
     # This may be called multiple times before and after on_before_download().
     # Execute |callback| either asynchronously or in this function to cancel the

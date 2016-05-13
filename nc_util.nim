@@ -7,7 +7,7 @@ export strtabs, cef_string_api, cef_string_list_api, cef_string_map_api, tables
 
 type
   NCStringMultiMap* = TableRef[string, seq[string]]
-  
+
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
 proc to_cef*(str: string): ptr cef_string =
@@ -31,10 +31,10 @@ proc `$`*(str: ptr cef_string): string = to_nim(str, false)
 proc `<=`*(cstr: var cef_string, str: string) =
   if str != nil:
     discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
-    
+
 template nc_free*(str: ptr cef_string) =
   if str != nil: cef_string_userfree_free(str)
-  
+
 proc to_nim*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
   result = newSeq[string](len)
@@ -89,8 +89,8 @@ proc to_nim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
       result.add($(key.addr), elem)
       cef_string_clear(key.addr)
   if doFree: cef_string_multimap_free(map)
-  
-#don't forget to call cef_string_multi_map_free  
+
+#don't forget to call cef_string_multi_map_free
 proc to_cef*(map: NCStringMultiMap): cef_string_multimap =
   let cmap = cef_string_multimap_alloc()
   for key, elem in map:
@@ -101,7 +101,7 @@ proc to_cef*(map: NCStringMultiMap): cef_string_multimap =
       cef_string_userfree_free(cval)
     cef_string_userfree_free(ckey)
   result = cmap
-  
+
 template add_ref*(elem: expr) =
   if elem != nil: elem.base.add_ref(cast[ptr cef_base](elem))
 
@@ -131,14 +131,14 @@ proc init_base*[T](elem: T) =
 
 template b_to_b*(brow: expr): expr = cast[ptr cef_browser](brow)
 
-macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =  
+macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
   if importUtil.boolVal():
     result = parseStmt "import impl/nc_util_impl, cef/" & $base & "_api"
   else:
     result = newNimNode(nnkStmtList)
-    
+
   var res = newIdentNode("result")
-  
+
   result.add quote do:
     type
       `x`* = ref object
@@ -146,10 +146,10 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
 
     proc GetHandler*(self: `x`): ptr `base` {.inline.} =
       `res` = self.handler
-    
+
     proc nc_finalizer(self: `x`) =
       release(self.handler)
-  
+
     proc nc_wrap*(handler: ptr `base`): `x` =
       new(`res`, nc_finalizer)
       `res`.handler = handler

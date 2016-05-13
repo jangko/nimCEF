@@ -4,11 +4,11 @@ import nc_util, nc_cookie_manager, nc_web_plugin
 type
   NCRequestContextHandler* = ref object of RootObj
     handler: ptr cef_request_context_handler
-    
+
   # Implement this structure to provide handler implementations. The handler
   # instance will not be released until all objects related to the context have
-  # been destroyed.  
-  nc_request_context_handler_i*[T] = object 
+  # been destroyed.
+  nc_request_context_handler_i*[T] = object
     # Called on the browser process IO thread to retrieve the cookie manager. If
     # this function returns NULL the default cookie manager retrievable via
     # cef_request_tContext::get_default_cookie_manager() will be used.
@@ -28,11 +28,11 @@ type
     # mark a plugin as disabled by setting |plugin_policy| to
     # PLUGIN_POLICY_DISABLED may be cached when |top_origin_url| is NULL. To
     # purge the plugin list cache and potentially trigger new calls to this
-    # function call cef_request_tContext::PurgePluginListCache.  
+    # function call cef_request_tContext::PurgePluginListCache.
     OnBeforePluginLoad*: proc(self: T, mime_type, plugin_url, top_origin_url: string,
       plugin_info: NCWebPluginInfo, plugin_policy: var cef_plugin_policy): bool
-      
-      
+
+
 import impl/nc_util_impl
 import cef/cef_cookie_manager_api, cef/cef_web_plugin_info_api
 include cef/cef_import
@@ -40,15 +40,15 @@ include cef/cef_import
 type
   nc_request_context_handler = object of nc_base[cef_request_context_handler, NCRequestContextHandler]
     impl: nc_request_context_handler_i[NCRequestContextHandler]
-  
+
 proc GetHandler*(self: NCRequestContextHandler): ptr cef_request_context_handler {.inline.} =
   result = self.handler
-  
+
 proc nc_wrap*(handler: ptr cef_request_context_handler): NCRequestContextHandler =
   new(result, nc_finalizer[NCRequestContextHandler])
   result.handler = handler
   add_ref(handler)
-  
+
 proc get_cookie_manager(self: ptr cef_request_context_handler): ptr cef_cookie_manager {.cef_callback.} =
   var handler = toType(nc_request_context_handler, self)
   if handler.impl.GetCookieManager != nil:
@@ -61,7 +61,7 @@ proc on_before_plugin_load(self: ptr cef_request_context_handler,
   if handler.impl.OnBeforePluginLoad != nil:
     result = handler.impl.OnBeforePluginLoad(handler.container, $mime_type, $plugin_url, $top_origin_url,
       nc_wrap(plugin_info), plugin_policy).cint
-  
+
 proc makeNCRequestContextHandler*[T](impl: nc_request_context_handler_i[T]): T =
   nc_init(nc_request_context_handler, T, impl)
   result.handler.get_cookie_manager = get_cookie_manager

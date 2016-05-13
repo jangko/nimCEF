@@ -13,7 +13,7 @@ proc initialize_gtk*() =
   gtk_init(0, NULL)
   signal(SIGINT, app_terminate_signal)
   signal(SIGTERM, app_terminate_signal)
-  
+
 proc window_destroy_signal(GtkWidget* widget, gpointer data) {.cdecl.} =
   cef_quit_message_loop()
 

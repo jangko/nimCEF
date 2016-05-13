@@ -7,7 +7,7 @@ type
   # Callback structure for cef_request_tContext::ResolveHost.
   NCResolveCallback* = ref object of RootObj
     handler: cef_resolve_callback
-    
+
   # A request context provides request handling for a set of related browser or
   # URL request objects. A request context can be specified when creating a new
   # browser via the cef_browser_host_t static factory functions or when creating
@@ -29,33 +29,33 @@ import impl/nc_util_impl
 
 proc GetHandler*(self: NCRequestContext): ptr cef_request_context {.inline.} =
   result = self.handler
-  
+
 proc nc_wrap*(handler: ptr cef_request_context): NCRequestContext =
   new(result, nc_finalizer[NCRequestContext])
   result.handler = handler
   add_ref(handler)
-  
+
 # Called after the ResolveHost request has completed. |result| will be the
 # result code. |resolved_ips| will be the list of resolved IP addresses or
 # NULL if the resolution failed.
 method OnResolveCompleted*(self: NCResolveCallback, result: cef_errorcode, resolved_ips: seq[string]) {.base.} =
   discard
-      
+
 proc on_resolve_completed(self: ptr cef_resolve_callback, result: cef_errorcode, resolved_ips: cef_string_list) {.cef_callback.} =
   var handler = type_to_type(NCResolveCallback, self)
   handler.OnResolveCompleted(result, $resolved_ips)
 
 proc GetHandler*(self: NCResolveCallback): ptr cef_resolve_callback {.inline.} =
   result = self.handler.addr
-  
+
 proc initialize_resolve_callback(handler: ptr cef_resolve_callback) =
   init_base(handler)
   handler.on_resolve_completed = on_resolve_completed
-  
+
 proc makeNCResolveCallback*(T: typedesc): auto =
   result = new(T)
   initialize_resolve_callback(result.handler.addr)
-  
+
 # Returns true (1) if this object is pointing to the same context as |that|
 # object.
 proc IsSame*(self, other: NCRequestContext): bool =
@@ -111,7 +111,7 @@ proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_n
   add_ref(factory.GetHandler())
   let cscheme = to_cef(scheme_name)
   let cdomain = to_cef(domain_name)
-  result = self.handler.register_scheme_handler_factory(self.handler, cscheme, cdomain, 
+  result = self.handler.register_scheme_handler_factory(self.handler, cscheme, cdomain,
     cast[ptr_cef_scheme_handler_factory](factory.GetHandler())) == 1.cint
   nc_free(cscheme)
   nc_free(cdomain)
@@ -216,7 +216,7 @@ proc ResolveHostCached*(self: NCRequestContext, origin: string,
   result = self.handler.resolve_host_cached(self.handler, corigin, clist)
   nc_free(corigin)
   nc_free(clist)
-  
+
 # Returns the global context object.
 proc NCRequestContextGetGlobalContext*(): NCRequestContext =
   result = nc_wrap(cef_request_context_get_global_context())

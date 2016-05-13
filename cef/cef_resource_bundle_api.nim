@@ -25,7 +25,7 @@ type
     # of valid resource ID values.
     get_data_resource*: proc(self: ptr cef_resource_bundle,
       resource_id: cint, data: ptr pointer, data_size: var csize): cint {.cef_callback.}
-  
+
     # Retrieves the contents of the specified |resource_id| nearest the scale
     # factor |scale_factor|. Use a |scale_factor| value of SCALE_FACTOR_NONE for
     # scale independent resources or call GetDataResource instead. If the value

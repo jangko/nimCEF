@@ -35,7 +35,7 @@ import cef/cef_origin_whitelist_api, nc_util, nc_types
 # This function may be called on any thread. Returns false (0) if
 # |source_origin| is invalid or the whitelist cannot be accessed.
 
-proc cef_add_cross_origin_whitelist_entry*(source_origin, target_protocol, target_domain: string, 
+proc cef_add_cross_origin_whitelist_entry*(source_origin, target_protocol, target_domain: string,
   allow_target_subdomains: bool): bool =
   let csource = to_cef(source_origin)
   let ctarget = to_cef(target_protocol)
@@ -48,7 +48,7 @@ proc cef_add_cross_origin_whitelist_entry*(source_origin, target_protocol, targe
 # Remove an entry from the cross-origin access whitelist. Returns false (0) if
 # |source_origin| is invalid or the whitelist cannot be accessed.
 
-proc NCRemoveCrossOriginWhitelistEntry*(source_origin, target_protocol, target_domain: string, 
+proc NCRemoveCrossOriginWhitelistEntry*(source_origin, target_protocol, target_domain: string,
   allow_target_subdomains: bool): bool =
   let csource = to_cef(source_origin)
   let ctarget = to_cef(target_protocol)

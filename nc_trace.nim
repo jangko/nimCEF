@@ -7,7 +7,7 @@ type
   # thread.
   NCEndTracingCallback* = ref object of RootObj
     handler: cef_end_tracing_callback
-    
+
 # Called after all processes have sent their trace data. |tracing_file| is
 # the path at which tracing data was written. The client is responsible for
 # deleting |tracing_file|.
@@ -20,15 +20,15 @@ proc on_end_tracing_complete(self: ptr cef_end_tracing_callback, tracing_file: p
 
 proc GetHandler*(self: NCEndTracingCallback): ptr cef_end_tracing_callback {.inline.} =
   result = self.handler.addr
-  
+
 proc initialize_end_tracing_callback(handler: ptr cef_end_tracing_callback) =
   init_base(handler)
   handler.on_end_tracing_complete = on_end_tracing_complete
-  
+
 proc makeNCEndTracingCallback*(T: typedesc): auto =
   result = new(T)
   initialize_end_tracing_callback(result.GetHandler())
-  
+
 # Start tracing events on all processes. Tracing is initialized asynchronously
 # and |callback| will be executed on the UI thread after initialization is
 # complete.

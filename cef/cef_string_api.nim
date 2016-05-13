@@ -67,7 +67,7 @@ proc cef_string_utf16_to_utf8*(src: ptr uint16, src_len: csize, output: ptr cef_
 # the string is ASCII.
 proc cef_string_ascii_to_wide*(src: cstring, src_len: csize, output: ptr cef_string_wide): cint {.cef_import.}
 proc cef_string_ascii_to_utf16*(src: cstring, src_len: csize, output: ptr cef_string_utf16): cint {.cef_import.}
-                                         
+
 # It is sometimes necessary for the system to allocate string structures with
 # the expectation that the user will free them. The userfree types act as a
 # hint that the user is responsible for freeing the structure.
@@ -95,7 +95,7 @@ proc cef_string_userfree_utf16_free*(str: cef_string_userfree_utf16) {.cef_impor
 #default to CEF_STRING_TYPE_UTF8
 
 when defined(CEF_STRING_TYPE_UTF8):
-  type 
+  type
     cef_string* = cef_string_utf8
     cef_char* = char
     cef_string_userfree* = cef_string_userfree_utf8
@@ -114,11 +114,11 @@ when defined(CEF_STRING_TYPE_UTF8):
   template cef_string_from_wide*(a, b, c: expr): expr = cef_string_wide_to_utf8(a, b, c)
 
 elif defined(CEF_STRING_TYPE_WIDE):
-  type 
+  type
     cef_string* = cef_string_wide
     cef_char* = wchar_t
     cef_string_userfree* = cef_string_userfree_wide
-    
+
   template cef_string_set*(a, b, c, d: expr): expr = cef_string_wide_set(a, b, c, d)
   template cef_string_copy*(a, b, c: expr): expr = cef_string_wide_copy(a, b, c)
   template cef_string_clear*(a: expr) = cef_string_wide_clear(a)
@@ -131,13 +131,13 @@ elif defined(CEF_STRING_TYPE_WIDE):
   template cef_string_from_utf16*(a, b, c: expr): expr = cef_string_utf16_to_wide(a, b, c)
   template cef_string_to_wide*(a, b, c: expr): expr = cef_string_wide_copy(a, b, c)
   template cef_string_from_wide*(a, b, c: expr): expr = cef_string_wide_copy(a, b, c)
-  
+
 else:
-  type 
+  type
     cef_string* = cef_string_utf16
     cef_char* = uint16
     cef_string_userfree* = cef_string_userfree_utf16
-    
+
   template cef_string_set*(a, b, c, d: expr): expr = cef_string_utf16_set(a, b, c, d)
   template cef_string_copy*(a, b, c: expr): expr = cef_string_utf16_copy(a, b, c)
   template cef_string_clear*(a: expr) = cef_string_utf16_clear(a)

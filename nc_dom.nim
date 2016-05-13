@@ -26,16 +26,16 @@ method DomVisit*(self: NCDomVisitor, document: NCDomDocument) {.base.} =
 
 proc GetHandler*(self: NCDomVisitor): ptr cef_dom_visitor {.inline.} =
   result = self.handler.addr
-  
+
 proc visit_document(self: ptr cef_domvisitor, document: ptr cef_domdocument) {.cef_callback.} =
   var handler = type_to_type(NCDomVisitor, self)
   handler.DomVisit(document)
   release(document)
-        
+
 proc init_dom_visitor(handler: ptr cef_dom_visitor) =
   init_base(handler)
   handler.visit = visit_document
-  
+
 proc makeNCDomVisitor*(T: typedesc): auto =
   result = new(T)
   init_dom_visitor(result.GetHandler())

@@ -3,7 +3,7 @@ import cef/cef_auth_callback_api, nc_types, nc_util
 # Callback structure used for asynchronous continuation of authentication
 # requests.
 type
-  NCAuthCallback* = ptr cef_auth_callback    
+  NCAuthCallback* = ptr cef_auth_callback
 
 # Continue the authentication request.
 proc Continue*(self: NCAuthCallback, username, password: string) =

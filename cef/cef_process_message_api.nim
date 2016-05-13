@@ -18,7 +18,7 @@ type
     copy*: proc(self: ptr cef_process_message): ptr cef_process_message {.cef_callback.}
 
     # Returns the message name.
-  
+
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_name*: proc(self: ptr cef_process_message): cef_string_userfree {.cef_callback.}
 

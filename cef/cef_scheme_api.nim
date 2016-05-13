@@ -6,7 +6,7 @@ include cef_import
 type
   cef_scheme_registrar* = object
     base*: cef_base
-    
+
     # Register a custom scheme. This function should not be called for the built-
     # in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
     #
@@ -51,7 +51,7 @@ type
     # This function may be called on any thread. It should only be called once
     # per unique |scheme_name| value. If |scheme_name| is already registered or
     # if an error occurs this function will return false (0).
-  
+
     add_custom_scheme*: proc(self: ptr cef_scheme_registrar,
       scheme_name: ptr cef_string, is_standard, is_local, is_display_isolated: cint): cint {.cef_callback.}
 
@@ -67,8 +67,8 @@ type
     # request or NULL if the request did not originate from a browser window (for
     # example, if the request came from cef_urlrequest_t). The |request| object
     # passed to this function will not contain cookie data.
-  
-    create*: proc(self: ptr cef_scheme_handler_factory, browser: ptr_cef_browser, 
+
+    create*: proc(self: ptr cef_scheme_handler_factory, browser: ptr_cef_browser,
       frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.}
 
 # Register a scheme handler factory with the global request context. An NULL
@@ -85,7 +85,7 @@ type
 # ntext::cef_request_context_get_global_context()->register_scheme_handler_fact
 # ory().
 
-proc cef_register_scheme_handler_factory*(scheme_name, domain_name: ptr cef_string, 
+proc cef_register_scheme_handler_factory*(scheme_name, domain_name: ptr cef_string,
   factory: ptr cef_scheme_handler_factory) {.cef_import.}
 
 # Clear all scheme handler factories registered with the global request

@@ -14,7 +14,7 @@ type
     # false (0) if the browser is giving focus to the previous component.
     on_take_focus*: proc(self: ptr cef_focus_handler,
       browser: ptr_cef_browser, next: cint) {.cef_callback.}
-  
+
     # Called when the browser component is requesting focus. |source| indicates
     # where the focus request is originating from. Return false (0) to allow the
     # focus to be set or true (1) to cancel setting the focus.

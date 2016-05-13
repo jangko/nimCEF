@@ -14,7 +14,7 @@ type
     # value is treated the same as calling cancel().
     cont*: proc(self: ptr cef_file_dialog_callback,
       selected_accept_filter: cint, file_paths: cef_string_list) {.cef_callback.}
-  
+
     # Cancel the file selection.
     cancel*: proc(self: ptr cef_file_dialog_callback) {.cef_callback.}
 
@@ -37,7 +37,7 @@ type
     # the filter that should be selected by default. To display a custom dialog
     # return true (1) and execute |callback| either inline or at a later time. To
     # display the default dialog return false (0).
-  
+
     on_file_dialog*: proc(self: ptr cef_dialog_handler,
       browser: ptr_cef_browser, mode: cef_file_dialog_mode,
       title, default_file_path: ptr cef_string,

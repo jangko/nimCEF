@@ -6,7 +6,7 @@ type
   # may be called on any thread.
   cef_request* = object
     base*: cef_base
- 
+
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_request): cint {.cef_callback.}
 
@@ -21,7 +21,7 @@ type
     # is provided and GET otherwise.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_method*: proc(self: ptr cef_request): cef_string_userfree {.cef_callback.}
-  
+
     # Set the request function type.
     set_method*: proc(self: ptr cef_request, pmethod: ptr cef_string) {.cef_callback.}
 
@@ -79,7 +79,7 @@ type
     # Get the resource type for this request. Only available in the browser
     # process.
     get_resource_type*: proc(self: ptr cef_request): cef_resource_type {.cef_callback.}
-  
+
     # Get the transition type for this request. Only available in the browser
     # process and only applies to requests that represent a main frame or sub-
     # frame navigation.
@@ -98,7 +98,7 @@ type
 
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_post_data): cint {.cef_callback.}
-  
+
     # Returns true (1) if the underlying POST data includes elements that are not
     # represented by this cef_post_data_t object (for example, multi-part file
     # upload data). Modifying cef_post_data_t objects with excluded elements may
@@ -107,7 +107,7 @@ type
 
     # Returns the number of existing post data elements.
     get_element_count*: proc(self: ptr cef_post_data): csize {.cef_callback.}
-  
+
     # Retrieve the post data elements.
     get_elements*: proc(self: ptr cef_post_data,
       elementsCount: var csize, elements: ptr ptr cef_post_data_element) {.cef_callback.}
@@ -129,7 +129,7 @@ type
   cef_post_data_element* = object
     # Base structure.
     base*: cef_base
-  
+
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_post_data_element): cint {.cef_callback.}
 
@@ -151,7 +151,7 @@ type
     # Return the file name.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_file*: proc(self: ptr cef_post_data_element): cef_string_userfree {.cef_callback.}
-  
+
     # Return the number of bytes.
     get_bytes_count*: proc(self: ptr cef_post_data_element): csize {.cef_callback.}
 

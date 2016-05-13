@@ -5,37 +5,37 @@ type
   NCCookie* = object
     # The cookie name.
     name*: string
-    
+
     # The cookie value.
     value*: string
-    
+
     # If |domain| is empty a host cookie will be created instead of a domain
     # cookie. Domain cookies are stored with a leading "." and are visible to
     # sub-domains whereas host cookies are not.
     domain*: string
-    
+
     # If |path| is non-empty only URLs at or below the path will get the cookie
     # value.
     path*: string
-    
+
     # If |secure| is true the cookie will only be sent for HTTPS requests.
     secure*: bool
-    
+
     # If |httponly| is true the cookie will only be sent for HTTP requests.
     httponly*: bool
-    
+
     # The cookie creation date. This is automatically populated by the system on
     # cookie creation.
     creation*: cef_time
-  
+
     # The cookie last access date. This is automatically populated by the system
     # on access.
     last_access*: cef_time
-  
+
     # The cookie expiration date is only valid if |has_expires| is true.
     has_expires: bool
     expires*: cef_time
-    
+
 proc to_nim*(cc: ptr cef_cookie): NCCookie =
   result.name = $(cc.name.addr)
   result.value = $(cc.value.addr)
@@ -59,7 +59,7 @@ proc to_cef*(nc: NCCookie, cc: var cef_cookie) =
   cc.last_access = nc.last_access
   cc.has_expires = nc.has_expires.cint
   cc.expires = nc.expires
-  
+
 proc clear*(cc: var cef_cookie) =
   cef_string_clear(cc.name.addr)
   cef_string_clear(cc.value.addr)

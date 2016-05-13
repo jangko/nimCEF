@@ -6,4 +6,3 @@ when defined(windows):
 else:
   {.pragma: cef_import, cdecl, importc, dynlib: CEF_LIB_NAME.}
   {.pragma: cef_callback, cdecl.}
-  

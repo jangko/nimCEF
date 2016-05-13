@@ -10,7 +10,7 @@ proc nc_wrap*(handler: ptr cef_urlrequest): NCUrlRequest =
 type
   nc_urlrequest_client = object of nc_base[cef_urlrequest_client, NCUrlRequestClient]
     impl: nc_urlrequest_i[NCUrlRequestClient]
-    
+
 proc on_request_complete(self: ptr cef_urlrequest_client, request: ptr cef_urlrequest) {.cef_callback.} =
   var handler = toType(nc_urlrequest_client, self)
   if handler.impl.OnRequestComplete != nil:
@@ -46,12 +46,12 @@ proc get_auth_credentials(self: ptr cef_urlrequest_client,
     result = handler.impl.GetAuthCredentials(handler.container, isProxy == 1.cint,
       $host, port.int, $realm, $scheme, callback).cint
   release(callback)
-  
+
 proc nc_wrap*(handler: ptr cef_urlrequest_client): NCUrlRequestClient =
   new(result, nc_finalizer[NCUrlRequestClient])
   result.handler = handler
   add_ref(handler)
-  
+
 proc makeNCUrlRequestClient[T](impl: nc_urlrequest_i[T]): T =
   nc_init(nc_urlrequest_client, T, impl)
   result.handler.on_request_complete = on_request_complete
@@ -60,7 +60,7 @@ proc makeNCUrlRequestClient[T](impl: nc_urlrequest_i[T]): T =
   result.handler.on_download_data = on_download_data
   result.handler.get_auth_credentials = get_auth_credentials
 
-proc NCUrlRequestCreate(request: NCRequest, client: NCUrlRequestClient, 
+proc NCUrlRequestCreate(request: NCRequest, client: NCUrlRequestClient,
   request_context: NCRequestContext = nil): NCUrlRequest =
   var context: ptr cef_request_context = if request_context == nil: nil else: request_context.GetHandler()
   result = nc_wrap(cef_urlrequest_create(request, client.handler, context))

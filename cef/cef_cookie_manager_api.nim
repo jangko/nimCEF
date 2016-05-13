@@ -13,13 +13,13 @@ type
     # has been applied. Must be called before any cookies are accessed.
     set_supported_schemes*: proc(self: ptr cef_cookie_manager,
       schemes: cef_string_list, callback: ptr cef_completion_callback) {.cef_callback.}
-  
+
     # Visit all cookies on the IO thread. The returned cookies are ordered by
     # longest path, then by earliest creation date. Returns false (0) if cookies
     # cannot be accessed.
     visit_all_cookies*: proc(self: ptr cef_cookie_manager,
       visitor: ptr cef_cookie_visitor): cint {.cef_callback.}
-  
+
     # Visit a subset of cookies on the IO thread. The results are filtered by the
     # given url scheme, host, domain and path. If |includeHttpOnly| is true (1)
     # HTTP-only cookies will also be included in the results. The returned
@@ -28,7 +28,7 @@ type
     visit_url_cookies*: proc(self: ptr cef_cookie_manager,
       url: ptr cef_string, includeHttpOnly: cint,
       visitor: ptr cef_cookie_visitor): cint {.cef_callback.}
-  
+
     # Sets a cookie given a valid URL and explicit user-provided cookie
     # attributes. This function expects each attribute to be well-formed. It will
     # check for disallowed characters (e.g. the ';' character is disallowed
@@ -39,7 +39,7 @@ type
     set_cookie*: proc(self: ptr cef_cookie_manager,
         url: ptr cef_string, cookie: ptr cef_cookie,
         callback: ptr cef_set_cookie_callback): cint {.cef_callback.}
-  
+
     # Delete all cookies that match the specified parameters. If both |url| and
     # |cookie_name| values are specified all host and domain cookies matching
     # both will be deleted. If only |url| is specified all host cookies (but not
@@ -52,7 +52,7 @@ type
     delete_cookies*: proc(self: ptr cef_cookie_manager,
         url, cookie_name: ptr cef_string,
         callback: ptr cef_delete_cookies_callback): cint {.cef_callback.}
-  
+
     # Sets the directory path that will be used for storing cookie data. If
     # |path| is NULL data will be stored in memory only. Otherwise, data will be
     # stored at the specified |path|. To persist session cookies (cookies without
@@ -64,7 +64,7 @@ type
     set_storage_path*: proc(self: ptr cef_cookie_manager,
       path: ptr cef_string, persist_session_cookies: cint,
       callback: ptr cef_completion_callback): cint {.cef_callback.}
-  
+
     # Flush the backing store (if any) to disk. If |callback| is non-NULL it will
     # be executed asnychronously on the IO thread after the flush is complete.
     # Returns false (0) if cookies cannot be accessed.
@@ -90,7 +90,7 @@ type
   # cef_cookie_manager_t::set_cookie().
   cef_set_cookie_callback* = object
     base*: cef_base
-  
+
     # Method that will be called upon completion. |success| will be true (1) if
     # the cookie was set successfully.
     on_complete*: proc(self: ptr cef_set_cookie_callback,
@@ -100,13 +100,13 @@ type
   # cef_cookie_manager_t::delete_cookies().
   cef_delete_cookies_callback* = object
     base*: cef_base
-  
+
     # Method that will be called upon completion. |num_deleted| will be the
     # number of cookies that were deleted or -1 if unknown.
-    
+
     on_complete*: proc(self: ptr cef_delete_cookies_callback,
       num_deleted: cint) {.cef_callback.}
-      
+
 # Returns the global cookie manager. By default data will be stored at
 # CefSettings.cache_path if specified or in memory otherwise. If |callback| is
 # non-NULL it will be executed asnychronously on the IO thread after the

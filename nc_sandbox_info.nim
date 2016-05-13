@@ -22,11 +22,11 @@ include cef/cef_sandbox_win
 type
   NCSandboxInfo* = ref object
     handler: pointer
-  
+
 # Destroy the specified sandbox information object.
 proc sandbox_finalizer(self: NCSandboxInfo) =
-  cef_sandbox_info_destroy(self.handler)  
-  
+  cef_sandbox_info_destroy(self.handler)
+
 proc NCSandboxInfoCreate*(): NCSandboxInfo =
   new(result, sandbox_finalizer)
   result.handler = cef_sandbox_info_create()
@@ -34,4 +34,4 @@ proc NCSandboxInfoCreate*(): NCSandboxInfo =
 proc GetHandler*(self: NCSandboxInfo): pointer =
   if self == nil: return nil
   result = self.handler
-  
+

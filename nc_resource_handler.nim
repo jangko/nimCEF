@@ -6,7 +6,7 @@ include cef/cef_import
 type
   NCResourceHandler* = ref object of RootObj
     handler: cef_resource_handler
-    
+
 # Begin processing the request. To handle the request return true (1) and
 # call cef_callback_t::cont() once the response header information is
 # available (cef_callback_t::cont() can also be called from inside this
@@ -23,7 +23,7 @@ method ProcessRequest*(self: NCResourceHandler, request: NCRequest, callback: NC
 # object to set the mime type, http status code and other optional header
 # values. To redirect the request to a new URL set |redirectUrl| to the new
 # URL.
-method GetResponseHeaders*(self: NCResourceHandler, response: NCResponse, 
+method GetResponseHeaders*(self: NCResourceHandler, response: NCResponse,
   response_length: var int64, redirectUrl: var string) {.base.} =
   discard
 
@@ -50,13 +50,13 @@ method CanSetCookie*(self: NCResourceHandler, cookie: NCCookie): bool {.base.} =
 # Request processing has been canceled.
 method Cancel*(self: NCResourceHandler) {.base.} =
   discard
- 
+
 proc process_request(self: ptr cef_resource_handler,
   request: ptr cef_request, callback: ptr cef_callback): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   result = handler.ProcessRequest(request, callback).cint
 
-proc get_response_headers(self: ptr cef_resource_handler, 
+proc get_response_headers(self: ptr cef_resource_handler,
   response: ptr cef_response, response_length: var int64, redirectUrl: ptr cef_string) {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   var len = response_length
@@ -78,12 +78,12 @@ proc can_get_cookie(self: ptr cef_resource_handler,
   cookie: ptr cef_cookie): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   result = handler.CanGetCookie(to_nim(cookie)).cint
-  
+
 proc can_set_cookie(self: ptr cef_resource_handler,
   cookie: ptr cef_cookie): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   result = handler.CanSetCookie(to_nim(cookie)).cint
-  
+
 proc cancel(self: ptr cef_resource_handler) {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   handler.Cancel()
@@ -101,6 +101,6 @@ proc makeResourceHandler*(T: typedesc): auto =
   var res = new(T)
   initialize_resource_handler(res.handler.addr)
   result = res
-    
+
 proc GetHandler*(self: NCResourceHandler): ptr cef_resource_handler {.inline.} =
   result = self.handler.addr

@@ -16,7 +16,7 @@ type
     # coordinates. Return true (1) if the rectangle was provided.
     get_view_rect*: proc(self: ptr cef_render_handler,
       browser: ptr_cef_browser, rect: ptr cef_rect): cint {.cef_callback.}
-  
+
     # Called to retrieve the translation from view coordinates to actual screen
     # coordinates. Return true (1) if the screen coordinates were provided.
     get_screen_point*: proc(self: ptr cef_render_handler,
@@ -31,17 +31,17 @@ type
     # drawn correctly.
     get_screen_info*: proc(self: ptr cef_render_handler,
         browser: ptr_cef_browser, screen_info: ptr cef_screen_info): cint {.cef_callback.}
-  
+
     # Called when the browser wants to show or hide the popup widget. The popup
     # should be shown if |show| is true (1) and hidden if |show| is false (0).
     on_popup_show*: proc(self: ptr cef_render_handler,
         browser: ptr_cef_browser, show: cint) {.cef_callback.}
-  
+
     # Called when the browser wants to move or resize the popup widget. |rect|
     # contains the new location and size in view coordinates.
     on_popup_size*: proc(self: ptr cef_render_handler,
         browser: ptr_cef_browser, rect: ptr cef_rect) {.cef_callback.}
-  
+
     # Called when an element should be painted. Pixel values passed to this
     # function are scaled relative to view coordinates based on the value of
     # CefScreenInfo.device_scale_factor returned from GetScreenInfo. |type|
@@ -54,14 +54,14 @@ type
         browser: ptr_cef_browser, ptype: cef_paint_element_type,
         dirtyRectsCount: csize, dirtyRects: ptr cef_rect, buffer: pointer,
         width, height: cint) {.cef_callback.}
-  
+
     # Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
     # |custom_cursor_info| will be populated with the custom cursor information.
     on_cursor_change*: proc(self: ptr cef_render_handler,
         browser: ptr_cef_browser, cursor: cef_cursor_handle,
         ptype: cef_cursor_type,
         custom_cursor_info: ptr cef_cursor_info) {.cef_callback.}
-  
+
     # Called when the user starts dragging content in the web view. Contextual
     # information about the dragged content is supplied by |drag_data|. (|x|,
     # |y|) is the drag start location in screen coordinates. OS APIs that run a
@@ -77,13 +77,13 @@ type
     start_dragging*: proc(self: ptr cef_render_handler,
       browser: ptr_cef_browser, drag_data: ptr cef_drag_data,
       allowed_ops: cef_drag_operations_mask, x, y: cint): cint {.cef_callback.}
-  
+
     # Called when the web view wants to update the mouse cursor during a drag &
     # drop operation. |operation| describes the allowed operation (none, move,
     # copy, link).
     update_drag_cursor*: proc(self: ptr cef_render_handler,
       browser: ptr_cef_browser, operation: cef_drag_operations_mask) {.cef_callback.}
-  
+
     # Called when the scroll offset has changed.
-    on_scroll_offset_changed*: proc(self: ptr cef_render_handler, 
+    on_scroll_offset_changed*: proc(self: ptr cef_render_handler,
       browser: ptr_cef_browser, x, y: cdouble) {.cef_callback.}

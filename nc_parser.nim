@@ -4,35 +4,35 @@ type
   NCUrlParts* = object
     # The complete URL specification.
     spec*: string
-  
+
     # Scheme component not including the colon (e.g., "http").
     scheme*: string
-  
+
     # User name component.
     username*: string
-      
+
     # Password component.
     password*: string
-  
+
     # Host component. This may be a hostname, an IPv4 address or an IPv6 literal
     # surrounded by square brackets (e.g., "[2001:db8::1]").
     host*: string
-  
+
     # Port number component.
     port*: string
-  
+
     # Origin contains just the scheme, host, and port from a URL. Equivalent to
     # clearing any username and password, replacing the path with a slash, and
     # clearing everything after that. This value will be empty for non-standard
     # URLs.
     origin*: string
-      
+
     # Path component including the first slash following the host.
     path*: string
-  
+
     # Query string component (i.e., everything following the '?').
     query*: string
-    
+
 proc to_nim(cparts: cef_urlparts, parts: var NCUrlParts) =
   parts.spec = $cparts.spec.unsafeAddr
   parts.scheme = $cparts.scheme.unsafeAddr
@@ -43,7 +43,7 @@ proc to_nim(cparts: cef_urlparts, parts: var NCUrlParts) =
   parts.origin = $cparts.origin.unsafeAddr
   parts.path = $cparts.path.unsafeAddr
   parts.query = $cparts.query.unsafeAddr
-  
+
   cef_string_clear(cparts.spec.unsafeAddr)
   cef_string_clear(cparts.scheme.unsafeAddr)
   cef_string_clear(cparts.username.unsafeAddr)
@@ -53,9 +53,9 @@ proc to_nim(cparts: cef_urlparts, parts: var NCUrlParts) =
   cef_string_clear(cparts.origin.unsafeAddr)
   cef_string_clear(cparts.path.unsafeAddr)
   cef_string_clear(cparts.query.unsafeAddr)
-  
+
 # Parse the specified |url| into its component parts. Returns false *(0) if the
-# URL is NULL or invalid.  
+# URL is NULL or invalid.
 proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
   let curl = to_cef(url)
   var cparts: cef_urlparts
@@ -73,7 +73,7 @@ proc to_cef(parts: NCUrlParts, cparts: var cef_urlparts) =
   cparts.origin <= parts.origin
   cparts.path <= parts.path
   cparts.query <= parts.query
-  
+
 proc clear(cparts: var cef_urlparts) =
   cef_string_clear(cparts.spec.addr)
   cef_string_clear(cparts.scheme.addr)
@@ -96,7 +96,7 @@ proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
   url = $curl.addr
   cef_string_clear(curl.addr)
   cparts.clear
-  
+
 # This is a convenience function for formatting a URL in a concise and human-
 # friendly way to help users make security-related decisions *(or in other
 # circumstances when people need to distinguish sites, origins, or otherwise-
@@ -183,7 +183,7 @@ type
     # generating final output like filenames for URLs where we won't be
     # interpreting as a URL and want to do as much unescaping as possible.
     NC_UU_URL_SPECIAL_CHARS
-  
+
     # Unescapes control characters such as %01. This INCLUDES NULLs. This is
     # used for rare cases such as data: URL decoding where the result is binary
     # data. This flag also unescapes BiDi control characters.
@@ -195,7 +195,7 @@ type
     NC_UU_REPLACE_PLUS_WITH_SPACE
 
   NCUUR = set[NCUriUnescapeRule]
-  
+
 const
   # Don't unescape anything at all.
   NC_UU_NONE*: NCUUR = {}
@@ -209,7 +209,7 @@ proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
   if NC_UU_CONTROL_CHARS in rule: res = res or UU_CONTROL_CHARS.ord
   if NC_UU_REPLACE_PLUS_WITH_SPACE in rule: res = res or UU_REPLACE_PLUS_WITH_SPACE.ord
   result = cast[cef_uri_unescape_rule](res)
-  
+
 # Unescapes |text| and returns the result. Unescaping consists of looking for
 # the exact pattern "%XX" where each X is a hex digit and converting to the
 # character with the numerical value of those digits *(e.g. "i%20=%203%3b"
@@ -243,9 +243,9 @@ type
 
     # Allows commas to exist after the last element in structures.
     NC_JSON_PARSER_ALLOW_TRAILING_COMMAS
-    
+
   NCJPO* = set[NCJsonParserOptions]
-  
+
 proc to_cef(flags: NCJPO): cef_json_parser_options =
   var res: int = 0
   if NC_JSON_PARSER_RFC in flags: res = res or JSON_PARSER_RFC.int
@@ -272,13 +272,13 @@ proc NCParseJsonAndReturnError*(json_string: string, options: NCJPO,
   error_msg_out = $cmsg.addr
   cef_string_clear(cmsg.addr)
 
-  
+
 type
   # Options that can be passed to  CefWriteJSON.
   NCJsonWriterOptions* = enum
     # Default behavior.
     NC_JSON_WRITER_DEFAULT
-  
+
     # This option instructs the writer that if a Binary value is encountered,
     # the value (and key if within a dictionary) will be omitted from the
     # output, and success will be returned. Otherwise, if a binary value is
@@ -294,9 +294,9 @@ type
     # Return a slightly nicer formatted json string (pads with whitespace to
     # help with readability).
     NC_JSON_WRITER_PRETTY_PRINT
-  
+
   NCJWO* = set[NCJsonWriterOptions]
-  
+
 proc to_cef(flags: NCJWO): cef_json_writer_options =
   var res: int = 0
   if NC_JSON_WRITER_DEFAULT in flags: res = res or JSON_WRITER_DEFAULT.int
@@ -304,7 +304,7 @@ proc to_cef(flags: NCJWO): cef_json_writer_options =
   if NC_JSON_WRITER_OMIT_DOUBLE_TYPE_PRESERVATION in flags: res = res or JSON_WRITER_OMIT_DOUBLE_TYPE_PRESERVATION.int
   if NC_JSON_WRITER_PRETTY_PRINT in flags: res = res or JSON_WRITER_PRETTY_PRINT.int
   result = cast[cef_json_writer_options](res)
-  
+
 # Generates a JSON string from the specified root |node| which should be a
 # dictionary or list value. Returns an NULL string on failure. This function
 # requires exclusive access to |node| including any underlying data.

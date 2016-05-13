@@ -21,12 +21,12 @@ include cef_import
 
 when defined(NC_SANDBOX_ENABLED):
   proc cef_sandbox_info_create*(): pointer {.cef_import.}
-  
+
   # Destroy the specified sandbox information object.
   proc cef_sandbox_info_destroy*(sandbox_info: pointer) {.cef_import.}
 
 else:
   proc cef_sandbox_info_create*(): pointer = nil
-  
+
   # Destroy the specified sandbox information object.
   proc cef_sandbox_info_destroy*(sandbox_info: pointer) = discard

@@ -4,7 +4,7 @@ type
   # Structure used to represent a web response. The functions of this structure
   # may be called on any thread.
   NCResponse* = ptr cef_response
-  
+
 # Returns true (1) if this object is read-only.
 proc IsReadOnly*(self: NCResponse): bool =
   result = self.is_read_only(self) == 1.cint
@@ -51,7 +51,7 @@ proc GetHeaderMap*(self: NCResponse): NCStringMultiMap =
   var map = cef_string_multimap_alloc()
   self.get_header_map(self, map)
   result = to_nim(map)
-  
+
 # Set all response header fields.
 proc SetHeaderMap*(self: NCResponse, headerMap: NCStringMultiMap) =
   let cmap = to_cef(headerMap)

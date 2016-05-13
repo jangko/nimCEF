@@ -11,13 +11,13 @@ type
   # functions of this structure will be called on the browser process UI thread.
   NCNavigationEntryVisitor* = ref object of RootObj
     handler: cef_navigation_entry_visitor
-    
+
   # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
   # structure will be called on the browser process UI thread.
   NCPdfPrintCallback* = ref object of RootObj
     handler: cef_pdf_print_callback
-      
-      
+
+
 # Called asynchronously after the file dialog is dismissed.
 # |selected_accept_filter| is the 0-based index of the value selected from
 # the accept filters array passed to cef_browser_host_t::RunFileDialog.
@@ -26,13 +26,13 @@ type
 method OnFileDialogDismissed*(self: NCRunFileDialogCallback,
   selected_accept_filter: int, file_paths: seq[string]) {.base.} =
   discard
-    
+
 # Method that will be executed. Do not keep a reference to |entry| outside of
 # this callback. Return true (1) to continue visiting entries or false (0) to
 # stop. |current| is true (1) if this entry is the currently loaded
 # navigation entry. |index| is the 0-based index of this entry and |total| is
 # the total number of entries.
-method NavigationVisit*(self: NCNavigationEntryVisitor, entry: NCNavigationEntry, 
+method NavigationVisit*(self: NCNavigationEntryVisitor, entry: NCNavigationEntry,
   current, index, total: int): bool {.base.} =
   result = false
 
@@ -459,7 +459,7 @@ proc NCBrowserHostCreateBrowser*(windowInfo: ptr cef_window_info, client: NCClie
   let curl = to_cef(url)
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
-  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr, 
+  result = cef_browser_host_create_browser(windowInfo, client.GetHandler(), curl, csettings.addr,
     if request_context == nil: nil else: request_context.GetHandler()) == 1.cint
   nc_free(curl)
   csettings.clear()
@@ -473,7 +473,7 @@ proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NC
   var context = if request_context == nil: nil else: request_context.GetHandler()
   var csettings: cef_browser_settings
   to_cef(settings, csettings)
-  result = nc_wrap(cef_browser_host_create_browser_sync(windowInfo, 
+  result = nc_wrap(cef_browser_host_create_browser_sync(windowInfo,
     client.GetHandler(), curl, csettings.addr, context))
   nc_free(curl)
   csettings.clear()

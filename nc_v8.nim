@@ -7,36 +7,36 @@ type
   # threads. A task runner for posting tasks on the associated thread can be
   # retrieved via the cef_v8context_t::get_task_runner() function.
   NCV8Context* = ptr cef_v8context
-  
+
   # Structure that should be implemented to handle V8 function calls. The
   # functions of this structure will be called on the thread associated with the
   # V8 function.
   NCV8Handler* = ptr cef_v8handler
-    
+
   # Structure that should be implemented to handle V8 accessor calls. Accessor
   # identifiers are registered by calling cef_v8value_t::set_value(). The
   # functions of this structure will be called on the thread associated with the
   # V8 accessor.
   NCV8Accessor* = ptr cef_v8accessor
-  
+
   # Structure representing a V8 exception. The functions of this structure may be
   # called on any render process thread.
   NCV8Exception* = ptr cef_v8exception
-  
+
   # Structure representing a V8 value handle. V8 handles can only be accessed
   # from the thread on which they are created. Valid threads for creating a V8
   # handle include the render process main thread (TID_RENDERER) and WebWorker
   # threads. A task runner for posting tasks on the associated thread can be
   # retrieved via the cef_v8context_t::get_task_runner() function.
   NCV8Value* = ptr cef_v8value
-  
+
   # Structure representing a V8 stack trace handle. V8 handles can only be
   # accessed from the thread on which they are created. Valid threads for
   # creating a V8 handle include the render process main thread (TID_RENDERER)
   # and WebWorker threads. A task runner for posting tasks on the associated
   # thread can be retrieved via the cef_v8context_t::get_task_runner() function.
   NCV8StackTrace* = ptr cef_v8stacktrace
-  
+
   # Structure representing a V8 stack frame handle. V8 handles can only be
   # accessed from the thread on which they are created. Valid threads for
   # creating a V8 handle include the render process main thread (TID_RENDERER)
@@ -55,7 +55,7 @@ proc GetTaskRunner*(self: NCV8Context): ptr cef_task_runner =
 # returns false (0).
 proc IsValid*(self: NCV8Context): bool =
   result = self.is_valid(self) == 1.cint
-  
+
 # Returns the browser for this context. This function will return an NULL
 # reference for WebWorker contexts.
 proc GetBrowser*(self: NCV8Context): NCBrowser =
@@ -127,7 +127,7 @@ proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
   result = self.get_value(self, cname, obj, retval, cexception) == 1.cint
   nc_free(cname)
   nc_free(cexception)
-  
+
 # Handle assignment of the accessor value identified by |name|. |object| is
 # the receiver ('this' object) of the accessor. |value| is the new value
 # being assigned to the accessor. If assignment fails set |exception| to the
@@ -337,7 +337,7 @@ proc GetValueByKey*(self: NCV8Value, key: string): NCV8Value =
   let ckey = to_cef(key)
   result = self.get_ValueByKey(self, ckey)
   nc_free(ckey)
-  
+
 # Returns the value with the specified identifier on success. Returns NULL if
 # this function is called incorrectly or an exception is thrown.
 proc GetValueByIndex*(self: NCV8Value, index: int): NCV8Value =
@@ -353,7 +353,7 @@ proc SetValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
   let ckey = to_cef(key)
   result = self.set_ValueByKey(self, ckey, value, attribute) == 1.cint
   nc_free(ckey)
-  
+
 # Associates a value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only values this function will return true
@@ -568,7 +568,7 @@ proc NCRegisterExtension*(extension_name: string,
   result = cef_register_extension(cname, ccode, handler) == 1.cint
   nc_free(cname)
   nc_free(ccode)
-  
+
 # Returns the current (top) context object in the V8 context stack.
 proc NCV8ContexGetCurrentContext*(): NCV8Context =
   result = cef_v8context_get_current_context()
@@ -580,7 +580,7 @@ proc NCV8ContextGetEnteredContext*(): NCV8Context =
 # Returns true (1) if V8 is currently inside a context.
 proc NCV8ContextInContext*(): bool =
   result = cef_v8context_in_context() == 1.cint
-  
+
 # Create a new cef_v8value_t object of type undefined.
 proc NCV8ValueCreateUndefined*(): NCV8Value =
   result = cef_v8value_create_undefined()
@@ -588,7 +588,7 @@ proc NCV8ValueCreateUndefined*(): NCV8Value =
 # Create a new cef_v8value_t object of type null.
 proc NCV8ValueCreateNull*(): NCV8Value =
   result = cef_v8value_create_null()
-  
+
 # Create a new cef_v8value_t object of type bool.
 proc NCV8ValueCreateBool*(value: bool): NCV8Value =
   result = cef_v8value_create_bool(value.cint)
@@ -604,7 +604,7 @@ proc NCV8ValueCreateUint*(value: uint32): NCV8Value =
 # Create a new cef_v8value_t object of type double.
 proc NCV8ValueCreateDouble*(value: cdouble): NCV8Value =
   result = cef_v8value_create_double(value.cdouble)
-  
+
 # Create a new cef_v8value_t object of type Date. This function should only be
 # called from within the scope of a cef_render_process_handler_t,
 # cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
@@ -645,7 +645,7 @@ proc NCV8ValueCreateFunction*(name: string, handler: NCV8Handler): NCV8Value =
   let cname = to_cef(name)
   result = cef_v8value_create_function(cname, handler)
   nc_free(cname)
-  
+
 # Returns the stack trace for the currently active context. |frame_limit| is
 # the maximum number of frames that will be captured.
 proc NCV8StackTraceGetCurrent*(frame_limit: int): NCV8StackTrace =

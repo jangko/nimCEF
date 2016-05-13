@@ -137,15 +137,15 @@ proc initialize_render_process_handler(render: ptr cef_render_process_handler) =
 
 proc on_context_initialized(self: ptr cef_browser_process_handler) {.cef_callback.} =
   toApp(self).OnContextInitialized()
-  
+
 proc on_before_child_process_launch(self: ptr cef_browser_process_handler, command_line: ptr cef_command_line) {.cef_callback.} =
   toApp(self).OnBeforeChildProcessLaunch(command_line)
   release(command_line)
-  
+
 proc on_render_process_thread_created(self: ptr cef_browser_process_handler, extra_info: ptr cef_list_value) {.cef_callback.} =
   toApp(self).OnRenderProcessThreadCreated(extra_info)
   release(extra_info)
-  
+
 proc get_print_handler(self: ptr cef_browser_process_handler): ptr cef_print_handler {.cef_callback.} =
   result = toApp(self).GetPrintHandler()
 
@@ -179,7 +179,7 @@ proc get_data_resource_for_scale(self: ptr cef_resource_bundle_handler, resource
   result = toApp(self).GetDataResourceForScale(resource_id.int, scale_factor, cdata, cdata_size).cint
   data = cdata
   data_size = cdata_size.csize
-  
+
 proc initialize_resource_bundle_handler(resource: ptr cef_resource_bundle_handler) =
   init_base(resource)
   resource.get_localized_string = get_localized_string

@@ -34,7 +34,7 @@ type
 
     # Returns the uncompressed size of the file.
     get_file_size*: proc(self: ptr cef_zip_reader): int64 {.cef_callback.}
-  
+
     # Returns the last modified timestamp for the file.
     get_file_last_modified*: proc(self: ptr cef_zip_reader): cef_time {.cef_callback.}
 
@@ -49,10 +49,10 @@ type
     # Read uncompressed file contents into the specified buffer. Returns < 0 if
     # an error occurred, 0 if at the end of file, or the number of bytes read.
     read_file*: proc(self: ptr cef_zip_reader, buffer: pointer, bufferSize: csize): cint {.cef_callback.}
-  
+
     # Returns the current offset in the uncompressed file contents.
     tell*: proc(self: ptr cef_zip_reader): int64 {.cef_callback.}
-  
+
     # Returns true (1) if at end of the file contents.
     eof*: proc(self: ptr cef_zip_reader): cint {.cef_callback.}
 

@@ -28,7 +28,7 @@ type
     # matches |data_in_size| (all available pre-filter bytes have been read), and
     # the function returns RESPONSE_FILTER_DONE or RESPONSE_FILTER_ERROR. Do not
     # keep a reference to the buffers passed to this function.
-    
+
     filter*: proc(self: ptr cef_response_filter, data_in: pointer, data_in_size: csize,
       data_in_read: var csize, data_out: pointer, data_out_size: csize,
       data_out_written: var csize): cef_response_filter_status {.cef_callback.}

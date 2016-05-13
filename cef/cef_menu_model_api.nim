@@ -31,13 +31,13 @@ type
     # |group_id| can be checked at a time. Returns true (1) on success.
     add_radio_item*: proc(self: ptr cef_menu_model,
       command_id: cint, label: ptr cef_string, group_id: cint): cint {.cef_callback.}
-  
+
     # Add a sub-menu to the menu. The new sub-menu is returned.
     add_sub_menu*: proc(self: ptr cef_menu_model, command_id: cint,
       label: ptr cef_string): ptr cef_menu_model {.cef_callback.}
 
     # Insert a separator in the menu at the specified |index|. Returns true (1)
-    # on success.  
+    # on success.
     insert_separator_at*: proc(self: ptr cef_menu_model,
       index: cint): cint {.cef_callback.}
 
@@ -152,7 +152,7 @@ type
 
     # Returns true (1) if the specified |index| is enabled.
     is_enabled_at*: proc(self: ptr cef_menu_model, index: cint): cint {.cef_callback.}
-  
+
     # Change the enabled status of the specified |command_id|. Returns true (1)
     # on success.
     set_enabled*: proc(self: ptr cef_menu_model,
@@ -176,7 +176,7 @@ type
     # Returns true (1) on success.
     set_checked*: proc(self: ptr cef_menu_model,
       command_id: cint, checked: cint): cint {.cef_callback.}
-  
+
     # Check the specified |index|. Only applies to check and radio items. Returns
     # true (1) on success.
     set_checked_at*: proc(self: ptr cef_menu_model, index: cint,
@@ -191,7 +191,7 @@ type
     # assigned.
     has_accelerator_at*: proc(self: ptr cef_menu_model,
       index: cint): cint {.cef_callback.}
-  
+
     # Set the keyboard accelerator for the specified |command_id|. |key_code| can
     # be any virtual key or character value. Returns true (1) on success.
     set_accelerator*: proc(self: ptr cef_menu_model,

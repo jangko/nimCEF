@@ -19,7 +19,7 @@ type
     # Returns a display-friendly version of the URL.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_display_url*: proc(self: ptr cef_navigation_entry): cef_string_userfree {.cef_callback.}
-  
+
     # Returns the original URL that was entered by the user before any redirects.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_original_url*: proc(self: ptr cef_navigation_entry): cef_string_userfree {.cef_callback.}
@@ -30,7 +30,7 @@ type
 
     # Returns the transition type which indicates what the user did to move to
     # this page from the previous page.
-  
+
     get_transition_type*: proc(self: ptr cef_navigation_entry): cef_transition_type {.cef_callback.}
 
     # Returns true (1) if this navigation includes post data.

@@ -47,7 +47,7 @@ proc OpenFile*(self: NCZipReader, password: string = nil): bool =
   let cpass = to_cef(password)
   result = self.handler.open_file(self.handler, cpass) == 1.cint
   nc_free(cpass)
-  
+
 # Closes the file.
 proc CloseFile*(self: NCZipReader): bool =
   result = self.handler.close_file(self.handler) == 1.cint

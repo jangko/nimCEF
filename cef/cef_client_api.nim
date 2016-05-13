@@ -16,7 +16,7 @@ type
   # Implement this structure to provide handler implementations.
   cef_client* = object
     base*: cef_base
-    
+
     # Return the handler for context menus. If no handler is provided the default
     # implementation will be used.
     get_context_menu_handler*: proc(self: ptr cef_client): ptr cef_context_menu_handler {.cef_callback.}
@@ -24,17 +24,17 @@ type
     # Return the handler for dialogs. If no handler is provided the default
     # implementation will be used.
     get_dialog_handler*: proc(self: ptr cef_client): ptr cef_dialog_handler {.cef_callback.}
-  
+
     # Return the handler for browser display state events.
     get_display_handler*: proc(self: ptr cef_client): ptr cef_display_handler {.cef_callback.}
 
     # Return the handler for download events. If no handler is returned downloads
     # will not be allowed.
     get_download_handler*: proc(self: ptr cef_client): ptr cef_download_handler {.cef_callback.}
-  
+
     # Return the handler for drag events.
     get_drag_handler*: proc(self: ptr cef_client): ptr cef_drag_handler {.cef_callback.}
-  
+
     # Return the handler for find result events.
     get_find_handler*: proc(self: ptr cef_client): ptr cef_find_handler {.cef_callback.}
 
@@ -44,20 +44,20 @@ type
     # Return the handler for geolocation permissions requests. If no handler is
     # provided geolocation access will be denied by default.
     get_geolocation_handler*: proc(self: ptr cef_client): ptr cef_geolocation_handler {.cef_callback.}
-  
+
     # Return the handler for JavaScript dialogs. If no handler is provided the
     # default implementation will be used.
     get_jsdialog_handler*: proc(self: ptr cef_client): ptr cef_jsdialog_handler {.cef_callback.}
-  
+
     # Return the handler for keyboard events.
     get_keyboard_handler*: proc(self: ptr cef_client): ptr cef_keyboard_handler {.cef_callback.}
-  
+
     # Return the handler for browser life span events.
     get_life_span_handler*: proc(self: ptr cef_client): ptr cef_life_span_handler {.cef_callback.}
 
     # Return the handler for browser load status events.
     get_load_handler*: proc(self: ptr cef_client): ptr cef_load_handler {.cef_callback.}
-  
+
     # Return the handler for off-screen rendering events.
     get_render_handler*: proc(self: ptr cef_client): ptr cef_render_handler {.cef_callback.}
 

@@ -209,6 +209,26 @@ proc routineHasResult(n: NimNode): bool =
   #if err: error(lineinfo(n) & " expected routine \"" & $n & "\" has return type")
   result = not err
 
+proc checkBase(n: NimNode): bool =
+  var err = false
+  let objSym = getType(n)[1]
+  let objType = getType(objSym)
+  let base = objType[1][0]
+  if objSym.typeKind != ntyObject: err = true
+  if not (base.typeKind == ntyObject and $base == "base"): err = true
+  result = not err
+
+proc checkWrapped(n: NimNode): bool =
+  var err = false
+  let objSym = getType(n)[1]
+  let objType = getType(objSym)
+  let handler = objType[1][0]
+  let handlee = getType(handler)[1]
+  if objSym.typeKind != ntyObject: err = true
+  if not (handler.typeKind == ntyPtr and $handler == "handler"): err = true
+  if handler.typeKind == ntyPtr and substr($handlee, 0, 3) != "cef_": err = true
+  result = not err
+  
 macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   # Sanitary Check
   let
@@ -229,10 +249,16 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     startIndex = 0
     proloque = ""
     epiloque = ""
-    params = "self.handler, "
+    params = "self.handler"
     calee = "self.handler." & $routine
     body = ""
 
+  if hasResult and args.len > 1:
+    params.add ", "
+  
+  if not hasResult and args.len > 0:
+    params.add ", "
+    
   if hasResult and args.len > 0:
     if args[0].kind == nnkSym and $args[0] == "result": startIndex = 1
     else: error(lineinfo(self) & " expected \"result\" param")
@@ -248,10 +274,15 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
       params.add "arg$1" % [argi]
       epiloque.add "nc_free(arg$1)\n" % [argi]
-    of ntyBool, ntyInt:
-      params.add "$1.cint" % [argv]
+    of ntyBool, ntyInt, ntyFloat:
+      let argType = $getType(rout)[i - startIndex + 3]        
+      params.add "$1.$2" % [argv, argType]
     of ntyPointer:
       params.add argv
+    of ntyRef:
+      if checkWrapped(args[i]): proloque.add "add_ref($1.GetHandler())\n" % [argv]
+      else: error(lineinfo(args[i]) & " unsupported ref type")
+      params.add "$1.GetHandler()" % [argv]
     else:
       error(lineinfo(args[i]) & " unsupported param type: " & $args[i].typeKind)
 
@@ -267,7 +298,12 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     of ntyInt64, ntyEnum:
       body = "result = $1($2)\n" % [calee, params]
     of ntyInt:
-      body = "result = $1($2).cint\n" % [calee, params]
+      body = "result = $1($2).int\n" % [calee, params]
+    of ntyRef:
+      if checkWrapped(res): body = "result = nc_wrap($1($2))\n" % [calee, params]
+      else: error(lineinfo(res) & " unsupported ref type of \"result\"")
+    of ntyFloat:
+      body = "result = $1($2).float64\n" % [calee, params]
     else:
       error(lineinfo(res) & " unsupported return type: " & $res.typeKind)
   else:
@@ -279,26 +315,6 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     echo epiloque
 
   result = parseStmt(proloque & body & epiloque)
-
-proc checkBase(n: NimNode): bool =
-  var err = false
-  let objSym = getType(n)[1]
-  let objType = getType(objSym)
-  let base = objType[1][0]
-  if objSym.typeKind != ntyObject: err = true
-  if not (base.typeKind == ntyObject and $base == "base"): err = true
-  result = not err
-
-proc checkWrapped(n: NimNode): bool =
-  var err = false
-  let objSym = getType(n)[1]
-  let objType = getType(objSym)
-  let handler = objType[1][0]
-  let handlee = getType(handler)[1]
-  if objSym.typeKind != ntyObject: err = true
-  if not (handler.typeKind == ntyPtr and $handler == "handler"): err = true
-  if handler.typeKind == ntyPtr and substr($handlee, 0, 3) != "cef_": err = true
-  result = not err
 
 macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
   let hasResult = routineHasResult(routine)
@@ -327,7 +343,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
       if checkBase(args[i]): proloque.add "add_ref($1)\n" % [argv]
       else: error(lineinfo(args[i]) & " unsupported ptr type")
       params.add argv
-    of ntyEnum:
+    of ntyEnum, ntyPointer:
       params.add argv
     of ntyString:
       proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
@@ -337,6 +353,9 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
       if checkWrapped(args[i]): proloque.add "add_ref($1.GetHandler())\n" % [argv]
       else: error(lineinfo(args[i]) & " unsupported ref type")
       params.add "$1.GetHandler()" % [argv]
+    of ntyBool, ntyInt, ntyFloat:
+      let argType = $getType(routine)[i - startIndex + 2]        
+      params.add "$1.$2" % [argv, argType]
     else:
       error(lineinfo(args[i]) & " unsupported param type: " & $args[i].typeKind)
 

@@ -1,4 +1,4 @@
-import nc_util, nc_stream, nc_time, strutils, macros
+import nc_util, nc_stream, nc_time
 
 # Structure that supports the reading of zip archives via the zlib unzip API.
 # The functions of this structure should only be called on the thread that

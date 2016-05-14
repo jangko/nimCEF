@@ -80,11 +80,11 @@ proc makeNCWebPluginUnstableCallback*(T: typedesc): auto =
 # Visit web plugin information. Can be called on any thread in the browser
 # process.
 proc NCVisitWebPluginInfo*(visitor: NCWebPluginInfoVisitor) =
-  debugModeOn()
-  #add_ref(visitor.GetHandler())
-  #cef_visit_web_plugin_info(visitor.GetHandler())
+  #debugModeOn()
+  add_ref(visitor.GetHandler())
+  cef_visit_web_plugin_info(visitor.GetHandler())
   #wrapProc(cef_visit_web_plugin_info, visitor)
-  debugModeOff()
+  #debugModeOff()
 
 # Cause the plugin list to refresh the next time it is accessed regardless of
 # whether it has already been loaded. Can be called on any thread in the
@@ -129,9 +129,9 @@ proc NCRegisterWebPluginCrash*(path: string) =
 # Query if a plugin is unstable. Can be called on any thread in the browser
 # process.
 proc NCIsWebPluginUnstable*(path: string, callback: NCWebPluginUnstableCallback) =
-  debugModeOn()
-  wrapProc(cef_is_web_plugin_unstable, path, callback)
-  debugModeOff()
+  #debugModeOn()
+  #wrapProc(cef_is_web_plugin_unstable, path, callback)
+  #debugModeOff()
   add_ref(callback.GetHandler())
   let cpath = to_cef(path)
   cef_is_web_plugin_unstable(cpath, callback.GetHandler())

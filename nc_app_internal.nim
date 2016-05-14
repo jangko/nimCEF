@@ -51,7 +51,7 @@ proc toApp[T](handler: T): NCApp =
 
 proc on_render_thread_created(self: ptr cef_render_process_handler,
   extra_info: ptr cef_list_value) {.cef_callback.} =
-  toApp(self).OnRenderThreadCreated(extra_info)
+  toApp(self).OnRenderThreadCreated(nc_wrap(extra_info))
   release(extra_info)
 
 proc on_web_kit_initialized(self: ptr cef_render_process_handler) {.cef_callback.} =
@@ -143,7 +143,7 @@ proc on_before_child_process_launch(self: ptr cef_browser_process_handler, comma
   release(command_line)
 
 proc on_render_process_thread_created(self: ptr cef_browser_process_handler, extra_info: ptr cef_list_value) {.cef_callback.} =
-  toApp(self).OnRenderProcessThreadCreated(extra_info)
+  toApp(self).OnRenderProcessThreadCreated(nc_wrap(extra_info))
   release(extra_info)
 
 proc get_print_handler(self: ptr cef_browser_process_handler): ptr cef_print_handler {.cef_callback.} =

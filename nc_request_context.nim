@@ -143,7 +143,7 @@ proc HasPreference*(self: NCRequestContext, name: string): bool =
 # called on the browser process UI thread.
 proc GetPreference*(self: NCRequestContext, name: string): NCValue =
   let cname = to_cef(name)
-  result = self.handler.get_preference(self.handler, cname)
+  result = nc_wrap(self.handler.get_preference(self.handler, cname))
   nc_free(cname)
 
 # Returns all preferences as a dictionary. If |include_defaults| is true (1)
@@ -153,7 +153,7 @@ proc GetPreference*(self: NCRequestContext, name: string): NCValue =
 # preference values. This function must be called on the browser process UI
 # thread.
 proc GetAllPreferences*(self: NCRequestContext, include_defaults: bool): NCDictionaryValue =
-  result = self.handler.get_all_preferences(self.handler, include_defaults.cint)
+  result = nc_wrap(self.handler.get_all_preferences(self.handler, include_defaults.cint))
 
 # Returns true (1) if the preference with the specified |name| can be
 # modified using SetPreference. As one example preferences set via the
@@ -170,10 +170,10 @@ proc CanSetPreference*(self: NCRequestContext, name: string): bool =
 # fails then |error| will be populated with a detailed description of the
 # problem. This function must be called on the browser process UI thread.
 proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error: var string): bool =
-  add_ref(value)
+  add_ref(value.GetHandler())
   let cname = to_cef(name)
   var err_str: cef_string
-  result = self.handler.set_preference(self.handler, cname, value, err_str.addr) == 1.cint
+  result = self.handler.set_preference(self.handler, cname, value.GetHandler(), err_str.addr) == 1.cint
   nc_free(cname)
   if not result:
     error = $(err_str.addr)

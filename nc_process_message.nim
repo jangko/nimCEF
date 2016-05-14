@@ -25,7 +25,7 @@ proc GetName*(self: NCProcessMessage): string =
 
 # Returns the list of arguments.
 proc GetArgumentList*(self: NCProcessMessage): NCListValue =
-  result = self.get_argument_list(self)
+  result = nc_wrap(self.get_argument_list(self))
 
 # Create a new cef_process_message_t object with the specified name.
 proc CreateProcessMessage*(name: string): NCProcessMessage =

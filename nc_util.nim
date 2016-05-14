@@ -145,7 +145,7 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
         handler: ptr `base`
 
     proc GetHandler*(self: `x`): ptr `base` {.inline.} =
-      `res` = self.handler
+      `res` = if self == nil: nil else: self.handler
 
     proc nc_finalizer(self: `x`) =
       release(self.handler)

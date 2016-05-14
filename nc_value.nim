@@ -66,8 +66,6 @@ proc GetDouble*(self: NCValue): float64 =
   self.wrapCall(get_double, result)
 
 # Returns the underlying value as type string.
-
-# The resulting string must be freed by calling string_free().
 proc GetString*(self: NCValue): string =
   self.wrapCall(get_string, result)
 
@@ -257,8 +255,6 @@ proc GetDouble*(self: NCDictionaryValue, key: string): float64 =
   self.wrapCall(get_double, result, key)
 
 # Returns the value at the specified key as type string.
-
-# The resulting string must be freed by calling string_free().
 proc GetString*(self: NCDictionaryValue, key: string): string =
   self.wrapCall(get_string, result, key)
 
@@ -410,8 +406,6 @@ proc GetDouble*(self: NCListValue, index: int): float64 =
   self.wrapCall(get_double, result, index)
 
 # Returns the value at the specified index as type string.
-
-# The resulting string must be freed by calling string_free().
 proc GetString*(self: NCListValue, index: int): string =
   self.wrapCall(get_string, result, index)
 

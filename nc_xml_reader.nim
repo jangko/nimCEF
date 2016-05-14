@@ -21,7 +21,6 @@ proc HasError*(self: NCXmlReader): bool =
   self.wrapCall(has_error, result)
 
 # Returns the error string.
-# The resulting string must be freed by calling string_free().
 proc GetError*(self: NCXmlReader): string =
   self.wrapCall(get_error, result)
 
@@ -38,37 +37,31 @@ proc GetDepth*(self: NCXmlReader): int =
 
 # Returns the local name. See http:#www.w3.org/TR/REC-xml-names/#NT-
 # LocalPart for additional details.
-# The resulting string must be freed by calling string_free().
 proc GetLocalName*(self: NCXmlReader): string =
   self.wrapCall(get_local_name, result)
 
 # Returns the namespace prefix. See http:#www.w3.org/TR/REC-xml-names/ for
 # additional details.
-# The resulting string must be freed by calling string_free().
 proc GetPrefix*(self: NCXmlReader): string =
   self.wrapCall(get_prefix, result)
 
 # Returns the qualified name, equal to (Prefix:)LocalName. See
 # http:#www.w3.org/TR/REC-xml-names/#ns-qualnames for additional details.
-# The resulting string must be freed by calling string_free().
 proc GetQualifiedName*(self: NCXmlReader): string =
   self.wrapCall(get_qualified_name, result)
 
 # Returns the URI defining the namespace associated with the node. See
 # http:#www.w3.org/TR/REC-xml-names/ for additional details.
-# The resulting string must be freed by calling string_free().
 proc GetNamespaceUri*(self: NCXmlReader): string =
   self.wrapCall(get_namespace_uri, result)
 
 # Returns the base URI of the node. See http:#www.w3.org/TR/xmlbase/ for
 # additional details.
-# The resulting string must be freed by calling string_free().
 proc GetBaseUri*(self: NCXmlReader): string =
   self.wrapCall(get_base_uri, result)
 
 # Returns the xml:lang scope within which the node resides. See
 # http:#www.w3.org/TR/REC-xml/#sec-lang-tag for additional details.
-# The resulting string must be freed by calling string_free().
 proc GetXmlLang*(self: NCXmlReader): string =
   self.wrapCall(get_xml_lang, result)
 
@@ -82,7 +75,6 @@ proc HasValue*(self: NCXmlReader): bool =
   self.wrapCall(has_value, result)
 
 # Returns the text value.
-# The resulting string must be freed by calling string_free().
 proc GetValue*(self: NCXmlReader): string =
   self.wrapCall(get_value, result)
 
@@ -95,28 +87,23 @@ proc GetAttributeCount*(self: NCXmlReader): int =
   self.wrapCall(get_attribute_count, result)
 
 # Returns the value of the attribute at the specified 0-based index.
-# The resulting string must be freed by calling string_free().
 proc GetAttributeByIndex*(self: NCXmlReader, index: int): string =
   self.wrapCall(get_attribute_byindex, result, index)
 
 # Returns the value of the attribute with the specified qualified name.
-# The resulting string must be freed by calling string_free().
 proc GetAttributeByQname*(self: NCXmlReader, qualifiedName: string): string =
   self.wrapCall(get_attribute_byqname, result, qualifiedName)
 
 # Returns the value of the attribute with the specified local name and
 # namespace URI.
-# The resulting string must be freed by calling string_free().
 proc GetAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string): string =
   self.wrapCall(get_attribute_bylname, result, localName, namespaceURI)
 
 # Returns an XML representation of the current node's children.
-# The resulting string must be freed by calling string_free().
 proc GetInnerXml*(self: NCXmlReader): string =
   self.wrapCall(get_inner_xml, result)
 
 # Returns an XML representation of the current node including its children.
-# The resulting string must be freed by calling string_free().
 proc GetOuterXml*(self: NCXmlReader): string =
   self.wrapCall(get_outer_xml, result)
 

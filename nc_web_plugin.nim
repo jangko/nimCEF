@@ -18,19 +18,19 @@ type
 
 # Returns the plugin name (i.e. Flash).
 proc GetName*(self: NCWebPluginInfo): string =
-  result = to_nim(self.handler.get_name(self.handler))
+  self.wrapCall(get_name, result)
 
 # Returns the plugin file path (DLL/bundle/library).
 proc GetPath*(self: NCWebPluginInfo): string =
-  result = to_nim(self.handler.get_path(self.handler))
+  self.wrapCall(get_path, result)
 
 # Returns the version of the plugin (may be OS-specific).
 proc GetVersion*(self: NCWebPluginInfo): string =
-  result = to_nim(self.handler.get_version(self.handler))
+  self.wrapCall(get_version, result)
 
 # Returns a description of the plugin from the version information.
 proc GetDescription*(self: NCWebPluginInfo): string =
-  result = to_nim(self.handler.get_description(self.handler))
+  self.wrapCall(get_description, result)
 
 # Method that will be called once for each plugin. |count| is the 0-based
 # index for the current plugin. |total| is the total number of plugins.
@@ -80,63 +80,58 @@ proc makeNCWebPluginUnstableCallback*(T: typedesc): auto =
 # Visit web plugin information. Can be called on any thread in the browser
 # process.
 proc NCVisitWebPluginInfo*(visitor: NCWebPluginInfoVisitor) =
-  add_ref(visitor.GetHandler())
-  cef_visit_web_plugin_info(visitor.GetHandler())
+  debugModeOn()
+  #add_ref(visitor.GetHandler())
+  #cef_visit_web_plugin_info(visitor.GetHandler())
+  #wrapProc(cef_visit_web_plugin_info, visitor)
+  debugModeOff()
 
 # Cause the plugin list to refresh the next time it is accessed regardless of
 # whether it has already been loaded. Can be called on any thread in the
 # browser process.
-proc NCRefreshWebPlugins*() = cef_refresh_web_plugins()
+proc NCRefreshWebPlugins*() = 
+  wrapProc(cef_refresh_web_plugins)
 
 # Add a plugin path (directory + file). This change may not take affect until
 # after cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc NCAddWebPluginPath*(path: string) =
-  let cpath = to_cef(path)
-  cef_add_web_plugin_path(cpath)
-  nc_free(cpath)
+  wrapProc(cef_add_web_plugin_path, path)
 
 # Add a plugin directory. This change may not take affect until after
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc NCAddWwebPluginDirectory*(dir: string) =
-  let cpath = to_cef(dir)
-  cef_add_web_plugin_directory(cpath)
-  nc_free(cpath)
+  wrapProc(cef_add_web_plugin_directory, dir)  
 
 # Remove a plugin path (directory + file). This change may not take affect
 # until after cef_refresh_web_plugins() is called. Can be called on any thread
 # in the browser process.
 proc NCRemoveWebPluginPath*(path: string) =
-  let cpath = to_cef(path)
-  cef_remove_web_plugin_path(cpath)
-  nc_free(cpath)
+  wrapProc(cef_remove_web_plugin_path, path)
 
 # Unregister an internal plugin. This may be undone the next time
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc NCUnregisterInternalWebPlugin*(path: string) =
-  let cpath = to_cef(path)
-  cef_unregister_internal_web_plugin(cpath)
-  nc_free(cpath)
+  wrapProc(cef_unregister_internal_web_plugin, path)
 
 # Force a plugin to shutdown. Can be called on any thread in the browser
 # process but will be executed on the IO thread.
 proc NCForceWebPluginShutdown*(path: string) =
-  let cpath = to_cef(path)
-  cef_force_web_plugin_shutdown(cpath)
-  nc_free(cpath)
+  wrapProc(cef_force_web_plugin_shutdown, path)
 
 # Register a plugin crash. Can be called on any thread in the browser process
 # but will be executed on the IO thread.
 proc NCRegisterWebPluginCrash*(path: string) =
-  let cpath = to_cef(path)
-  cef_register_web_plugin_crash(cpath)
-  nc_free(cpath)
+  wrapProc(cef_register_web_plugin_crash, path)
 
 # Query if a plugin is unstable. Can be called on any thread in the browser
 # process.
 proc NCIsWebPluginUnstable*(path: string, callback: NCWebPluginUnstableCallback) =
+  debugModeOn()
+  wrapProc(cef_is_web_plugin_unstable, path, callback)
+  debugModeOff()
   add_ref(callback.GetHandler())
   let cpath = to_cef(path)
   cef_is_web_plugin_unstable(cpath, callback.GetHandler())

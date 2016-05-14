@@ -10,7 +10,7 @@ type
     hour*: cint          # Hour within the current day (0-23)
     minute*: cint        # Minute within the current hour (0-59)
     second*: cint        # Second within the current minute (0-59 plus leap
-                   #   seconds which may take it up to 60).
+                         #   seconds which may take it up to 60).
     millisecond*: cint   # Milliseconds within the current second (0-999)
 
 # Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)

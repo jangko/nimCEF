@@ -125,7 +125,7 @@ myScheme object handling the client:// protocol.
     self.mMimeType = "text/html"
   elif url.find("logo.png") != -1:
     #Load the response image
-    self.mData = readFile("resources\\logo.png")
+    self.mData = readFile("resources" & DirSep & "logo.png")
     handled = true
     #Set the resulting mime type
     self.mMimeType = "image/png"

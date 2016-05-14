@@ -1,4 +1,5 @@
 import nc_parser, nc_xml_reader, nc_stream, nc_util, cef/cef_types, nc_xml_object
+import nc_zip_reader, os
 
 var parts: NCUrlParts
 if NCParseUrl("http://admin:pass@www.myhost.net:8080/mypath/index.php?title=main_page", parts):
@@ -31,7 +32,7 @@ echo encuri
 
 echo NCUriDecode(encuri, false, NC_UU_ALL)
 
-var stream = NCStreamReaderCreateForFile("resources\\spruce.xml")
+var stream = NCStreamReaderCreateForFile("resources" & DirSep & "spruce.xml")
 assert(stream != nil)
 
 var loadError: string
@@ -43,3 +44,19 @@ if xml == nil:
 var child = xml.FindChild("spruce").FindChild("description")
 if child != nil:
   echo child.GetAttributes()
+
+var zs = NCStreamReaderCreateForFile("resources" & DirSep & "sample.zip")
+assert(zs != nil)
+
+var zip = NCZipReaderCreate(zs)
+assert(zip != nil)
+
+#bug cef_zip_reader::get_file_last_modified always returned with same result
+discard zip.MoveToFirstFile()
+while true:
+  echo "name: ", zip.GetFileName()
+  echo "size: ", zip.GetFileSize()
+  echo "modified: ", zip.GetFileLastModified()
+  if not zip.MoveToNextFile(): break
+
+discard zip.Close()

@@ -1,6 +1,6 @@
 import cef/cef_base_api, strtabs, cef/cef_string_map_api
 import cef/cef_string_api, cef/cef_string_list_api, tables
-import cef/cef_string_multimap_api, macros
+import cef/cef_string_multimap_api, macros, strutils
 include cef/cef_import
 
 export strtabs, cef_string_api, cef_string_list_api, cef_string_map_api, tables
@@ -154,3 +154,210 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
       new(`res`, nc_finalizer)
       `res`.handler = handler
       add_ref(handler)
+      
+var
+  wrapDebugMode {.compileTime.} = false
+
+macro debugModeOn*(): stmt =
+  wrapDebugMode = true
+  result = newEmptyNode()
+
+macro debugModeOff*(): stmt =
+  wrapDebugMode = false
+  result = newEmptyNode()
+  
+proc isAvailable(list: NimNode, elem: string): bool =
+  for c in list:
+    if $c == elem: return true
+  result = false
+
+proc checkSelf(self: NimNode): NimNode =
+  var err = false
+  result = getType(self)
+  if result.kind != nnkBracketExpr: err = true
+  if result.len != 2: err = true
+  if result[0].typeKind != ntyRef: err = true
+  if not (result[1].kind == nnkSym and result[1].typeKind == ntyObject): err = true
+  if err: error(lineinfo(self) & " self must be a ref object type")
+
+proc checkSymNC(nc: NimNode): NimNode =
+  var err = false
+  result = getType(nc)
+  if result.kind != nnkObjectTy: err = true
+  if not (result[1][0].kind == nnkSym and $result[1][0] == "handler"): err = true
+  if err: error(lineinfo(nc) & " self must be a ref object type with a handler")
+
+proc checkSymHandler(nc: NimNode): NimNode =
+  var err = false
+  result = getType(nc)
+  if result.kind != nnkBracketExpr: err = true
+  if result[0].typeKind != ntyPtr: err = true
+  if not (result[1].kind == nnkSym and substr($result[1], 0, 3) == "cef_"): err = true
+  if err: error(lineinfo(nc) & " self.handler must be a ptr to cef_xxx")
+
+proc getRoutine(list: NimNode, elem: string): NimNode =
+  for c in list:
+    if $c == elem: return c
+
+proc routineHasResult(n: NimNode): bool =
+  var err = false
+  let procType = getType(n)
+  if procType.kind != nnkBracketExpr: err = true
+  if procType[0].typeKind != ntyProc: err = true
+  if procType[1].kind == nnkEmpty: err = true
+  if procType[1].kind == nnkSym and $procType[1] == "void": err = true
+  #if err: error(lineinfo(n) & " expected routine \"" & $n & "\" has return type")
+  result = not err
+
+macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
+  # Sanitary Check
+  let
+    selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
+    symNC      = checkSymNC(selfType[1]) # ObjectTy: Empty, Reclist: sym handler
+    symHandler = checkSymHandler(symNC[1][0]) # BracketExpr: sym ptr, sym cef_xxx
+    symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n
+    routineList= symCef[1]
+    argSize    = args.len-1
+    rout       = getRoutine(routineList, $routine)
+    hasResult  = routineHasResult(rout)
+
+  # check if routine available
+  if not isAvailable(routineList, $routine):
+    error(lineinfo(routine) & " routine: \"" & $routine & "\" not available")
+
+  var
+    startIndex = 0
+    proloque = ""
+    epiloque = ""
+    params = "self.handler, "
+    calee = "self.handler." & $routine
+    body = ""
+
+  if hasResult and args.len > 0:
+    if args[0].kind == nnkSym and $args[0] == "result": startIndex = 1
+    else: error(lineinfo(self) & " expected \"result\" param")
+
+  if hasResult and args.len == 0:
+    error(lineinfo(self) & " expected \"result\" param")
+
+  for i in startIndex..argSize:
+    let argi = $(i - startIndex)
+    let argv = $args[i]
+    case args[i].typeKind
+    of ntyString:
+      proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
+      params.add "arg$1" % [argi]
+      epiloque.add "nc_free(arg$1)\n" % [argi]
+    of ntyBool, ntyInt:
+      params.add "$1.cint" % [argv]
+    of ntyPointer:
+      params.add argv
+    else:
+      error(lineinfo(args[i]) & " unsupported param type: " & $args[i].typeKind)
+
+    if i < argSize: params.add ", "
+
+  if startIndex > 0:
+    let res = args[0]
+    case res.typeKind
+    of ntyBool:
+      body = "result = $1($2) == 1.cint\n" % [calee, params]
+    of ntyString, ntyObject:
+      body = "result = to_nim($1($2))\n" % [calee, params]
+    of ntyInt64, ntyEnum:
+      body = "result = $1($2)\n" % [calee, params]
+    of ntyInt:
+      body = "result = $1($2).cint\n" % [calee, params]
+    else:
+      error(lineinfo(res) & " unsupported return type: " & $res.typeKind)
+  else:
+    body = "$1($2)\n" % [calee, params]
+
+  if wrapDebugMode:
+    echo proloque
+    echo body
+    echo epiloque
+
+  result = parseStmt(proloque & body & epiloque)
+
+proc checkBase(n: NimNode): bool =
+  var err = false
+  let objSym = getType(n)[1]
+  let objType = getType(objSym)
+  let base = objType[1][0]
+  if objSym.typeKind != ntyObject: err = true
+  if not (base.typeKind == ntyObject and $base == "base"): err = true
+  result = not err
+
+proc checkWrapped(n: NimNode): bool =
+  var err = false
+  let objSym = getType(n)[1]
+  let objType = getType(objSym)
+  let handler = objType[1][0]
+  let handlee = getType(handler)[1]
+  if objSym.typeKind != ntyObject: err = true
+  if not (handler.typeKind == ntyPtr and $handler == "handler"): err = true
+  if handler.typeKind == ntyPtr and substr($handlee, 0, 3) != "cef_": err = true
+  result = not err
+
+macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
+  let hasResult = routineHasResult(routine)
+  let argSize = args.len-1
+
+  var
+    startIndex = 0
+    proloque = ""
+    epiloque = ""
+    params = ""
+    calee = $routine
+    body = ""
+
+  if hasResult and args.len > 0:
+    if args[0].kind == nnkSym and $args[0] == "result": startIndex = 1
+    else: error(lineinfo(routine) & " expected \"result\" param")
+
+  if hasResult and args.len == 0:
+    error(lineinfo(routine) & " expected \"result\" param")
+
+  for i in startIndex..argSize:
+    let argi = $(i - startIndex)
+    let argv = $args[i]
+    case args[i].typeKind
+    of ntyPtr:
+      if checkBase(args[i]): proloque.add "add_ref($1)\n" % [argv]
+      else: error(lineinfo(args[i]) & " unsupported ptr type")
+      params.add argv
+    of ntyEnum:
+      params.add argv
+    of ntyString:
+      proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
+      params.add "arg$1" % [argi]
+      epiloque.add "nc_free(arg$1)\n" % [argi]
+    of ntyRef:
+      if checkWrapped(args[i]): proloque.add "add_ref($1.GetHandler())\n" % [argv]
+      else: error(lineinfo(args[i]) & " unsupported ref type")
+      params.add "$1.GetHandler()" % [argv]
+    else:
+      error(lineinfo(args[i]) & " unsupported param type: " & $args[i].typeKind)
+
+    if i < argSize: params.add ", "
+
+  if startIndex > 0:
+    let res = args[0]
+    case res.typeKind
+    of ntyRef:
+      if checkWrapped(res):
+        body = "result = nc_wrap($1($2))\n" % [calee, params]
+      else:
+        error(lineinfo(res) & " unsupported ref result")
+    else:
+      error(lineinfo(res) & " unsupported return type: " & $res.typeKind)
+  else:
+    body = "$1($2)\n" % [calee, params]
+
+  if wrapDebugMode:
+    echo proloque
+    echo body
+    echo epiloque
+
+  result = parseStmt(proloque & body & epiloque)

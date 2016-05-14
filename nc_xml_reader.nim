@@ -9,126 +9,120 @@ wrapAPI(NCXmlReader, cef_xml_reader)
 # called at least once to set the current cursor position. Returns true (1)
 # if the cursor position was set successfully.
 proc MoveToNextNode*(self: NCXmlReader): bool =
-  result = self.handler.move_to_next_node(self.handler) == 1.cint
+  self.wrapCall(move_to_next_node, result)
 
 # Close the document. This should be called directly to ensure that cleanup
 # occurs on the correct thread.
 proc Close*(self: NCXmlReader): int =
-  result = self.handler.close(self.handler).int
+  self.wrapCall(close, result)
 
 # Returns true (1) if an error has been reported by the XML parser.
 proc HasError*(self: NCXmlReader): bool =
-  result = self.handler.has_error(self.handler) == 1.cint
+  self.wrapCall(has_error, result)
 
 # Returns the error string.
 # The resulting string must be freed by calling string_free().
 proc GetError*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_error(self.handler))
+  self.wrapCall(get_error, result)
 
 # The below functions retrieve data for the node at the current cursor
 # position.
 
 # Returns the node type.
 proc GetType*(self: NCXmlReader): cef_xml_node_type =
-  result = self.handler.get_type(self.handler)
+  self.wrapCall(get_type, result)
 
 # Returns the node depth. Depth starts at 0 for the root node.
 proc GetDepth*(self: NCXmlReader): int =
-  result = self.handler.get_depth(self.handler).int
+  self.wrapCall(get_depth, result)
 
 # Returns the local name. See http:#www.w3.org/TR/REC-xml-names/#NT-
 # LocalPart for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetLocalName*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_local_name(self.handler))
+  self.wrapCall(get_local_name, result)
 
 # Returns the namespace prefix. See http:#www.w3.org/TR/REC-xml-names/ for
 # additional details.
 # The resulting string must be freed by calling string_free().
 proc GetPrefix*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_prefix(self.handler))
+  self.wrapCall(get_prefix, result)
 
 # Returns the qualified name, equal to (Prefix:)LocalName. See
 # http:#www.w3.org/TR/REC-xml-names/#ns-qualnames for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetQualifiedName*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_qualified_name(self.handler))
+  self.wrapCall(get_qualified_name, result)
 
 # Returns the URI defining the namespace associated with the node. See
 # http:#www.w3.org/TR/REC-xml-names/ for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetNamespaceUri*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_namespace_uri(self.handler))
+  self.wrapCall(get_namespace_uri, result)
 
 # Returns the base URI of the node. See http:#www.w3.org/TR/xmlbase/ for
 # additional details.
 # The resulting string must be freed by calling string_free().
 proc GetBaseUri*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_base_uri(self.handler))
+  self.wrapCall(get_base_uri, result)
 
 # Returns the xml:lang scope within which the node resides. See
 # http:#www.w3.org/TR/REC-xml/#sec-lang-tag for additional details.
 # The resulting string must be freed by calling string_free().
 proc GetXmlLang*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_xml_lang(self.handler))
+  self.wrapCall(get_xml_lang, result)
 
 # Returns true (1) if the node represents an NULL element. <a/> is considered
 # NULL but <a></a> is not.
 proc IsEmptyElement*(self: NCXmlReader): bool =
-  result = self.handler.is_empty_element(self.handler) == 1.cint
+  self.wrapCall(is_empty_element, result)
 
 # Returns true (1) if the node has a text value.
 proc HasValue*(self: NCXmlReader): bool =
-  result = self.handler.has_value(self.handler) == 1.cint
+  self.wrapCall(has_value, result)
 
 # Returns the text value.
 # The resulting string must be freed by calling string_free().
 proc GetValue*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_value(self.handler))
+  self.wrapCall(get_value, result)
 
 # Returns true (1) if the node has attributes.
 proc HasAttributes*(self: NCXmlReader): bool =
-  result = self.handler.has_attributes(self.handler) == 1.cint
+  self.wrapCall(has_attributes, result)
 
 # Returns the number of attributes.
 proc GetAttributeCount*(self: NCXmlReader): int =
-  result = self.handler.get_attribute_count(self.handler).int
+  self.wrapCall(get_attribute_count, result)
 
 # Returns the value of the attribute at the specified 0-based index.
 # The resulting string must be freed by calling string_free().
 proc GetAttributeByIndex*(self: NCXmlReader, index: int): string =
-  result = to_nim(self.handler.get_attribute_byindex(self.handler, index.cint))
+  self.wrapCall(get_attribute_byindex, result, index)
 
 # Returns the value of the attribute with the specified qualified name.
 # The resulting string must be freed by calling string_free().
 proc GetAttributeByQname*(self: NCXmlReader, qualifiedName: string): string =
-  let qname = to_cef(qualifiedName)
-  result = to_nim(self.handler.get_attribute_byqname(self.handler, qname))
-  nc_free(qname)
+  self.wrapCall(get_attribute_byqname, result, qualifiedName)
 
 # Returns the value of the attribute with the specified local name and
 # namespace URI.
 # The resulting string must be freed by calling string_free().
 proc GetAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string): string =
-  let clname = to_cef(localName)
-  let cnsuri = to_cef(namespaceURI)
-  result = to_nim(self.handler.get_attribute_bylname(self.handler, clname, cnsuri))
-  nc_free(clname)
-  nc_free(cnsuri)
+  self.wrapCall(get_attribute_bylname, result, localName, namespaceURI)
 
 # Returns an XML representation of the current node's children.
 # The resulting string must be freed by calling string_free().
 proc GetInnerXml*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_inner_xml(self.handler))
+  self.wrapCall(get_inner_xml, result)
 
 # Returns an XML representation of the current node including its children.
 # The resulting string must be freed by calling string_free().
 proc GetOuterXml*(self: NCXmlReader): string =
-  result = to_nim(self.handler.get_outer_xml(self.handler))
+  self.wrapCall(get_outer_xml, result)
 
 # Returns the line number for the current node.
 proc GetLineNumber*(self: NCXmlReader): int =
-  result = self.handler.get_line_number(self.handler).int
+  self.wrapCall(get_line_number, result)
 
 # Attribute nodes are not traversed by default. The below functions can be
 # used to move the cursor to an attribute node. move_to_carrying_element()
@@ -137,44 +131,36 @@ proc GetLineNumber*(self: NCXmlReader): int =
 # Moves the cursor to the attribute at the specified 0-based index. Returns
 # true (1) if the cursor position was set successfully.
 proc MoveToAttributeByIndex*(self: NCXmlReader, index: int): bool =
-  result = self.handler.move_to_attribute_byindex(self.handler, index.cint) == 1.cint
+  self.wrapCall(move_to_attribute_byindex, result, index)
 
 # Moves the cursor to the attribute with the specified qualified name.
 # Returns true (1) if the cursor position was set successfully.
 proc MoveToAttributeByQname*(self: NCXmlReader, qualifiedName: string): bool =
-  let qname = to_cef(qualifiedName)
-  result = self.handler.move_to_attribute_byqname(self.handler, qname) == 1.cint
-  nc_free(qname)
+  self.wrapCall(move_to_attribute_byqname, result, qualifiedName)
 
 # Moves the cursor to the attribute with the specified local name and
 # namespace URI. Returns true (1) if the cursor position was set
 # successfully.
 proc MoveToAttributeByLname*(self: NCXmlReader, localName, namespaceURI: string): bool =
-  let clname = to_cef(localName)
-  let cnsuri = to_cef(namespaceURI)
-  result = self.handler.move_to_attribute_bylname(self.handler, clname, cnsuri) == 1.cint
-  nc_free(clname)
-  nc_free(cnsuri)
+  self.wrapCall(move_to_attribute_bylname, result, localName, namespaceURI)
 
 # Moves the cursor to the first attribute in the current element. Returns
 # true (1) if the cursor position was set successfully.
 proc MoveToFirstAttribute*(self: NCXmlReader): bool =
-  result = self.handler.move_to_first_attribute(self.handler) == 1.cint
+  self.wrapCall(move_to_first_attribute, result)
 
 # Moves the cursor to the next attribute in the current element. Returns true
 # (1) if the cursor position was set successfully.
 proc MoveToNextAttribute*(self: NCXmlReader): bool =
-  result = self.handler.move_to_next_attribute(self.handler) == 1.cint
+  self.wrapCall(move_to_next_attribute, result)
 
 # Moves the cursor back to the carrying element. Returns true (1) if the
 # cursor position was set successfully.
 proc MoveToCarryingElement*(self: NCXmlReader): bool =
-  result = self.handler.move_to_carrying_element(self.handler) == 1.cint
+  self.wrapCall(move_to_carrying_element, result)
 
 # Create a new cef_xml_reader_t object. The returned object's functions can
 # only be called from the thread that created the object.
 proc NCXmlReaderCreate*(stream: NCStreamReader, encodingType: cef_xml_encoding_type, URI: string): NCXmlReader =
-  let curi = to_cef(URI)
-  add_ref(stream)
-  result = nc_wrap(cef_xml_reader_create(stream, encodingType, curi))
-  nc_free(curi)
+  wrapProc(cef_xml_reader_create, result, stream, encodingType, URI)
+

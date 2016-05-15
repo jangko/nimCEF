@@ -1,8 +1,15 @@
 import cef/cef_base_api, cef/cef_browser_api, cef/cef_client_api, cef/cef_frame_api
 import cef/cef_string_api, cef/cef_string_list_api, cef/cef_types
+import nc_util
 
 export cef_base_api, cef_string_api, cef_string_list_api
 
+# Structure used to represent a frame in the browser window. When used in the
+# browser process the functions of this structure may be called on any thread
+# unless otherwise indicated in the comments. When used in the render process
+# the functions of this structure may only be called on the main thread.
+wrapAPI(NCFrame, cef_frame)
+  
 type
   # Implement this structure to provide handler implementations.
   NCClient* = ref object of RootObj
@@ -39,11 +46,7 @@ type
 
   NCCFS* = set[NCClientCreateFlag]
 
-  # Structure used to represent a frame in the browser window. When used in the
-  # browser process the functions of this structure may be called on any thread
-  # unless otherwise indicated in the comments. When used in the render process
-  # the functions of this structure may only be called on the main thread.
-  NCFrame* = ptr cef_frame
+
 
   # Structure used to represent a browser window. When used in the browser
   # process the functions of this structure may be called on any thread unless
@@ -86,6 +89,9 @@ template to_cclient*(client: expr): expr =
 
 template type_to_type*(ctype: typedesc, obj: expr): expr =
   cast[ctype](cast[ByteAddress](obj) - sizeof(pointer))
+  
+template nc_wrap*(x: ptr_cef_browser): expr = nc_wrap(cast[ptr cef_browser](x))
+template nc_wrap*(x: ptr_cef_frame): expr = nc_wrap(cast[ptr cef_frame](x))
 
 type
   NCMainArgs* = ref object

@@ -79,7 +79,7 @@ proc scheme_handler_factory_create(self: ptr cef_scheme_handler_factory, browser
   frame: ptr cef_frame, scheme_name: ptr cef_string, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
   var factory = type_to_type(NCSchemeHandlerFactory, self)
   var brow = b_to_b(browser)
-  result = factory.Create(nc_wrap(brow), frame, $schemeName, request).GetHandler()
+  result = factory.Create(nc_wrap(brow), nc_wrap(frame), $schemeName, request).GetHandler()
   release(brow)
   release(frame)
   release(request)

@@ -1,4 +1,4 @@
-import cef_base_api, cef_string_visitor_api, cef_request_api, cef_dom_api, cef_v8_api
+import cef_base_api, cef_string_visitor_api, cef_request_api, cef_dom_api, cef_v8context_api
 include cef_import
 
 # Structure used to represent a frame in the browser window. When used in the

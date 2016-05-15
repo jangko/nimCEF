@@ -219,11 +219,7 @@ proc HasKey*(self: NCDictionaryValue, key: string): bool =
 
 # Reads all keys for this dictionary into the specified vector.
 proc GetKeys*(self: NCDictionaryValue): seq[string] =
-  var clist = cef_string_list_alloc()
-  if self.handler.get_keys(self.handler, clist) == 1.cint:
-    result = to_nim(clist)
-  else:
-    result = @[]
+  self.wrapCall(get_keys, result)
 
 # Removes the value at the specified key. Returns true (1) is the value was
 # removed successfully.

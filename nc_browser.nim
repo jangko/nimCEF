@@ -99,20 +99,20 @@ proc HasDocument*(self: NCBrowser): bool =
 
 # Returns the main (top-level) frame for the browser window.
 proc GetMainFrame*(self: NCBrowser): NCFrame =
-  result = self.handler.get_main_frame(self.handler)
+  result = nc_wrap(self.handler.get_main_frame(self.handler))
 
 # Returns the focused frame for the browser window.
 proc GetFocusedFrame*(self: NCBrowser): NCFrame =
-  result = self.handler.get_focused_frame(self.handler)
+  result = nc_wrap(self.handler.get_focused_frame(self.handler))
 
 # Returns the frame with the specified identifier, or NULL if not found.
 proc GetFrameByident*(self: NCBrowser, identifier: int64): NCFrame =
-  result = self.handler.get_frame_byident(self.handler, identifier)
+  result = nc_wrap(self.handler.get_frame_byident(self.handler, identifier))
 
 # Returns the frame with the specified name, or NULL if not found.
 proc GetFrame*(self: NCBrowser, name: string): NCFrame =
   var cname = to_cef(name)
-  result = self.handler.get_frame(self.handler, cname)
+  result = nc_wrap(self.handler.get_frame(self.handler, cname))
   nc_free(cname)
 
 # Returns the number of frames that currently exist.

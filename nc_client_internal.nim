@@ -95,7 +95,7 @@ proc initialize_drag_handler*(drag: ptr cef_drag_handler) =
 proc on_address_change(self: ptr cef_display_handler, browser: ptr_cef_browser, frame: ptr cef_frame, url: ptr cef_string) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnAddressChange(nc_wrap(brow), frame, $url)
+  client.OnAddressChange(nc_wrap(brow), nc_wrap(frame), $url)
   release(brow)
   release(frame)
 
@@ -208,7 +208,7 @@ proc on_load_start(self: ptr cef_load_handler,
   browser: ptr_cef_browser, frame: ptr cef_frame) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnLoadStart(nc_wrap(brow), frame)
+  client.OnLoadStart(nc_wrap(brow), nc_wrap(frame))
   release(brow)
   release(frame)
 
@@ -217,7 +217,7 @@ proc on_load_end(self: ptr cef_load_handler,
   httpStatusCode: cint) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnLoadEnd(nc_wrap(brow), frame, httpStatusCode.int)
+  client.OnLoadEnd(nc_wrap(brow), nc_wrap(frame), httpStatusCode.int)
   release(brow)
   release(frame)
 
@@ -226,7 +226,7 @@ proc on_load_error(self: ptr cef_load_handler,
   errorCode: cef_errorcode, errorText, failedUrl: ptr cef_string) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnLoadError(nc_wrap(brow), frame, errorCode, $errorText, $failedUrl)
+  client.OnLoadError(nc_wrap(brow), nc_wrap(frame), errorCode, $errorText, $failedUrl)
   release(brow)
   release(frame)
 
@@ -441,7 +441,7 @@ proc on_before_browse*(self: ptr cef_request_handler,
   request: ptr cef_request, is_redirect: cint): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnBeforeBrowse(nc_wrap(brow), frame, request, is_redirect == 1.cint).cint
+  result = client.OnBeforeBrowse(nc_wrap(brow), nc_wrap(frame), request, is_redirect == 1.cint).cint
   release(brow)
   release(frame)
   release(request)
@@ -451,7 +451,7 @@ proc on_open_urlfrom_tab*(self: ptr cef_request_handler,
   target_disposition: cef_window_open_disposition, user_gesture: cint): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnOpenUrlFromTab(nc_wrap(brow), frame, $target_url, target_disposition, user_gesture == 1.cint).cint
+  result = client.OnOpenUrlFromTab(nc_wrap(brow), nc_wrap(frame), $target_url, target_disposition, user_gesture == 1.cint).cint
   release(brow)
   release(frame)
 
@@ -460,7 +460,7 @@ proc on_before_resource_load*(self: ptr cef_request_handler,
   callback: ptr cef_request_callback): cef_return_value {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnBeforeResourceLoad(nc_wrap(brow), frame, request, callback)
+  result = client.OnBeforeResourceLoad(nc_wrap(brow), nc_wrap(frame), request, callback)
   release(brow)
   release(frame)
   release(request)
@@ -470,7 +470,7 @@ proc get_resource_handler*(self: ptr cef_request_handler, browser: ptr_cef_brows
   frame: ptr cef_frame, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.GetResourceHandler(nc_wrap(brow), frame, request).GetHandler()
+  result = client.GetResourceHandler(nc_wrap(brow), nc_wrap(frame), request).GetHandler()
   release(brow)
   release(frame)
   release(request)
@@ -479,7 +479,7 @@ proc on_resource_redirect*(self: ptr cef_request_handler, browser: ptr_cef_brows
   request: ptr cef_request, new_url: ptr cef_string) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnResourceRedirect(nc_wrap(brow), frame, request, $new_url)
+  client.OnResourceRedirect(nc_wrap(brow), nc_wrap(frame), request, $new_url)
   release(brow)
   release(frame)
   release(request)
@@ -488,7 +488,7 @@ proc on_resource_response*(self: ptr cef_request_handler, browser: ptr_cef_brows
   request: ptr cef_request, response: ptr cef_response): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnResourceResponse(nc_wrap(brow), frame, request, response).cint
+  result = client.OnResourceResponse(nc_wrap(brow), nc_wrap(frame), request, response).cint
   release(brow)
   release(frame)
   release(request)
@@ -499,7 +499,7 @@ proc get_resource_response_filter*(self: ptr cef_request_handler, browser: ptr_c
   response: ptr cef_response): ptr cef_response_filter {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  var res = client.GetResourceResponseFilter(nc_wrap(brow), frame, request, response)
+  var res = client.GetResourceResponseFilter(nc_wrap(brow), nc_wrap(frame), request, response)
   if res != nil: result = res.GetHandler()
   release(brow)
   release(frame)
@@ -512,7 +512,7 @@ proc on_resource_load_complete*(self: ptr cef_request_handler, browser: ptr_cef_
   received_content_length: int64) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnResourceLoadComplete(nc_wrap(brow), frame, request, response, status, received_content_length)
+  client.OnResourceLoadComplete(nc_wrap(brow), nc_wrap(frame), request, response, status, received_content_length)
   release(brow)
   release(frame)
   release(request)
@@ -524,7 +524,7 @@ proc get_auth_credentials*(self: ptr cef_request_handler,
   scheme: ptr cef_string, callback: ptr cef_auth_callback): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.GetAuthCredentials(nc_wrap(brow), frame, isProxy == 1.cint, $host, port.int, $realm,
+  result = client.GetAuthCredentials(nc_wrap(brow), nc_wrap(frame), isProxy == 1.cint, $host, port.int, $realm,
     $scheme, callback).cint
   release(brow)
   release(frame)

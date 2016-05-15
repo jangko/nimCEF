@@ -12,7 +12,7 @@ proc on_before_popup(self: ptr cef_life_span_handler,
   var cliente = get_client(browser)
   var brow = b_to_b(browser)
   var nja: cint = no_javascript_access
-  result = cliente.OnBeforePopup(nc_wrap(brow), frame, $target_url, $target_frame_name,
+  result = cliente.OnBeforePopup(nc_wrap(brow), nc_wrap(frame), $target_url, $target_frame_name,
     target_disposition, user_gesture, popupFeatures, windowInfo, client, settings, nja).cint
   no_javascript_access = nja
   release(brow)

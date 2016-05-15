@@ -1,75 +1,74 @@
-import cef/cef_v8_api, cef/cef_task_api, nc_types, nc_util, cef/cef_time_api
+import nc_task, nc_types, nc_util, nc_time
 
-type
-  # Structure representing a V8 context handle. V8 handles can only be accessed
-  # from the thread on which they are created. Valid threads for creating a V8
-  # handle include the render process main thread (TID_RENDERER) and WebWorker
-  # threads. A task runner for posting tasks on the associated thread can be
-  # retrieved via the cef_v8context_t::get_task_runner() function.
-  NCV8Context* = ptr cef_v8context
+# Structure representing a V8 context handle. V8 handles can only be accessed
+# from the thread on which they are created. Valid threads for creating a V8
+# handle include the render process main thread (TID_RENDERER) and WebWorker
+# threads. A task runner for posting tasks on the associated thread can be
+# retrieved via the cef_v8context_t::get_task_runner() function.
+wrapAPI(NCV8Context, cef_v8context)
 
-  # Structure that should be implemented to handle V8 function calls. The
-  # functions of this structure will be called on the thread associated with the
-  # V8 function.
-  NCV8Handler* = ptr cef_v8handler
+# Structure that should be implemented to handle V8 function calls. The
+# functions of this structure will be called on the thread associated with the
+# V8 function.
+wrapAPI(NCV8Handler, cef_v8handler, false)
 
-  # Structure that should be implemented to handle V8 accessor calls. Accessor
-  # identifiers are registered by calling cef_v8value_t::set_value(). The
-  # functions of this structure will be called on the thread associated with the
-  # V8 accessor.
-  NCV8Accessor* = ptr cef_v8accessor
+# Structure that should be implemented to handle V8 accessor calls. Accessor
+# identifiers are registered by calling cef_v8value_t::set_value(). The
+# functions of this structure will be called on the thread associated with the
+# V8 accessor.
+wrapAPI(NCV8Accessor, cef_v8accessor, false)
 
-  # Structure representing a V8 exception. The functions of this structure may be
-  # called on any render process thread.
-  NCV8Exception* = ptr cef_v8exception
+# Structure representing a V8 exception. The functions of this structure may be
+# called on any render process thread.
+wrapAPI(NCV8Exception, cef_v8exception, false)
 
-  # Structure representing a V8 value handle. V8 handles can only be accessed
-  # from the thread on which they are created. Valid threads for creating a V8
-  # handle include the render process main thread (TID_RENDERER) and WebWorker
-  # threads. A task runner for posting tasks on the associated thread can be
-  # retrieved via the cef_v8context_t::get_task_runner() function.
-  NCV8Value* = ptr cef_v8value
+# Structure representing a V8 value handle. V8 handles can only be accessed
+# from the thread on which they are created. Valid threads for creating a V8
+# handle include the render process main thread (TID_RENDERER) and WebWorker
+# threads. A task runner for posting tasks on the associated thread can be
+# retrieved via the cef_v8context_t::get_task_runner() function.
+wrapAPI(NCV8Value, cef_v8value, false)
 
-  # Structure representing a V8 stack trace handle. V8 handles can only be
-  # accessed from the thread on which they are created. Valid threads for
-  # creating a V8 handle include the render process main thread (TID_RENDERER)
-  # and WebWorker threads. A task runner for posting tasks on the associated
-  # thread can be retrieved via the cef_v8context_t::get_task_runner() function.
-  NCV8StackTrace* = ptr cef_v8stacktrace
+# Structure representing a V8 stack trace handle. V8 handles can only be
+# accessed from the thread on which they are created. Valid threads for
+# creating a V8 handle include the render process main thread (TID_RENDERER)
+# and WebWorker threads. A task runner for posting tasks on the associated
+# thread can be retrieved via the cef_v8context_t::get_task_runner() function.
+wrapAPI(NCV8StackTrace, cef_v8stacktrace, false)
 
-  # Structure representing a V8 stack frame handle. V8 handles can only be
-  # accessed from the thread on which they are created. Valid threads for
-  # creating a V8 handle include the render process main thread (TID_RENDERER)
-  # and WebWorker threads. A task runner for posting tasks on the associated
-  # thread can be retrieved via the cef_v8context_t::get_task_runner() function.
-  NCV8StackFrame* = ptr cef_v8stackframe
+# Structure representing a V8 stack frame handle. V8 handles can only be
+# accessed from the thread on which they are created. Valid threads for
+# creating a V8 handle include the render process main thread (TID_RENDERER)
+# and WebWorker threads. A task runner for posting tasks on the associated
+# thread can be retrieved via the cef_v8context_t::get_task_runner() function.
+wrapAPI(NCV8StackFrame, cef_v8stackframe, false)
 
 # Returns the task runner associated with this context. V8 handles can only
 # be accessed from the thread on which they are created. This function can be
 # called on any render process thread.
-proc GetTaskRunner*(self: NCV8Context): ptr cef_task_runner =
-  result = self.get_task_runner(self)
+proc GetTaskRunner*(self: NCV8Context): NCTaskRunner =
+  self.wrapCall(get_task_runner, result)
 
 # Returns true (1) if the underlying handle is valid and it can be accessed
 # on the current thread. Do not call any other functions if this function
 # returns false (0).
 proc IsValid*(self: NCV8Context): bool =
-  result = self.is_valid(self) == 1.cint
+  self.wrapCall(is_valid, result)
 
 # Returns the browser for this context. This function will return an NULL
 # reference for WebWorker contexts.
 proc GetBrowser*(self: NCV8Context): NCBrowser =
-  result = cast[NCBrowser](self.get_browser(self))
+  self.wrapCall(get_browser, result)
 
 # Returns the frame for this context. This function will return an NULL
 # reference for WebWorker contexts.
 proc GetFrame*(self: NCV8Context): NCFrame =
-  result = cast[NCFrame](self.get_frame(self))
+  self.wrapCall(get_frame, result)
 
 # Returns the global object for this context. The context must be entered
 # before calling this function.
 proc GetGlobal*(self: NCV8Context): NCV8Value =
-  result = self.get_global(self)
+  self.wrapCall(get_global, result)
 
 # Enter this context. A context must be explicitly entered before creating a
 # V8 Object, Array, Function or Date asynchronously. exit() must be called
@@ -77,27 +76,24 @@ proc GetGlobal*(self: NCV8Context): NCV8Value =
 # objects belong to the context in which they are created. Returns true (1)
 # if the scope was entered successfully.
 proc Enter*(self: NCV8Context): bool =
-  result = self.enter(self) == 1.cint
+  self.wrapCall(enter, result)
 
 # Exit this context. Call this function only after calling enter(). Returns
 # true (1) if the scope was exited successfully.
 proc Exit*(self: NCV8Context): bool =
-  result = self.exit(self) == 1.cint
+  self.wrapCall(exit, result)
 
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCV8Context): bool =
-  add_ref(that)
-  result = self.is_same(self, that) == 1.cint
+  self.wrapCall(is_same, result, that)
 
 # Evaluates the specified JavaScript code using this context's global object.
 # On success |retval| will be set to the return value, if any, and the
 # function will return true (1). On failure |exception| will be set to the
 # exception, if any, and the function will return false (0).
 proc Eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: var NCV8Exception): bool =
-  let ccode = to_cef(code)
-  result = self.eval(self, ccode, retval, exception) == 1.cint
-  nc_free(ccode)
+  self.wrapCall(eval, result, code, retval, exception)
 
 # Handle execution of the function identified by |name|. |object| is the
 # receiver ('this' object) of the function. |arguments| is the list of
@@ -106,27 +102,22 @@ proc Eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: va
 # that will be thrown. Return true (1) if execution was handled.
 proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
   retval: var NCV8Value, exception: string): bool =
-  add_ref(obj)
-  for c in args: add_ref(c)
-  let cname = to_cef(name)
-  let cexception = to_cef(exception)
-  result = self.execute(self, cname, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr), retval, cexception) == 1.cint
-  nc_free(cname)
-  nc_free(cexception)
+  #add_ref(obj)
+  #for c in args: add_ref(c)
+  #let cname = to_cef(name)
+  #let cexception = to_cef(exception)
+  #self.wrapCall(execute(self, cname, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr), retval, cexception) == 1.cint
+  #nc_free(cname)
+  #nc_free(cexception)
+  discard
 
 # Handle retrieval the accessor value identified by |name|. |object| is the
 # receiver ('this' object) of the accessor. If retrieval succeeds set
 # |retval| to the return value. If retrieval fails set |exception| to the
 # exception that will be thrown. Return true (1) if accessor retrieval was
 # handled.
-proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
-  retval: var NCV8Value, exception: string): bool =
-  add_ref(obj)
-  let cname = to_cef(name)
-  let cexception = to_cef(exception)
-  result = self.get_value(self, cname, obj, retval, cexception) == 1.cint
-  nc_free(cname)
-  nc_free(cexception)
+proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value, retval: var NCV8Value, exception: string): bool =
+  self.wrapCall(get_value, result, name, obj, retval, exception)
 
 # Handle assignment of the accessor value identified by |name|. |object| is
 # the receiver ('this' object) of the accessor. |value| is the new value
@@ -135,140 +126,134 @@ proc GetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
 # handled.
 proc SetValue*(self: NCV8Accessor, name: string, obj: NCV8Value,
   value: NCV8Value, exception: string): bool =
-  add_ref(obj)
-  add_ref(value)
-  let cname = to_cef(name)
-  let cexception = to_cef(exception)
-  result = self.set_value(self, cname, obj, value, cexception) == 1.cint
-  nc_free(cname)
-  nc_free(cexception)
+  self.wrapCall(set_value, result, name, obj, value, exception)
 
 # Returns the exception message.
 # The resulting string must be freed by calling string_free().
 proc GetMessage*(self: NCV8Exception): string =
-  result = to_nim(self.get_message(self))
+  self.wrapCall(get_message, result)
 
 # Returns the line of source code that the exception occurred within.
 # The resulting string must be freed by calling string_free().
 proc GetSourceLine*(self: NCV8Exception): string =
-  result = to_nim(self.get_source_line(self))
+  self.wrapCall(get_source_line, result)
 
 # Returns the resource name for the script from where the function causing
 # the error originates.
 # The resulting string must be freed by calling string_free().
 proc GetScriptResourceName*(self: NCV8Exception): string =
-  result = to_nim(self.get_script_resource_name(self))
+  self.wrapCall(get_script_resource_name, result)
 
 # Returns the 1-based number of the line where the error occurred or 0 if the
 # line number is unknown.
 proc GetLineNumber*(self: NCV8Exception): int =
-  result = self.get_line_number(self).cint
+  self.wrapCall(get_line_number, result)
 
 # Returns the index within the script of the first character where the error
 # occurred.
 proc GetStartPosition*(self: NCV8Exception): int =
-  result = self.get_start_position(self).cint
+  self.wrapCall(get_start_position, result)
 
 # Returns the index within the script of the last character where the error
 # occurred.
 proc GetEndPosition*(self: NCV8Exception): int =
-  result = self.get_end_position(self).cint
+  self.wrapCall(get_end_position, result)
 
 # Returns the index within the line of the first character where the error
 # occurred.
 proc GetStartColumn*(self: NCV8Exception): int =
-  result = self.get_start_column(self).cint
+  self.wrapCall(get_start_column, result)
 
 # Returns the index within the line of the last character where the error
 # occurred.
 proc GetEndColumn*(self: NCV8Exception): int =
-  result = self.get_end_column(self).cint
+  self.wrapCall(get_end_column, result)
 
 # Returns true (1) if the underlying handle is valid and it can be accessed
 # on the current thread. Do not call any other functions if this function
 # returns false (0).
 proc IsValid*(self: NCV8Value): bool =
-  result = self.is_valid(self) == 1.cint
+  self.wrapCall(is_valid, result)
 
 # True if the value type is undefined.
 proc IsUndefined*(self: NCV8Value): bool =
-  result = self.is_undefined(self) == 1.cint
+  self.wrapCall(is_undefined, result)
 
 # True if the value type is null.
 proc IsNull*(self: NCV8Value): bool =
-  result = self.is_null(self) == 1.cint
+  self.wrapCall(is_null, result)
 
 # True if the value type is bool.
 proc IsNool*(self: NCV8Value): bool =
-  result = self.is_bool(self) == 1.cint
+  self.wrapCall(is_bool, result)
 
 # True if the value type is cint.
 proc IsInt*(self: NCV8Value): bool =
-  result = self.is_int(self) == 1.cint
+  self.wrapCall(is_int, result)
 
 # True if the value type is unsigned cint.
 proc IsUint*(self: NCV8Value): bool =
-  result = self.is_uint(self) == 1.cint
+  self.wrapCall(is_uint, result)
 
 # True if the value type is double.
 proc IsDouble*(self: NCV8Value): bool =
-  result = self.is_double(self) == 1.cint
+  self.wrapCall(is_double, result)
 
 # True if the value type is Date.
 proc IsDate*(self: NCV8Value): bool =
-  result = self.is_date(self) == 1.cint
+  self.wrapCall(is_date, result)
 
 # True if the value type is string.
 proc IsString*(self: NCV8Value): bool =
-  result = self.is_string(self) == 1.cint
+  self.wrapCall(is_string, result)
 
 # True if the value type is object.
 proc IsObject*(self: NCV8Value): bool =
-  result = self.is_object(self) == 1.cint
+  self.wrapCall(is_object, result)
 
 # True if the value type is array.
 proc IsArray*(self: NCV8Value): bool =
-  result = self.is_array(self) == 1.cint
+  self.wrapCall(is_array, result)
 
 # True if the value type is function.
 proc IsFunction*(self: NCV8Value): bool =
-  result = self.is_function(self) == 1.cint
+  self.wrapCall(is_function, result)
 
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
 proc IsSame*(self, that: NCV8Value): bool =
-  result = self.is_same(self, that) == 1.cint
+  self.wrapCall(is_same, result, that)
 
 # Return a bool value.  The underlying data will be converted to if
 # necessary.
 proc GetBoolValue*(self: NCV8Value): bool =
-  result = self.get_bool_value(self) == 1.cint
+  self.wrapCall(get_bool_value, result)
 
 # Return an cint value.  The underlying data will be converted to if
 # necessary.
 proc GetIntValue*(self: NCV8Value): int32 =
-  result = self.get_int_value(self).int32
+  self.wrapCall(get_int_value, result)
 
-# Return an unisgned cint value.  The underlying data will be converted to if
+# Return an unsigned cint value.  The underlying data will be converted to if
 # necessary.
 proc GetUintValue*(self: NCV8Value): uint32 =
-  result = self.get_uint_value(self).uint32
+  self.wrapCall(get_uint_value, result)
 
 # Return a double value.  The underlying data will be converted to if
 # necessary.
 proc GetDoubleValue*(self: NCV8Value): float64 =
-  result = self.get_double_value(self).float64
+  self.wrapCall(get_double_value, result)
 
 # Return a Date value.  The underlying data will be converted to if
 # necessary.
-proc GetDateValue*(self: NCV8Value): cef_time =
-  result = self.get_date_value(self)
+proc GetDateValue*(self: NCV8Value): NCTime =
+  self.wrapCall(get_date_value, result)
 
 # Return a string value.  The underlying data will be converted to if
 # necessary.
 # The resulting string must be freed by calling string_free().
 proc GetStringValue*(self: NCV8Value): string =
-  result = to_nim(self.get_string_value(self))
+  self.wrapCall(get_string_value, result)
 
 # OBJECT METHODS - These functions are only available on objects. Arrays and
 # functions are also objects. String- and integer-based keys can be used
@@ -276,26 +261,26 @@ proc GetStringValue*(self: NCV8Value): string =
 
 # Returns true (1) if this is a user created object.
 proc IsUserCreated*(self: NCV8Value): bool =
-  result = self.is_user_created(self) == 1.cint
+  self.wrapCall(is_user_created, result)
 
 # Returns true (1) if the last function call resulted in an exception. This
 # attribute exists only in the scope of the current CEF value object.
 proc HasException*(self: NCV8Value): bool =
-  result = self.has_exception(self) == 1.cint
+  self.wrapCall(has_exception, result)
 
 # Returns the exception resulting from the last function call. This attribute
 # exists only in the scope of the current CEF value object.
 proc GetException*(self: NCV8Value): NCV8Exception =
-  result = self.get_exception(self)
+  self.wrapCall(get_exception, result)
 
 # Clears the last exception and returns true (1) on success.
 proc ClearException*(self: NCV8Value): bool =
-  result = self.clear_exception(self) == 1.cint
+  self.wrapCall(clear_exception, result)
 
 # Returns true (1) if this object will re-throw future exceptions. This
 # attribute exists only in the scope of the current CEF value object.
 proc WillRethrowExceptions*(self: NCV8Value): bool =
-  result = self.will_rethrow_exceptions(self) == 1.cint
+  self.wrapCall(will_rethrow_exceptions, result)
 
 # Set whether this object will re-throw future exceptions. By default
 # exceptions are not re-thrown. If a exception is re-thrown the current
@@ -303,64 +288,54 @@ proc WillRethrowExceptions*(self: NCV8Value): bool =
 # caught and not re-thrown. Returns true (1) on success. This attribute
 # exists only in the scope of the current CEF value object.
 proc SetRethrowExceptions*(self: NCV8Value, rethrow: bool): bool =
-  result = self.set_rethrow_exceptions(self, rethrow.cint) == 1.cint
+  self.wrapCall(set_rethrow_exceptions, result, rethrow)
 
 # Returns true (1) if the object has a value with the specified identifier.
 proc HasValueByKey*(self: NCV8Value, key: string): bool =
-  let ckey = to_cef(key)
-  result = self.has_ValueByKey(self, ckey) == 1.cint
-  nc_free(ckey)
+  self.wrapCall(has_value_bykey, result, key)
 
 # Returns true (1) if the object has a value with the specified identifier.
 proc HasValueByIndex*(self: NCV8Value, index: int): bool =
-  result = self.has_ValueByIndex(self, index.cint) == 1.cint
+  self.wrapCall(has_value_byindex, result, index)
 
 # Deletes the value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only and don't-delete values this function
 # will return true (1) even though deletion failed.
 proc DeleteValueByKey*(self: NCV8Value, key: string): bool =
-  let ckey = to_cef(key)
-  result = self.delete_ValueByKey(self, ckey) == 1.cint
-  nc_free(ckey)
+  self.wrapCall(delete_value_bykey, result, key)
 
 # Deletes the value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly, deletion
 # fails or an exception is thrown. For read-only and don't-delete values this
 # function will return true (1) even though deletion failed.
 proc DeleteValueByIndex*(self: NCV8Value, index: int): bool =
-  result = self.delete_ValueByIndex(self, index.cint) == 1.cint
+  self.wrapCall(delete_value_byindex, result, index)
 
 # Returns the value with the specified identifier on success. Returns NULL if
 # this function is called incorrectly or an exception is thrown.
 proc GetValueByKey*(self: NCV8Value, key: string): NCV8Value =
-  let ckey = to_cef(key)
-  result = self.get_ValueByKey(self, ckey)
-  nc_free(ckey)
+  self.wrapCall(get_value_bykey, result, key)
 
 # Returns the value with the specified identifier on success. Returns NULL if
 # this function is called incorrectly or an exception is thrown.
 proc GetValueByIndex*(self: NCV8Value, index: int): NCV8Value =
-  result = self.get_ValueByIndex(self, index.cint)
+  self.wrapCall(get_value_byindex, result, index)
 
 # Associates a value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only values this function will return true
 # (1) even though assignment failed.
-proc SetValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
-  attribute: cef_v8_propertyattribute): bool =
-  add_ref(value)
-  let ckey = to_cef(key)
-  result = self.set_ValueByKey(self, ckey, value, attribute) == 1.cint
-  nc_free(ckey)
+proc SetValueByKey*(self: NCV8Value, key: string, value: NCV8Value, 
+  attribute: cef_v8_propertyattribute) : bool =
+  self.wrapCall(set_value_bykey, result, key, value, attribute)
 
 # Associates a value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only values this function will return true
 # (1) even though assignment failed.
 proc SetValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
-  add_ref(value)
-  result = self.set_ValueByIndex(self, index.cint, value) == 1.cint
+  self.wrapCall(set_value_byindex, result, index, value)
 
 # Registers an identifier and returns true (1) on success. Access to the
 # identifier will be forwarded to the cef_v8accessor_t instance passed to
@@ -369,32 +344,30 @@ proc SetValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
 # values this function will return true (1) even though assignment failed.
 proc SetValueByAccessor*(self: NCV8Value, key: string, settings: cef_v8_accesscontrol,
   attribute: cef_v8_propertyattribute): bool =
-  let ckey = to_cef(key)
-  result = self.set_ValueByAccessor(self, ckey, settings, attribute) == 1.cint
-  nc_free(ckey)
+  self.wrapCall(set_value_byaccessor, result, key, settings, attribute)
 
 # Read the keys for the object's values into the specified vector. Integer-
 # based keys will also be returned as strings.
-proc GetKeys*(self: NCV8Value, keys: var seq[string]): bool =
-  var ckeys = cef_string_list_alloc()
-  result = self.get_keys(self, ckeys) == 1.cint
-  keys = to_nim(ckeys)
+proc GetKeys*(self: NCV8Value): seq[string] =
+  self.wrapCall(get_keys, result)
 
 # Sets the user data for this object and returns true (1) on success. Returns
 # false (0) if this function is called incorrectly. This function can only be
 # called on user created objects.
 proc SetUserData*(self: NCV8Value, user_data: ptr cef_base): bool =
-  user_data.add_ref(user_data)
-  result = self.set_user_data(self, user_data) == 1.cint
+  #user_data.add_ref(user_data)
+  #self.wrapCall(set_user_data, result, user_data)
+  discard
 
 # Returns the user data, if any, assigned to this object.
 proc GetUserData*(self: NCV8Value): ptr cef_base =
-  result = self.get_user_data(self)
+  #self.wrapCall(get_user_data, result)
+  discard
 
 # Returns the amount of externally allocated memory registered for the
 # object.
 proc GetExternallyAllocatedMemory*(self: NCV8Value): int =
-  result = self.get_externally_allocated_memory(self).int
+  self.wrapCall(get_externally_allocated_memory, result)
 
 # Adjusts the amount of registered external memory for the object. Used to
 # give V8 an indication of the amount of externally allocated memory that is
@@ -406,22 +379,22 @@ proc GetExternallyAllocatedMemory*(self: NCV8Value): int =
 # returns the number of bytes associated with the object after the
 # adjustment. This function can only be called on user created objects.
 proc AdjustExternallyAllocatedMemory*(self: NCV8Value, change_in_bytes: int): int =
-  result = self.adjust_externally_allocated_memory(self, change_in_bytes.cint).int
+  self.wrapCall(adjust_externally_allocated_memory, result, change_in_bytes)
 
 # ARRAY METHODS - These functions are only available on arrays.
 # Returns the number of elements in the array.
 proc GetArrayLength*(self: NCV8Value): int =
-  result = self.get_array_length(self).int
+  self.wrapCall(get_array_length, result)
 
 # FUNCTION METHODS - These functions are only available on functions.
 # Returns the function name.
 # The resulting string must be freed by calling string_free().
 proc GetFunctionName*(self: NCV8Value): string =
-  result = to_nim(self.get_function_name(self))
+  self.wrapCall(get_function_name, result)
 
 # Returns the function handler or NULL if not a CEF-created function.
 proc GetFunctionHandler*(self: NCV8Value): NCV8Handler =
-  result = self.get_function_handler(self)
+  self.wrapCall(get_function_handler, result)
 
 # Execute the function using the current V8 context. This function should
 # only be called from within the scope of a cef_v8handler_t or
@@ -435,7 +408,7 @@ proc GetFunctionHandler*(self: NCV8Value): NCV8Handler =
 proc ExecuteFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
   add_ref(obj)
   for c in args: add_ref(c)
-  result = self.execute_function(self, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr))
+  self.wrapCall(execute_function(self, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr))
 
 # Execute the function using the specified V8 context. |object| is the
 # receiver ('this' object) of the function. If |object| is NULL the specified
@@ -448,27 +421,27 @@ proc ExecuteFunctionWithContext*(self: NCV8Value, context: NCV8Context,
   add_ref(context)
   add_ref(obj)
   for c in args: add_ref(c)
-  result = self.execute_function_with_context(self, context, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr))
+  self.wrapCall(execute_function_with_context(self, context, obj, args.len.csize, cast[ptr NCV8Value](args[0].unsafeAddr))
 
 # Returns true (1) if the underlying handle is valid and it can be accessed
 # on the current thread. Do not call any other functions if this function
 # returns false (0).
 proc IsValid*(self: NCV8StackTrace): bool =
-  result = self.is_valid(self) == 1.cint
+  self.wrapCall(is_valid, result)
 
 # Returns the number of stack frames.
 proc GetFrameCount*(self: NCV8StackTrace): int =
-  result = self.get_frame_count(self).int
+  self.wrapCall(get_frame_count(self).int
 
 # Returns the stack frame at the specified 0-based index.
 proc GetFrame*(self: NCV8StackTrace, index: int): NCV8StackFrame =
-  result = self.get_frame(self, index.cint)
+  self.wrapCall(get_frame(self, index.cint)
 
 # Returns true (1) if the underlying handle is valid and it can be accessed
 # on the current thread. Do not call any other functions if this function
 # returns false (0).
 proc IsValid*(self: NCV8StackFrame): bool =
-  result = self.is_valid(self) == 1.cint
+  self.wrapCall(is_valid, result)
 
 # Returns the name of the resource script that contains the function.
 # The resulting string must be freed by calling string_free().
@@ -490,20 +463,20 @@ proc GetFunctionName*(self: NCV8StackFrame): string =
 
 # Returns the 1-based line number for the function call or 0 if unknown.
 proc GetLineNumber*(self: NCV8StackFrame): int =
-  result = self.get_line_number(self).int
+  self.wrapCall(get_line_number(self).int
 
 # Returns the 1-based column offset on the line for the function call or 0 if
 # unknown.
 proc GetColumn*(self: NCV8StackFrame): int =
-  result = self.get_column(self).int
+  self.wrapCall(get_column(self).int
 
 # Returns true (1) if the function was compiled using eval().
 proc IsEval*(self: NCV8StackFrame): bool =
-  result = self.is_eval(self) == 1.cint
+  self.wrapCall(is_eval, result)
 
 # Returns true (1) if the function was called as a constructor via "new".
 proc IsConstructor*(self: NCV8StackFrame): bool =
-  result = self.is_constructor(self) == 1.cint
+  self.wrapCall(is_constructor, result)
 
 # Register a new V8 extension with the specified JavaScript extension code and
 # handler. Functions implemented by the handler are prototyped using the

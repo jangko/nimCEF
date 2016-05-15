@@ -76,6 +76,7 @@ proc GetFileNames*(self: NCDragData): seq[string] =
   if self.get_file_names(self, list) == 1.cint:
     result = to_nim(list)
   else:
+    nc_free(list)
     result = @[]
 
 # Set the link URL that is being dragged.

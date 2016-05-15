@@ -5,7 +5,7 @@ proc on_before_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef
   frame: ptr cef_frame, params: ptr cef_context_menu_params, model: ptr cef_menu_model) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnBeforeContextMenu(nc_wrap(brow), frame, params, model)
+  client.OnBeforeContextMenu(nc_wrap(brow), nc_wrap(frame), params, model)
   release(brow)
   release(frame)
   release(params)
@@ -16,7 +16,7 @@ proc run_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_brows
   callback: ptr cef_run_context_menu_callback): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.RunContextMenu(nc_wrap(brow), frame, params, model, callback).cint
+  result = client.RunContextMenu(nc_wrap(brow), nc_wrap(frame), params, model, callback).cint
   release(brow)
   release(frame)
   release(params)
@@ -28,7 +28,7 @@ proc on_context_menu_command(self: ptr cef_context_menu_handler, browser: ptr_ce
   event_flags: cef_event_flags): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnContextMenuCommand(nc_wrap(brow), frame, params, command_id.cef_menu_id, event_flags).cint
+  result = client.OnContextMenuCommand(nc_wrap(brow), nc_wrap(frame), params, command_id.cef_menu_id, event_flags).cint
   release(brow)
   release(frame)
   release(params)
@@ -37,7 +37,7 @@ proc on_context_menu_dismissed(self: ptr cef_context_menu_handler,
   browser: ptr_cef_browser, frame: ptr cef_frame) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnContextMenuDismissed(nc_wrap(brow), frame)
+  client.OnContextMenuDismissed(nc_wrap(brow), nc_wrap(frame))
   release(brow)
   release(frame)
 

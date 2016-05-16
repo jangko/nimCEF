@@ -621,7 +621,7 @@ proc on_before_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef
   frame: ptr cef_frame, params: ptr cef_context_menu_params, model: ptr cef_menu_model) {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.OnBeforeContextMenu != nil:
-    handler.impl.OnBeforeContextMenu(handler.container, nc_wrap(browser), nc_wrap(frame), nc_wrap(params), model)
+    handler.impl.OnBeforeContextMenu(handler.container, nc_wrap(browser), nc_wrap(frame), nc_wrap(params), nc_wrap(model))
   release(browser)
   release(frame)
   release(params)
@@ -632,7 +632,7 @@ proc run_context_menu(self: ptr cef_context_menu_handler, browser: ptr_cef_brows
   callback: ptr cef_run_context_menu_callback): cint {.cef_callback.} =
   var handler = get_client(browser)    
   if handler.impl.RunContextMenu != nil:  
-    result = handler.impl.RunContextMenu(handler.container, nc_wrap(browser), nc_wrap(frame), nc_wrap(params), model, callback).cint
+    result = handler.impl.RunContextMenu(handler.container, nc_wrap(browser), nc_wrap(frame), nc_wrap(params), nc_wrap(model), callback).cint
   release(browser)
   release(frame)
   release(params)

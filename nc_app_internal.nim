@@ -4,7 +4,7 @@ include cef/cef_import
 
 proc on_before_command_line_processing(self: ptr cef_app,
   process_type: ptr cef_string, command_line: ptr cef_command_line) {.cef_callback.} =
-  app_to_app(self).OnBeforeCommandLineProcessing($process_type, command_line)
+  app_to_app(self).OnBeforeCommandLineProcessing($process_type, nc_wrap(command_line))
   release(command_line)
 
 proc on_register_custom_schemes(self: ptr cef_app, registrar: ptr cef_scheme_registrar) {.cef_callback.} =
@@ -139,7 +139,7 @@ proc on_context_initialized(self: ptr cef_browser_process_handler) {.cef_callbac
   toApp(self).OnContextInitialized()
 
 proc on_before_child_process_launch(self: ptr cef_browser_process_handler, command_line: ptr cef_command_line) {.cef_callback.} =
-  toApp(self).OnBeforeChildProcessLaunch(command_line)
+  toApp(self).OnBeforeChildProcessLaunch(nc_wrap(command_line))
   release(command_line)
 
 proc on_render_process_thread_created(self: ptr cef_browser_process_handler, extra_info: ptr cef_list_value) {.cef_callback.} =

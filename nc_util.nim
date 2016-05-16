@@ -319,10 +319,23 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       epiloque.add "nc_free(arg$1)\n" % [argi]
     of ntyBool, ntyInt, ntyFloat:
       let argT = getType(rout)[i - startIndex + 3]
-      let argType = if argT.typeKind == ntyVar: $argT[1] else: $argT
-      params.add "$1.$2" % [argv, argType]
+      let argType = if argT.typeKind == ntyVar: $argT[1] else: $argT      
+      if arg.kind == nnkHiddenDeref:
+        proloque.add "var arg$1 = $2.$3\n" % [argi, argv, argType]
+        params.add "arg" & argi
+        if arg.typeKind == ntyBool:
+          epiloque.add "$1 = arg$2 == 1.$3\n" % [argv, argi, argType]
+        else:
+          epiloque.add "$1 = arg$2\n" % [argv, argi]
+      else:
+        params.add "$1.$2" % [argv, argType]
     of ntyPointer, ntyEnum, ntyInt64:
-      params.add argv
+      let argT = getType(rout)[i - startIndex + 3]
+      if arg.typeKind == ntyEnum and argT.typeKind != ntyEnum:
+        let argType = if argT.typeKind == ntyVar: $argT[1] else: $argT
+        params.add "$1.$2" % [argv, argType]
+      else:
+        params.add argv
     of ntyRef:
       if arg.kind == nnkHiddenDeref:
         proloque.add "var arg$1 = $2.GetHandler()\n" % [argi, argv]

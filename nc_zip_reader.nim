@@ -61,7 +61,7 @@ proc Tell*(self: NCZipReader): int64 =
 proc Eof*(self: NCZipReader): bool =
   self.wrapCall(eof, result)
 
-# Create a new cef_zip_reader_t object. The returned object's functions can
+# Create a new NCZipReader object. The returned object's functions can
 # only be called from the thread that created the object.
 proc NCZipReaderCreate*(stream: NCStreamReader): NCZipReader =
   wrapProc(cef_zip_reader_create, result, stream)

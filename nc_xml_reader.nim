@@ -146,7 +146,7 @@ proc MoveToNextAttribute*(self: NCXmlReader): bool =
 proc MoveToCarryingElement*(self: NCXmlReader): bool =
   self.wrapCall(move_to_carrying_element, result)
 
-# Create a new cef_xml_reader_t object. The returned object's functions can
+# Create a new NCXmlReader object. The returned object's functions can
 # only be called from the thread that created the object.
 proc NCXmlReaderCreate*(stream: NCStreamReader, encodingType: cef_xml_encoding_type, URI: string): NCXmlReader =
   wrapProc(cef_xml_reader_create, result, stream, encodingType, URI)

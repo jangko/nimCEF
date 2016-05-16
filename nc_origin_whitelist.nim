@@ -34,32 +34,19 @@ import cef/cef_origin_whitelist_api, nc_util, nc_types
 #
 # This function may be called on any thread. Returns false (0) if
 # |source_origin| is invalid or the whitelist cannot be accessed.
-
-proc cef_add_cross_origin_whitelist_entry*(source_origin, target_protocol, target_domain: string,
+proc NCAddCrossOriginWhitelistEntry*(source_origin, target_protocol, target_domain: string,
   allow_target_subdomains: bool): bool =
-  let csource = to_cef(source_origin)
-  let ctarget = to_cef(target_protocol)
-  let cdomain = to_cef(target_domain)
-  result = cef_add_cross_origin_whitelist_entry(csource, ctarget, cdomain, allow_target_subdomains.cint) == 1.cint
-  nc_free(csource)
-  nc_free(ctarget)
-  nc_free(cdomain)
+  wrapProc(cef_add_cross_origin_whitelist_entry, result, source_origin, 
+    target_protocol, target_domain, allow_target_subdomains)
 
 # Remove an entry from the cross-origin access whitelist. Returns false (0) if
 # |source_origin| is invalid or the whitelist cannot be accessed.
-
 proc NCRemoveCrossOriginWhitelistEntry*(source_origin, target_protocol, target_domain: string,
   allow_target_subdomains: bool): bool =
-  let csource = to_cef(source_origin)
-  let ctarget = to_cef(target_protocol)
-  let cdomain = to_cef(target_domain)
-  result = cef_remove_cross_origin_whitelist_entry(csource, ctarget, cdomain, allow_target_subdomains.cint) == 1.cint
-  nc_free(csource)
-  nc_free(ctarget)
-  nc_free(cdomain)
-
+  wrapProc(cef_remove_cross_origin_whitelist_entry, result, source_origin, 
+    target_protocol, target_domain, allow_target_subdomains)
+  
 # Remove all entries from the cross-origin access whitelist. Returns false (0)
 # if the whitelist cannot be accessed.
-
 proc NCClearCrossOriginWhitelist*(): bool =
-  result = cef_clear_cross_origin_whitelist() == 1.cint
+  wrapProc(cef_clear_cross_origin_whitelist, result)

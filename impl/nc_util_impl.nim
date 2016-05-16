@@ -3,8 +3,8 @@ include cef\cef_import
 
 type
   nc_base*[T, C] = object of RootObj
-    handler: T
-    refCount: int
+    handler*: T
+    refCount*: int
     container*: C
 
 template toType*(T: typedesc, obj: expr): expr =
@@ -33,7 +33,7 @@ proc nc_initialize_base[T](base: ptr cef_base) =
   base.release = generic_release[T]
   base.has_one_ref = generic_has_one_ref[T]
 
-proc nc_init_base[A](elem: A) =
+proc nc_init_base*[A](elem: A) =
   elem.handler.base.size = sizeof(A)
   nc_initialize_base[A](cast[ptr cef_base](elem.handler.addr))
 

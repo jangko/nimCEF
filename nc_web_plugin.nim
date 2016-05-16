@@ -1,20 +1,17 @@
 import nc_types, nc_util
+import impl/nc_util_impl
 include cef/cef_import
 
 # Information about a specific web plugin.
 wrapAPI(NCWebPluginInfo, cef_web_plugin_info)
 
-type
-  # Structure to implement for visiting web plugin information. The functions of
-  # this structure will be called on the browser process UI thread.
-  NCWebPluginInfoVisitor* = ref object of RootObj
-    handler: cef_web_plugin_info_visitor
+# Structure to implement for visiting web plugin information. The functions of
+# this structure will be called on the browser process UI thread.
+wrapAPI(NCWebPluginInfoVisitor, cef_web_plugin_info_visitor, false)
 
-  # Structure to implement for receiving unstable plugin information. The
-  # functions of this structure will be called on the browser process IO thread.
-  NCWebPluginUnstableCallback* = ref object of RootObj
-    handler: cef_web_plugin_unstable_callback
-
+# Structure to implement for receiving unstable plugin information. The
+# functions of this structure will be called on the browser process IO thread.
+wrapAPI(NCWebPluginUnstableCallback, cef_web_plugin_unstable_callback, false)
 
 # Returns the plugin name (i.e. Flash).
 proc GetName*(self: NCWebPluginInfo): string =
@@ -32,38 +29,33 @@ proc GetVersion*(self: NCWebPluginInfo): string =
 proc GetDescription*(self: NCWebPluginInfo): string =
   self.wrapCall(get_description, result)
 
-# Method that will be called once for each plugin. |count| is the 0-based
-# index for the current plugin. |total| is the total number of plugins.
-# Return false (0) to stop visiting plugins. This function may never be
-# called if no plugins are found.
-method WebPluginVisit*(self: NCWebPluginInfoVisitor, info: NCWebPluginInfo, count, total: int): bool {.base.} =
-  result = false
+type
+  nc_web_plugin_info_visitor_i*[T] = object
+    # Method that will be called once for each plugin. |count| is the 0-based
+    # index for the current plugin. |total| is the total number of plugins.
+    # Return false (0) to stop visiting plugins. This function may never be
+    # called if no plugins are found.
+    Visit*: proc(self: T, info: NCWebPluginInfo, count, total: int): bool
 
-proc GetHandler*(self: NCWebPluginInfoVisitor): ptr cef_web_plugin_info_visitor {.inline.} =
-  result = self.handler.addr
+  nc_web_plugin_info_visitor = object of nc_base[cef_web_plugin_info_visitor, NCWebPluginInfoVisitor]
+    impl: nc_web_plugin_info_visitor_i[NCWebPluginInfoVisitor]
 
 proc visit(self: ptr cef_web_plugin_info_visitor,
   info: ptr cef_web_plugin_info, count, total: cint): cint {.cef_callback.} =
-  var handler = type_to_type(NCWebPluginInfoVisitor, self)
-  result = handler.WebPluginVisit(nc_wrap(info), count.int, total.int).cint
+  var handler = toType(nc_web_plugin_info_visitor, self)
+  if handler.impl.Visit != nil:
+    result = handler.impl.Visit(handler.container, nc_wrap(info), count.int, total.int).cint
   release(info)
 
-proc init_web_plugin_info_visitor(handler: ptr cef_web_plugin_info_visitor) =
-  init_base(handler)
-  handler.visit = visit
-
-proc makeNCWebPluginInfoVisitor*(T: typedesc): auto =
-  result = new(T)
-  init_web_plugin_info_visitor(result.GetHandler())
-
+proc makeNCWebPluginInfoVisitor*[T](impl: nc_web_plugin_info_visitor_i[T]): T =
+  nc_init(nc_web_plugin_info_visitor, T, impl)
+  result.handler.visit = visit
+    
 # Method that will be called for the requested plugin. |unstable| will be
 # true (1) if the plugin has reached the crash count threshold of 3 times in
 # 120 seconds.
 method IsUnstable*(self: NCWebPluginUnstableCallback, path: string, unstable: bool) {.base.} =
   discard
-
-proc GetHandler*(self: NCWebPluginUnstableCallback): ptr cef_web_plugin_unstable_callback {.inline.} =
-  result = self.handler.addr
 
 proc is_unstable(self: ptr cef_web_plugin_unstable_callback, path: ptr cef_string, unstable: cint) {.cef_callback.} =
   var handler = type_to_type(NCWebPluginUnstableCallback, self)
@@ -80,11 +72,7 @@ proc makeNCWebPluginUnstableCallback*(T: typedesc): auto =
 # Visit web plugin information. Can be called on any thread in the browser
 # process.
 proc NCVisitWebPluginInfo*(visitor: NCWebPluginInfoVisitor) =
-  #debugModeOn()
-  add_ref(visitor.GetHandler())
-  cef_visit_web_plugin_info(visitor.GetHandler())
-  #wrapProc(cef_visit_web_plugin_info, visitor)
-  #debugModeOff()
+  wrapProc(cef_visit_web_plugin_info, visitor)
 
 # Cause the plugin list to refresh the next time it is accessed regardless of
 # whether it has already been loaded. Can be called on any thread in the
@@ -129,10 +117,5 @@ proc NCRegisterWebPluginCrash*(path: string) =
 # Query if a plugin is unstable. Can be called on any thread in the browser
 # process.
 proc NCIsWebPluginUnstable*(path: string, callback: NCWebPluginUnstableCallback) =
-  #debugModeOn()
-  #wrapProc(cef_is_web_plugin_unstable, path, callback)
-  #debugModeOff()
-  add_ref(callback.GetHandler())
-  let cpath = to_cef(path)
-  cef_is_web_plugin_unstable(cpath, callback.GetHandler())
-  nc_free(cpath)
+  wrapProc(cef_is_web_plugin_unstable, path, callback)
+  

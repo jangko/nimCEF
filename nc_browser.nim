@@ -426,12 +426,7 @@ proc NCBrowserHostCreateBrowser*(windowInfo: NCWindowInfo, client: NCClient,
 # Create a new browser window using the window parameters specified by
 # |windowInfo|. If |request_context| is NULL the global request context will be
 # used. This function can only be called on the browser process UI thread.
-proc NCBrowserHostCreateBrowserSync*(windowInfo: ptr cef_window_info, client: NCClient,
+proc NCBrowserHostCreateBrowserSync*(windowInfo: NCWindowInfo, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): NCBrowser =
-  let curl = to_cef(url)
-  var context = if request_context == nil: nil else: request_context.GetHandler()
-  var csettings = to_cef(settings)
-  result = nc_wrap(cef_browser_host_create_browser_sync(windowInfo,
-    client.GetHandler(), curl, csettings.addr, context))
-  nc_free(curl)
-  nc_free(csettings)
+  wrapProc(cef_browser_host_create_browser_sync, result, windowInfo, client, url, settings, request_context)
+ 

@@ -133,8 +133,6 @@ proc init_base*[T](elem: T) =
   elem.base.size = sizeof(elem[])
   initialize_cef_base(cast[ptr cef_base](elem))
 
-template b_to_b*(brow: expr): expr = cast[ptr cef_browser](brow)
-
 macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
   if importUtil.boolVal():
     var exim = "import impl/nc_util_impl, cef/" & $base & "_api\n"

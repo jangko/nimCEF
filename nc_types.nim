@@ -26,23 +26,6 @@ wrapAPI(NCBrowserHost, cef_browser_host, false)
 wrapAPI(NCClient, cef_client, false)
 
 type
-  # Implement this structure to provide handler implementations.
-  nc_handler* = object
-    client_handler*: cef_client
-    life_span_handler*: ptr cef_life_span_handler
-    context_menu_handler*: ptr cef_context_menu_handler
-    drag_handler*: ptr cef_drag_handler
-    display_handler*: ptr cef_display_handler
-    focus_handler*: ptr cef_focus_handler
-    keyboard_handler*: ptr cef_keyboard_handler
-    load_handler*: ptr cef_load_handler
-    render_handler*: ptr cef_render_handler
-    dialog_handler*: ptr cef_dialog_handler
-    download_handler*: ptr cef_download_handler
-    geolocation_handler*: ptr cef_geolocation_handler
-    jsdialog_handler*: ptr cef_jsdialog_handler
-    request_handler*: ptr cef_request_handler
-
   #choose what kind of handler you want to exposed to your app
   NCClientCreateFlag* = enum
     NCCF_CONTEXT_MENU
@@ -61,14 +44,6 @@ type
 
   NCCFS* = set[NCClientCreateFlag]
 
-#these procs below are for internal uses
-proc get_client*(browser: ptr_cef_browser): ptr nc_handler =
-  var brow = cast[ptr cef_browser](browser)
-  var host = brow.get_host(brow)
-  var client = host.get_client(host)
-  #result = cast[NCClient](cast[ByteAddress](client) - sizeof(pointer))
-  result = cast[ptr nc_handler](client)
-
 template app_to_app*(app: expr): expr =
   cast[NCApp](cast[ByteAddress](app) - sizeof(pointer))
 
@@ -77,6 +52,7 @@ template type_to_type*(ctype: typedesc, obj: expr): expr =
 
 template nc_wrap*(x: ptr_cef_browser): expr = nc_wrap(cast[ptr cef_browser](x))
 template nc_wrap*(x: ptr_cef_frame): expr = nc_wrap(cast[ptr cef_frame](x))
+template release*(x: ptr_cef_browser): expr = release(cast[ptr cef_browser](x))
 
 type
   NCMainArgs* = ref object

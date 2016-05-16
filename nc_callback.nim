@@ -4,9 +4,7 @@ include cef/cef_import
 # Generic callback structure used for asynchronous continuation
 wrapAPI(NCCallback, cef_callback)
 
-type
-  NCCompletionCallback* = ref object of RootObj
-    handler: cef_completion_callback
+wrapAPI(NCCompletionCallback, cef_completion_callback, false)
 
 # Continue processing.
 proc Continue*(self: NCCallback) =
@@ -27,9 +25,6 @@ proc on_complete(self: ptr cef_completion_callback) {.cef_callback.} =
 proc initialize_completion_callback(cb: ptr cef_completion_callback) =
   init_base(cb)
   cb.on_complete = on_complete
-
-proc GetHandler*(self: NCCompletionCallback): ptr cef_completion_callback {.inline.} =
-  result = self.handler.addr
 
 proc makeNCCompletionCallback*(T: typedesc): auto =
   result = new(T)

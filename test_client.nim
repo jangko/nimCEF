@@ -2,14 +2,9 @@ import winapi, os, strutils, streams
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
-import nc_urlrequest, nc_auth_callback, nc_frame
-
+import nc_urlrequest, nc_auth_callback, nc_frame, nc_web_plugin
+import nc_request_context_handler, nc_request_context
 type
-  myClient = object 
-    base: nc_handler
-    abc : int
-    name: string
-
   myApp = ref object of NCApp
 
   myFactory = ref object of NCSchemeHandlerFactory
@@ -22,29 +17,32 @@ type
   myUrlRequestClient = ref object of NCUrlRequestClient
     name: string
 
-proc newClient(no: int, name: string): NCClient =
-  result = makeNCClient(myClient, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
-  result.abc = no
-  result.name = name
-
-method OnBeforeClose(self: myClient, browser: NCBrowser) =
+proc OnBeforeClose(self: NCClient, browser: NCBrowser) =
   NCQuitMessageLoop()
-  echo "close: ", self.name, " no: ", self.abc
 
 const
   MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
   MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
+  MY_PLUGIN_ID = (MENU_ID_USER_FIRST.ord + 3).cef_menu_id
 
-method OnBeforeContextMenu(self: myClient, browser: NCBrowser,
+proc Visit*(self: NCWebPluginInfoVisitor, info: NCWebPluginInfo, count, total: int): bool =
+  echo "hello"
+
+let visitor_impl = nc_web_plugin_info_visitor_i[NCWebPluginInfoVisitor](
+  Visit: Visit
+)
+
+proc OnBeforeContextMenu(self: NCClient, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
   discard model.AddSeparator()
+  discard model.AddItem(MY_PLUGIN_ID, "Plugin Info")
   discard model.AddItem(MY_MENU_ID, "Hello There")
   discard model.AddItem(MY_QUIT_ID, "Quit")
   echo "page URL: ", params.GetPageUrl()
   echo "frame URL: ", params.GetFrameUrl()
   echo "link URL: ", params.GetLinkUrl()
 
-method OnContextMenuCommand(self: myClient, browser: NCBrowser,
+proc OnContextMenuCommand(self: NCClient, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
   event_flags: cef_event_flags): int =
 
@@ -55,6 +53,11 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
   if command_id == MY_QUIT_ID:
     var host = browser.GetHost()
     host.CloseBrowser(true)
+  
+  if command_id == MY_PLUGIN_ID:
+    echo "PLUGIN INFO"
+    let visitor = makeNCWebPluginInfoVisitor(visitor_impl)
+    NCVisitWebPluginInfo(visitor)
 
 proc DumpRequestContents(request: NCRequest): string =
   var ss = newStringStream()
@@ -199,6 +202,30 @@ let uc_impl = nc_urlrequest_i[myUrlRequestClient](
   GetAuthCredentials: GetAuthCredentials
 )
 
+var cliente = nc_client_i[NCClient](
+  OnBeforeClose: OnBeforeClose,
+  OnBeforeContextMenu: OnBeforeContextMenu,
+  OnContextMenuCommand: OnContextMenuCommand
+)
+
+proc newClient(no: int, name: string): NCClient =
+  result = makeNCClient(cliente, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
+
+proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, top_origin_url: string,
+  plugin_info: NCWebPluginInfo, plugin_policy: var cef_plugin_policy): bool =
+  
+  echo "BEFORE"
+  # Always allow the PDF plugin to load.
+  if plugin_policy != PLUGIN_POLICY_ALLOW and mime_type == "application/pdf":
+    plugin_policy = PLUGIN_POLICY_ALLOW
+    return true
+    
+  result = false
+
+var rch_impl = nc_request_context_handler_i[NCRequestContextHandler](
+  OnBeforePluginLoad: OnBeforePluginLoad
+)
+ 
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
@@ -231,11 +258,16 @@ proc main() =
   #Browser settings.
   #It is mandatory to set the "size" member.
   var browserSettings: NCBrowserSettings
+  #browserSettings.plugins = STATE_ENABLED
   var client = newClient(123, "hello")
 
+  #var rch = makeNCRequestContextHandler(rch_impl)
+  #var rcsetting: NCRequestContextSettings
+  #var ctx = NCRequestContextCreateContext(rcsetting, rch)
+  
   # Create browser.
   discard NCBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
-
+  
   # Message loop.
   NCRunMessageLoop()
   NCShutdown()

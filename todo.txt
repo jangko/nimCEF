@@ -3,3 +3,5 @@ NCV8Value::SetUserData
 NCV8Value::GetUserData
 nc_web_plugin
 nc_task
+nc_dom
+nc_callback

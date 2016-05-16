@@ -4,8 +4,8 @@ import cef/cef_process_message_api, cef/cef_drag_handler_api, cef/cef_focus_hand
 import cef/cef_keyboard_handler_api, cef/cef_resource_handler_api, cef/cef_print_handler_api
 import cef/cef_download_item_api, cef/cef_jsdialog_handler_api, cef/cef_task_api
 import cef/cef_render_process_handler_api, cef/cef_web_plugin_info_api, cef/cef_parser_api
-import cef/cef_render_handler_api, cef/cef_ssl_info_api, cef/cef_urlrequest_api
-import cef/cef_xml_reader_api, cef/cef_cookie_manager_api, cef/cef_dom_api
+import cef/cef_render_handler_api, cef/cef_sslinfo_api, cef/cef_urlrequest_api
+import cef/cef_xml_reader_api, cef/cef_cookie_manager_api, cef/cef_domdocument_api
 import cef/cef_context_menu_handler_api, cef/cef_request_handler_api, cef/cef_request_context_api
 import cef/cef_v8context_api, cef/cef_browser_process_handler_api, cef/cef_dialog_handler_api
 import cef/cef_display_handler_api, cef/cef_download_handler_api, cef/cef_load_handler_api

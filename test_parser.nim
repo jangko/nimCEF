@@ -1,5 +1,5 @@
 import nc_parser, nc_xml_reader, nc_stream, nc_util, cef/cef_types, nc_xml_object
-import nc_zip_reader, os
+import nc_zip_reader, os, nc_value
 
 var parts: NCUrlParts
 if NCParseUrl("http://admin:pass@www.myhost.net:8080/mypath/index.php?title=main_page", parts):
@@ -25,7 +25,7 @@ for x in exts:
 let base64 = NCBase64Encode(url.cstring, url.len)
 echo base64
 
-echo NCBase64Decode(base64)
+echo NCBase64Decode(base64).GetDataAsString()
 
 let encuri = NCUriEncode(url, true)
 echo encuri

@@ -1,5 +1,5 @@
 import cef/cef_download_item_api, cef/cef_client_api, cef/cef_browser_api
-import cef/cef_response_api, cef/cef_auth_callback_api, cef/cef_ssl_info_api
+import cef/cef_response_api, cef/cef_auth_callback_api, cef/cef_sslinfo_api
 import cef/cef_response_filter_api
 
 include cef/cef_import
@@ -441,7 +441,7 @@ proc on_before_browse*(self: ptr cef_request_handler,
   request: ptr cef_request, is_redirect: cint): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnBeforeBrowse(nc_wrap(brow), nc_wrap(frame), request, is_redirect == 1.cint).cint
+  result = client.OnBeforeBrowse(nc_wrap(brow), nc_wrap(frame), nc_wrap(request), is_redirect == 1.cint).cint
   release(brow)
   release(frame)
   release(request)
@@ -460,7 +460,7 @@ proc on_before_resource_load*(self: ptr cef_request_handler,
   callback: ptr cef_request_callback): cef_return_value {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnBeforeResourceLoad(nc_wrap(brow), nc_wrap(frame), request, callback)
+  result = client.OnBeforeResourceLoad(nc_wrap(brow), nc_wrap(frame), nc_wrap(request), callback)
   release(brow)
   release(frame)
   release(request)
@@ -470,7 +470,7 @@ proc get_resource_handler*(self: ptr cef_request_handler, browser: ptr_cef_brows
   frame: ptr cef_frame, request: ptr cef_request): ptr cef_resource_handler {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.GetResourceHandler(nc_wrap(brow), nc_wrap(frame), request).GetHandler()
+  result = client.GetResourceHandler(nc_wrap(brow), nc_wrap(frame), nc_wrap(request)).GetHandler()
   release(brow)
   release(frame)
   release(request)
@@ -479,7 +479,7 @@ proc on_resource_redirect*(self: ptr cef_request_handler, browser: ptr_cef_brows
   request: ptr cef_request, new_url: ptr cef_string) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnResourceRedirect(nc_wrap(brow), nc_wrap(frame), request, $new_url)
+  client.OnResourceRedirect(nc_wrap(brow), nc_wrap(frame), nc_wrap(request), $new_url)
   release(brow)
   release(frame)
   release(request)
@@ -488,7 +488,7 @@ proc on_resource_response*(self: ptr cef_request_handler, browser: ptr_cef_brows
   request: ptr cef_request, response: ptr cef_response): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnResourceResponse(nc_wrap(brow), nc_wrap(frame), request, response).cint
+  result = client.OnResourceResponse(nc_wrap(brow), nc_wrap(frame), nc_wrap(request), nc_wrap(response)).cint
   release(brow)
   release(frame)
   release(request)
@@ -499,7 +499,7 @@ proc get_resource_response_filter*(self: ptr cef_request_handler, browser: ptr_c
   response: ptr cef_response): ptr cef_response_filter {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  var res = client.GetResourceResponseFilter(nc_wrap(brow), nc_wrap(frame), request, response)
+  var res = client.GetResourceResponseFilter(nc_wrap(brow), nc_wrap(frame), nc_wrap(request), nc_wrap(response))
   if res != nil: result = res.GetHandler()
   release(brow)
   release(frame)
@@ -512,7 +512,7 @@ proc on_resource_load_complete*(self: ptr cef_request_handler, browser: ptr_cef_
   received_content_length: int64) {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  client.OnResourceLoadComplete(nc_wrap(brow), nc_wrap(frame), request, response, status, received_content_length)
+  client.OnResourceLoadComplete(nc_wrap(brow), nc_wrap(frame), nc_wrap(request), nc_wrap(response), status, received_content_length)
   release(brow)
   release(frame)
   release(request)
@@ -554,7 +554,7 @@ proc on_certificate_error*(self: ptr cef_request_handler,
   callback: ptr cef_request_callback): cint {.cef_callback.} =
   var client = get_client(browser)
   var brow = b_to_b(browser)
-  result = client.OnCertificateError(nc_wrap(brow), cert_error, $request_url, ssl_info, callback).cint
+  result = client.OnCertificateError(nc_wrap(brow), cert_error, $request_url, nc_wrap(ssl_info), callback).cint
   release(brow)
   release(ssl_info)
   release(callback)

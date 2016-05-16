@@ -1,5 +1,5 @@
 import cef/cef_base_api, nc_util, nc_types, cef/cef_value_api, cef/cef_browser_api
-import cef/cef_request_api, cef/cef_v8_api, cef/cef_dom_api, cef/cef_process_message_api
+import cef/cef_request_api, cef/cef_v8context_api, cef/cef_domdocument_api, cef/cef_process_message_api
 include cef/cef_import
 
 proc on_before_command_line_processing(self: ptr cef_app,
@@ -74,7 +74,7 @@ proc on_before_navigation(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   request: ptr cef_request, navigation_type: cef_navigation_type,
   is_redirect: cint): cint {.cef_callback.} =
-  result = toApp(self).OnBeforeNavigation(nc_wrap(browser), frame, request, navigation_type, is_redirect == 1.cint).cint
+  result = toApp(self).OnBeforeNavigation(nc_wrap(browser), nc_wrap(frame), nc_wrap(request), navigation_type, is_redirect == 1.cint).cint
   release(browser)
   release(frame)
   release(request)
@@ -82,7 +82,7 @@ proc on_before_navigation(self: ptr cef_render_process_handler,
 proc on_context_created(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   context: ptr cef_v8context) {.cef_callback.} =
-  toApp(self).OnContextCreated(nc_wrap(browser), frame, context)
+  toApp(self).OnContextCreated(nc_wrap(browser), nc_wrap(frame), nc_wrap(context))
   release(browser)
   release(frame)
   release(context)
@@ -90,7 +90,7 @@ proc on_context_created(self: ptr cef_render_process_handler,
 proc on_context_released(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   context: ptr cef_v8context) {.cef_callback.} =
-  toApp(self).OnContextReleased(nc_wrap(browser), frame, context)
+  toApp(self).OnContextReleased(nc_wrap(browser), nc_wrap(frame), nc_wrap(context))
   release(browser)
   release(frame)
   release(context)
@@ -99,7 +99,7 @@ proc on_uncaught_exception(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   context: ptr cef_v8context, exception: ptr cef_v8exception,
   stackTrace: ptr cef_v8stack_trace) {.cef_callback.} =
-  toApp(self).OnUncaughtException(nc_wrap(browser), frame, context, exception, stackTrace)
+  toApp(self).OnUncaughtException(nc_wrap(browser), nc_wrap(frame), nc_wrap(context), nc_wrap(exception), nc_wrap(stackTrace))
   release(browser)
   release(frame)
   release(context)
@@ -109,7 +109,7 @@ proc on_uncaught_exception(self: ptr cef_render_process_handler,
 proc on_focused_node_changed(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, frame: ptr cef_frame,
   node: ptr cef_domnode) {.cef_callback.} =
-  toApp(self).OnFocusedNodeChanged(nc_wrap(browser), frame, node)
+  toApp(self).OnFocusedNodeChanged(nc_wrap(browser), nc_wrap(frame), nc_wrap(node))
   release(browser)
   release(frame)
   release(node)

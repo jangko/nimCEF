@@ -2,11 +2,6 @@ import nc_util_impl
 import cef/cef_types, cef/cef_auth_callback_api, cef/cef_request_context_api
 include cef/cef_import
 
-proc nc_wrap*(handler: ptr cef_urlrequest): NCUrlRequest =
-  new(result, nc_finalizer[NCUrlRequest])
-  result.handler = handler
-  add_ref(handler)
-
 type
   nc_urlrequest_client = object of nc_base[cef_urlrequest_client, NCUrlRequestClient]
     impl: nc_urlrequest_i[NCUrlRequestClient]
@@ -59,8 +54,3 @@ proc makeNCUrlRequestClient[T](impl: nc_urlrequest_i[T]): T =
   result.handler.on_download_progress = on_download_progress
   result.handler.on_download_data = on_download_data
   result.handler.get_auth_credentials = get_auth_credentials
-
-proc NCUrlRequestCreate(request: NCRequest, client: NCUrlRequestClient,
-  request_context: NCRequestContext = nil): NCUrlRequest =
-  var context: ptr cef_request_context = if request_context == nil: nil else: request_context.GetHandler()
-  result = nc_wrap(cef_urlrequest_create(request, client.handler, context))

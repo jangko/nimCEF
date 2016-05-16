@@ -1,5 +1,5 @@
 import cef_base_api, cef_frame_api, cef_request_api, cef_resource_handler_api
-import cef_auth_callback_api, cef_ssl_info_api, cef_response_api, cef_response_filter_api
+import cef_auth_callback_api, cef_sslinfo_api, cef_response_api, cef_response_filter_api
 include cef_import
 
 type

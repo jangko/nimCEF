@@ -1,20 +1,20 @@
-import cef/cef_callback_api, nc_util, nc_types
+import nc_util, nc_types
 include cef/cef_import
 
+# Generic callback structure used for asynchronous continuation
+wrapAPI(NCCallback, cef_callback)
+
 type
-  # Generic callback structure used for asynchronous continuation
-  NCCallback* = ptr cef_callback
   NCCompletionCallback* = ref object of RootObj
     handler: cef_completion_callback
 
 # Continue processing.
 proc Continue*(self: NCCallback) =
-  self.cont(self)
+  self.wrapCall(cont)
 
 # Cancel processing.
 proc Cancel*(self: NCCallback) =
-  self.cancel(self)
-
+  self.wrapCall(cancel)
 
 # Method that will be called once the task is complete.
 method OnComplete*(self: NCCompletionCallback) {.base.} =

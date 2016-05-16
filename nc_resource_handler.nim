@@ -54,14 +54,14 @@ method Cancel*(self: NCResourceHandler) {.base.} =
 proc process_request(self: ptr cef_resource_handler,
   request: ptr cef_request, callback: ptr cef_callback): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
-  result = handler.ProcessRequest(request, callback).cint
+  result = handler.ProcessRequest(nc_wrap(request), nc_wrap(callback)).cint
 
 proc get_response_headers(self: ptr cef_resource_handler,
   response: ptr cef_response, response_length: var int64, redirectUrl: ptr cef_string) {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   var len = response_length
   var url = $redirectUrl
-  handler.GetResponseHeaders(response, len, url)
+  handler.GetResponseHeaders(nc_wrap(response), len, url)
   response_length = len
   cef_string_clear(redirect_url)
   discard cef_string_from_utf8(url.cstring, url.len.cint, redirect_url)
@@ -71,7 +71,7 @@ proc read_response(self: ptr cef_resource_handler,
   callback: ptr cef_callback): cint {.cef_callback.} =
   var handler = type_to_type(NCResourceHandler, self)
   var readed = bytes_read.int
-  result = handler.ReadResponse(data_out, bytes_to_read.int, readed, callback).cint
+  result = handler.ReadResponse(data_out, bytes_to_read.int, readed, nc_wrap(callback)).cint
   bytes_read = readed.cint
 
 proc can_get_cookie(self: ptr cef_resource_handler,

@@ -1,15 +1,13 @@
 import nc_request, nc_response, nc_util, nc_types, nc_auth_callback, nc_request_context
-import cef/cef_urlrequest_api
+
+# Structure used to make a URL request. URL requests are not associated with a
+# browser instance so no cef_client_t callbacks will be executed. URL requests
+# can be created on any valid CEF thread in either the browser or render
+# process. Once created the functions of the URL request object must be
+# accessed on the same thread that created it.
+wrapAPI(NCUrlRequest, cef_urlrequest)
 
 type
-  # Structure used to make a URL request. URL requests are not associated with a
-  # browser instance so no cef_client_t callbacks will be executed. URL requests
-  # can be created on any valid CEF thread in either the browser or render
-  # process. Once created the functions of the URL request object must be
-  # accessed on the same thread that created it.
-  NCUrlRequest* = ref object
-    handler: ptr cef_urlrequest
-
   # Structure that should be implemented by the cef_urlrequest_t client. The
   # functions of this structure will be called on the same thread that created
   # the request unless otherwise documented.
@@ -68,40 +66,38 @@ proc GetHandler*(self: NCUrlRequestClient): ptr cef_urlrequest_client =
 # |request_context| must be NULL and the context associated with the current
 # renderer process' browser will be used.
 proc NCUrlRequestCreate*(request: NCRequest, client: NCUrlRequestClient,
-  request_context: NCRequestContext = nil): NCUrlRequest
-
-proc GetHandler*(self: NCUrlRequest): ptr cef_urlrequest =
-  result = self.handler
+  request_context: NCRequestContext = nil): NCUrlRequest =
+  wrapProc(cef_url_request_create, result, request, client, request_context)
 
 include impl/nc_urlrequest_impl
 
 # Returns the request object used to create this URL request. The returned
 # object is read-only and should not be modified.
 proc GetRequest*(self: NCUrlRequest): NCRequest =
-  result = self.handler.get_request(self.handler)
+  self.wrapCall(get_request, result)
 
 # Returns the client.
 proc GetClient*(self: NCUrlRequest): NCUrlrequestClient =
-  result = nc_wrap(self.handler.get_client(self.handler))
+  self.wrapCall(get_client, result)
 
 # Returns the request status.
 proc GetRequestStatus*(self: NCUrlRequest): cef_urlrequest_status =
-  result = self.handler.get_request_status(self.handler)
+  self.wrapCall(get_request_status, result)
 
 # Returns the request error if status is UR_CANCELED or UR_FAILED_api, or 0
 # otherwise.
 proc GetRequestError*(self: NCUrlRequest): cef_errorcode =
-  result = self.handler.get_request_error(self.handler)
+  self.wrapCall(get_request_error, result)
 
 # Returns the response_api, or NULL if no response information is available.
 # Response information will only be available after the upload has completed.
 # The returned object is read-only and should not be modified.
 proc GetResponse*(self: NCUrlRequest): NCResponse =
-  result = self.handler.get_response(self.handler)
+  self.wrapCall(get_response, result)
 
 # Cancel the request.
 proc Cancel*(self: NCUrlRequest) =
-  self.handler.cancel(self.handler)
+  self.wrapCall(cancel)
 
 
 

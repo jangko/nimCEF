@@ -33,70 +33,46 @@ type
     # Query string component (i.e., everything following the '?').
     query*: string
 
-proc to_nim(cparts: cef_urlparts, parts: var NCUrlParts) =
-  parts.spec = $cparts.spec.unsafeAddr
-  parts.scheme = $cparts.scheme.unsafeAddr
-  parts.username = $cparts.username.unsafeAddr
-  parts.password = $cparts.password.unsafeAddr
-  parts.host = $cparts.host.unsafeAddr
-  parts.port = $cparts.port.unsafeAddr
-  parts.origin = $cparts.origin.unsafeAddr
-  parts.path = $cparts.path.unsafeAddr
-  parts.query = $cparts.query.unsafeAddr
+proc to_nim(cparts: cef_urlparts): NCUrlParts =
+  result.spec = $cparts.spec.unsafeAddr
+  result.scheme = $cparts.scheme.unsafeAddr
+  result.username = $cparts.username.unsafeAddr
+  result.password = $cparts.password.unsafeAddr
+  result.host = $cparts.host.unsafeAddr
+  result.port = $cparts.port.unsafeAddr
+  result.origin = $cparts.origin.unsafeAddr
+  result.path = $cparts.path.unsafeAddr
+  result.query = $cparts.query.unsafeAddr
 
-  cef_string_clear(cparts.spec.unsafeAddr)
-  cef_string_clear(cparts.scheme.unsafeAddr)
-  cef_string_clear(cparts.username.unsafeAddr)
-  cef_string_clear(cparts.password.unsafeAddr)
-  cef_string_clear(cparts.host.unsafeAddr)
-  cef_string_clear(cparts.port.unsafeAddr)
-  cef_string_clear(cparts.origin.unsafeAddr)
-  cef_string_clear(cparts.path.unsafeAddr)
-  cef_string_clear(cparts.query.unsafeAddr)
+  for c in fields(cparts):
+    cef_string_clear(c.unsafeAddr)
+    
+proc to_cef(parts: NCUrlParts): cef_urlparts =
+  result.spec <= parts.spec
+  result.scheme <= parts.scheme
+  result.username <= parts.username
+  result.password <= parts.password
+  result.host <= parts.host
+  result.port <= parts.port
+  result.origin <= parts.origin
+  result.path <= parts.path
+  result.query <= parts.query
 
+proc nc_free(cparts: var cef_urlparts) =
+  for c in fields(cparts):
+    cef_string_clear(c.unsafeAddr)
+  
 # Parse the specified |url| into its component parts. Returns false *(0) if the
 # URL is NULL or invalid.
 proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
-  let curl = to_cef(url)
-  var cparts: cef_urlparts
-  result = cef_parse_url(curl, cparts.addr) == 1.cint
-  nc_free(curl)
-  if result: to_nim(cparts, parts)
-
-proc to_cef(parts: NCUrlParts, cparts: var cef_urlparts) =
-  cparts.spec <= parts.spec
-  cparts.scheme <= parts.scheme
-  cparts.username <= parts.username
-  cparts.password <= parts.password
-  cparts.host <= parts.host
-  cparts.port <= parts.port
-  cparts.origin <= parts.origin
-  cparts.path <= parts.path
-  cparts.query <= parts.query
-
-proc clear(cparts: var cef_urlparts) =
-  cef_string_clear(cparts.spec.addr)
-  cef_string_clear(cparts.scheme.addr)
-  cef_string_clear(cparts.username.addr)
-  cef_string_clear(cparts.password.addr)
-  cef_string_clear(cparts.host.addr)
-  cef_string_clear(cparts.port.addr)
-  cef_string_clear(cparts.origin.addr)
-  cef_string_clear(cparts.path.addr)
-  cef_string_clear(cparts.query.addr)
+  wrapProc(cef_parse_url, result, url, parts)
 
 # Creates a URL from the specified |parts|, which must contain a non-NULL spec
 # or a non-NULL host and path *(at a minimum), but not both. Returns false *(0)
 # if |parts| isn't initialized as described.
 proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
-  var curl: cef_string
-  var cparts: cef_urlparts
-  to_cef(parts, cparts)
-  result = cef_create_url(cparts.addr, curl.addr) == 1.cint
-  url = $curl.addr
-  cef_string_clear(curl.addr)
-  cparts.clear
-
+  wrapProc(cef_create_url, result, parts, url)
+  
 # This is a convenience function for formatting a URL in a concise and human-
 # friendly way to help users make security-related decisions *(or in other
 # circumstances when people need to distinguish sites, origins, or otherwise-
@@ -105,61 +81,36 @@ proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
 # returned value will *(a) omit the path for standard schemes, excepting file
 # and filesystem, and *(b) omit the port if it is the default for the scheme. Do
 # not use this for URLs which will be parsed or sent to other applications.
-
-# The resulting string must be freed by calling string_free*().
 proc NCFormatUrlForSecurityDisplay*(origin_url, languages: string): string =
-  let curl = to_cef(origin_url)
-  let clang = to_cef(languages)
-  result = to_nim(cef_format_url_for_security_display(curl, clang))
-  nc_free(curl)
-  nc_free(clang)
+  wrapProc(cef_format_url_for_security_display, result, origin_url, languages)
 
 # Returns the mime type for the specified file extension or an NULL string if
 # unknown.
-
-# The resulting string must be freed by calling string_free*().
 proc NCGetMimeType*(extension: string): string =
-  let cext = to_cef(extension)
-  result = to_nim(cef_get_mime_type(cext))
-  nc_free(cext)
+  wrapProc(cef_get_mime_type, result, extension)
 
 # Get the extensions associated with the given mime type. This should be passed
 # in lower case. There could be multiple extensions for a given mime type, like
 # "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
 # elements in the provided vector will not be erased.
 proc NCGetExtensionsForMimeType*(mime_type: string): seq[string] =
-  let cmime = to_cef(mime_type)
-  var clist = cef_string_list_alloc()
-  cef_get_extensions_for_mime_type(cmime, clist)
-  nc_free(cmime)
-  result = to_nim(clist)
+  wrapProc(cef_get_extensions_for_mime_type, result, mime_type)
 
 # Encodes |data| as a base64 string.
-# The resulting string must be freed by calling string_free*().
 proc NCBase64Encode*(data: pointer, data_size: int): string =
-  result = to_nim(cef_base64encode(data, data_size.csize))
+  wrapProc(cef_base64encode, result, data, data_size)
 
 # Decodes the base64 encoded string |data|. The returned value will be NULL if
 # the decoding fails.
-proc NCBase64Decode*(data: string): string =
-  let cdata = to_cef(data)
-  var bin = cef_base64decode(cdata)
-  if bin == nil: return nil
-  nc_free(cdata)
-  result = newString(bin.GetSize())
-  if bin.GetData(result.cstring, result.len, 0) != result.len: doAssert(false)
-  release(bin)
+proc NCBase64Decode*(data: string): NCBinaryValue =
+  wrapProc(cef_base64decode, result, data)
 
 # Escapes characters in |text| which are unsuitable for use as a query
 # parameter value. Everything except alphanumerics and -_.!~*'*() will be
 # converted to "%XX". If |use_plus| is true *(1) spaces will change to "+". The
 # result is basically the same as encodeURIComponent in Javacript.
-
-# The resulting string must be freed by calling string_free*().
 proc NCUriEncode*(text: string, use_plus: bool): string =
-  let ctext = to_cef(text)
-  result = to_nim(cef_uriencode(ctext, use_plus.cint))
-  nc_free(ctext)
+  wrapProc(cef_uriencode, result, text, use_plus)
 
 type
   # URI unescape rules passed to CefURIDecode().
@@ -218,21 +169,15 @@ proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
 # convertable into UTF-8 it will be returned as converted. Otherwise the
 # initial decoded result will be returned.  The |unescape_rule| parameter
 # supports further customization the decoding process.
-
-# The resulting string must be freed by calling string_free*().
 proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): string =
-  let ctext = to_cef(text)
-  result = to_nim(cef_uridecode(ctext, convert_to_utf8.cint, to_cef(unescape_rule)))
-  nc_free(ctext)
+  wrapProc(cef_uridecode, result, text, convert_to_utf8, unescape_rule)
 
 # Parses |string| which represents a CSS color value. If |strict| is true *(1)
 # strict parsing rules will be applied. Returns true *(1) on success or false
 # *(0) on error. If parsing succeeds |color| will be set to the color value
 # otherwise |color| will remain unchanged.
 proc NCParseCssColor*(str: string, strict: int, color: var cef_color): bool =
-  let cstr = to_cef(str)
-  result = cef_parse_csscolor(cstr, strict.cint, color) == 1.cint
-  nc_free(cstr)
+  wrapProc(cef_parse_csscolor, result, str, strict, color)
 
 type
   # Options that can be passed to CefParseJSON.
@@ -255,9 +200,7 @@ proc to_cef(flags: NCJPO): cef_json_parser_options =
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL.
 proc NCParseJson*(json_string: string, options: NCJPO): NCValue =
-  let cstr = to_cef(json_string)
-  result = cef_parse_json(cstr, to_cef(options))
-  nc_free(cstr)
+  wrapProc(cef_parse_json, result, json_string, options)
 
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL and
@@ -265,13 +208,7 @@ proc NCParseJson*(json_string: string, options: NCJPO): NCValue =
 # formatted error message respectively.
 proc NCParseJsonAndReturnError*(json_string: string, options: NCJPO,
   error_code_out: var cef_json_parser_error, error_msg_out: var string): NCValue =
-  let cstr = to_cef(json_string)
-  var cmsg: cef_string
-  result = cef_parse_jsonand_return_error(cstr, to_cef(options), error_code_out, cmsg.addr)
-  nc_free(cstr)
-  error_msg_out = $cmsg.addr
-  cef_string_clear(cmsg.addr)
-
+  wrapProc(cef_parse_jsonand_return_error, result, json_string, options, error_code_out, error_msg_out)
 
 type
   # Options that can be passed to  CefWriteJSON.
@@ -308,7 +245,5 @@ proc to_cef(flags: NCJWO): cef_json_writer_options =
 # Generates a JSON string from the specified root |node| which should be a
 # dictionary or list value. Returns an NULL string on failure. This function
 # requires exclusive access to |node| including any underlying data.
-
-# The resulting string must be freed by calling string_free*().
 proc NCWriteJson*(node: NCValue, options: NCJWO): string =
-  result = to_nim(cef_write_json(node, to_cef(options)))
+  wrapProc(cef_write_json, result, node, options)

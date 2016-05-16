@@ -1,4 +1,4 @@
-import nc_util, nc_types, nc_string_visitor, nc_request, nc_dom#, nc_v8
+import nc_util, nc_types, nc_string_visitor, nc_request, nc_dom, nc_v8
 
 # Structure used to represent a frame in the browser window. When used in the
 # browser process the functions of this structure may be called on any thread
@@ -76,7 +76,7 @@ proc LoadString*(self: NCFrame, string_val, url: string) =
 # reporting.
 proc ExecuteJavaScript*(self: NCFrame, code, script_url: string, start_line: int) =
   self.wrapCall(execute_java_script, code, script_url, start_line)
-  
+
 # Returns true (1) if this is the main (top-level) frame.
 proc IsMain*(self: NCFrame): bool =
   self.wrapCall(is_main, result)

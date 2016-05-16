@@ -90,8 +90,6 @@ proc DumpRequestContents(request: NCRequest): string =
         elif it.GetType() == PDE_TYPE_FILE:
           ss.write "\n\tFile: "
           ss.write it.GetFile()
-        release(it)
-    release(postData)
   result = ss.data
 
 
@@ -106,6 +104,10 @@ method ProcessRequest*(self: myScheme, request: NCRequest, callback: NCCallback)
 <body bgcolor="white">
 This contents of this page page are served by the
 myScheme object handling the client:// protocol.
+
+<h2>Google</h2>
+<a href="https://www.google.com/">https://www.google.com/</a>
+
 <br/>You should see an image:
 <br/><img src="client://tests/logo.png"><pre>"""
 

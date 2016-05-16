@@ -32,6 +32,9 @@ proc to_nim*(ct: cef_time): NCTime =
   result.second = ct.second.int
   result.millisecond = ct.millisecond.int
 
+#this empty proc provided because it is needed by automated wrapper
+proc nc_free*(ct: cef_time) = discard
+
 # Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)
 # on failure.
 proc toTime*(ntime: NCTime, time: var Time): bool =

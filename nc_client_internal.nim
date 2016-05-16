@@ -4,8 +4,8 @@ import cef/cef_response_filter_api
 
 include cef/cef_import
 
-template client_to_client(client: expr): expr =
-  cast[NCClient](cast[ByteAddress](client) - sizeof(pointer))
+proc client_to_client(client: ptr cef_client): ptr nc_handler =
+  cast[ptr nc_handler](client)
 
 proc get_context_menu_handler(self: ptr cef_client): ptr cef_context_menu_handler {.cef_callback.} =
   result = client_to_client(self).context_menu_handler
@@ -50,7 +50,7 @@ proc on_process_message_received(self: ptr cef_client,
   browser: ptr_cef_browser, source_process: cef_process_id,
   message: ptr cef_process_message): cint {.cef_callback.} =
   var brow = b_to_b(browser)
-  result = client_to_client(self).OnRenderProcessMessageReceived(nc_wrap(brow), source_process, message).cint
+  result = client_to_client(self).OnRenderProcessMessageReceived(nc_wrap(brow), source_process, nc_wrap(message)).cint
   release(brow)
   release(message)
 

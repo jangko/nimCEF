@@ -5,8 +5,9 @@ import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
 import nc_urlrequest, nc_auth_callback, nc_frame
 
 type
-  myClient = ref object of NCClient
-    abc: int
+  myClient = object 
+    base: nc_handler
+    abc : int
     name: string
 
   myApp = ref object of NCApp
@@ -21,7 +22,7 @@ type
   myUrlRequestClient = ref object of NCUrlRequestClient
     name: string
 
-proc newClient(no: int, name: string): myClient =
+proc newClient(no: int, name: string): NCClient =
   result = makeNCClient(myClient, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
   result.abc = no
   result.name = name
@@ -208,11 +209,11 @@ proc main() =
     echo "failure execute process ", code
     quit(code)
 
-  var settings = makeNCSettings()
+  var settings: NCSettings
   settings.no_sandbox = true
   discard NCInitialize(mainArgs, settings, app)
 
-  var windowInfo: cef_window_info
+  var windowInfo: NCWindowInfo
   windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
   windowInfo.parent_window = cef_window_handle(0)
   windowInfo.x = CW_USEDEFAULT
@@ -229,11 +230,11 @@ proc main() =
 
   #Browser settings.
   #It is mandatory to set the "size" member.
-  var browserSettings = makeNCBrowserSettings()
+  var browserSettings: NCBrowserSettings
   var client = newClient(123, "hello")
 
   # Create browser.
-  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings)
+  discard NCBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
 
   # Message loop.
   NCRunMessageLoop()

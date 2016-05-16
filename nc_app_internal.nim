@@ -117,7 +117,7 @@ proc on_focused_node_changed(self: ptr cef_render_process_handler,
 proc on_process_message_received(self: ptr cef_render_process_handler,
   browser: ptr cef_browser, source_process: cef_process_id,
   message: ptr cef_process_message): cint {.cef_callback.} =
-  result = toApp(self).OnBrowserProcessMessageReceived(nc_wrap(browser), source_process, message).cint
+  result = toApp(self).OnBrowserProcessMessageReceived(nc_wrap(browser), source_process, nc_wrap(message)).cint
   release(browser)
   release(message)
 

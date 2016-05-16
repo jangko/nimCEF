@@ -6,7 +6,7 @@ import nc_client, nc_menu_model, nc_context_menu_params, nc_types
 # context menu. The |model| can be cleared to show no context menu or
 # modified to show a custom menu. Do not keep references to |params| or
 # |model| outside of this callback.
-method OnBeforeContextMenu*(self: NCClient, browser: NCBrowser,
+method OnBeforeContextMenu*(self: ptr nc_handler, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) {.base.} =
   discard
 
@@ -16,7 +16,7 @@ method OnBeforeContextMenu*(self: NCClient, browser: NCBrowser,
 # (1) and execute |callback| either synchronously or asynchronously with the
 # selected command ID. For default display return false (0). Do not keep
 # references to |params| or |model| outside of this callback.
-method RunContextMenu*(self: NCClient, browser: NCBrowser,
+method RunContextMenu*(self: ptr nc_handler, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel,
   callback: ptr cef_run_context_menu_callback): int {.base.} =
   discard
@@ -28,14 +28,14 @@ method RunContextMenu*(self: NCClient, browser: NCBrowser,
 # MENU_ID_USER_LAST. |params| will have the same values as what was passed to
 # on_before_context_menu(). Do not keep a reference to |params| outside of
 # this callback.
-method OnContextMenuCommand*(self: NCClient, browser: NCBrowser,
+method OnContextMenuCommand*(self: ptr nc_handler, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
   event_flags: cef_event_flags): int {.base.} =
   discard
 
 # Called when the context menu is dismissed irregardless of whether the menu
 # was NULL or a command was selected.
-method OnContextMenuDismissed*(self: NCCLient,  browser: NCBrowser,
+method OnContextMenuDismissed*(self: ptr nc_handler,  browser: NCBrowser,
   frame: NCFrame) {.base.} =
   discard
 

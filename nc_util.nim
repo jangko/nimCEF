@@ -227,7 +227,9 @@ proc checkBase(n: NimNode): bool =
 
 proc checkWrapped(n: NimNode): bool =
   var err = false
-  let objSym = getType(n)[1]
+  let nType = getType(n)
+  if nType.typeKind != ntyRef: return false
+  let objSym = nType[1]
   let objType = getType(objSym)
   let handler = objType[1][0]
   if $handler != "handler": return false
@@ -335,7 +337,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
         params.add "arg$1" % [argi]
         epiloque.add "nc_free(arg$1)\n" % [argi]
-      else: error(lineinfo(arg) & " unsupported ref type")
+      else: error(lineinfo(arg) & " unsupported ref type: " & argv)
     of ntySequence:
       let T = getType(arg)[1]
       if checkWrapped(T):
@@ -347,8 +349,16 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         proloque.add "  arg$1[i] = $2[i].GetHandler()\n" % [argi, argv]
         proloque.add "  add_ref(arg$1[i])\n" % [argi]
         params.add "$1.len.$2, cast[ptr ptr $3](arg$4[0].addr)" % [argv, argType, handler, argi]
+      elif checkString(T):
+        proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
+        params.add "arg$1" % [argi]
+        epiloque.add "nc_free(arg$1)\n" % [argi]
       else:
         error(lineinfo(arg) & " unsupported param: " & getType(arg).treeRepr)
+    of ntyObject:
+      proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
+      params.add "arg$1.addr" % [argi]
+      epiloque.add "nc_free(arg$1)\n" % [argi]
     else:
       error(lineinfo(arg) & " unsupported param type: " & $arg.typeKind)
 
@@ -411,8 +421,19 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         body = "$1($2)\n" % [calee, params]
         epiloque.add "for i in 0.. <$1:\n" % [size]
         epiloque.add "  result[i] = nc_wrap(res$1[i])\n" % [aSize]
+      elif T.typeKind == ntyInt64:
+        let size = $args[args.len-1]
+        proloque.add "result = newSeq[int64]($1.int)\n" % [size]
+        params.add ", result[0].addr"
+        body = "$1($2)\n" % [calee, params]
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
+    of ntyDistinct:
+      let T = getType(res)[1]
+      if T.typeKind == ntyPointer:
+        body = "result = $1($2)\n" % [calee, params]
+      else:
+        error(lineinfo(res) & " unsupported return distinct: " & $T)
     else:
       error(lineinfo(res) & " unsupported return type: " & $res.typeKind)
   else:
@@ -478,7 +499,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         epiloque.add "nc_free(arg$1)\n" % [argi]
     of ntyRef:
       if checkWrapped(arg): proloque.add "add_ref($1.GetHandler())\n" % [argv]
-      else: error(lineinfo(arg) & " unsupported ref type")
+      else: error(lineinfo(arg) & " unsupported ref type: " & argv)
       params.add "$1.GetHandler()" % [argv]
     of ntyBool, ntyInt, ntyFloat, ntyInt32, ntyUint32:
       if arg.kind == nnkHiddenDeref:

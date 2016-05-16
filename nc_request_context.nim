@@ -224,10 +224,9 @@ proc NCRequestContextGetGlobalContext*(): NCRequestContext =
 # Creates a new context object with the specified |settings| and optional
 # |handler|.
 proc NCRequestContextCreateContext*(settings: NCRequestContextSettings, handler: NCRequestContextHandler): NCRequestContext =
-  var csettings: cef_request_context_settings
-  to_cef(settings, csettings)
+  var csettings = to_cef(settings)
   result = nc_wrap(cef_request_context_create_context(csettings.addr, handler.GetHandler()))
-  csettings.clear()
+  nc_free(csettings)
 
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.

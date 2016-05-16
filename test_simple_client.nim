@@ -57,7 +57,7 @@ proc main() =
   discard NCInitialize(mainArgs, settings, app)
   echo "cef_initialize thread id: ", getCurrentThreadId()
 
-  var windowInfo: cef_window_info
+  var windowInfo: NCWindowInfo
   windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
   windowInfo.parent_window = cef_window_handle(0)
   windowInfo.x = CW_USEDEFAULT
@@ -76,7 +76,7 @@ proc main() =
 
   # Create browser.
   echo "cef_browser_host_create_browser"
-  discard NCBrowserHostCreateBrowser(windowInfo.addr, client, url, browserSettings)
+  discard NCBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
 
   # Message loop.
   NCRunMessageLoop()

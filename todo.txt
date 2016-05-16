@@ -1,3 +1,15 @@
+NCBrowserHost::GetClient
+
+NCBrowser::SendKeyEvent
+NCBrowser::SendMouseClickEvent
+NCBrowser::SendMouseMoveEvent
+NCBrowser::SendMouseWheelEvent
+NCBrowser::DragTargetDragEnter
+NCBrowser::DragTargetDragOver
+NCBrowser::DragTargetDrop
+NCBrowser::HandleKeyEventBeforeTextInputClient
+NCBrowser::HandleKeyEventAfterTextInputClient
+
 NCV8Handler::Execute
 NCV8Value::SetUserData
 NCV8Value::GetUserData
@@ -5,3 +17,4 @@ nc_web_plugin
 nc_task
 nc_dom
 nc_callback
+nc_browser

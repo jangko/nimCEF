@@ -5,7 +5,7 @@ type
   # values. Many of these and other settings can also configured using command-
   # line switches.
 
-  NCSettings* = ref object
+  NCSettings* = object
     # Set to true (1) to use a single process for the browser and renderer. This
     # run mode is not officially supported by Chromium and is less stable than
     # the multi-process default. Also configurable using the "single-process"
@@ -189,38 +189,35 @@ type
     # CefRequestContextSettings.accept_language_list value.
     accept_language_list*: string
 
-proc makeNCSettings*(): NCSettings =
-  new(result)
+proc to_cef*(ns: NCSettings): cef_settings =
+  result.size = sizeof(cef_settings)
+  result.single_process = ns.single_process.cint
+  result.no_sandbox = ns.no_sandbox.cint
+  result.browser_subprocess_path <= ns.browser_subprocess_path
+  result.multi_threaded_message_loop  = ns.multi_threaded_message_loop.cint
+  result.windowless_rendering_enabled = ns.windowless_rendering_enabled.cint
+  result.command_line_args_disabled   = ns.command_line_args_disabled.cint
+  result.cache_path <= ns.cache_path
+  result.user_data_path <= ns.user_data_path
+  result.persist_session_cookies  = ns.persist_session_cookies.cint
+  result.persist_user_preferences = ns.persist_user_preferences.cint
+  result.user_agent <= ns.user_agent
+  result.product_version <= ns.product_version
+  result.locale <= ns.locale
+  result.log_file <= ns.log_file
+  result.log_severity = ns.log_severity
+  result.javascript_flags <= ns.javascript_flags
+  result.resources_dir_path <= ns.resources_dir_path
+  result.locales_dir_path <= ns.locales_dir_path
+  result.pack_loading_disabled = ns.pack_loading_disabled.cint
+  result.remote_debugging_port = ns.remote_debugging_port.cint
+  result.uncaught_exception_stack_size = ns.uncaught_exception_stack_size.cint
+  result.context_safety_implementation = ns.context_safety_implementation.cint
+  result.ignore_certificate_errors = ns.ignore_certificate_errors.cint
+  result.background_color = ns.background_color
+  result.accept_language_list <= ns.accept_language_list
 
-proc to_cef*(ns: NCSettings, cs: var cef_settings) =
-  cs.size = sizeof(cef_settings)
-  cs.single_process = ns.single_process.cint
-  cs.no_sandbox = ns.no_sandbox.cint
-  cs.browser_subprocess_path <= ns.browser_subprocess_path
-  cs.multi_threaded_message_loop  = ns.multi_threaded_message_loop.cint
-  cs.windowless_rendering_enabled = ns.windowless_rendering_enabled.cint
-  cs.command_line_args_disabled   = ns.command_line_args_disabled.cint
-  cs.cache_path <= ns.cache_path
-  cs.user_data_path <= ns.user_data_path
-  cs.persist_session_cookies  = ns.persist_session_cookies.cint
-  cs.persist_user_preferences = ns.persist_user_preferences.cint
-  cs.user_agent <= ns.user_agent
-  cs.product_version <= ns.product_version
-  cs.locale <= ns.locale
-  cs.log_file <= ns.log_file
-  cs.log_severity = ns.log_severity
-  cs.javascript_flags <= ns.javascript_flags
-  cs.resources_dir_path <= ns.resources_dir_path
-  cs.locales_dir_path <= ns.locales_dir_path
-  cs.pack_loading_disabled = ns.pack_loading_disabled.cint
-  cs.remote_debugging_port = ns.remote_debugging_port.cint
-  cs.uncaught_exception_stack_size = ns.uncaught_exception_stack_size.cint
-  cs.context_safety_implementation = ns.context_safety_implementation.cint
-  cs.ignore_certificate_errors = ns.ignore_certificate_errors.cint
-  cs.background_color = ns.background_color
-  cs.accept_language_list <= ns.accept_language_list
-
-proc clear*(cs: var cef_settings) =
+proc nc_free*(cs: var cef_settings) =
   cef_string_clear(cs.browser_subprocess_path.addr)
   cef_string_clear(cs.cache_path.addr)
   cef_string_clear(cs.user_data_path.addr)
@@ -236,7 +233,7 @@ proc clear*(cs: var cef_settings) =
 type
   # Request context initialization settings. Specify NULL or 0 to get the
   # recommended default values.
-  NCRequestContextSettings* = ref object
+  NCRequestContextSettings* = object
     # The location where cache data will be stored on disk. If empty then
     # browsers will be created in "incognito mode" where in-memory caches are
     # used for storage and no data is persisted to disk. HTML5 databases such as
@@ -279,7 +276,7 @@ type
   # default values. The consequences of using custom values may not be well
   # tested. Many of these and other settings can also configured using command-
   # line switches.
-  NCBrowserSettings* = ref object
+  NCBrowserSettings* = object
     # The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
     # will be called for a windowless browser. The actual fps may be lower if
     # the browser cannot generate frames at the requested rate. The minimum
@@ -405,60 +402,54 @@ type
     # empty then "en-US,en" will be used.
     accept_language_list*: string
 
-proc makeNCBrowserSettings*(): NCBrowserSettings =
-  new(result)
+proc to_cef*(ns: NCRequestContextSettings): cef_request_context_settings =
+  result.cache_path <= ns.cache_path
+  result.persist_session_cookies = ns.persist_session_cookies.cint
+  result.persist_user_preferences = ns.persist_user_preferences.cint
+  result.ignore_certificate_errors = ns.ignore_certificate_errors.cint
+  result.accept_language_list <= ns.accept_language_list
 
-proc makeNCRequestContextSettings*(): NCRequestContextSettings =
-  new(result)
-
-proc to_cef*(ns: NCRequestContextSettings, cs: var cef_request_context_settings) =
-  cs.cache_path <= ns.cache_path
-  cs.persist_session_cookies = ns.persist_session_cookies.cint
-  cs.persist_user_preferences = ns.persist_user_preferences.cint
-  cs.ignore_certificate_errors = ns.ignore_certificate_errors.cint
-  cs.accept_language_list <= ns.accept_language_list
-
-proc clear*(cs: var cef_request_context_settings) =
+proc nc_free*(cs: var cef_request_context_settings) =
   cef_string_clear(cs.cache_path.addr)
   cef_string_clear(cs.accept_language_list.addr)
 
-proc to_cef*(ns: NCBrowserSettings, cs: var cef_browser_settings) =
-  cs.size = sizeof(cef_browser_settings)
-  cs.windowless_frame_rate = ns.windowless_frame_rate.cint
-  cs.standard_font_family <= ns.standard_font_family
-  cs.fixed_font_family <= ns.fixed_font_family
-  cs.serif_font_family <= ns.serif_font_family
-  cs.sans_serif_font_family <= ns.sans_serif_font_family
-  cs.cursive_font_family <= ns.cursive_font_family
-  cs.fantasy_font_family <= ns.fantasy_font_family
-  cs.default_font_size = ns.default_font_size.cint
-  cs.default_fixed_font_size = ns.default_fixed_font_size.cint
-  cs.minimum_font_size = ns.minimum_font_size.cint
-  cs.minimum_logical_font_size = ns.minimum_logical_font_size.cint
-  cs.default_encoding <= ns.default_encoding
-  cs.remote_fonts = ns.remote_fonts
-  cs.javascript = ns.javascript
-  cs.javascript_open_windows = ns.javascript_open_windows
-  cs.javascript_close_windows = ns.javascript_close_windows
-  cs.javascript_access_clipboard = ns.javascript_access_clipboard
-  cs.javascript_dom_paste = ns.javascript_dom_paste
-  cs.caret_browsing = ns.caret_browsing
-  cs.plugins = ns.plugins
-  cs.universal_access_from_file_urls = ns.universal_access_from_file_urls
-  cs.file_access_from_file_urls = ns.file_access_from_file_urls
-  cs.web_security = ns.web_security
-  cs.image_loading = ns.image_loading
-  cs.image_shrink_standalone_to_fit = ns.image_shrink_standalone_to_fit
-  cs.text_area_resize = ns.text_area_resize
-  cs.tab_to_links = ns.tab_to_links
-  cs.local_storage = ns.local_storage
-  cs.databases = ns.databases
-  cs.application_cache = ns.application_cache
-  cs.webgl = ns.webgl
-  cs.background_color = ns.background_color
-  cs.accept_language_list <= ns.accept_language_list
+proc to_cef*(ns: NCBrowserSettings): cef_browser_settings =
+  result.size = sizeof(cef_browser_settings)
+  result.windowless_frame_rate = ns.windowless_frame_rate.cint
+  result.standard_font_family <= ns.standard_font_family
+  result.fixed_font_family <= ns.fixed_font_family
+  result.serif_font_family <= ns.serif_font_family
+  result.sans_serif_font_family <= ns.sans_serif_font_family
+  result.cursive_font_family <= ns.cursive_font_family
+  result.fantasy_font_family <= ns.fantasy_font_family
+  result.default_font_size = ns.default_font_size.cint
+  result.default_fixed_font_size = ns.default_fixed_font_size.cint
+  result.minimum_font_size = ns.minimum_font_size.cint
+  result.minimum_logical_font_size = ns.minimum_logical_font_size.cint
+  result.default_encoding <= ns.default_encoding
+  result.remote_fonts = ns.remote_fonts
+  result.javascript = ns.javascript
+  result.javascript_open_windows = ns.javascript_open_windows
+  result.javascript_close_windows = ns.javascript_close_windows
+  result.javascript_access_clipboard = ns.javascript_access_clipboard
+  result.javascript_dom_paste = ns.javascript_dom_paste
+  result.caret_browsing = ns.caret_browsing
+  result.plugins = ns.plugins
+  result.universal_access_from_file_urls = ns.universal_access_from_file_urls
+  result.file_access_from_file_urls = ns.file_access_from_file_urls
+  result.web_security = ns.web_security
+  result.image_loading = ns.image_loading
+  result.image_shrink_standalone_to_fit = ns.image_shrink_standalone_to_fit
+  result.text_area_resize = ns.text_area_resize
+  result.tab_to_links = ns.tab_to_links
+  result.local_storage = ns.local_storage
+  result.databases = ns.databases
+  result.application_cache = ns.application_cache
+  result.webgl = ns.webgl
+  result.background_color = ns.background_color
+  result.accept_language_list <= ns.accept_language_list
 
-proc clear*(cs: var cef_browser_settings) =
+proc nc_free*(cs: var cef_browser_settings) =
   cef_string_clear(cs.standard_font_family.addr)
   cef_string_clear(cs.fixed_font_family.addr)
   cef_string_clear(cs.serif_font_family.addr)
@@ -470,7 +461,7 @@ proc clear*(cs: var cef_browser_settings) =
 
 type
   # Structure representing PDF print settings.
-  NCPdfPrintSettings* = ref object
+  NCPdfPrintSettings* = object
     # Page title to display in the header. Only used if |header_footer_enabled|
     # is set to true (1).
     header_footer_title: string
@@ -508,24 +499,21 @@ type
     # background graphics.
     backgrounds_enabled: bool
 
-proc makeNCPdfPrintSettings*(): NCPdfPrintSettings =
-  new(result)
+proc to_cef*(ns: NCPdfPrintSettings): cef_pdf_print_settings =
+  result.header_footer_title <= ns.header_footer_title
+  result.header_footer_url <= ns.header_footer_url
+  result.page_width = ns.page_width.cint
+  result.page_height = ns.page_height.cint
+  result.margin_top = ns.margin_top
+  result.margin_right = ns.margin_right
+  result.margin_bottom = ns.margin_bottom
+  result.margin_left = ns.margin_left
+  result.margin_type = ns.margin_type
+  result.header_footer_enabled = ns.header_footer_enabled.cint
+  result.selection_only = ns.selection_only.cint
+  result.landscape = ns.landscape.cint
+  result.backgrounds_enabled = ns.backgrounds_enabled.cint
 
-proc to_cef*(ns: NCPdfPrintSettings, cs: var cef_pdf_print_settings) =
-  cs.header_footer_title <= ns.header_footer_title
-  cs.header_footer_url <= ns.header_footer_url
-  cs.page_width = ns.page_width.cint
-  cs.page_height = ns.page_height.cint
-  cs.margin_top = ns.margin_top
-  cs.margin_right = ns.margin_right
-  cs.margin_bottom = ns.margin_bottom
-  cs.margin_left = ns.margin_left
-  cs.margin_type = ns.margin_type
-  cs.header_footer_enabled = ns.header_footer_enabled.cint
-  cs.selection_only = ns.selection_only.cint
-  cs.landscape = ns.landscape.cint
-  cs.backgrounds_enabled = ns.backgrounds_enabled.cint
-
-proc clear*(cs: var cef_pdf_print_settings) =
+proc nc_free*(cs: var cef_pdf_print_settings) =
   cef_string_clear(cs.header_footer_title.addr)
   cef_string_clear(cs.header_footer_url.addr)

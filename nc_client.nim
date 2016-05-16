@@ -88,7 +88,7 @@ proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
 # Called when a new message is received from a different process. Return true
 # (1) if the message was handled or false (0) otherwise. Do not keep a
 # reference to or attempt to access the message outside of this callback.
-method OnRenderProcessMessageReceived*(self: NCClient, browser: NCBrowser,
+method OnRenderProcessMessageReceived*(self: ptr nc_handler, browser: NCBrowser,
   source_process: cef_process_id, message: NCProcessMessage): bool {.base.} =
   result = false
 
@@ -97,7 +97,7 @@ method OnRenderProcessMessageReceived*(self: NCClient, browser: NCBrowser,
 # contains the drag event data and |mask| represents the type of drag
 # operation. Return false (0) for default drag handling behavior or true (1)
 # to cancel the drag event.
-method OnDragEnter*(self: NCClient, browser: NCBrowser, dragData: NCDragData,
+method OnDragEnter*(self: ptr nc_handler, browser: NCBrowser, dragData: NCDragData,
   mask: cef_drag_operations_mask): bool {.base.} =
   result = false
 
@@ -107,23 +107,23 @@ method OnDragEnter*(self: NCClient, browser: NCBrowser, dragData: NCDragData,
 # draggable regions are never defined in a document this function will also
 # never be called. If the last draggable region is removed from a document
 # this function will be called with an NULL vector.
-method OnDraggableRegionsChanged*(self: NCClient, browser: NCBrowser,
+method OnDraggableRegionsChanged*(self: ptr nc_handler, browser: NCBrowser,
   regionsCount: int, regions: ptr cef_draggable_region) {.base.} =
   discard
 
 #--Display Handler
 # Called when a frame's address has changed.
-method OnAddressChange*(self: NCClient, browser: NCBrowser, frame: NCFrame, url: string) {.base.} =
+method OnAddressChange*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame, url: string) {.base.} =
   discard
 
 #--Display Handler
 # Called when the page title changes.
-method OnTitleChange*(self: NCClient, browser: NCBrowser, title: string) {.base.} =
+method OnTitleChange*(self: ptr nc_handler, browser: NCBrowser, title: string) {.base.} =
   discard
 
 #--Display Handler
 # Called when the page icon changes.
-method OnFaviconUrlchange*(self: NCClient, browser: NCBrowser, icon_urls: seq[string]) {.base.} =
+method OnFaviconUrlchange*(self: ptr nc_handler, browser: NCBrowser, icon_urls: seq[string]) {.base.} =
   discard
 
 #--Display Handler
@@ -132,7 +132,7 @@ method OnFaviconUrlchange*(self: NCClient, browser: NCBrowser, icon_urls: seq[st
 # the browser content area. If |fullscreen| is false (0) the content will
 # automatically return to its original size and position. The client is
 # responsible for resizing the browser if desired.
-method OnFullscreenModeChange*(self: NCClient, browser: NCBrowser, fullscreen: bool) {.base.} =
+method OnFullscreenModeChange*(self: ptr nc_handler, browser: NCBrowser, fullscreen: bool) {.base.} =
   discard
 
 #--Display Handler
@@ -142,19 +142,19 @@ method OnFullscreenModeChange*(self: NCClient, browser: NCBrowser, fullscreen: b
 # |text| and then return false (0) to allow the browser to display the
 # tooltip. When window rendering is disabled the application is responsible
 # for drawing tooltips and the return value is ignored.
-method OnTooltip*(self: NCClient, browser: NCBrowser, text: var string): bool {.base.} =
+method OnTooltip*(self: ptr nc_handler, browser: NCBrowser, text: var string): bool {.base.} =
   result = false
 
 #--Display Handler
 # Called when the browser receives a status message. |value| contains the
 # text that will be displayed in the status message.
-method OnStatusMessage*(self: NCClient, browser: NCBrowser, value: string) {.base.} =
+method OnStatusMessage*(self: ptr nc_handler, browser: NCBrowser, value: string) {.base.} =
   discard
 
 #--Display Handler
 # Called to display a console message. Return true (1) to stop the message
 # from being output to the console.
-method OnConsoleMessage*(self: NCClient, browser: NCBrowser, message, source: string, line: int): bool {.base.} =
+method OnConsoleMessage*(self: ptr nc_handler, browser: NCBrowser, message, source: string, line: int): bool {.base.} =
   result = false
 
 #--Focus Handler
@@ -162,19 +162,19 @@ method OnConsoleMessage*(self: NCClient, browser: NCBrowser, message, source: st
 # focus was on the last HTML element and the user pressed the TAB key. |next|
 # will be true (1) if the browser is giving focus to the next component and
 # false (0) if the browser is giving focus to the previous component.
-method OnTakeFocus*(self: NCClient, browser: NCBrowser, next: bool) {.base.} =
+method OnTakeFocus*(self: ptr nc_handler, browser: NCBrowser, next: bool) {.base.} =
   discard
 
 #--Focus Handler
 # Called when the browser component is requesting focus. |source| indicates
 # where the focus request is originating from. Return false (0) to allow the
 # focus to be set or true (1) to cancel setting the focus.
-method OnSetFocus*(self: NCClient, browser: NCBrowser, source: cef_focus_source): bool {.base.} =
+method OnSetFocus*(self: ptr nc_handler, browser: NCBrowser, source: cef_focus_source): bool {.base.} =
   result = true
 
 #--Focus Handler
 # Called when the browser component has received focus.
-method OnGotFocus*(self: NCClient, browser: NCBrowser) {.base.} =
+method OnGotFocus*(self: ptr nc_handler, browser: NCBrowser) {.base.} =
   discard
 
 #--Keyboard Handler
@@ -183,7 +183,7 @@ method OnGotFocus*(self: NCClient, browser: NCBrowser) {.base.} =
 # event message, if any. Return true (1) if the event was handled or false
 # (0) otherwise. If the event will be handled in on_key_event() as a keyboard
 # shortcut set |is_keyboard_shortcut| to true (1) and return false (0).
-method OnPreKeyEvent*(self: NCClient, browser: NCBrowser, event: ptr cef_key_event,
+method OnPreKeyEvent*(self: ptr nc_handler, browser: NCBrowser, event: ptr cef_key_event,
   os_event: cef_event_handle, is_keyboard_shortcut: var int): bool {.base.} =
   result = false
 
@@ -192,7 +192,7 @@ method OnPreKeyEvent*(self: NCClient, browser: NCBrowser, event: ptr cef_key_eve
 # handle the event. |event| contains information about the keyboard event.
 # |os_event| is the operating system event message, if any. Return true (1)
 # if the keyboard event was handled or false (0) otherwise.
-method OnKeyEvent*(self: NCClient, browser: NCBrowser, event: ptr cef_key_event,
+method OnKeyEvent*(self: ptr nc_handler, browser: NCBrowser, event: ptr cef_key_event,
   os_event: cef_event_handle): bool {.base.} =
   result = false
 
@@ -202,7 +202,7 @@ method OnKeyEvent*(self: NCClient, browser: NCBrowser, event: ptr cef_key_event,
 # action, and once when loading is terminated due to completion, cancellation
 # of failure. It will be called before any calls to OnLoadStart and after all
 # calls to OnLoadError and/or OnLoadEnd.
-method OnLoadingStateChange*(self: NCClient,
+method OnLoadingStateChange*(self: ptr nc_handler,
   browser: NCBrowser, isLoading, canGoBack, canGoForward: bool) {.base.} =
   discard
 
@@ -214,7 +214,7 @@ method OnLoadingStateChange*(self: NCClient,
 # function will always be called for all frames irrespective of whether the
 # request completes successfully. For notification of overall browser load
 # status use OnLoadingStateChange instead.
-method OnLoadStart*(self: NCClient, browser: NCBrowser, frame: NCFrame) {.base.} =
+method OnLoadStart*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame) {.base.} =
   discard
 
 #--Load Handler
@@ -225,7 +225,7 @@ method OnLoadStart*(self: NCClient, browser: NCBrowser, frame: NCFrame) {.base.}
 # function will always be called for all frames irrespective of whether the
 # request completes successfully. For notification of overall browser load
 # status use OnLoadingStateChange instead.
-method OnLoadEnd*(self: NCClient, browser: NCBrowser, frame: NCFrame, httpStatusCode: int) {.base.} =
+method OnLoadEnd*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame, httpStatusCode: int) {.base.} =
   discard
 
 #--Load Handler
@@ -233,26 +233,26 @@ method OnLoadEnd*(self: NCClient, browser: NCBrowser, frame: NCFrame, httpStatus
 # |errorCode| is the error code number, |errorText| is the error text and
 # |failedUrl| is the URL that failed to load. See net\base\net_error_list.h
 # for complete descriptions of the error codes.
-method OnLoadError*(self: NCClient, browser: NCBrowser, frame: NCFrame,
+method OnLoadError*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame,
   errorCode: cef_errorcode, errorText, failedUrl: string) {.base.} =
   discard
 
 #--Render Handler
 # Called to retrieve the root window rectangle in screen coordinates. Return
 # true (1) if the rectangle was provided.
-method GetRootScreenRect*(self: NCClient, browser: NCBrowser, rect: ptr cef_rect): bool {.base.} =
+method GetRootScreenRect*(self: ptr nc_handler, browser: NCBrowser, rect: ptr cef_rect): bool {.base.} =
   result = false
 
 #--Render Handler
 # Called to retrieve the view rectangle which is relative to screen
 # coordinates. Return true (1) if the rectangle was provided.
-method GetViewRect*(self: NCClient, browser: NCBrowser, rect: ptr cef_rect): bool {.base.} =
+method GetViewRect*(self: ptr nc_handler, browser: NCBrowser, rect: ptr cef_rect): bool {.base.} =
   result = false
 
 #--Render Handler
 # Called to retrieve the translation from view coordinates to actual screen
 # coordinates. Return true (1) if the screen coordinates were provided.
-method GetScreenPoint*(self: NCClient,
+method GetScreenPoint*(self: ptr nc_handler,
   browser: NCBrowser, viewX, viewY: int, screenX, screenY: var int): bool {.base.} =
   result = false
 
@@ -264,20 +264,20 @@ method GetScreenPoint*(self: NCClient,
 # If the screen info rectangle is left NULL the rectangle from GetViewRect
 # will be used. If the rectangle is still NULL or invalid popups may not be
 # drawn correctly.
-method GetScreenInfo*(self: NCClient,
+method GetScreenInfo*(self: ptr nc_handler,
   browser: NCBrowser, screen_info: ptr cef_screen_info): bool {.base.} =
   result = false
 
 #--Render Handler
 # Called when the browser wants to show or hide the popup widget. The popup
 # should be shown if |show| is true (1) and hidden if |show| is false (0).
-method OnPopupShow*(self: NCClient, browser: NCBrowser, show: bool) {.base.} =
+method OnPopupShow*(self: ptr nc_handler, browser: NCBrowser, show: bool) {.base.} =
   discard
 
 #--Render Handler
 # Called when the browser wants to move or resize the popup widget. |rect|
 # contains the new location and size in view coordinates.
-method OnPopupSize*(self: NCClient, browser: NCBrowser, rect: ptr cef_rect) {.base.} =
+method OnPopupSize*(self: ptr nc_handler, browser: NCBrowser, rect: ptr cef_rect) {.base.} =
   discard
 
 #--Render Handler
@@ -289,14 +289,14 @@ method OnPopupSize*(self: NCClient, browser: NCBrowser, rect: ptr cef_rect) {.ba
 # of rectangles in pixel coordinates that need to be repainted. |buffer| will
 # be |width|*|height|*4 bytes in size and represents a BGRA image with an
 # upper-left origin.
-method OnPaint*(self: NCClient, browser: NCBrowser, ptype: cef_paint_element_type,
+method OnPaint*(self: ptr nc_handler, browser: NCBrowser, ptype: cef_paint_element_type,
   dirtyRectsCount: int, dirtyRects: ptr cef_rect, buffer: pointer, width, height: int) {.base.} =
   discard
 
 #--Render Handler
 # Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
 # |custom_cursor_info| will be populated with the custom cursor information.
-method OnCursorChange*(self: NCClient, browser: NCBrowser, cursor: cef_cursor_handle,
+method OnCursorChange*(self: ptr nc_handler, browser: NCBrowser, cursor: cef_cursor_handle,
   ptype: cef_cursor_type, custom_cursor_info: ptr cef_cursor_info) {.base.} =
   discard
 
@@ -313,7 +313,7 @@ method OnCursorChange*(self: NCClient, browser: NCBrowser, cursor: cef_cursor_ha
 # cef_browser_host_t::DragSourceEndedAt and DragSourceSystemDragEnded either
 # synchronously or asynchronously to inform the web view that the drag
 # operation has ended.
-method StartDragging*(self: NCClient, browser: NCBrowser, drag_data: NCDragData,
+method StartDragging*(self: ptr nc_handler, browser: NCBrowser, drag_data: NCDragData,
   allowed_ops: cef_drag_operations_mask, x, y: int): bool {.base.} =
   result = false
 
@@ -321,12 +321,12 @@ method StartDragging*(self: NCClient, browser: NCBrowser, drag_data: NCDragData,
 # Called when the web view wants to update the mouse cursor during a drag &
 # drop operation. |operation| describes the allowed operation (none, move,
 # copy, link).
-method UpdateDragCursor*(self: NCClient, browser: NCBrowser, operation: cef_drag_operations_mask) {.base.} =
+method UpdateDragCursor*(self: ptr nc_handler, browser: NCBrowser, operation: cef_drag_operations_mask) {.base.} =
   discard
 
 #--Render Handler
 # Called when the scroll offset has changed.
-method OnScrollOffsetChanged*(self: NCClient, browser: NCBrowser, x, y: float64) {.base.} =
+method OnScrollOffsetChanged*(self: ptr nc_handler, browser: NCBrowser, x, y: float64) {.base.} =
   discard
 
 
@@ -344,7 +344,7 @@ method OnScrollOffsetChanged*(self: NCClient, browser: NCBrowser, x, y: float64)
 # the filter that should be selected by default. To display a custom dialog
 # return true (1) and execute |callback| either inline or at a later time. To
 # display the default dialog return false (0).
-method OnFileDialog*(self: NCClient,
+method OnFileDialog*(self: ptr nc_handler,
   browser: NCBrowser, mode: cef_file_dialog_mode,
   title, default_file_path: string,
   accept_filters: seq[string], selected_accept_filter: int,
@@ -357,7 +357,7 @@ method OnFileDialog*(self: NCClient,
 # |callback| either asynchronously or in this function to continue the
 # download if desired. Do not keep a reference to |download_item| outside of
 # this function.
-method OnBeforeDownload*(self: NCClient, browser: NCBrowser,
+method OnBeforeDownload*(self: ptr nc_handler, browser: NCBrowser,
   download_item: NCDownloadItem, suggested_name: string,
   callback: NCBeforeDownloadCallback) {.base.} =
   discard
@@ -368,7 +368,7 @@ method OnBeforeDownload*(self: NCClient, browser: NCBrowser,
 # Execute |callback| either asynchronously or in this function to cancel the
 # download if desired. Do not keep a reference to |download_item| outside of
 # this function.
-method OnDownloadUpdated*(self: NCClient, browser: NCBrowser,
+method OnDownloadUpdated*(self: ptr nc_handler, browser: NCBrowser,
   download_item: NCDownloadItem, callback: NCDownloadItemCallback) {.base.} =
   discard
 
@@ -379,7 +379,7 @@ method OnDownloadUpdated*(self: NCClient, browser: NCBrowser,
 # cef_geolocation_callback_t::cont() either in this function or at a later
 # time to continue or cancel the request. Return false (0) to cancel the
 # request immediately.
-method OnRequestGeolocationPermission*(self: NCClient,
+method OnRequestGeolocationPermission*(self: ptr nc_handler,
   browser: NCBrowser, requesting_url: string, request_id: int,
   callback: NCGeolocationCallback): bool {.base.} =
   result = false
@@ -387,7 +387,7 @@ method OnRequestGeolocationPermission*(self: NCClient,
 #--Geolocation Handler
 # Called when a geolocation access request is canceled. |request_id| is the
 # unique ID for the permission request.
-method OnCancelGeolocationPermission*(self: NCClient,
+method OnCancelGeolocationPermission*(self: ptr nc_handler,
   browser: NCBrowser, request_id: int) {.base.} =
   discard
 
@@ -407,7 +407,7 @@ method OnCancelGeolocationPermission*(self: NCClient,
 # immediately. Custom dialogs may be either modal or modeless. If a custom
 # dialog is used the application must execute |callback| once the custom
 # dialog is dismissed.
-method OnJsdialog*(self: NCClient,
+method OnJsdialog*(self: ptr nc_handler,
     browser: NCBrowser, origin_url, accept_lang: string,
     dialog_type: cef_jsdialog_type,
     message_text, default_prompt_text: string,
@@ -421,7 +421,7 @@ method OnJsdialog*(self: NCClient,
 # immediately. Custom dialogs may be either modal or modeless. If a custom
 # dialog is used the application must execute |callback| once the custom
 # dialog is dismissed.
-method OnBeforeUnloadDialog*(self: NCClient,
+method OnBeforeUnloadDialog*(self: ptr nc_handler,
   browser: NCBrowser, message_text: string, is_reload: bool,
   callback: NCJsDialogCallback): bool {.base.} =
   result = false
@@ -430,12 +430,12 @@ method OnBeforeUnloadDialog*(self: NCClient,
 # Called to cancel any pending dialogs and reset any saved dialog state. Will
 # be called due to events like page navigation irregardless of whether any
 # dialogs are currently pending.
-method OnResetDialogState*(self: NCClient, browser: NCBrowser) {.base.} =
+method OnResetDialogState*(self: ptr nc_handler, browser: NCBrowser) {.base.} =
   discard
 
 #--JSDialog Handler
 # Called when the default implementation dialog is closed.
-method OnDialogClosed*(self: NCClient, browser: NCBrowser) {.base.} =
+method OnDialogClosed*(self: ptr nc_handler, browser: NCBrowser) {.base.} =
   discard
 
 #--Request Handler
@@ -447,7 +447,7 @@ method OnDialogClosed*(self: NCClient, browser: NCBrowser) {.base.} =
 # cef_load_handler_t::OnLoadEnd will be called. If the navigation is canceled
 # cef_load_handler_t::OnLoadError will be called with an |errorCode| value of
 # ERR_ABORTED.
-method OnBeforeBrowse*(self: NCClient, browser: NCBrowser, frame: NCFrame,
+method OnBeforeBrowse*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame,
   request: NCRequest, is_redirect: bool): bool {.base.} =
   result = false
 
@@ -466,7 +466,7 @@ method OnBeforeBrowse*(self: NCClient, browser: NCBrowser, frame: NCFrame,
 # it navigated automatically (e.g. via the DomContentLoaded event). Return
 # true (1) to cancel the navigation or false (0) to allow the navigation to
 # proceed in the source browser's top-level frame.
-method OnOpenUrlFromTab*(self: NCClient, browser: NCBrowser, frame: NCFrame, target_url: string,
+method OnOpenUrlFromTab*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame, target_url: string,
   target_disposition: cef_window_open_disposition, user_gesture: bool): bool {.base.} =
   result = false
 
@@ -476,7 +476,7 @@ method OnOpenUrlFromTab*(self: NCClient, browser: NCBrowser, frame: NCFrame, tar
 # immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
 # cont() at a later time to continue or cancel the request asynchronously.
 # Return RV_CANCEL to cancel the request immediately.
-method OnBeforeResourceLoad*(self: NCClient,
+method OnBeforeResourceLoad*(self: ptr nc_handler,
   browser: NCBrowser, frame: NCFrame, request: NCRequest,
   callback: NCRequestCallback): cef_return_value {.base.} =
   discard
@@ -486,7 +486,7 @@ method OnBeforeResourceLoad*(self: NCClient,
 # to load normally return NULL. To specify a handler for the resource return
 # a cef_resource_handler_t object. The |request| object should not be
 # modified in this callback.
-method GetResourceHandler*(self: NCClient, browser: NCBrowser,
+method GetResourceHandler*(self: ptr nc_handler, browser: NCBrowser,
   frame: NCFrame, request: NCRequest): NCResourceHandler {.base.} =
   result = nil
 
@@ -495,7 +495,7 @@ method GetResourceHandler*(self: NCClient, browser: NCBrowser,
 # parameter will contain the old URL and other request-related information.
 # The |new_url| parameter will contain the new URL and can be changed if
 # desired. The |request| object cannot be modified in this callback.
-method OnResourceRedirect*(self: NCClient, browser: NCBrowser, frame: NCFrame,
+method OnResourceRedirect*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame,
   request: NCRequest, new_url: string) {.base.} =
   discard
 
@@ -504,7 +504,7 @@ method OnResourceRedirect*(self: NCClient, browser: NCBrowser, frame: NCFrame,
 # resource to load normally return false (0). To redirect or retry the
 # resource modify |request| (url, headers or post body) and return true (1).
 # The |response| object cannot be modified in this callback.
-method OnResourceResponse*(self: NCClient,
+method OnResourceResponse*(self: ptr nc_handler,
   browser: NCBrowser, frame: NCFrame,
   request: NCRequest, response: NCResponse): bool {.base.} =
   result = false
@@ -513,7 +513,7 @@ method OnResourceResponse*(self: NCClient,
 # Called on the IO thread to optionally filter resource response content.
 # |request| and |response| represent the request and response respectively
 # and cannot be modified in this callback.
-method GetResourceResponseFilter*(self: NCClient, browser: NCBrowser,
+method GetResourceResponseFilter*(self: ptr nc_handler, browser: NCBrowser,
   frame: NCFrame, request: NCRequest,
   response: NCResponse): NCResponseFilter {.base.} =
   result = nil
@@ -523,7 +523,7 @@ method GetResourceResponseFilter*(self: NCClient, browser: NCBrowser,
 # |response| represent the request and response respectively and cannot be
 # modified in this callback. |status| indicates the load completion status.
 # |received_content_length| is the number of response bytes actually read.
-method OnResourceLoadComplete*(self: NCClient, browser: NCBrowser,
+method OnResourceLoadComplete*(self: ptr nc_handler, browser: NCBrowser,
   frame: NCFrame, request: NCRequest,
   response: NCResponse, status: cef_urlrequest_status,
   received_content_length: int64) {.base.} =
@@ -539,7 +539,7 @@ method OnResourceLoadComplete*(self: NCClient, browser: NCBrowser,
 # cef_auth_callback_t::cont() either in this function or at a later time when
 # the authentication information is available. Return false (0) to cancel the
 # request immediately.
-method GetAuthCredentials*(self: NCClient, browser: NCBrowser, frame: NCFrame, isProxy: bool,
+method GetAuthCredentials*(self: ptr nc_handler, browser: NCBrowser, frame: NCFrame, isProxy: bool,
   host: string, port: int, realm: string,
   scheme: string, callback: NCAuthCallback): bool {.base.} =
   result = false
@@ -552,7 +552,7 @@ method GetAuthCredentials*(self: NCClient, browser: NCBrowser, frame: NCFrame, i
 # cef_request_tCallback::cont() either in this function or at a later time to
 # grant or deny the request. Return false (0) to cancel the request
 # immediately.
-method OnQuotaRequest*(self: NCClient,
+method OnQuotaRequest*(self: ptr nc_handler,
   browser: NCBrowser, origin_url: string,
   new_size: int64, callback: NCRequestCallback): bool {.base.} =
   result = false
@@ -563,7 +563,7 @@ method OnQuotaRequest*(self: NCClient,
 # execution via the registered OS protocol handler, if any. SECURITY WARNING:
 # YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR
 # OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
-method OnProtocolExecution*(self: NCClient, browser: NCBrowser,
+method OnProtocolExecution*(self: ptr nc_handler, browser: NCBrowser,
   url: string, allow_os_execution: var bool) {.base.} =
   discard
 
@@ -574,7 +574,7 @@ method OnProtocolExecution*(self: NCClient, browser: NCBrowser,
 # Return false (0) to cancel the request immediately. If
 # CefSettings.ignore_certificate_errors is set all invalid certificates will
 # be accepted without calling this function.
-method OnCertificateError*(self: NCClient,
+method OnCertificateError*(self: ptr nc_handler,
     browser: NCBrowser, cert_error: cef_errorcode,
     request_url: string, ssl_info: NCSslInfo,
     callback: NCRequestCallback): bool {.base.} =
@@ -583,26 +583,24 @@ method OnCertificateError*(self: NCClient,
 #--Request Handler
 # Called on the browser process UI thread when a plugin has crashed.
 # |plugin_path| is the path of the plugin that crashed.
-method OnPluginCrashed*(self: NCClient, browser: NCBrowser, plugin_path: string) {.base.} =
+method OnPluginCrashed*(self: ptr nc_handler, browser: NCBrowser, plugin_path: string) {.base.} =
   discard
 
 #--Request Handler
 # Called on the browser process UI thread when the render view associated
 # with |browser| is ready to receive/handle IPC messages in the render
 # process.
-method OnRenderViewReady*(self: NCClient, browser: NCBrowser) {.base.} =
+method OnRenderViewReady*(self: ptr nc_handler, browser: NCBrowser) {.base.} =
   discard
 
 #--Request Handler
 # Called on the browser process UI thread when the render process terminates
 # unexpectedly. |status| indicates how the process terminated.
-method OnRenderProcessTerminated*(self: NCClient, browser: NCBrowser,
+method OnRenderProcessTerminated*(self: ptr nc_handler, browser: NCBrowser,
   status: cef_termination_status) {.base.} =
   discard
 
 include nc_client_internal
-
-proc GetHandler*(client: NCClient): ptr cef_client {.inline.} = client.client_handler.addr
 
 proc client_finalizer[T](client: T) =
   if client.context_menu_handler != nil: freeShared(client.context_menu_handler)

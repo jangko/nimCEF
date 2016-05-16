@@ -251,11 +251,10 @@ proc NCExecuteProcess*(args: NCMainArgs, application: NCApp, windows_sandbox_inf
 # be NULL (see cef_sandbox_win.h for details).
 proc NCInitialize*(args: NCMainArgs, settings: NCSettings,
   application: NCApp, windows_sandbox_info: NCSandboxInfo = nil): bool =
-  var csettings: cef_settings
-  to_cef(settings, csettings)
+  var csettings = to_cef(settings)
   result = cef_initialize(args.GetHandler(), csettings.addr,
     application.GetHandler(), windows_sandbox_info.GetHandler()) == 1.cint
-  clear(csettings)
+  nc_free(csettings)
 
 # This function should be called on the main application thread to shut down
 # the CEF browser process before the application exits.

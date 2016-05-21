@@ -211,7 +211,6 @@ proc routineHasResult(n: NimNode): bool =
   if procType[0].typeKind != ntyProc: err = true
   if procType[1].kind == nnkEmpty: err = true
   if procType[1].kind == nnkSym and $procType[1] == "void": err = true
-  #if err: error(lineinfo(n) & " expected routine \"" & $n & "\" has return type")
   result = not err
 
 proc checkBase(n: NimNode): bool =
@@ -347,9 +346,13 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         proloque.add "var arg$1 = $2.GetHandler()\n" % [argi, argv]
         epiloque.add "$1 = nc_wrap(arg$2)\n" % [argv, argi]
         params.add "arg" & argi
-      elif checkWrapped(arg):
-        proloque.add "add_ref($1.GetHandler())\n" % [argv]
-        params.add "$1.GetHandler()" % [argv]
+      elif checkWrapped(arg):        
+        let argType = getType(rout)[i - startIndex + 3]
+        proloque.add "add_ref($1.GetHandler())\n" % [argv]        
+        if argType.typeKind == ntyDistinct:
+          params.add "cast[$1]($2.GetHandler())" % [$argType, argv]
+        else:
+          params.add "$1.GetHandler()" % [argv]
       elif checkMultiMap(arg):
         proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
         params.add "arg$1" % [argi]
@@ -570,6 +573,8 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         error(lineinfo(res) & " unsupported ref result")
     of ntyBool:
       body = "result = $1($2) == 1.cint\n" % [calee, params]
+    of ntyInt64:
+      body = "result = $1($2)\n" % [calee, params]
     of ntyString:
       body = "result = to_nim($1($2))\n" % [calee, params]
     of ntySequence:
@@ -592,3 +597,176 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
     echo epiloque
 
   result = parseStmt(proloque & body & epiloque)
+  
+proc make_nc_name(n: string): string =
+  result = "nc_" & n.substr(n.find('_') + 1)
+
+proc getValidProcName(n: NimNode): string =
+  if n.kind != nnkPostfix: 
+    error("need export symbol for method name")
+  result = $n[1]
+
+type
+  paramPair = object
+    nName: NimNode
+    nType: NimNode
+    
+proc extractParam(res: var seq[paramPair], n: NimNode) =
+  let numParam = n.len - 2
+  for i in 0.. <numParam:
+    res.add paramPair(nName: n[i], nType: n[numParam])
+  
+proc collectParams(n: NimNode): seq[paramPair] =
+  result = @[] 
+  # skip result and self
+  for i in 2.. <n.len:
+    extractParam(result, n[i])
+
+proc checkCefPtr(n: NimNode): bool =
+  if n.typeKind != ntyPtr: return false
+  let objType = getType(n[0])
+  if objType.typeKind != ntyObject: return false
+  if $objType[1][0] != "base": return false
+  result = true
+  
+proc procHasResult(n: NimNode): bool =
+  if n[0].kind == nnkEmpty: return false
+  if n[0].kind == nnkSym and $n[0] == "void": return false
+  result = true
+ 
+var global_iidx {.compileTime.} = 0
+
+proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =  
+  let nname = getValidProcName(nproc[0])
+  let cname = getValidProcName(cproc[0])
+  let nparams = nproc[1][0]
+  let cparams = cproc[1][0]
+  let nplist = collectParams(nparams)
+  let cplist = collectParams(cparams)
+  let nresult = procHasResult(nparams)
+  let calee = "handler.impl." & nname
+  var params = "handler.container"
+  if nplist.len > 0: params.add ", "
+
+  var body = ""
+  var epiloque = ""
+  var epiloque2 = ""
+  var proloque = "proc $1_i$2$3 {.cef_callback.} =\n" % [cname, $iidx, cparams.toStrLit().strVal()]
+  proloque.add "  var handler = toType($1, self)\n" % [ns]
+  proloque.add "  if $1 != nil:\n" % [calee]
+    
+  let argSize = cplist.len
+  for i in 0.. <argSize:
+    let c = cplist[i]
+    let n = nplist[i]
+    case c.nType.typeKind
+    of ntyPtr:
+      if checkCefPtr(c.nType):
+        params.add "nc_wrap($1)" % [$c.nName]
+        epiloque2.add "  release($1)\n" % [$c.nName]      
+      elif n.nType.typeKind == ntyString:
+        params.add "$$($1)" % [$c.nName]
+      elif n.nType.typeKind == ntyVar:
+        if n.nType[0].typeKind == ntyString:
+          proloque.add "    var $1_p = $$($1)\n" % [$c.nName]
+          params.add "$1_p" % [$c.nName]
+          epiloque.add "    cef_string_clear($1)\n" % [$c.nName]
+          epiloque.add "    discard cef_string_from_utf8($1_p.cstring, $1_p.len.cint, $1)\n" % [$c.nName]
+        else:
+          error("unknown var ptr type: " & $n.nName)
+      elif n.nType.typeKind == ntyObject:
+        params.add "to_nim($1)" % [$c.nName]
+      else:
+        error("unknown ptr type: " & $n.nName)
+    of ntyInt32:
+      if n.nType.typeKind == ntyBool:
+        params.add "$1 == 1.$2" % [$c.nName, $c.nType]
+      else:
+        params.add "$1.$2" % [$c.nName, $n.nType]
+    of ntyPointer, ntyInt, ntyInt64, ntyCstring, ntyEnum:
+      params.add $c.nName
+    of ntyDistinct:      
+      if $c.nType == "ptr_cef_browser":
+        params.add "nc_wrap($1)" % [$c.nName]
+        epiloque2.add "  release($1)\n" % [$c.nName]      
+      elif $c.nType == "cef_string_list":
+        params.add "$$($1)" % [$c.nName]
+      else:
+        error("unknown distinct param")
+    of ntyVar:
+      if n.nType[0].typeKind in {ntyInt, ntyInt64}:
+        proloque.add "    var $1_p = $1.$2\n" % [$c.nName, $n.nType[0]]
+        params.add "$1_p" % [$c.nName]
+        epiloque.add "    $1 = $1_p.$2\n" % [$c.nName, $c.nType[0]]
+      else:
+        error("unknown var param " & $n.nType[0].typeKind)
+    else:
+      error("unknown param kind " & $c.nType.typeKind)
+            
+    if i < argSize-1: params.add ", "
+    
+  if nresult:
+    let cres = cparams[0]
+    case cres.typeKind
+    of ntyInt32:
+      body = "    result = $1($2).$3\n" % [calee, params, $cres]
+    of ntyInt, ntyInt64, ntyEnum:
+      body = "    result = $1($2)\n" % [calee, params]
+    of ntyPtr:
+      if checkCefPtr(cres):
+        body = "    result = $1($2).GetHandler()\n" % [calee, params]
+      else:
+        error("unknown ptr type")
+    of ntyObject:
+      body = "    result = to_cef($1($2))\n" % [calee, params]
+    else:
+      error("$1: unknown result kind $2" % [nname, $cres.typeKind])
+  else:
+    body = "    $1($2)\n" % [calee, params]
+      
+  result = proloque & body & epiloque & epiloque2
+      
+macro wrapMethods*(nc, n, c: typed): stmt =
+  let nlist = getImpl(n.symbol)[2][2]
+  let clist = getImpl(c.symbol)[2][2]
+  let ni = $n
+  let ns = ni.substr(0, ni.len-3)
+    
+  var glue = ""
+  var constructor = "proc make$1*[T](impl: $2[T]): T =\n" % [$nc, ni]
+  constructor.add "  nc_init($1, T, impl)\n" % [ns]
+  
+  for i in 0.. <nlist.len:
+    let cproc = clist[i+1] # +1 skip base
+    let cname = getValidProcName(cproc[0])
+    glue.add glueSingleMethod(ns, nlist[i], cproc, global_iidx)
+    constructor.add "  result.handler.$1 = $1_i$2\n" % [cname, $global_iidx]
+    inc(global_iidx)
+  
+  if wrapDebugMode:  
+    echo glue
+    echo constructor
+  
+  result = parseStmt(glue & constructor)
+  
+macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
+  let nc_name = make_nc_name($cef)
+  
+  var glue = ""  
+  glue.add "wrapAPI($1, $2, false)\n" % [$nc, $cef]
+  glue.add "type\n"
+  glue.add "  $1_i*[T] = object\n" % [nc_name]
+  
+  for m in methods:
+    let procName = m[0].toStrLit().strVal()
+    let params = m[3].toStrLit().strVal()
+    glue.add "    $1: proc$2\n" % [procName, params]
+    
+  glue.add "  $1 = object of nc_base[$2, $3]\n" % [nc_name, $cef, $nc]
+  glue.add "    impl: $1_i[$2]\n" % [nc_name, $nc]  
+  glue.add "wrapMethods($1, $2_i, $3)\n" % [$nc, nc_name, $cef]
+  
+  if wrapDebugMode:
+    echo glue
+    
+  result = parseStmt(glue)

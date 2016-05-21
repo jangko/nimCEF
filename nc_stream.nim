@@ -1,32 +1,46 @@
-import cef/cef_stream_api, nc_util, nc_types
+import cef/cef_stream_api, nc_util, nc_types, impl/nc_util_impl
+include cef/cef_import
 
 wrapAPI(NCStreamReader, cef_stream_reader, false)
 wrapAPI(NCStreamWriter, cef_stream_writer, false)
-wrapAPI(NCReadHandler, cef_read_handler, false)
-wrapAPI(NCWriteHandler, cef_write_handler, false)
 
-# Read raw binary data.
-method OnRead*(self: NCReadHandler, data: pointer, size: int, n: int): int {.base.} =
-  result = 0
+wrapCallback(NCReadHandler, cef_read_handler):
+  # Read raw binary data.
+  proc Read*(self: T, data: pointer, size: int, n: int): int
 
-# Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-# SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-method OnReadSeek*(self: NCReadHandler, offset: int64, whence: int): bool {.base.} =
-  result = true
+  # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
+  # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
+  proc Seek*(self: T, offset: int64, whence: int): bool
 
-# Return the current offset position.
-method OnReadTell*(self: NCReadHandler): int64 {.base.} =
-  result = 0
+  # Return the current offset position.
+  proc Tell*(self: T): int64
 
-# Return non-zero if at end of file.
-method OnReadEof*(self: NCReadHandler): bool {.base.} =
-  result = true
+  # Return non-zero if at end of file.
+  proc Eof*(self: T): bool
 
-# Return true (1) if this handler performs work like accessing the file
-# system which may block. Used as a hint for determining the thread to access
-# the handler from.
-method OnReadMayBlock*(self: NCReadHandler): bool {.base.} =
-  result = false
+  # Return true (1) if this handler performs work like accessing the file
+  # system which may block. Used as a hint for determining the thread to access
+  # the handler from.
+  proc MayBlock*(self: T): bool
+
+wrapCallback(NCWriteHandler, cef_write_handler):
+  # Write raw binary data.
+  proc OnWrite*(self: T, data: pointer, size: int, n: int): int
+
+  # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
+  # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
+  proc OnWriteSeek*(self: T, offset: int64, whence: int): bool
+
+  # Return the current offset position.
+  proc OnWriteTell*(self: T): int64
+
+  # Flush the stream.
+  proc OnWriteFlush*(self: T): bool
+
+  # Return true (1) if this handler performs work like accessing the file
+  # system which may block. Used as a hint for determining the thread to access
+  # the handler from.
+  proc OnWriteMayBlock*(self: T): bool
 
 # Read raw binary data.
 proc Read*(self: NCStreamReader, data: pointer, size: int, n: int): int =
@@ -52,30 +66,6 @@ proc MayBlock*(self: NCStreamReader): bool =
   self.wrapCall(may_block, result)
 
 # Write raw binary data.
-method OnWrite*(self: NCWriteHandler, data: pointer, size: int, n: int): int {.base.} =
-  result = 0
-
-# Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-# SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-method OnWriteSeek*(self: NCWriteHandler, offset: int64, whence: int): bool {.base.} =
-  result = true
-
-# Return the current offset position.
-method OnWriteTell*(self: NCWriteHandler): int64 {.base.} =
-  result = 0
-
-# Flush the stream.
-method OnWriteFlush*(self: NCWriteHandler): bool {.base.} =
-  result = false
-
-# Return true (1) if this handler performs work like accessing the file
-# system which may block. Used as a hint for determining the thread to access
-# the handler from.
-method OnWriteMayBlock*(self: NCWriteHandler): bool {.base.} =
-  result = false
-
-
-# Write raw binary data.
 proc Write*(self: NCStreamWriter, data: pointer, size: int, n: int): int =
   self.wrapCall(write, result, data, size, n)
 
@@ -97,22 +87,6 @@ proc Flush*(self: NCStreamWriter): bool =
 # the writer from.
 proc MayBlock*(self: NCStreamWriter): bool =
   self.wrapCall(may_block, result)
-
-include nc_stream_internal
-
-proc nrh_finalizer(handler: NCReadHandler) =
-  release(handler.handler)
-
-proc makeNCReadHandler*(): NCReadHandler =
-  new(result, nrh_finalizer)
-  initialize_read_handler(result.handler)
-
-proc nwh_finalizer(handler: NCWriteHandler) =
-  release(handler.handler)
-
-proc makeNCWriteHandler*(): NCWriteHandler =
-  new(result, nwh_finalizer)
-  initialize_write_handler(result.handler)
 
 # Create a new cef_stream_reader_t object from a file.
 proc NCStreamReaderCreateForFile*(fileName: string): NCStreamReader =

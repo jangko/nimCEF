@@ -1,33 +1,14 @@
-import cef/cef_trace_api, nc_callback, nc_util, nc_types
+import cef/cef_trace_api, nc_callback, nc_util, nc_types, impl/nc_util_impl
 include cef/cef_import
 
-type
-  # Implement this structure to receive notification when tracing has completed.
-  # The functions of this structure will be called on the browser process UI
-  # thread.
-  NCEndTracingCallback* = ref object of RootObj
-    handler: cef_end_tracing_callback
-
-# Called after all processes have sent their trace data. |tracing_file| is
-# the path at which tracing data was written. The client is responsible for
-# deleting |tracing_file|.
-method OnEndTracingComplete*(self: NCEndTracingCallback, tracing_file: string) {.base.} =
-  discard
-
-proc on_end_tracing_complete(self: ptr cef_end_tracing_callback, tracing_file: ptr cef_string) {.cef_callback.} =
-  var handler = type_to_type(NCEndTracingCallback, self)
-  handler.OnEndTracingComplete($tracing_file)
-
-proc GetHandler*(self: NCEndTracingCallback): ptr cef_end_tracing_callback {.inline.} =
-  result = self.handler.addr
-
-proc initialize_end_tracing_callback(handler: ptr cef_end_tracing_callback) =
-  init_base(handler)
-  handler.on_end_tracing_complete = on_end_tracing_complete
-
-proc makeNCEndTracingCallback*(T: typedesc): auto =
-  result = new(T)
-  initialize_end_tracing_callback(result.GetHandler())
+# Implement this structure to receive notification when tracing has completed.
+# The functions of this structure will be called on the browser process UI
+# thread.
+wrapCallback(NCEndTracingCallback, cef_end_tracing_callback):
+  # Called after all processes have sent their trace data. |tracing_file| is
+  # the path at which tracing data was written. The client is responsible for
+  # deleting |tracing_file|.
+  proc OnEndTracingComplete*(self: T, tracing_file: string)
 
 # Start tracing events on all processes. Tracing is initialized asynchronously
 # and |callback| will be executed on the UI thread after initialization is
@@ -45,9 +26,7 @@ proc makeNCEndTracingCallback*(T: typedesc): auto =
 #
 # This function must be called on the browser process UI thread.
 proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
-  let ccat = to_cef(categories)
-  result = cef_begin_tracing(ccat, callback.GetHandler()) == 1.cint
-  nc_free(ccat)
+  wrapProc(cef_begin_tracing, result, categories, callback)
 
 # Stop tracing events on all processes.
 #
@@ -61,12 +40,10 @@ proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
 #
 # This function must be called on the browser process UI thread.
 proc NCEndTracing*(tracing_file: string, callback: NCEndTracingCallback): bool =
-  let cfile = to_cef(tracing_file)
-  result = cef_end_tracing(cfile, callback.GetHandler()) == 1.cint
-  nc_free(cfile)
-
+  wrapProc(cef_end_tracing, result, tracing_file, callback)
+  
 # Returns the current system trace time or, if none is defined, the current
 # high-res time. Can be used by clients to synchronize with the time
 # information in trace events.
 proc NCNowFromSystemTraceTime*(): int64 =
-  result = cef_now_from_system_trace_time()
+  wrapProc(cef_now_from_system_trace_time, result)

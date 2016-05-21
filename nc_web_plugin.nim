@@ -1,17 +1,8 @@
-import nc_types, nc_util
-import impl/nc_util_impl
+import nc_types, nc_util, impl/nc_util_impl
 include cef/cef_import
 
 # Information about a specific web plugin.
 wrapAPI(NCWebPluginInfo, cef_web_plugin_info)
-
-# Structure to implement for visiting web plugin information. The functions of
-# this structure will be called on the browser process UI thread.
-wrapAPI(NCWebPluginInfoVisitor, cef_web_plugin_info_visitor, false)
-
-# Structure to implement for receiving unstable plugin information. The
-# functions of this structure will be called on the browser process IO thread.
-wrapAPI(NCWebPluginUnstableCallback, cef_web_plugin_unstable_callback, false)
 
 # Returns the plugin name (i.e. Flash).
 proc GetName*(self: NCWebPluginInfo): string =
@@ -29,45 +20,20 @@ proc GetVersion*(self: NCWebPluginInfo): string =
 proc GetDescription*(self: NCWebPluginInfo): string =
   self.wrapCall(get_description, result)
 
-type
-  nc_web_plugin_info_visitor_i*[T] = object
-    # Method that will be called once for each plugin. |count| is the 0-based
-    # index for the current plugin. |total| is the total number of plugins.
-    # Return false (0) to stop visiting plugins. This function may never be
-    # called if no plugins are found.
-    Visit*: proc(self: T, info: NCWebPluginInfo, count, total: int): bool
+wrapCallback(NCWebPluginInfoVisitor, cef_web_plugin_info_visitor):
+  # Method that will be called once for each plugin. |count| is the 0-based
+  # index for the current plugin. |total| is the total number of plugins.
+  # Return false (0) to stop visiting plugins. This function may never be
+  # called if no plugins are found.
+  proc Visit*(self: T, info: NCWebPluginInfo, count, total: int): bool
 
-  nc_web_plugin_info_visitor = object of nc_base[cef_web_plugin_info_visitor, NCWebPluginInfoVisitor]
-    impl: nc_web_plugin_info_visitor_i[NCWebPluginInfoVisitor]
-
-proc visit(self: ptr cef_web_plugin_info_visitor,
-  info: ptr cef_web_plugin_info, count, total: cint): cint {.cef_callback.} =
-  var handler = toType(nc_web_plugin_info_visitor, self)
-  if handler.impl.Visit != nil:
-    result = handler.impl.Visit(handler.container, nc_wrap(info), count.int, total.int).cint
-  release(info)
-
-proc makeNCWebPluginInfoVisitor*[T](impl: nc_web_plugin_info_visitor_i[T]): T =
-  nc_init(nc_web_plugin_info_visitor, T, impl)
-  result.handler.visit = visit
-    
-# Method that will be called for the requested plugin. |unstable| will be
-# true (1) if the plugin has reached the crash count threshold of 3 times in
-# 120 seconds.
-method IsUnstable*(self: NCWebPluginUnstableCallback, path: string, unstable: bool) {.base.} =
-  discard
-
-proc is_unstable(self: ptr cef_web_plugin_unstable_callback, path: ptr cef_string, unstable: cint) {.cef_callback.} =
-  var handler = type_to_type(NCWebPluginUnstableCallback, self)
-  handler.IsUnstable($path, unstable == 1.cint)
-
-proc init_web_plugin_unstable_callback(handler: ptr cef_web_plugin_unstable_callback) =
-  init_base(handler)
-  handler.is_unstable = is_unstable
-
-proc makeNCWebPluginUnstableCallback*(T: typedesc): auto =
-  result = new(T)
-  init_web_plugin_unstable_callback(result.GetHandler())
+# Structure to implement for receiving unstable plugin information. The
+# functions of this structure will be called on the browser process IO thread.
+wrapCallback(NCWebPluginUnstableCallback, cef_web_plugin_unstable_callback):
+  # Method that will be called for the requested plugin. |unstable| will be
+  # true (1) if the plugin has reached the crash count threshold of 3 times in
+  # 120 seconds.
+  proc IsUnstable*(self: T, path: string, unstable: bool)
 
 # Visit web plugin information. Can be called on any thread in the browser
 # process.
@@ -77,7 +43,7 @@ proc NCVisitWebPluginInfo*(visitor: NCWebPluginInfoVisitor) =
 # Cause the plugin list to refresh the next time it is accessed regardless of
 # whether it has already been loaded. Can be called on any thread in the
 # browser process.
-proc NCRefreshWebPlugins*() = 
+proc NCRefreshWebPlugins*() =
   wrapProc(cef_refresh_web_plugins)
 
 # Add a plugin path (directory + file). This change may not take affect until
@@ -90,7 +56,7 @@ proc NCAddWebPluginPath*(path: string) =
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc NCAddWebPluginDirectory*(dir: string) =
-  wrapProc(cef_add_web_plugin_directory, dir)  
+  wrapProc(cef_add_web_plugin_directory, dir)
 
 # Remove a plugin path (directory + file). This change may not take affect
 # until after cef_refresh_web_plugins() is called. Can be called on any thread
@@ -118,4 +84,3 @@ proc NCRegisterWebPluginCrash*(path: string) =
 # process.
 proc NCIsWebPluginUnstable*(path: string, callback: NCWebPluginUnstableCallback) =
   wrapProc(cef_is_web_plugin_unstable, path, callback)
-  

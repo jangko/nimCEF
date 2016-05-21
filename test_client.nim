@@ -15,12 +15,6 @@ type
   myUrlRequestClient = ref object of NCUrlRequestClient
     name: string
 
-macro mmm(n: typed): stmt =
-  let g = getType(n)[1][1]
-  echo getType(g).treeRepr
-
-mmm(myScheme)
-
 proc OnBeforeClose(self: NCClient, browser: NCBrowser) =
   NCQuitMessageLoop()
 
@@ -101,7 +95,7 @@ proc DumpRequestContents(request: NCRequest): string =
   result = ss.data
 
 
-method ProcessRequest*(self: myScheme, request: NCRequest, callback: NCCallback): bool =
+proc ProcessRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
   NC_REQUIRE_IO_THREAD()
 
   var handled = false
@@ -145,7 +139,7 @@ myScheme object handling the client:// protocol.
 
   result = false
 
-method GetResponseHeaders*(self: myScheme, response: NCResponse, response_length: var int64, redirectUrl: var string) =
+proc GetResponseHeaders(self: myScheme, response: NCResponse, response_length: var int64, redirectUrl: var string) =
   NC_REQUIRE_IO_THREAD()
   doAssert(self.mData != nil and self.mData.len != 0)
 
@@ -155,7 +149,7 @@ method GetResponseHeaders*(self: myScheme, response: NCResponse, response_length
   #Set the resulting response length
   response_length = self.mData.len
 
-method ReadResponse*(self: myScheme, data_out: cstring, bytes_to_read: int, bytes_read: var int, callback: NCCallback): bool =
+proc ReadResponse(self: myScheme, data_out: cstring, bytes_to_read: int, bytes_read: var int, callback: NCCallback): bool =
   NC_REQUIRE_IO_THREAD()
   var has_data = false
   bytes_read = 0
@@ -173,9 +167,15 @@ method ReadResponse*(self: myScheme, data_out: cstring, bytes_to_read: int, byte
 method OnRegisterCustomSchemes*(self: myApp, registrar: NCSchemeRegistrar) =
   discard registrar.AddCustomScheme("client", true, false, false)
 
+var scheme = nc_resource_handler_i[myScheme](
+  ProcessRequest: ProcessRequest,
+  GetResponseHeaders: GetResponseHeaders,
+  ReadResponse: ReadResponse
+)
+
 proc Create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
   NC_REQUIRE_IO_THREAD()
-  result = makeResourceHandler(myScheme)
+  result = makeNCResourceHandler(scheme)
 
 var scimpl = nc_scheme_handler_factory_i[NCSchemeHandlerFactory](
   Create: Create
@@ -200,7 +200,7 @@ proc GetAuthCredentials(self: myUrlRequestClient, isProxy: bool, host: string, p
   scheme: string, callback: NCAuthCallback): bool =
   result = false
 
-let uc_impl = nc_urlrequest_i[myUrlRequestClient](
+let uc_impl = nc_urlrequest_client_i[myUrlRequestClient](
   OnRequestComplete: OnRequestComplete,
   OnUploadProgress: OnUploadProgress,
   OnDownloadProgress: OnDownloadProgress,

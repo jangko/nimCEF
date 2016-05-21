@@ -11,32 +11,13 @@ wrapAPI(NCDomNode, cef_domnode, false)
 
 # Structure to implement for visiting the DOM. The functions of this structure
 # will be called on the render process main thread.
-wrapAPI(NCDomVisitor, cef_domvisitor, false)
-
-
-# Method executed for visiting the DOM. The document object passed to this
-# function represents a snapshot of the DOM at the time this function is
-# executed. DOM objects are only valid for the scope of this function. Do not
-# keep references to or attempt to access any DOM objects outside the scope
-# of this function.
-#method DomVisit*(self: NCDomVisitor, document: NCDomDocument) {.base.} =
-#  discard
-#
-#proc GetHandler*(self: NCDomVisitor): ptr cef_dom_visitor {.inline.} =
-#  self.wrapCall(handler.addr
-#
-#proc visit_document(self: ptr cef_domvisitor, document: ptr cef_domdocument) {.cef_callback.} =
-#  var handler = type_to_type(NCDomVisitor, self)
-#  handler.DomVisit(document)
-#  release(document)
-#
-#proc init_dom_visitor(handler: ptr cef_dom_visitor) =
-#  init_base(handler)
-#  handler.visit = visit_document
-#
-#proc makeNCDomVisitor*(T: typedesc): auto =
-#  result = new(T)
-#  init_dom_visitor(result.GetHandler())
+wrapCallback(NCDomVisitor, cef_domvisitor):
+  # Method executed for visiting the DOM. The document object passed to this
+  # function represents a snapshot of the DOM at the time this function is
+  # executed. DOM objects are only valid for the scope of this function. Do not
+  # keep references to or attempt to access any DOM objects outside the scope
+  # of this function.
+  proc Visit*(self: T, document: NCDomDocument)
 
 # Returns the document type.
 proc GetType*(self: NCDomDocument): cef_dom_document_type =

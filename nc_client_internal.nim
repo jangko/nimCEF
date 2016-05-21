@@ -545,7 +545,7 @@ proc get_auth_credentials*(self: ptr cef_request_handler,
   var handler = get_client(browser)
 
   result = handler.impl.GetAuthCredentials(handler.container, nc_wrap(browser), nc_wrap(frame), isProxy == 1.cint, $host, port.int, $realm,
-    $scheme, callback).cint
+    $scheme, nc_wrap(callback)).cint
   release(browser)
   release(frame)
   release(callback)

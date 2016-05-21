@@ -13,11 +13,7 @@ NCBrowser::HandleKeyEventAfterTextInputClient
 NCV8Handler::Execute
 NCV8Value::SetUserData
 NCV8Value::GetUserData
-nc_web_plugin
-nc_task
-nc_dom
-nc_callback
 nc_browser
-nc_request_context
-nc_print_handler
-nc_stream
+nc_geolocation
+nc_cookie_manager
+

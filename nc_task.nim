@@ -1,4 +1,4 @@
-import cef/cef_types, nc_util, nc_types
+import cef/cef_types, cef/cef_task_api, nc_util, nc_types, impl/nc_util_impl
 include cef/cef_import
 
 # Implement this structure for asynchronous task execution. If the task is
@@ -7,8 +7,9 @@ include cef/cef_import
 # to post then the task object may be destroyed on the source thread instead of
 # the target thread. For this reason be cautious when performing work in the
 # task object destructor.
-wrapAPI(NCTask, cef_task)
-    
+wrapCallback(NCTask, cef_task):
+  proc Execute*(self: T)
+
 # Structure that asynchronously executes tasks on the associated thread. It is
 # safe to call the functions of this structure on any thread.
 #
@@ -17,24 +18,7 @@ wrapAPI(NCTask, cef_task)
 # cef_types.h list the common CEF threads. Task runners are also available for
 # other CEF threads as appropriate (for example, V8 WebWorker threads).
 wrapAPI(NCTaskRunner, cef_task_runner, false)
-
-#method ExecuteTask*(self: NCTask) {.base.} =
-#  discard
-#
-#proc execute_task(self: ptr cef_task) {.cef_callback.} =
-#  type_to_type(NCTask, self).ExecuteTask()
-#
-#proc initialize_task(handler: ptr cef_task) =
-#  init_base(handler)
-#  handler.execute = execute_task
-#
-#proc GetHandler*(self: NCTask): ptr cef_task {.inline.} =
-#  result = self.handler.addr
-#
-#proc makeTask*(T: typedesc): auto =
-#  result = new(T)
-#  initialize_task(result.handler.addr)
-
+  
 # Returns true (1) if this object is pointing to the same task runner as
 # |that| object.
 proc IsSame*(self, that: NCTaskRunner): bool =

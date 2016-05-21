@@ -21,25 +21,11 @@ include cef/cef_import
 wrapAPI(NCRequestContext, cef_request_context)
     
 # Callback structure for cef_request_tContext::ResolveHost.
-wrapAPI(NCResolveCallback, cef_resolve_callback, false)
-
-# Called after the ResolveHost request has completed. |result| will be the
-# result code. |resolved_ips| will be the list of resolved IP addresses or
-# NULL if the resolution failed.
-method OnResolveCompleted*(self: NCResolveCallback, result: cef_errorcode, resolved_ips: seq[string]) {.base.} =
-  discard
-
-proc on_resolve_completed(self: ptr cef_resolve_callback, result: cef_errorcode, resolved_ips: cef_string_list) {.cef_callback.} =
-  var handler = type_to_type(NCResolveCallback, self)
-  handler.OnResolveCompleted(result, $resolved_ips)
-
-proc initialize_resolve_callback(handler: ptr cef_resolve_callback) =
-  init_base(handler)
-  handler.on_resolve_completed = on_resolve_completed
-
-proc makeNCResolveCallback*(T: typedesc): auto =
-  result = new(T)
-  initialize_resolve_callback(result.handler.addr)
+wrapCallback(NCResolveCallback, cef_resolve_callback):
+  # Called after the ResolveHost request has completed. |result| will be the
+  # result code. |resolved_ips| will be the list of resolved IP addresses or
+  # NULL if the resolution failed.
+  proc OnResolveCompleted*(self: NCResolveCallback, result: cef_errorcode, resolved_ips: seq[string])
 
 # Returns true (1) if this object is pointing to the same context as |that|
 # object.
@@ -89,14 +75,12 @@ proc GetDefaultCookieManager*(self: NCRequestContext, callback: NCCompletionCall
 # may be called on any thread in the browser process.
 proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_name: string,
   factory: NCSchemeHandlerFactory): bool =
-  add_ref(factory.GetHandler())
-  let cscheme = to_cef(scheme_name)
-  let cdomain = to_cef(domain_name)
-  result = self.handler.register_scheme_handler_factory(self.handler, cscheme, cdomain,
-    cast[ptr_cef_scheme_handler_factory](factory.GetHandler())) == 1.cint
-  nc_free(cscheme)
-  nc_free(cdomain)
-
+  
+  debugModeOn()
+  self.wrapCall(register_scheme_handler_factory, result, scheme_name, domain_name,
+    factory)
+  debugModeOff()
+  
 # Clear all registered scheme handler factories. Returns false (0) on error.
 # This function may be called on any thread in the browser process.
 proc ClearSchemeHandlerFactories*(self: NCRequestContext): bool =

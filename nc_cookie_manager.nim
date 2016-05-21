@@ -1,63 +1,37 @@
-import cef/cef_cookie_manager_api, cef/cef_string_list_api
 import nc_cookie, nc_types, nc_util, nc_callback
 include cef/cef_import
 
-type
-  # Structure used for managing cookies. The functions of this structure may be
-  # called on any thread unless otherwise indicated.
-  NCCookieManager* = ref object
-    handler: ptr cef_cookie_manager
 
-  # Structure to implement for visiting cookie values. The functions of this
-  # structure will always be called on the IO thread.
-  NCCookieVisitor* = ref object of RootObj
-    handler: cef_cookie_visitor
+# Structure used for managing cookies. The functions of this structure may be
+# called on any thread unless otherwise indicated.
+wrapAPI(NCCookieManager, cef_cookie_manager)
 
-  # Structure to implement to be notified of asynchronous completion via
-  # cef_cookie_manager_t::set_cookie().
-  NCSetCookieCallback* = ref object of RootObj
-    handler: cef_set_cookie_callback
+# Structure to implement for visiting cookie values. The functions of this
+# structure will always be called on the IO thread.
+wrapAPI(NCCookieVisitor, cef_cookie_visitor, false)
 
-  # Structure to implement to be notified of asynchronous completion via
-  # cef_cookie_manager_t::delete_cookies().
-  NCDeleteCookiesCallback* = ref object of RootObj
-    handler: cef_delete_cookies_callback
+# Structure to implement to be notified of asynchronous completion via
+# cef_cookie_manager_t::set_cookie().
+wrapAPI(NCSetCookieCallback, cef_set_cookie_callback, false)
+
+# Structure to implement to be notified of asynchronous completion via
+# cef_cookie_manager_t::delete_cookies().
+wrapAPI(NCDeleteCookiesCallback, cef_delete_cookies_callback, false)
 
 import impl/nc_util_impl
-
-proc GetHandler*(self: NCCookieManager): ptr cef_cookie_manager {.inline.} =
-  result = self.handler
-
-proc nc_wrap*(handler: ptr cef_cookie_manager): NCCookieManager =
-  new(result, nc_finalizer[NCCookieManager])
-  result.handler = handler
-  add_ref(handler)
-
-proc GetHandler*(self: NCCookieVisitor): ptr cef_cookie_visitor {.inline.} =
-  result = self.handler.addr
-
-proc GetHandler*(self: NCSetCookieCallback): ptr cef_set_cookie_callback {.inline.} =
-  result = self.handler.addr
-
-proc GetHandler*(self: NCDeleteCookiesCallback): ptr cef_delete_cookies_callback {.inline.} =
-  result = self.handler.addr
 
 # Set the schemes supported by this manager. The default schemes ("http",
 # "https", "ws" and "wss") will always be supported. If |callback| is non-
 # NULL it will be executed asnychronously on the IO thread after the change
 # has been applied. Must be called before any cookies are accessed.
 proc SetSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback: NCCompletionCallback) =
-  add_ref(callback.GetHandler())
-  var cscheme = to_cef(schemes)
-  self.handler.set_supported_schemes(self.handler, cscheme, callback.GetHandler())
-  nc_free(cscheme)
+  self.wrapCall(set_supported_schemes, schemes, callback)
 
 # Visit all cookies on the IO thread. The returned cookies are ordered by
 # longest path, then by earliest creation date. Returns false (0) if cookies
 # cannot be accessed.
 proc VisitAllCookies*(self: NCCookieManager, visitor: NCCookieVisitor): bool =
-  add_ref(visitor.GetHandler())
-  result = self.handler.visit_all_cookies(self.handler, visitor.GetHandler()) == 1.cint
+  self.wrapCall(visit_all_cookies, result, visitor)
 
 # Visit a subset of cookies on the IO thread. The results are filtered by the
 # given url scheme, host, domain and path. If |includeHttpOnly| is true (1)
@@ -65,10 +39,7 @@ proc VisitAllCookies*(self: NCCookieManager, visitor: NCCookieVisitor): bool =
 # cookies are ordered by longest path, then by earliest creation date.
 # Returns false (0) if cookies cannot be accessed.
 proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool, visitor: NCCookieVisitor): bool =
-  add_ref(visitor.GetHandler())
-  let curl = to_cef(url)
-  result = self.handler.visit_url_cookies(self.handler, curl, includeHttpOnly.cint, visitor.GetHandler()) == 1.cint
-  nc_free(curl)
+  self.wrapCall(visit_url_cookies, result, url, includeHttpOnly, visitor)
 
 # Sets a cookie given a valid URL and explicit user-provided cookie
 # attributes. This function expects each attribute to be well-formed. It will
@@ -78,14 +49,8 @@ proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool,
 # asnychronously on the IO thread after the cookie has been set. Returns
 # false (0) if an invalid URL is specified or if cookies cannot be accessed.
 proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: NCSetCookieCallback): bool =
-  add_ref(callback.GetHandler())
-  let curl = to_cef(url)
-  var ccookie: cef_cookie
-  to_cef(cookie, ccookie)
-  result = self.handler.set_cookie(self.handler, curl, ccookie.addr, callback.GetHandler()) == 1.cint
-  nc_free(curl)
-  ccookie.clear()
-
+  self.wrapCall(set_cookie, result, url, cookie, callback)
+  
 # Delete all cookies that match the specified parameters. If both |url| and
 # |cookie_name| values are specified all host and domain cookies matching
 # both will be deleted. If only |url| is specified all host cookies (but not
@@ -95,14 +60,9 @@ proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: 
 # have been deleted. Returns false (0) if a non-NULL invalid URL is specified
 # or if cookies cannot be accessed. Cookies can alternately be deleted using
 # the Visit*Cookies() functions.
-proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string,  callback: NCDeleteCookiesCallback): bool =
-  add_ref(callback.GetHandler())
-  let curl = to_cef(url)
-  let cname = to_cef(cookie_name)
-  result = self.handler.delete_cookies(self.handler, curl, cname, callback.GetHandler()) == 1.cint
-  nc_free(curl)
-  nc_free(cname)
-
+proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string, callback: NCDeleteCookiesCallback): bool =
+  self.wrapCall(delete_cookies, result, url, cookie_name, callback)
+ 
 # Sets the directory path that will be used for storing cookie data. If
 # |path| is NULL data will be stored in memory only. Otherwise, data will be
 # stored at the specified |path|. To persist session cookies (cookies without
@@ -113,18 +73,13 @@ proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string,  callback: 
 # initialized. Returns false (0) if cookies cannot be accessed.
 proc SetStoragePath*(self: NCCookieManager, path: string, persist_session_cookies: bool,
   callback: NCCompletionCallback): bool =
-  add_ref(callback.GetHandler())
-  let cpath = to_cef(path)
-  result = self.handler.set_storage_path(self.handler, cpath, persist_session_cookies.cint, callback.GetHandler()) == 1.cint
-  nc_free(cpath)
+  self.wrapCall(set_storage_path, result, path, persist_session_cookies, callback)
 
 # Flush the backing store (if any) to disk. If |callback| is non-NULL it will
 # be executed asnychronously on the IO thread after the flush is complete.
 # Returns false (0) if cookies cannot be accessed.
 proc FlushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
-  add_ref(callback.GetHandler())
-  result = self.handler.flush_store(self.handler, callback.GetHandler()) == 1.cint
-
+  self.wrapCall(flush_store, result, callback)
 
 # Method that will be called once for each cookie. |count| is the 0-based
 # index for the current cookie. |total| is the total number of cookies. Set
@@ -189,8 +144,7 @@ proc makeNCDeleteCookiesCallback*(T: typedesc): auto =
 # calling cef_request_tContext::cef_request_context_get_global_context()->get_d
 # efault_cookie_manager().
 proc NCCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieManager =
-  add_ref(callback.GetHandler())
-  result = nc_wrap(cef_cookie_manager_get_global_manager(callback.GetHandler()))
+  wrapProc(cef_cookie_manager_get_global_manager, result, callback)
 
 # Creates a new cookie manager. If |path| is NULL data will be stored in memory
 # only. Otherwise, data will be stored at the specified |path|. To persist
@@ -201,7 +155,5 @@ proc NCCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieM
 # manager's storage has been initialized.
 proc NCCookieManagerCreateManager*(path: string, persist_session_cookies: bool,
   callback: NCCompletionCallback): NCCookieManager =
-  add_ref(callback.GetHandler())
-  let cpath = to_cef(path)
-  result = nc_wrap(cef_cookie_manager_create_manager(cpath, persist_session_cookies.cint, callback.GetHandler()))
-  nc_free(cpath)
+  wrapProc(cef_cookie_manager_create_manager, result, path, 
+    persist_session_cookies, callback)

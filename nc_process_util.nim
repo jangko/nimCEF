@@ -10,5 +10,4 @@ import cef/cef_process_util_api, nc_command_line, nc_util, nc_types
 #   PATH will be searched. (See man execvp.)
 
 proc NCLaunchProcess*(command_line: NCCommandLine): bool =
-  add_ref(command_line)
-  result = cef_launch_process(command_line) == 1.cint
+  wrapProc(cef_launch_process, result, command_line)

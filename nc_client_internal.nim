@@ -93,7 +93,7 @@ proc on_drag_enter(self: ptr cef_drag_handler, browser: ptr_cef_browser, dragDat
   mask: cef_drag_operations_mask): cint {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.OnDragEnter != nil:
-    result = handler.impl.OnDragEnter(handler.container, nc_wrap(browser), dragData, mask).cint
+    result = handler.impl.OnDragEnter(handler.container, nc_wrap(browser), nc_wrap(dragData), mask).cint
   release(browser)
   release(dragData)
 
@@ -318,7 +318,7 @@ proc start_dragging(self: ptr cef_render_handler,
   allowed_ops: cef_drag_operations_mask, x, y: cint): cint {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.StartDragging != nil:
-    result = handler.impl.StartDragging(handler.container, nc_wrap(browser), drag_data, allowed_ops, x.int, y.int).cint
+    result = handler.impl.StartDragging(handler.container, nc_wrap(browser), nc_wrap(drag_data), allowed_ops, x.int, y.int).cint
   release(browser)
   release(drag_data)
 
@@ -370,7 +370,7 @@ proc on_before_download(self: ptr cef_download_handler, browser: ptr_cef_browser
   callback: ptr cef_before_download_callback) {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.OnBeforeDownload != nil:
-    handler.impl.OnBeforeDownload(handler.container, nc_wrap(browser), download_item, $suggested_name, callback)
+    handler.impl.OnBeforeDownload(handler.container, nc_wrap(browser), nc_wrap(download_item), $suggested_name, callback)
   release(browser)
   release(download_item)
   release(callback)
@@ -379,7 +379,7 @@ proc on_download_updated(self: ptr cef_download_handler, browser: ptr_cef_browse
   download_item: ptr cef_download_item, callback: ptr cef_download_item_callback) {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.OnDownloadUpdated != nil:
-    handler.impl.OnDownloadUpdated(handler.container, nc_wrap(browser), download_item, callback)
+    handler.impl.OnDownloadUpdated(handler.container, nc_wrap(browser), nc_wrap(download_item), callback)
   release(browser)
   release(download_item)
   release(callback)

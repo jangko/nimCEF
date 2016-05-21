@@ -137,7 +137,7 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
   if importUtil.boolVal():
     var exim = "import impl/nc_util_impl, cef/" & $base & "_api\n"
     exim.add "export " & $base & "_api\n"
-    result = parseStmt exim    
+    result = parseStmt exim
   else:
     result = newNimNode(nnkStmtList)
 
@@ -268,6 +268,13 @@ proc getArgName(n: NimNode): string =
   if n.kind == nnkHiddenDeref: return $n[0]
   result = $n
 
+proc getBaseType(n: NimNode): string =
+  if n.typeKind in {ntyVar, ntyPtr}: return $n[1]
+  if n.typeKind == ntyRef:
+    let t = $n[1]
+    return t.substr(0, t.find(':')-1)
+  result = $n
+
 macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   # Sanitary Check
   let
@@ -318,8 +325,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       params.add "arg$1" % [argi]
       epiloque.add "nc_free(arg$1)\n" % [argi]
     of ntyBool, ntyInt, ntyFloat:
-      let argT = getType(rout)[i - startIndex + 3]
-      let argType = if argT.typeKind == ntyVar: $argT[1] else: $argT      
+      let argType = getType(rout)[i - startIndex + 3].getBaseType()
       if arg.kind == nnkHiddenDeref:
         proloque.add "var arg$1 = $2.$3\n" % [argi, argv, argType]
         params.add "arg" & argi
@@ -332,7 +338,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     of ntyPointer, ntyEnum, ntyInt64:
       let argT = getType(rout)[i - startIndex + 3]
       if arg.typeKind == ntyEnum and argT.typeKind != ntyEnum:
-        let argType = if argT.typeKind == ntyVar: $argT[1] else: $argT
+        let argType = argT.getBaseType()
         params.add "$1.$2" % [argv, argType]
       else:
         params.add argv
@@ -353,8 +359,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       let T = getType(arg)[1]
       if checkWrapped(T):
         let handler = $getHandler(T)
-        let argT = getType(rout)[i - startIndex + 3]
-        let argType = if argT.typeKind == ntyVar: $argT[1] else: $argT
+        let argType = getType(rout)[i - startIndex + 3].getBaseType()
         proloque.add "var arg$1 = newSeq[ptr $2]($3.len)\n" % [argi, handler, argv]
         proloque.add "for i in 0.. <$1.len:\n" % [argv]
         proloque.add "  arg$1[i] = $2[i].GetHandler()\n" % [argi, argv]
@@ -364,6 +369,13 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
         params.add "arg$1" % [argi]
         epiloque.add "nc_free(arg$1)\n" % [argi]
+      elif T.typeKind == ntyObject:
+        let argLen  = getType(rout)[i - startIndex + 3].getBaseType()
+        let argBase = getType(rout)[i - startIndex + 4].getBaseType()
+        proloque.add "var arg$1 = newSeq[$2]($3.len)\n" % [argi, argBase, argv]
+        proloque.add "for i in 0.. <$1.len:\n" % [argv]
+        proloque.add "  arg$1[i] = $2[i].to_cef()\n" % [argi, argv]
+        params.add "$1.len.$2, cast[ptr $3](arg$4[0].addr)" % [argv, argLen, argBase, argi]
       else:
         error(lineinfo(arg) & " unsupported param: " & getType(arg).treeRepr)
     of ntyObject:
@@ -422,21 +434,32 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       elif checkWrapped(T):
         let handler = $getHandler(T)
         let size = $args[args.len-1]
-        let tstr = $T[1]
-        let tName = tstr.substr(0, tstr.find(':')-1)
-        let aSize = $argSize
-        proloque.add "result = newSeq[$1]($2)\n" % [tName, size]
-        proloque.add "var res$1 = newSeq[ptr $2]($3)\n" % [aSize, handler, size]
-        proloque.add "var buf$1 = cast[ptr ptr $2](res$1[0].addr)\n" % [aSize, handler]
-        params.add ", buf" & aSize
+        let destType = T.getBaseType()
+        let argi = $argSize
+        proloque.add "result = newSeq[$1]($2)\n" % [destType, size]
+        proloque.add "var res$1 = newSeq[ptr $2]($3)\n" % [argi, handler, size]
+        proloque.add "var buf$1 = cast[ptr ptr $2](res$1[0].addr)\n" % [argi, handler]
+        params.add ", buf" & argi
         body = "$1($2)\n" % [calee, params]
         epiloque.add "for i in 0.. <$1:\n" % [size]
-        epiloque.add "  result[i] = nc_wrap(res$1[i])\n" % [aSize]
+        epiloque.add "  result[i] = nc_wrap(res$1[i])\n" % [argi]
       elif T.typeKind == ntyInt64:
         let size = $args[args.len-1]
         proloque.add "result = newSeq[int64]($1.int)\n" % [size]
         params.add ", result[0].addr"
         body = "$1($2)\n" % [calee, params]
+      elif T.typeKind == ntyObject:
+        let size = $args[args.len-1]
+        let srcType = getType(rout).last().getBaseType()
+        let destType = T.getBaseType()
+        let argi = $argSize
+        proloque.add "result = newSeq[$1]($2)\n" % [destType, size]
+        proloque.add "var res$1 = newSeq[$2]($3)\n" % [argi, srcType, size]
+        proloque.add "var buf$1 = cast[ptr $2](res$1[0].addr)\n" % [argi, srcType]
+        params.add ", buf" & argi
+        body = "$1($2)\n" % [calee, params]
+        epiloque.add "for i in 0.. <$1:\n" % [size]
+        epiloque.add "  result[i] = to_nim(res$1[i])\n" % [argi]
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
     of ntyDistinct:
@@ -468,11 +491,11 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
     params = ""
     calee = $routine
     body = ""
-  
+
   if not hasResult and args.len > 0:
     if args[0].kind == nnkSym and $args[0] == "result":
       startIndex = 1
-    
+
   if hasResult and args.len > 0:
     if args[0].kind == nnkSym and $args[0] == "result": startIndex = 1
     else: error(lineinfo(routine) & " expected \"result\" param")

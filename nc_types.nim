@@ -195,11 +195,47 @@ elif defined(MACOSX):
       view*: cef_window_handle
 
 type
+  # Structure representing a point.
   NCPoint* = object
-    x, y: int
+    x*, y*: int
+    
+  # Structure representing a rectangle.
+  NCRect* = object
+    x*, y*, width*, height*: int
 
+  # Structure representing a size.
+  NCSize* = object
+    width*, height*: int
+    
+  # Structure representing a print job page range.
+  NCPageRange* = object
+    page_from*: int
+    page_to*: int
+    
 proc to_cef*(nc: NCPoint): cef_point =
   result.x = nc.x.cint
   result.y = nc.x.cint
 
 template nc_free*(nc: cef_point) = discard
+
+proc to_cef*(nc: NCRect): cef_rect =
+  result = cef_rect(x: nc.x.cint, y: nc.y.cint, 
+    width: nc.width.cint, height: nc.height.cint)
+  
+template nc_free*(nc: cef_rect) = discard
+
+proc to_cef*(nc: NCSize): cef_size =
+  result.width  = nc.width.cint
+  result.height = nc.height.cint
+
+template nc_free*(nc: cef_size) = discard
+
+proc to_cef*(nc: NCPageRange): cef_page_range =
+  result.page_from  = nc.page_from.cint
+  result.page_to = nc.page_to.cint
+
+proc to_nim*(nc: cef_page_range): NCPageRange =
+  result.page_from  = nc.page_from.int
+  result.page_to = nc.page_to.int
+
+template nc_free*(nc: cef_page_range) = discard

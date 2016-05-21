@@ -1,4 +1,4 @@
-import nc_util, cef/cef_types, cef/cef_string_multimap_api
+import nc_util, cef/cef_types
 
 # Structure used to represent a web request. The functions of this structure
 # may be called on any thread.

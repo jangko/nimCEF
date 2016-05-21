@@ -48,19 +48,19 @@ proc to_nim*(cc: ptr cef_cookie): NCCookie =
   result.has_expires = cc.has_expires == 1.cint
   result.expires = cc.expires
 
-proc to_cef*(nc: NCCookie, cc: var cef_cookie) =
-  cc.name <= nc.name
-  cc.value <= nc.value
-  cc.domain <= nc.domain
-  cc.path <= nc.path
-  cc.secure = nc.secure.cint
-  cc.httponly = nc.httponly.cint
-  cc.creation = nc.creation
-  cc.last_access = nc.last_access
-  cc.has_expires = nc.has_expires.cint
-  cc.expires = nc.expires
+proc to_cef*(nc: NCCookie): cef_cookie =
+  result.name <= nc.name
+  result.value <= nc.value
+  result.domain <= nc.domain
+  result.path <= nc.path
+  result.secure = nc.secure.cint
+  result.httponly = nc.httponly.cint
+  result.creation = nc.creation
+  result.last_access = nc.last_access
+  result.has_expires = nc.has_expires.cint
+  result.expires = nc.expires
 
-proc clear*(cc: var cef_cookie) =
+proc nc_free*(cc: var cef_cookie) =
   cef_string_clear(cc.name.addr)
   cef_string_clear(cc.value.addr)
   cef_string_clear(cc.domain.addr)

@@ -89,7 +89,7 @@ proc NCAddWebPluginPath*(path: string) =
 # Add a plugin directory. This change may not take affect until after
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
-proc NCAddWwebPluginDirectory*(dir: string) =
+proc NCAddWebPluginDirectory*(dir: string) =
   wrapProc(cef_add_web_plugin_directory, dir)  
 
 # Remove a plugin path (directory + file). This change may not take affect

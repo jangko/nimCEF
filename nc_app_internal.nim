@@ -8,7 +8,7 @@ proc on_before_command_line_processing(self: ptr cef_app,
   release(command_line)
 
 proc on_register_custom_schemes(self: ptr cef_app, registrar: ptr cef_scheme_registrar) {.cef_callback.} =
-  app_to_app(self).OnRegisterCustomSchemes(registrar)
+  app_to_app(self).OnRegisterCustomSchemes(nc_wrap(registrar))
   release(registrar)
 
 proc get_resource_bundle_handler(self: ptr cef_app): ptr cef_resource_bundle_handler {.cef_callback.} =

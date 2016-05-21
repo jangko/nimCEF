@@ -1,4 +1,4 @@
-import winapi, os, strutils, streams
+import winapi, os, strutils, streams, macros
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
@@ -7,8 +7,6 @@ import nc_request_context_handler, nc_request_context
 type
   myApp = ref object of NCApp
 
-  myFactory = ref object of NCSchemeHandlerFactory
-
   myScheme = ref object of NCResourceHandler
     mData: string
     mMimeType: string
@@ -16,6 +14,12 @@ type
 
   myUrlRequestClient = ref object of NCUrlRequestClient
     name: string
+
+macro mmm(n: typed): stmt =
+  let g = getType(n)[1][1]
+  echo getType(g).treeRepr
+
+mmm(myScheme)
 
 proc OnBeforeClose(self: NCClient, browser: NCBrowser) =
   NCQuitMessageLoop()
@@ -108,10 +112,8 @@ method ProcessRequest*(self: myScheme, request: NCRequest, callback: NCCallback)
 <body bgcolor="white">
 This contents of this page page are served by the
 myScheme object handling the client:// protocol.
-
 <h2>Google</h2>
 <a href="https://www.google.com/">https://www.google.com/</a>
-
 <br/>You should see an image:
 <br/><img src="client://tests/logo.png"><pre>"""
 
@@ -171,12 +173,16 @@ method ReadResponse*(self: myScheme, data_out: cstring, bytes_to_read: int, byte
 method OnRegisterCustomSchemes*(self: myApp, registrar: NCSchemeRegistrar) =
   discard registrar.AddCustomScheme("client", true, false, false)
 
-method Create*(self: myFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
+proc Create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
   NC_REQUIRE_IO_THREAD()
   result = makeResourceHandler(myScheme)
 
+var scimpl = nc_scheme_handler_factory_i[NCSchemeHandlerFactory](
+  Create: Create
+)
+
 proc RegisterSchemeHandler() =
-  NCRegisterSchemeHandlerFactory("client", "tests", makeNCSchemeHandlerFactory(myFactory))
+  NCRegisterSchemeHandlerFactory("client", "tests", makeNCSchemeHandlerFactory(scimpl))
 
 proc OnRequestComplete(self: myUrlRequestClient, request: NCUrlRequest) =
   echo "hello"

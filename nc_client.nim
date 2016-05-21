@@ -724,7 +724,7 @@ proc client_finalizer[A, B](client: A) =
   
 template client_init*(T, X: typedesc) =
   var handler = createShared(T)
-  nc_init_base(handler)
+  nc_init_base[T](handler)
   new(result, client_finalizer[X, T])
   result.handler = handler.handler.addr
   add_ref(handler.handler.addr)

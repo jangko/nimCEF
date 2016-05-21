@@ -145,7 +145,7 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
 
   result.add quote do:
     type
-      `x`* = ref object
+      `x`* = ref object of RootObj
         handler*: ptr `base`
 
     proc GetHandler*(self: `x`): ptr `base` {.inline.} =

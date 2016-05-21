@@ -11,16 +11,17 @@ template toType*(T: typedesc, obj: expr): expr =
   cast[ptr T](cast[ByteAddress](obj) - sizeof(pointer))
 
 proc generic_add_ref[T](self: ptr cef_base) {.cef_callback.} =
-  var handler = cast[T](cast[ByteAddress](self) - sizeof(pointer))
+  var handler = cast[ptr T](cast[ByteAddress](self) - sizeof(pointer))
   atomicInc(handler.refCount)
 
 proc generic_release[T](self: ptr cef_base): cint {.cef_callback.} =
-  var handler = cast[T](cast[ByteAddress](self) - sizeof(pointer))
+  var handler = cast[ptr T](cast[ByteAddress](self) - sizeof(pointer))
   if atomicDec(handler.refCount) == 0:
     freeShared(self)
+  result = (handler.refCount == 0).cint
 
 proc generic_has_one_ref[T](self: ptr cef_base): cint {.cef_callback.} =
-  var handler = cast[T](cast[ByteAddress](self) - sizeof(pointer))
+  var handler = cast[ptr T](cast[ByteAddress](self) - sizeof(pointer))
   result = (handler.refCount == 1).cint
 
 proc nc_initialize_base[T](base: ptr cef_base) =
@@ -33,7 +34,7 @@ proc nc_initialize_base[T](base: ptr cef_base) =
   base.release = generic_release[T]
   base.has_one_ref = generic_has_one_ref[T]
 
-proc nc_init_base*[A](elem: A) =
+proc nc_init_base*[A](elem: ptr A) =
   elem.handler.base.size = sizeof(A)
   nc_initialize_base[A](cast[ptr cef_base](elem.handler.addr))
 
@@ -42,7 +43,7 @@ proc nc_finalizer*[T](self: T) =
 
 template nc_init*(T, X: typedesc, impl: expr) =
   var handler = createShared(T)
-  nc_init_base(handler)
+  nc_init_base[T](handler)
   new(result, nc_finalizer[X])
   result.handler = handler.handler.addr
   add_ref(handler.handler.addr)

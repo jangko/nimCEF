@@ -55,10 +55,9 @@ type
     add_custom_scheme*: proc(self: ptr cef_scheme_registrar,
       scheme_name: ptr cef_string, is_standard, is_local, is_display_isolated: cint): cint {.cef_callback.}
 
-# Structure that creates cef_resource_handler_t instances for handling scheme
-# requests. The functions of this structure will always be called on the IO
-# thread.
-type
+  # Structure that creates cef_resource_handler_t instances for handling scheme
+  # requests. The functions of this structure will always be called on the IO
+  # thread.
   cef_scheme_handler_factory* = object
     base*: cef_base
     # Return a new resource handler instance to handle the request or an NULL
@@ -84,7 +83,6 @@ type
 # browser process. Using this function is equivalent to calling cef_request_tCo
 # ntext::cef_request_context_get_global_context()->register_scheme_handler_fact
 # ory().
-
 proc cef_register_scheme_handler_factory*(scheme_name, domain_name: ptr cef_string,
   factory: ptr cef_scheme_handler_factory) {.cef_import.}
 
@@ -93,5 +91,4 @@ proc cef_register_scheme_handler_factory*(scheme_name, domain_name: ptr cef_stri
 # thread in the browser process. Using this function is equivalent to calling c
 # ef_request_tContext::cef_request_context_get_global_context()->clear_scheme_h
 # andler_factories().
-
 proc cef_clear_scheme_handler_factories*(): cint {.cef_import.}

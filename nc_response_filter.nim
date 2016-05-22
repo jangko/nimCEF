@@ -6,7 +6,7 @@ include cef/cef_import
 wrapCallback(NCResponseFilter, cef_response_filter):
   # Initialize the response filter. Will only be called a single time. The
   # filter will not be installed if this function returns false (0).
-  proc Init*(self: NCResponseFilter): bool
+  proc Init*(self: T): bool
 
   # Called to filter a chunk of data. |data_in| is the input buffer containing
   # |data_in_size| bytes of pre-filter data (|data_in| will be NULL if
@@ -24,6 +24,6 @@ wrapCallback(NCResponseFilter, cef_response_filter):
   # matches |data_in_size| (all available pre-filter bytes have been read), and
   # the function returns RESPONSE_FILTER_DONE or RESPONSE_FILTER_ERROR. Do not
   # keep a reference to the buffers passed to this function.
-  proc Filter*(self: NCResponseFilter, data_in: pointer, data_in_size: int,
-  data_in_read: var int, data_out: pointer, data_out_size: int,
-  data_out_written: var int): cef_response_filter_status
+  proc Filter*(self: T, data_in: pointer, data_in_size: int,
+    data_in_read: var int, data_out: pointer, data_out_size: int,
+    data_out_written: var int): cef_response_filter_status

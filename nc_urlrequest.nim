@@ -1,6 +1,5 @@
 import nc_request, nc_response, nc_util, nc_types, nc_auth_callback, nc_request_context
 import impl/nc_util_impl
-import cef/cef_types, cef/cef_auth_callback_api, cef/cef_request_context_api
 include cef/cef_import
 
 # Structure used to make a URL request. URL requests are not associated with a

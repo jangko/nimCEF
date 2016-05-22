@@ -1,4 +1,4 @@
-import cef/cef_types, nc_util, cef/cef_time_api
+import cef/cef_types, nc_util, nc_time
 
 type
   # Cookie information.
@@ -26,15 +26,15 @@ type
 
     # The cookie creation date. This is automatically populated by the system on
     # cookie creation.
-    creation*: cef_time
+    creation*: NCTime
 
     # The cookie last access date. This is automatically populated by the system
     # on access.
-    last_access*: cef_time
+    last_access*: NCTime
 
     # The cookie expiration date is only valid if |has_expires| is true.
     has_expires: bool
-    expires*: cef_time
+    expires*: NCTime
 
 proc to_nim*(cc: ptr cef_cookie): NCCookie =
   result.name = $(cc.name.addr)
@@ -43,10 +43,10 @@ proc to_nim*(cc: ptr cef_cookie): NCCookie =
   result.path = $(cc.path.addr)
   result.secure = cc.secure == 1.cint
   result.httponly = cc.httponly == 1.cint
-  result.creation = cc.creation
-  result.last_access = cc.last_access
+  result.creation = to_nim(cc.creation)
+  result.last_access = to_nim(cc.last_access)
   result.has_expires = cc.has_expires == 1.cint
-  result.expires = cc.expires
+  result.expires = to_nim(cc.expires)
 
 proc to_cef*(nc: NCCookie): cef_cookie =
   result.name <= nc.name
@@ -55,10 +55,10 @@ proc to_cef*(nc: NCCookie): cef_cookie =
   result.path <= nc.path
   result.secure = nc.secure.cint
   result.httponly = nc.httponly.cint
-  result.creation = nc.creation
-  result.last_access = nc.last_access
+  result.creation = to_cef(nc.creation)
+  result.last_access = to_cef(nc.last_access)
   result.has_expires = nc.has_expires.cint
-  result.expires = nc.expires
+  result.expires = to_cef(nc.expires)
 
 proc nc_free*(cc: var cef_cookie) =
   cef_string_clear(cc.name.addr)

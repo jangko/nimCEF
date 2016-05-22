@@ -1,8 +1,6 @@
-import cef/cef_scheme_api, cef/cef_frame_api, cef/cef_request_api
-import cef/cef_browser_api, cef/cef_resource_handler_api
+import cef/cef_scheme_api, cef/cef_resource_handler_api
 import nc_util, nc_resource_handler, nc_types, nc_request
 import impl/nc_util_impl
-
 include cef/cef_import
 
 # Structure that manages custom scheme registrations.

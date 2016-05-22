@@ -1,5 +1,3 @@
-NCBrowserHost::GetClient
-
 NCBrowser::SendKeyEvent
 NCBrowser::SendMouseClickEvent
 NCBrowser::SendMouseMoveEvent
@@ -10,10 +8,7 @@ NCBrowser::DragTargetDrop
 NCBrowser::HandleKeyEventBeforeTextInputClient
 NCBrowser::HandleKeyEventAfterTextInputClient
 
-NCV8Handler::Execute
 NCV8Value::SetUserData
 NCV8Value::GetUserData
-nc_browser
-nc_geolocation
-nc_cookie_manager
+
 

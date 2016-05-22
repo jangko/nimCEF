@@ -1,4 +1,5 @@
-import nc_task, nc_types, nc_util, nc_time
+import nc_task, nc_types, nc_util, nc_time, impl/nc_util_impl
+include cef/cef_import
 
 # Structure representing a V8 context handle. V8 handles can only be accessed
 # from the thread on which they are created. Valid threads for creating a V8
@@ -6,11 +7,6 @@ import nc_task, nc_types, nc_util, nc_time
 # threads. A task runner for posting tasks on the associated thread can be
 # retrieved via the cef_v8context_t::get_task_runner() function.
 wrapAPI(NCV8Context, cef_v8context)
-
-# Structure that should be implemented to handle V8 function calls. The
-# functions of this structure will be called on the thread associated with the
-# V8 function.
-wrapAPI(NCV8Handler, cef_v8handler, false)
 
 # Structure that should be implemented to handle V8 accessor calls. Accessor
 # identifiers are registered by calling cef_v8value_t::set_value(). The
@@ -43,6 +39,22 @@ wrapAPI(NCV8StackTrace, cef_v8stacktrace, false)
 # thread can be retrieved via the cef_v8context_t::get_task_runner() function.
 wrapAPI(NCV8StackFrame, cef_v8stackframe, false)
 
+# Structure that should be implemented to handle V8 function calls. The
+# functions of this structure will be called on the thread associated with the
+# V8 function.
+wrapCallback(NCV8Handler, cef_v8handler):
+  proc Execute*(self: T, name: string, obj: NCV8Value, args: seq[NCV8Value],
+    retval: var NCV8Value, exception: string): bool
+
+# Handle execution of the function identified by |name|. |object| is the
+# receiver ('this' object) of the function. |arguments| is the list of
+# arguments passed to the function. If execution succeeds set |retval| to the
+# function return value. If execution fails set |exception| to the exception
+# that will be thrown. Return true (1) if execution was handled.
+proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
+  retval: var NCV8Value, exception: string): bool =
+  self.wrapCall(execute, result, name, obj, args, retval, exception)
+  
 # Returns the task runner associated with this context. V8 handles can only
 # be accessed from the thread on which they are created. This function can be
 # called on any render process thread.
@@ -94,15 +106,6 @@ proc IsSame*(self, that: NCV8Context): bool =
 # exception, if any, and the function will return false (0).
 proc Eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: var NCV8Exception): bool =
   self.wrapCall(eval, result, code, retval, exception)
-
-# Handle execution of the function identified by |name|. |object| is the
-# receiver ('this' object) of the function. |arguments| is the list of
-# arguments passed to the function. If execution succeeds set |retval| to the
-# function return value. If execution fails set |exception| to the exception
-# that will be thrown. Return true (1) if execution was handled.
-proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
-  retval: var NCV8Value, exception: string): bool =
-  self.wrapCall(execute, result, name, obj, args, retval, exception)
 
 # Handle retrieval the accessor value identified by |name|. |object| is the
 # receiver ('this' object) of the accessor. If retrieval succeeds set

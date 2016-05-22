@@ -357,7 +357,7 @@ proc on_file_dialog*(self: ptr cef_dialog_handler, browser: ptr_cef_browser, mod
   var handler = get_client(browser)
   if handler.impl.OnFileDialog != nil:
     result = handler.impl.OnFileDialog(handler.container, nc_wrap(browser), mode, $title,
-      $default_file_path, $accept_filters, selected_accept_filter.int, callback).cint
+      $default_file_path, $accept_filters, selected_accept_filter.int, nc_wrap(callback)).cint
   release(browser)
   release(callback)
 
@@ -370,7 +370,7 @@ proc on_before_download(self: ptr cef_download_handler, browser: ptr_cef_browser
   callback: ptr cef_before_download_callback) {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.OnBeforeDownload != nil:
-    handler.impl.OnBeforeDownload(handler.container, nc_wrap(browser), nc_wrap(download_item), $suggested_name, callback)
+    handler.impl.OnBeforeDownload(handler.container, nc_wrap(browser), nc_wrap(download_item), $suggested_name, nc_wrap(callback))
   release(browser)
   release(download_item)
   release(callback)
@@ -379,7 +379,7 @@ proc on_download_updated(self: ptr cef_download_handler, browser: ptr_cef_browse
   download_item: ptr cef_download_item, callback: ptr cef_download_item_callback) {.cef_callback.} =
   var handler = get_client(browser)
   if handler.impl.OnDownloadUpdated != nil:
-    handler.impl.OnDownloadUpdated(handler.container, nc_wrap(browser), nc_wrap(download_item), callback)
+    handler.impl.OnDownloadUpdated(handler.container, nc_wrap(browser), nc_wrap(download_item), nc_wrap(callback))
   release(browser)
   release(download_item)
   release(callback)
@@ -396,7 +396,7 @@ proc on_request_geolocation_permission*(self: ptr cef_geolocation_handler,
   var handler = get_client(browser)
   
   if handler.impl.OnRequestGeolocationPermission != nil:
-    result = handler.impl.OnRequestGeolocationPermission(handler.container, nc_wrap(browser), $requesting_url, request_id, callback).cint
+    result = handler.impl.OnRequestGeolocationPermission(handler.container, nc_wrap(browser), $requesting_url, request_id, nc_wrap(callback)).cint
   release(browser)
   release(callback)
 
@@ -423,7 +423,7 @@ proc on_jsdialog*(self: ptr cef_jsdialog_handler,
 
   var supp = suppress_message == 1.cint
   result = handler.impl.OnJsdialog(handler.container, nc_wrap(browser), $origin_url, $accept_lang, dialog_type,
-    $message_text, $default_prompt_text, callback, supp).cint
+    $message_text, $default_prompt_text, nc_wrap(callback), supp).cint
   suppress_message = supp.cint
   release(browser)
   release(callback)
@@ -433,7 +433,7 @@ proc on_before_unload_dialog*(self: ptr cef_jsdialog_handler,
       callback: ptr cef_jsdialog_callback): cint {.cef_callback.} =
   var handler = get_client(browser)
 
-  result = handler.impl.OnBeforeUnloadDialog(handler.container, nc_wrap(browser), $message_text, is_reload == 1.cint, callback).cint
+  result = handler.impl.OnBeforeUnloadDialog(handler.container, nc_wrap(browser), $message_text, is_reload == 1.cint, nc_wrap(callback)).cint
   release(browser)
   release(callback)
 
@@ -480,7 +480,7 @@ proc on_before_resource_load*(self: ptr cef_request_handler,
   callback: ptr cef_request_callback): cef_return_value {.cef_callback.} =
   var handler = get_client(browser)
 
-  result = handler.impl.OnBeforeResourceLoad(handler.container, nc_wrap(browser), nc_wrap(frame), nc_wrap(request), callback)
+  result = handler.impl.OnBeforeResourceLoad(handler.container, nc_wrap(browser), nc_wrap(frame), nc_wrap(request), nc_wrap(callback))
   release(browser)
   release(frame)
   release(request)
@@ -555,7 +555,7 @@ proc on_quota_request*(self: ptr cef_request_handler,
   new_size: int64, callback: ptr cef_request_callback): cint {.cef_callback.} =
   var handler = get_client(browser)
 
-  result = handler.impl.OnQuotaRequest(handler.container, nc_wrap(browser), $origin_url, new_size, callback).cint
+  result = handler.impl.OnQuotaRequest(handler.container, nc_wrap(browser), $origin_url, new_size, nc_wrap(callback)).cint
   release(browser)
   release(callback)
 
@@ -574,7 +574,7 @@ proc on_certificate_error*(self: ptr cef_request_handler,
   callback: ptr cef_request_callback): cint {.cef_callback.} =
   var handler = get_client(browser)
 
-  result = handler.impl.OnCertificateError(handler.container, nc_wrap(browser), cert_error, $request_url, nc_wrap(ssl_info), callback).cint
+  result = handler.impl.OnCertificateError(handler.container, nc_wrap(browser), cert_error, $request_url, nc_wrap(ssl_info), nc_wrap(callback)).cint
   release(browser)
   release(ssl_info)
   release(callback)

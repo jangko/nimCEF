@@ -1,41 +1,34 @@
 import nc_types, cef/cef_browser_api, nc_util, nc_process_message, nc_client
-import nc_request_context, nc_settings, nc_navigation_entry
+import nc_request_context, nc_settings, nc_navigation_entry, impl/nc_util_impl
+include cef/cef_import
 
-# Callback structure for cef_browser_host_t::RunFileDialog. The functions of
+# Callback structure for NCBrowserHost::RunFileDialog. The functions of
 # this structure will be called on the browser process UI thread.
-wrapAPI(NCRunFileDialogCallback, cef_run_file_dialog_callback, false)
-
-# Callback structure for cef_browser_host_t::GetNavigationEntries. The
+wrapCallback(NCRunFileDialogCallback, cef_run_file_dialog_callback):
+  # Called asynchronously after the file dialog is dismissed.
+  # |selected_accept_filter| is the 0-based index of the value selected from
+  # the accept filters array passed to NCBrowserHost::RunFileDialog.
+  # |file_paths| will be a single value or a list of values depending on the
+  # dialog mode. If the selection was cancelled |file_paths| will be NULL.
+  proc OnFileDialogDismissed*(self: T, selected_accept_filter: int, file_paths: seq[string])
+  
+# Callback structure for NCBrowserHost::GetNavigationEntries. The
 # functions of this structure will be called on the browser process UI thread.
-wrapAPI(NCNavigationEntryVisitor, cef_navigation_entry_visitor, false)
-
-# Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
+wrapCallback(NCNavigationEntryVisitor, cef_navigation_entry_visitor):
+  # Method that will be executed. Do not keep a reference to |entry| outside of
+  # this callback. Return true (1) to continue visiting entries or false (0) to
+  # stop. |current| is true (1) if this entry is the currently loaded
+  # navigation entry. |index| is the 0-based index of this entry and |total| is
+  # the total number of entries.
+  proc Visit*(self: T, entry: NCNavigationEntry, current, index, total: int): bool
+  
+# Callback structure for NCBrowserHost::PrintToPDF. The functions of this
 # structure will be called on the browser process UI thread.
-wrapAPI(NCPdfPrintCallback, cef_pdf_print_callback, false)
-
-# Called asynchronously after the file dialog is dismissed.
-# |selected_accept_filter| is the 0-based index of the value selected from
-# the accept filters array passed to cef_browser_host_t::RunFileDialog.
-# |file_paths| will be a single value or a list of values depending on the
-# dialog mode. If the selection was cancelled |file_paths| will be NULL.
-method OnFileDialogDismissed*(self: NCRunFileDialogCallback,
-  selected_accept_filter: int, file_paths: seq[string]) {.base.} =
-  discard
-
-# Method that will be executed. Do not keep a reference to |entry| outside of
-# this callback. Return true (1) to continue visiting entries or false (0) to
-# stop. |current| is true (1) if this entry is the currently loaded
-# navigation entry. |index| is the 0-based index of this entry and |total| is
-# the total number of entries.
-method NavigationVisit*(self: NCNavigationEntryVisitor, entry: NCNavigationEntry,
-  current, index, total: int): bool {.base.} =
-  result = false
-
-# Method that will be executed when the PDF printing has completed. |path| is
-# the output path. |ok| will be true (1) if the printing completed
-# successfully or false (0) otherwise.
-method OnPdfPrintFinished*(self: NCPdfPrintCallback, path: string, ok: bool): bool {.base.} =
-  result = false
+wrapCallback(NCPdfPrintCallback, cef_pdf_print_callback):
+  # Method that will be executed when the PDF printing has completed. |path| is
+  # the output path. |ok| will be true (1) if the printing completed
+  # successfully or false (0) otherwise.
+  proc OnPdfPrintFinished*(self: T, path: string, ok: bool): bool
 
 # Returns the browser host object. This function can only be called in the
 # browser process.

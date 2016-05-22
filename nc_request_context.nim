@@ -1,4 +1,3 @@
-import cef/cef_request_context_handler_api, cef/cef_string_list_api
 import nc_request_context_handler, nc_callback, nc_settings
 import nc_cookie_manager, nc_scheme, nc_value, nc_util, nc_types
 import impl/nc_util_impl
@@ -25,7 +24,7 @@ wrapCallback(NCResolveCallback, cef_resolve_callback):
   # Called after the ResolveHost request has completed. |result| will be the
   # result code. |resolved_ips| will be the list of resolved IP addresses or
   # NULL if the resolution failed.
-  proc OnResolveCompleted*(self: NCResolveCallback, result: cef_errorcode, resolved_ips: seq[string])
+  proc OnResolveCompleted*(self: T, result: cef_errorcode, resolved_ips: seq[string])
 
 # Returns true (1) if this object is pointing to the same context as |that|
 # object.
@@ -75,11 +74,7 @@ proc GetDefaultCookieManager*(self: NCRequestContext, callback: NCCompletionCall
 # may be called on any thread in the browser process.
 proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_name: string,
   factory: NCSchemeHandlerFactory): bool =
-  
-  debugModeOn()
-  self.wrapCall(register_scheme_handler_factory, result, scheme_name, domain_name,
-    factory)
-  debugModeOff()
+  self.wrapCall(register_scheme_handler_factory, result, scheme_name, domain_name, factory)
   
 # Clear all registered scheme handler factories. Returns false (0) on error.
 # This function may be called on any thread in the browser process.

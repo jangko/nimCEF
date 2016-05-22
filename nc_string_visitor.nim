@@ -1,4 +1,4 @@
-import cef/cef_string_visitor_api, nc_util, nc_types, impl/nc_util_impl
+import cef/cef_string_visitor_api, nc_util, impl/nc_util_impl
 include cef/cef_import
 
 # Implement this structure to receive string values asynchronously.

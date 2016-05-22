@@ -10,6 +10,8 @@ wrapAPI(NCJsDialogCallback, cef_jsdialog_callback, false)
 proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
   self.wrapCall(cont, success, user_input)
   
+# Implement this structure to handle events related to JavaScript dialogs. The
+# functions of this structure will be called on the UI thread. 
 wrapCallback(NCJsDialogHandler, cef_jsdialog_handler):  
   # Called to run a JavaScript dialog. If |origin_url| and |accept_lang| are
   # non-NULL they can be passed to the CefFormatUrlForSecurityDisplay function

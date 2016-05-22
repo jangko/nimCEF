@@ -20,18 +20,11 @@ include cef/cef_sandbox_win
 # into the CefExecutProcess() and/or CefInitialize() functions.
 
 type
-  NCSandboxInfo* = ref object
-    handler: pointer
+  NCSandboxInfo* = pointer
 
 # Destroy the specified sandbox information object.
-proc sandbox_finalizer(self: NCSandboxInfo) =
-  cef_sandbox_info_destroy(self.handler)
+proc NCSandboxInfoDestroy*(self: NCSandboxInfo) =
+  cef_sandbox_info_destroy(self)
 
 proc NCSandboxInfoCreate*(): NCSandboxInfo =
-  new(result, sandbox_finalizer)
-  result.handler = cef_sandbox_info_create()
-
-proc GetHandler*(self: NCSandboxInfo): pointer =
-  if self == nil: return nil
-  result = self.handler
-
+  result = cef_sandbox_info_create()

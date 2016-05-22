@@ -9,6 +9,9 @@ wrapAPI(NCGeolocationCallback, cef_geolocation_callback, false)
 proc Continue*(self: NCGeolocationCallback, allow: bool): bool =
   self.wrapCall(cont, result, allow)
   
+# Implement this structure to handle events related to geolocation permission
+# requests. The functions of this structure will be called on the browser
+# process UI thread.  
 wrapCallback(NCGeolocationHandler, cef_geolocation_handler):  
   # Called when a page requests permission to access geolocation information.
   # |requesting_url| is the URL requesting permission and |request_id| is the

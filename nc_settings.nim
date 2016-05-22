@@ -448,7 +448,42 @@ proc to_cef*(ns: NCBrowserSettings): cef_browser_settings =
   result.webgl = ns.webgl
   result.background_color = ns.background_color
   result.accept_language_list <= ns.accept_language_list
-
+  
+proc to_nim*(ns: ptr cef_browser_settings): NCBrowserSettings =
+  result.windowless_frame_rate = ns.windowless_frame_rate.cint
+  result.standard_font_family = $(ns.standard_font_family.addr)
+  result.fixed_font_family = $(ns.fixed_font_family.addr)
+  result.serif_font_family = $(ns.serif_font_family.addr)
+  result.sans_serif_font_family = $(ns.sans_serif_font_family.addr)
+  result.cursive_font_family = $(ns.cursive_font_family.addr)
+  result.fantasy_font_family = $(ns.fantasy_font_family.addr)
+  result.default_font_size = ns.default_font_size.int
+  result.default_fixed_font_size = ns.default_fixed_font_size.int
+  result.minimum_font_size = ns.minimum_font_size.int
+  result.minimum_logical_font_size = ns.minimum_logical_font_size.int
+  result.default_encoding = $(ns.default_encoding.addr)
+  result.remote_fonts = ns.remote_fonts
+  result.javascript = ns.javascript
+  result.javascript_open_windows = ns.javascript_open_windows
+  result.javascript_close_windows = ns.javascript_close_windows
+  result.javascript_access_clipboard = ns.javascript_access_clipboard
+  result.javascript_dom_paste = ns.javascript_dom_paste
+  result.caret_browsing = ns.caret_browsing
+  result.plugins = ns.plugins
+  result.universal_access_from_file_urls = ns.universal_access_from_file_urls
+  result.file_access_from_file_urls = ns.file_access_from_file_urls
+  result.web_security = ns.web_security
+  result.image_loading = ns.image_loading
+  result.image_shrink_standalone_to_fit = ns.image_shrink_standalone_to_fit
+  result.text_area_resize = ns.text_area_resize
+  result.tab_to_links = ns.tab_to_links
+  result.local_storage = ns.local_storage
+  result.databases = ns.databases
+  result.application_cache = ns.application_cache
+  result.webgl = ns.webgl
+  result.background_color = ns.background_color
+  result.accept_language_list = $(ns.accept_language_list.addr)
+  
 proc nc_free*(cs: var cef_browser_settings) =
   cef_string_clear(cs.standard_font_family.addr)
   cef_string_clear(cs.fixed_font_family.addr)

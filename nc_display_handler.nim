@@ -1,6 +1,8 @@
 import nc_util, impl/nc_util_impl, cef/cef_display_handler_api, nc_types
 include cef/cef_import
 
+# Implement this structure to handle events related to browser display state.
+# The functions of this structure will be called on the UI thread.
 wrapCallback(NCDisplayHandler, cef_display_handler):
   # Called when a frame's address has changed.
   proc OnAddressChange*(self: T, browser: NCBrowser, frame: NCFrame, url: string)

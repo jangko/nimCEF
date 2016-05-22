@@ -47,24 +47,28 @@ type
 template app_to_app*(app: expr): expr =
   cast[NCApp](cast[ByteAddress](app) - sizeof(pointer))
 
+template nc_wrap*(x: ptr_cef_client): expr = nc_wrap(cast[ptr cef_client](x))
 template nc_wrap*(x: ptr_cef_browser): expr = nc_wrap(cast[ptr cef_browser](x))
 template nc_wrap*(x: ptr_cef_frame): expr = nc_wrap(cast[ptr cef_frame](x))
 template release*(x: ptr_cef_browser): expr = release(cast[ptr cef_browser](x))
+template release*(x: ptr_cef_client): expr = release(cast[ptr cef_client](x))
+template release*(x: ptr_cef_frame): expr = release(cast[ptr cef_frame](x))
 
 type
-  NCMainArgs* = ref object
-    handler: cef_main_args
+  NCMainArgs* = object
+    args: cef_main_args
+    
+proc to_cef*(nc: NCMainArgs): cef_main_args =
+  result = nc.args
 
-proc GetHandler*(arg: NCMainArgs): ptr cef_main_args {.inline.} =
-  result = arg.handler.addr
+proc nc_free*(nc: cef_main_args) = discard
 
 when defined(windows):
   import winapi
 
   proc makeNCMainArgs*(): NCMainArgs =
-    new(result)
-    result.handler.instance = getModuleHandle(nil)
-
+    result.args.instance = getModuleHandle(nil)
+   
 else:
   import os
 
@@ -72,16 +76,15 @@ else:
   var c_params: seq[cstring]
 
   proc makeNCMainArgs*(): NCMainArgs =
-    new(result)
     let count = paramCount()
-    result.handler.argc = count
+    result.args.argc = count
     nim_params = newSeq[string](count)
     c_params = newSeq[cstring](count+1)
     for i in 0.. <count:
       nim_params[i] = paramStr(i)
       c_params[i] = nim_params[i][0].addr
     c_params[count] = nil
-    result.handler.argv = cparams[0].addr
+    result.args.argv = cparams[0].addr
 
 when defined(windows):
   type
@@ -126,7 +129,21 @@ when defined(windows):
     result.windowless_rendering_enabled = nc.windowless_rendering_enabled.cint
     result.transparent_painting_enabled = nc.transparent_painting_enabled.cint
     result.window = nc.window
-
+    
+  proc to_nim*(nc: ptr cef_window_info): NCWindowInfo =
+    result.ex_style = nc.ex_style
+    result.window_name = $(nc.window_name.addr)
+    result.style = nc.style
+    result.x = nc.x.int
+    result.y = nc.y.int
+    result.width = nc.width.int
+    result.height = nc.height.int
+    result.parent_window = nc.parent_window
+    result.menu = nc.menu
+    result.windowless_rendering_enabled = nc.windowless_rendering_enabled == 1.cint
+    result.transparent_painting_enabled = nc.transparent_painting_enabled == 1.cint
+    result.window = nc.window
+    
   proc nc_free*(nc: var cef_window_info) =
     cef_string_clear(nc.window_name.addr)
 
@@ -301,6 +318,26 @@ type
     # available surface for rendering popup views.
     available_rect*: NCRect
     
+  # Popup window features.
+  NCPopupFeatures* = object
+    x*: int
+    xSet*: int
+    y*: int
+    ySet*: int
+    width*: int
+    widthSet*: int
+    height*: int
+    heightSet*: int
+    menuBarVisible*: bool
+    statusBarVisible*: bool
+    toolBarVisible*: bool
+    locationBarVisible*: bool
+    scrollbarsVisible*: bool
+    resizable*: bool
+    fullscreen*: bool
+    dialog*: bool
+    additionalFeatures*: seq[string]
+    
 proc to_cef*(nc: NCPoint): cef_point =
   result.x = nc.x.cint
   result.y = nc.x.cint
@@ -395,3 +432,23 @@ proc to_nim*(nc: ptr cef_screen_info): NCScreenInfo =
   result.is_monochrome = nc.is_monochrome == 1.cint
   result.rect = to_nim(nc.rect)
   result.available_rect = to_nim(nc.available_rect)
+  
+# Popup window features.
+proc to_nim*(nc: ptr cef_popup_features): NCPopupFeatures =
+  result.x = nc.x.int
+  result.xSet = nc.xSet.int
+  result.y = nc.y.int
+  result.ySet = nc.ySet.int
+  result.width = nc.width.int
+  result.widthSet = nc.widthSet.int
+  result.height = nc.height.int
+  result.heightSet = nc.heightSet.int
+  result.menuBarVisible = nc.menuBarVisible == 1.cint
+  result.statusBarVisible = nc.statusBarVisible == 1.cint
+  result.toolBarVisible = nc.toolBarVisible == 1.cint
+  result.locationBarVisible = nc.locationBarVisible == 1.cint
+  result.scrollbarsVisible = nc.scrollbarsVisible == 1.cint
+  result.resizable = nc.resizable == 1.cint
+  result.fullscreen = nc.fullscreen == 1.cint
+  result.dialog = nc.dialog == 1.cint
+  result.additionalFeatures = to_nim(nc.additionalFeatures)

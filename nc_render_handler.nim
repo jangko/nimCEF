@@ -1,6 +1,8 @@
 import nc_util, impl/nc_util_impl, cef/cef_render_handler_api, nc_types, nc_drag_data
 include cef/cef_import
 
+# Implement this structure to handle events when window rendering is disabled.
+# The functions of this structure will be called on the UI thread.
 wrapCallback(NCRenderHandler, cef_render_handler):   
   # Called to retrieve the root window rectangle in screen coordinates. Return
   # true (1) if the rectangle was provided.

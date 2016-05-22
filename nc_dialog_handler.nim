@@ -16,6 +16,8 @@ proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_pat
 proc Cancel*(self: NCFileDialogCallback) =
   self.wrapCall(cancel)
   
+# Implement this structure to handle dialog events. The functions of this
+# structure will be called on the browser process UI thread. 
 wrapCallback(NCDialogHandler, cef_dialog_handler):  
   # Called to run a file chooser dialog. |mode| represents the type of dialog
   # to display. |title| to the title to be used for the dialog and may be NULL

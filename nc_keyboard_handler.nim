@@ -1,6 +1,8 @@
 import nc_util, impl/nc_util_impl, cef/cef_keyboard_handler_api, nc_types
 include cef/cef_import
 
+# Implement this structure to handle events related to keyboard input. The
+# functions of this structure will be called on the UI thread.
 wrapCallback(NCKeyboardHandler, cef_keyboard_handler):   
   # Called before a keyboard event is sent to the renderer. |event| contains
   # information about the keyboard event. |os_event| is the operating system

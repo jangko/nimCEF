@@ -573,7 +573,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         error(lineinfo(res) & " unsupported ref result")
     of ntyBool:
       body = "result = $1($2) == 1.cint\n" % [calee, params]
-    of ntyInt64:
+    of ntyInt64, ntyInt:
       body = "result = $1($2)\n" % [calee, params]
     of ntyString:
       body = "result = to_nim($1($2))\n" % [calee, params]
@@ -685,7 +685,12 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
 
     case c.nType.typeKind
     of ntyPtr:
-      if checkCefPtr(c.nType):
+      if c.nType.kind == nnkSym:
+        if $c.nType == "cef_event_handle":
+          params.add $c.nName
+        else:
+          error("unknow ptr type")
+      elif checkCefPtr(c.nType):
         params.add "nc_wrap($1)" % [$c.nName]
         epiloque2.add "  release($1)\n" % [$c.nName]
       elif n.nType.typeKind == ntyString:
@@ -722,6 +727,10 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
         proloque.add "    var $1_p = $1.$2\n" % [$c.nName, $n.nType[0]]
         params.add "$1_p" % [$c.nName]
         epiloque.add "    $1 = $1_p.$2\n" % [$c.nName, $c.nType[0]]
+      elif n.nType[0].typeKind == ntyPointer:
+        proloque.add "    var $1_p = $1\n" % [$c.nName]
+        params.add "$1_p" % [$c.nName]
+        epiloque.add "    $1 = $1_p\n" % [$c.nName]      
       elif n.nType[0].typeKind == ntyBool:
         proloque.add "    var $1_p = $1 == 1.$2\n" % [$c.nName, $c.nType[0]]
         params.add "$1_p" % [$c.nName]
@@ -733,7 +742,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       elif n.nType[0].typeKind == ntyRef:
         proloque.add "    var $1_p: $2\n" % [$n.nName, $n.nType[0]]
         params.add "$1_p" % [$n.nName]
-        epiloque.add "    $1 = $1_p.GetHandler()\n" % [$n.nName]
+        epiloque.add "    $1 = cast[$2]($1_p.GetHandler())\n" % [$n.nName, c.nType[0].toStrLit().strVal()]
       else:
         error("unknown var param " & $n.nType[0].typeKind)
     of ntyFloat:
@@ -787,11 +796,12 @@ macro wrapMethods*(nc, n, c: typed): stmt =
 
   result = parseStmt(glue & constructor)
 
-macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
+proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool): string =
   let nc_name = make_nc_name($cef)
 
   var glue = ""
-  glue.add "wrapAPI($1, $2, false)\n" % [$nc, $cef]
+  if wrapAPI: 
+    glue.add "wrapAPI($1, $2, false)\n" % [$nc, $cef]
   glue.add "type\n"
   glue.add "  $1_i*[T] = object\n" % [nc_name]
 
@@ -806,5 +816,13 @@ macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
 
   if wrapDebugMode:
     echo glue
-
+    
+  result = glue
+  
+macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
+  let glue = wrapCallbackImpl(nc, cef, methods, true)
+  result = parseStmt(glue)
+  
+macro wrapHandler*(nc: untyped, cef: typed, methods: untyped): stmt =
+  let glue = wrapCallbackImpl(nc, cef, methods, false)
   result = parseStmt(glue)

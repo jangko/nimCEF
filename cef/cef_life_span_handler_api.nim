@@ -1,6 +1,9 @@
 import cef_base_api, cef_frame_api, cef_string_api
 include cef_import
 
+# Implement this interface to handle events related to browser life span. The
+# methods of this class will be called on the UI thread unless otherwise
+# indicated.
 type
   cef_life_span_handler* = object
     base*: cef_base

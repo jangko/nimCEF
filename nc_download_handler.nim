@@ -27,6 +27,8 @@ wrapAPI(NCBeforeDownloadCallback, cef_before_download_callback, false)
 proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
   self.wrapCall(cont, download_path, show_dialog)
   
+# Structure used to handle file downloads. The functions of this structure will
+# called on the browser process UI thread. 
 wrapCallback(NCDownloadHandler, cef_download_handler):  
   # Called before a download begins. |suggested_name| is the suggested name for
   # the download file. By default the download will be canceled. Execute

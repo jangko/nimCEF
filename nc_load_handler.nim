@@ -1,6 +1,9 @@
 import nc_util, impl/nc_util_impl, cef/cef_load_handler_api, nc_types
 include cef/cef_import
 
+# Implement this structure to handle events related to browser load status. The
+# functions of this structure will be called on the browser process UI thread
+# or render process main thread (TID_RENDERER).
 wrapCallback(NCLoadHandler, cef_load_handler):     
   # Called when the loading state has changed. This callback will be executed
   # twice -- once when loading is initiated either programmatically or by user

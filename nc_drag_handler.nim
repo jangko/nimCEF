@@ -2,6 +2,8 @@ import nc_util, impl/nc_util_impl, cef/cef_types
 import nc_types, nc_drag_data, cef/cef_drag_handler_api
 include cef/cef_import
 
+# Implement this structure to handle events related to dragging. The functions
+# of this structure will be called on the UI thread.
 wrapCallback(NCDragHandler, cef_drag_handler):
   # Called when an external drag event enters the browser window. |dragData|
   # contains the drag event data and |mask| represents the type of drag

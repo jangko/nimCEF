@@ -13,7 +13,9 @@ proc Continue*(self: NCRunContextMenuCallback, command_id: int, event_flags: cef
 # Cancel context menu display.
 proc Cancel*(self: NCRunContextMenuCallback) =
   self.wrapCall(cancel)
-    
+  
+# Implement this structure to handle context menu events. The functions of this
+# structure will be called on the UI thread.    
 wrapCallback(NCContextMenuHandler, cef_context_menu_handler):  
   # Called before a context menu is displayed. |params| provides information
   # about the context menu state. |model| initially contains the default

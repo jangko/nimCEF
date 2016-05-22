@@ -1,28 +1,26 @@
 import winapi, os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
-import nc_context_menu_params, nc_browser, nc_settings
+import nc_context_menu_params, nc_browser, nc_settings, nc_context_menu_handler
+import nc_life_span_handler
 
 type
   myClient = ref object of NCClient
     abc: int
     name: string
+    cmh: NCContextMenuHandler
+    lsh: NCLifeSpanHandler
 
   myApp = ref object of NCApp
 
-proc newClient(no: int, name: string): myClient =
-  result = makeNCClient(myClient, {NCCF_LIFE_SPAN, NCCF_CONTEXT_MENU})
-  result.abc = no
-  result.name = name
-
-method OnBeforeClose(self: myClient, browser: NCBrowser) =
+proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
   NCQuitMessageLoop()
-  echo "close: ", self.name, " no: ", self.abc
+  #echo "close: ", self.name, " no: ", self.abc
 
 const
   MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
   MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
-
-method OnBeforeContextMenu(self: myClient, browser: NCBrowser,
+  
+proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
   discard model.AddSeparator()
   discard model.AddItem(MY_MENU_ID, "Hello There")
@@ -31,7 +29,7 @@ method OnBeforeContextMenu(self: myClient, browser: NCBrowser,
   echo "frame URL: ", params.GetFrameUrl()
   echo "link URL: ", params.GetLinkUrl()
 
-method OnContextMenuCommand(self: myClient, browser: NCBrowser,
+proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
   event_flags: cef_event_flags): int =
 
@@ -41,18 +39,47 @@ method OnContextMenuCommand(self: myClient, browser: NCBrowser,
   if command_id == MY_QUIT_ID:
     var host = browser.GetHost()
     host.CloseBrowser(true)
+    
+var lshimpl = nc_life_span_handler_i[NCLifeSpanHandler](
+  OnBeforeClose: OnBeforeClose
+)
+
+var cmhimpl = nc_context_menu_handler_i[NCContextMenuHandler](
+  OnBeforeContextMenu:OnBeforeContextMenu,
+  OnContextMenuCommand:OnContextMenuCommand
+)
+
+proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
+  return self.cmh
+
+proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
+  return self.lsh
+    
+var clientimpl = nc_client_i[myClient](
+  GetContextMenuHandler: GetContextMenuHandler,
+  GetLifeSpanHandler: GetLifeSpanHandler
+)
+
+proc newClient(no: int, name: string): myClient =
+  result = makeNCClient(clientimpl)
+  result.abc = no
+  result.name = name
+  result.cmh = makeNCContextMenuHandler(cmhimpl)
+  result.lsh = makeNCLifeSpanHandler(lshimpl)
+
+var appimpl = nc_app_i[myApp]()
 
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
-  var app = makeNCApp(myApp, {})
+  var app = makeNCApp(appimpl)
 
   var code = NCExecuteProcess(mainArgs, app)
   if code >= 0:
     echo "failure execute process ", code
     quit(code)
 
-  var settings = makeNCSettings()
+  var settings = NCSettings()
   settings.no_sandbox = true
   discard NCInitialize(mainArgs, settings, app)
   echo "cef_initialize thread id: ", getCurrentThreadId()
@@ -71,7 +98,7 @@ proc main() =
 
   #Browser settings.
   #It is mandatory to set the "size" member.
-  var browserSettings = makeNCBrowserSettings()
+  var browserSettings = NCBrowserSettings()
   var client = newClient(123, "hello")
 
   # Create browser.

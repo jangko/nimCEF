@@ -2,6 +2,9 @@ import nc_util, impl/nc_util_impl, cef/cef_life_span_handler_api
 import nc_types, nc_drag_data, nc_settings
 include cef/cef_import
 
+# Implement this interface to handle events related to browser life span. The
+# methods of this class will be called on the UI thread unless otherwise
+# indicated.
 wrapCallback(NCLifeSpanHandler, cef_life_span_handler):  
   # Called on the IO thread before a new popup browser is created. The
   # |browser| and |frame| values represent the source of the popup request. The
@@ -23,7 +26,7 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
       target_url, target_frame_name: string,
       target_disposition: cef_window_open_disposition, user_gesture: int,
       popupFeatures: NCPopupFeatures,
-      windowInfo: NCWindowInfo, client: NCClient,
+      windowInfo: NCWindowInfo, client: var NCClient,
       settings: NCBrowserSettings, no_javascript_access: var int): int
 
   # Called after a new browser is created.

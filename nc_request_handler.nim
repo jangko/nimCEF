@@ -16,6 +16,8 @@ proc Continue*(self: NCRequestCallback, allow: bool) =
 proc Cancel*(self: NCRequestCallback) =
   self.wrapCall(cancel)
   
+# Implement this structure to handle events related to browser requests. The
+# functions of this structure will be called on the thread indicated. 
 wrapCallback(NCRequestHandler, cef_request_handler):  
   # Called on the UI thread before browser navigation. Return true (1) to
   # cancel the navigation or false (0) to allow the navigation to proceed. The

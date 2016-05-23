@@ -1,5 +1,6 @@
 import nc_types, cef/cef_browser_api, nc_util, nc_process_message, nc_client
 import nc_request_context, nc_settings, nc_navigation_entry, impl/nc_util_impl
+import nc_drag_data
 include cef/cef_import
 
 # Callback structure for NCBrowserHost::RunFileDialog. The functions of
@@ -288,20 +289,20 @@ proc Invalidate*(self: NCBrowserHost, ptype: cef_paint_element_type) =
   self.wrapCall(invalidate, ptype)
 
 # Send a key event to the browser.
-proc SendKeyEvent*(self: NCBrowserHost, event: ptr cef_key_event) =
-  discard #self.wrapCall(send_key_event, event)
+proc SendKeyEvent*(self: NCBrowserHost, event: NCKeyEvent) =
+  self.wrapCall(send_key_event, event)
 
 # Send a mouse click event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
-proc SendMouseClickEvent*(self: NCBrowserHost, event: ptr cef_mouse_event,
+proc SendMouseClickEvent*(self: NCBrowserHost, event: NCMouseEvent,
   ptype: cef_mouse_button_type, mouseUp: bool, clickCount: int) =
-  discard #self.wrapCall(send_mouse_click_event, event, ptype, mouseUp, clickCount)
+  self.wrapCall(send_mouse_click_event, event, ptype, mouseUp, clickCount)
 
 # Send a mouse move event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
 proc SendMouseMoveEvent*(self: NCBrowserHost,
-  event: ptr cef_mouse_event, mouseLeave: bool) =
-  discard #self.wrapCall(send_mouse_move_event, event, mouseLeave)
+  event: NCMouseEvent, mouseLeave: bool) =
+  self.wrapCall(send_mouse_move_event, event, mouseLeave)
 
 # Send a mouse wheel event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view. The |deltaX| and |deltaY|
@@ -309,8 +310,8 @@ proc SendMouseMoveEvent*(self: NCBrowserHost,
 # In order to scroll inside select popups with window rendering disabled
 # cef_render_handler_t::GetScreenPoint should be implemented properly.
 proc SendMouseWheelEvent*(self: NCBrowserHost,
-  event: ptr cef_mouse_event, deltaX, deltaY: int) =
-  discard #self.wrapCall(send_mouse_wheel_event, event, deltaX, deltaY)
+  event: NCMouseEvent, deltaX, deltaY: int) =
+  self.wrapCall(send_mouse_wheel_event, event, deltaX, deltaY)
 
 # Send a focus event to the browser.
 proc SendFocusEvent*(self: NCBrowserHost, setFocus: bool) =
@@ -349,11 +350,11 @@ proc GetNstextInputContext*(self: NCBrowserHost): cef_text_input_context =
 # Handles a keyDown event prior to passing it through the NSTextInputClient
 # machinery.
 proc HandleKeyEventBeforeTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
-  discard #self.wrapCall(handle_key_event_before_text_input_client, keyEvent)
+  self.wrapCall(handle_key_event_before_text_input_client, keyEvent)
 
 # Performs any additional actions after NSTextInputClient handles the event.
 proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
-  discard #self.wrapCall(handle_key_event_after_text_input_client, keyEvent)
+  self.wrapCall(handle_key_event_after_text_input_client, keyEvent)
 
 # Call this function when the user drags the mouse into the web view (before
 # calling DragTargetDragOver/DragTargetLeave/DragTargetDrop). |drag_data|
@@ -362,17 +363,17 @@ proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_even
 # cef_drag_data_t::ResetFileContents (for example, if |drag_data| comes from
 # cef_render_handler_t::StartDragging). This function is only used when
 # window rendering is disabled.
-proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: ptr cef_drag_data,
-  event: ptr cef_mouse_event, allowed_ops: cef_drag_operations_mask) =
-  discard #self.wrapCall(drag_target_drag_enter, drag_data, event, allowed_ops)
+proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: NCDragData,
+  event: NCMouseEvent, allowed_ops: cef_drag_operations_mask) =
+  self.wrapCall(drag_target_drag_enter, drag_data, event, allowed_ops)
 
 # Call this function each time the mouse is moved across the web view during
 # a drag operation (after calling DragTargetDragEnter and before calling
 # DragTargetDragLeave/DragTargetDrop). This function is only used when window
 # rendering is disabled.
-proc DragTargetDragOver*(self: NCBrowserHost, event: ptr cef_mouse_event,
+proc DragTargetDragOver*(self: NCBrowserHost, event: NCMouseEvent,
   allowed_ops: cef_drag_operations_mask) =
-  discard #self.wrapCall(drag_target_drag_over, event, allowed_ops)
+  self.wrapCall(drag_target_drag_over, event, allowed_ops)
 
 # Call this function when the user drags the mouse out of the web view (after
 # calling DragTargetDragEnter). This function is only used when window
@@ -385,8 +386,8 @@ proc DragTargetDragLeave*(self: NCBrowserHost) =
 # object being dropped is |drag_data|, given as an argument to the previous
 # DragTargetDragEnter call. This function is only used when window rendering
 # is disabled.
-proc DragTargetDrop*(self: NCBrowserHost, event: ptr cef_mouse_event) =
-  discard #self.wrapCall(drag_target_drop, event)
+proc DragTargetDrop*(self: NCBrowserHost, event: NCMouseEvent) =
+  self.wrapCall(drag_target_drop, event)
 
 # Call this function when the drag operation started by a
 # cef_render_handler_t::StartDragging call has ended either in a drop or by

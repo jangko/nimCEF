@@ -347,14 +347,12 @@ proc GetKeys*(self: NCV8Value): seq[string] =
 # false (0) if this function is called incorrectly. This function can only be
 # called on user created objects.
 proc SetUserData*(self: NCV8Value, user_data: ptr cef_base): bool =
-  #user_data.add_ref(user_data)
-  #self.wrapCall(set_user_data, result, user_data)
-  discard
+  user_data.add_ref(user_data)
+  self.wrapCall(set_user_data, result, user_data)
 
 # Returns the user data, if any, assigned to this object.
 proc GetUserData*(self: NCV8Value): ptr cef_base =
-  #self.wrapCall(get_user_data, result)
-  discard
+  self.wrapCall(get_user_data, result)
 
 # Returns the amount of externally allocated memory registered for the
 # object.

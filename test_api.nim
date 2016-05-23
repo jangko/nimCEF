@@ -1,3 +1,5 @@
+import nc_util
+
 import cef/cef_path_util_api, cef/cef_string_visitor_api, cef/cef_auth_callback_api
 import cef/cef_process_util_api, cef/cef_callback_api, cef/cef_geolocation_api, cef/cef_find_handler_api
 import cef/cef_process_message_api, cef/cef_drag_handler_api, cef/cef_focus_handler_api
@@ -31,3 +33,5 @@ import nc_keyboard_handler, nc_life_span_handler, nc_load_handler
 import nc_render_handler, nc_request_handler
 import nc_render_process_handler, nc_resource_bundle_handler
 import nc_browser_process_handler
+
+printWrapStat()

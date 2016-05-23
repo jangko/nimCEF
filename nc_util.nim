@@ -115,25 +115,24 @@ template release*(elem: expr) =
 template has_one_ref*(elem: expr): expr =
   elem.base.has_one_ref(cast[ptr cef_base](elem))
 
-proc nc_add_ref*(self: ptr cef_base) {.cef_callback.} = discard
-proc nc_release*(self: ptr cef_base): cint {.cef_callback.} = 1
-proc nc_has_one_ref*(self: ptr cef_base): cint {.cef_callback.} = 1
+var
+  wrapDebugMode    {.compileTime.} = false
+  wrapCallStat     {.compileTime.} = 0
+  wrapProcStat     {.compileTime.} = 0
+  wrapMethodStat   {.compileTime.} = 0
+  wrapAPIStat      {.compileTime.} = 0
+  wrapCallbackStat {.compileTime.} = 0
 
-proc initialize_cef_base*(base: ptr cef_base) =
-  let size = base.size
-  if size <= 0:
-    echo "FATAL: initialize_cef_base failed, size member not set"
-    quit(1)
-
-  base.add_ref = nc_add_ref
-  base.release = nc_release
-  base.has_one_ref = nc_has_one_ref
-
-proc init_base*[T](elem: T) =
-  elem.base.size = sizeof(elem[])
-  initialize_cef_base(cast[ptr cef_base](elem))
+macro printWrapStat*(): stmt =
+  echo "wrapCall    : ", wrapCallStat
+  echo "wrapProc    : ", wrapProcStat
+  echo "wrapMethod  : ", wrapMethodStat
+  echo "wrapAPI     : ", wrapAPIStat
+  echo "wrapCallback: ", wrapCallbackStat
 
 macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
+  inc(wrapAPIStat)
+  
   if importUtil.boolVal():
     var exim = "import impl/nc_util_impl, cef/" & $base & "_api\n"
     exim.add "export " & $base & "_api\n"
@@ -159,9 +158,6 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
       new(`res`, nc_finalizer)
       `res`.handler = handler
       add_ref(handler)
-
-var
-  wrapDebugMode {.compileTime.} = false
 
 macro debugModeOn*(): stmt =
   wrapDebugMode = true
@@ -275,6 +271,8 @@ proc getBaseType(n: NimNode): string =
   result = $n
 
 macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
+  inc(wrapCallStat)
+  
   # Sanitary Check
   let
     selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
@@ -385,6 +383,11 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
       params.add "arg$1.addr" % [argi]
       epiloque.add "nc_free(arg$1)\n" % [argi]
+    of ntyPtr:
+      let cType = getType(rout)[i - startIndex + 3]
+      let nType = getType(arg)
+      if sameType(cType, nType):
+        params.add argv
     else:
       error(lineinfo(arg) & " unsupported param type: " & $arg.typeKind)
 
@@ -471,6 +474,11 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         body = "result = $1($2)\n" % [calee, params]
       else:
         error(lineinfo(res) & " unsupported return distinct: " & $T)
+    of ntyPtr:
+      let cType = getType(rout)[1]
+      let nType = getType(res)
+      if sameType(cType, nType):
+        body = "result = $1($2)\n" % [calee, params]
     else:
       error(lineinfo(res) & " unsupported return type: " & $res.typeKind)
   else:
@@ -484,6 +492,8 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   result = parseStmt(proloque & body & epiloque)
 
 macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
+  inc(wrapProcStat)
+  
   let hasResult = routineHasResult(routine)
   let argSize = args.len-1
 
@@ -642,6 +652,8 @@ proc isNCSeq(n: NimNode): bool =
 var global_iidx {.compileTime.} = 0
 
 proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
+  inc(wrapMethodStat)
+  
   let nname = getValidProcName(nproc[0])
   let cname = getValidProcName(cproc[0])
   let nparams = nproc[1][0]
@@ -797,6 +809,8 @@ macro wrapMethods*(nc, n, c: typed): stmt =
   result = parseStmt(glue & constructor)
 
 proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool): string =
+  inc(wrapCallbackStat)
+  
   let nc_name = make_nc_name($cef)
 
   var glue = ""

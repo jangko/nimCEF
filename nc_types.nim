@@ -25,28 +25,6 @@ wrapAPI(NCBrowserHost, cef_browser_host, false)
 # Implement this structure to provide handler implementations.
 wrapAPI(NCClient, cef_client, false)
 
-type
-  #choose what kind of handler you want to exposed to your app
-  NCClientCreateFlag* = enum
-    NCCF_CONTEXT_MENU
-    NCCF_LIFE_SPAN
-    NCCF_DRAG
-    NCCF_DISPLAY
-    NCCF_FOCUS
-    NCCF_KEYBOARD
-    NCCF_LOAD
-    NCCF_RENDER
-    NCCF_DIALOG
-    NCCF_DOWNLOAD
-    NCCF_GEOLOCATION
-    NCCF_JSDIALOG
-    NCCF_REQUEST
-
-  NCCFS* = set[NCClientCreateFlag]
-
-template app_to_app*(app: expr): expr =
-  cast[NCApp](cast[ByteAddress](app) - sizeof(pointer))
-
 template nc_wrap*(x: ptr_cef_client): expr = nc_wrap(cast[ptr cef_client](x))
 template nc_wrap*(x: ptr_cef_browser): expr = nc_wrap(cast[ptr cef_browser](x))
 template nc_wrap*(x: ptr_cef_frame): expr = nc_wrap(cast[ptr cef_frame](x))
@@ -337,7 +315,19 @@ type
     fullscreen*: bool
     dialog*: bool
     additionalFeatures*: seq[string]
-    
+
+  # Structure representing mouse event information.
+  NCMouseEvent* = object
+    # X coordinate relative to the left side of the view.
+    x*: int
+
+    # Y coordinate relative to the top side of the view.
+    y*: int
+
+    # Bit flags describing any pressed modifier keys. See
+    # cef_event_flags_t for values.
+    modifiers*: uint32
+
 proc to_cef*(nc: NCPoint): cef_point =
   result.x = nc.x.cint
   result.y = nc.x.cint
@@ -452,3 +442,10 @@ proc to_nim*(nc: ptr cef_popup_features): NCPopupFeatures =
   result.fullscreen = nc.fullscreen == 1.cint
   result.dialog = nc.dialog == 1.cint
   result.additionalFeatures = to_nim(nc.additionalFeatures)
+  
+proc to_cef*(nc: NCMouseEvent): cef_mouse_event =
+  result.x = nc.x.cint
+  result.y = nc.y.cint
+  result.modifiers = nc.modifiers
+  
+template nc_free*(nc: cef_mouse_event) = discard

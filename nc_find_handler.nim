@@ -4,7 +4,7 @@ include cef/cef_import
 
 # Implement this structure to handle events related to find results. The
 # functions of this structure will be called on the UI thread.
-wrapCallback(NCFindHandler, cef_find_handler):  
+wrapCallback(NCFindHandler, cef_find_handler):
   # Called to report find results returned by cef_browser_host_t::find().
   # |identifer| is the identifier passed to find(), |count| is the number of
   # matches currently identified, |selectionRect| is the location of where the

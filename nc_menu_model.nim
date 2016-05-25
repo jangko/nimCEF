@@ -93,7 +93,7 @@ proc GetLabel*(self: NCMenuModel, command_id: cef_menu_id): string =
 # invalid range or the index being a separator.
 # The resulting string must be freed by calling nc_free*().
 proc GetLabelAt*(self: NCMenuModel, index: int): string =
-  self.wrapCall(get_label_at, result, index)  
+  self.wrapCall(get_label_at, result, index)
 
 # Sets the label for the specified |command_id|. Returns true *(1) on success.
 proc SetLabel*(self: NCMenuModel, command_id: cef_menu_id, label: string): bool =

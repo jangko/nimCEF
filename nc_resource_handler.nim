@@ -10,7 +10,7 @@ wrapCallback(NCResourceHandler, cef_resource_handler):
   # function if header information is available immediately). To cancel the
   # request return false (0).
   proc ProcessRequest*(self: T, request: NCRequest, callback: NCCallback): bool
-  
+
   # Retrieve response header information. If the response length is not known
   # set |response_length| to -1 and read_response() will be called until it
   # returns false (0). If the response length is known set |response_length| to

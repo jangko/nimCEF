@@ -11,7 +11,7 @@ wrapCallback(NCDragHandler, cef_drag_handler):
   # to cancel the drag event.
   proc OnDragEnter*(self: T, browser: NCBrowser, dragData: NCDragData,
     mask: cef_drag_operations_mask): bool
-    
+
   # Called whenever draggable regions for the browser window change. These can
   # be specified using the '-webkit-app-region: drag/no-drag' CSS-property. If
   # draggable regions are never defined in a document this function will also

@@ -177,7 +177,7 @@ proc GetData*(self: NCBinaryValue, buffer: pointer, buffer_size, data_offset: in
 proc GetDataAsString*(self: NCBinaryValue): string =
   result = newString(self.GetSize())
   if self.GetData(result.cstring, result.len, 0) != result.len: doAssert(false)
-  
+
 # Returns true (1) if this object is valid. This object may become invalid if
 # the underlying data is owned by another object (e.g. list or dictionary)
 # and that other object is then modified or destroyed. Do not call any other

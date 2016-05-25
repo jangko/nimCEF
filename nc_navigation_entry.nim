@@ -7,7 +7,7 @@ wrapAPI(NCNavigationEntry, cef_navigation_entry)
 # if this function returns false (0).
 proc IsValid*(self: NCNavigationEntry): bool =
   self.wrapCall(is_valid, result)
-  
+
 # Returns the actual URL of the page. For some pages this may be data: URL or
 # similar. Use get_display_url() to return a display-friendly version.
 # The resulting string must be freed by calling string_free().

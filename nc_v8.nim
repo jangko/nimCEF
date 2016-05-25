@@ -54,7 +54,7 @@ wrapCallback(NCV8Handler, cef_v8handler):
 proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
   retval: var NCV8Value, exception: string): bool =
   self.wrapCall(execute, result, name, obj, args, retval, exception)
-  
+
 # Returns the task runner associated with this context. V8 handles can only
 # be accessed from the thread on which they are created. This function can be
 # called on any render process thread.

@@ -18,7 +18,7 @@ include cef/cef_import
 # first request context passed into a cef_browser_host_t static factory
 # function and all other request context objects will be ignored.
 wrapAPI(NCRequestContext, cef_request_context)
-    
+
 # Callback structure for cef_request_tContext::ResolveHost.
 wrapCallback(NCResolveCallback, cef_resolve_callback):
   # Called after the ResolveHost request has completed. |result| will be the
@@ -75,7 +75,7 @@ proc GetDefaultCookieManager*(self: NCRequestContext, callback: NCCompletionCall
 proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_name: string,
   factory: NCSchemeHandlerFactory): bool =
   self.wrapCall(register_scheme_handler_factory, result, scheme_name, domain_name, factory)
-  
+
 # Clear all registered scheme handler factories. Returns false (0) on error.
 # This function may be called on any thread in the browser process.
 proc ClearSchemeHandlerFactories*(self: NCRequestContext): bool =
@@ -125,7 +125,7 @@ proc CanSetPreference*(self: NCRequestContext, name: string): bool =
 # problem. This function must be called on the browser process UI thread.
 proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error: var string): bool =
   self.wrapCall(set_preference, result, name, value, error)
-  
+
 # Clears all certificate exceptions that were added as part of handling
 # cef_request_tHandler::on_certificate_error(). If you call this it is
 # recommended that you also call close_all_connections() or you risk not

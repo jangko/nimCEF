@@ -87,7 +87,7 @@ proc AppendSwitch*(self: NCCommandLine, name: string) =
 # Add a switch with the specified value to the end of the command line.
 proc AppendSwitchWithValue*(self: NCCommandLine, name, value: string) =
   self.wrapCall(append_switch_with_value, name, value)
-  
+
 # True if there are remaining command line arguments.
 proc HasArguments*(self: NCCommandLine): bool =
   self.wrapCall(has_arguments, result)

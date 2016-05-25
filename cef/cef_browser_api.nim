@@ -89,7 +89,7 @@ type
   # in the comments.
   cef_browser_host* = object
     base*: cef_base
-    
+
     # Returns the hosted browser object.
     get_browser*: proc(self: ptr cef_browser_host): ptr cef_browser {.cef_callback.}
 
@@ -361,7 +361,7 @@ type
   # this structure will be called on the browser process UI thread.
   cef_run_file_dialog_callback* = object
     base*: cef_base
-    
+
     # Called asynchronously after the file dialog is dismissed.
     # |selected_accept_filter| is the 0-based index of the value selected from
     # the accept filters array passed to cef_browser_host_t::RunFileDialog.
@@ -376,7 +376,7 @@ type
 
   cef_navigation_entry_visitor* = object
     base*: cef_base
-    
+
     # Method that will be executed. Do not keep a reference to |entry| outside of
     # this callback. Return true (1) to continue visiting entries or false (0) to
     # stop. |current| is true (1) if this entry is the currently loaded
@@ -391,7 +391,7 @@ type
 
   cef_pdf_print_callback* = object
     base*: cef_base
-    
+
     # Method that will be executed when the PDF printing has completed. |path| is
     # the output path. |ok| will be true (1) if the printing completed
     # successfully or false (0) otherwise.

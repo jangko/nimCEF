@@ -41,7 +41,7 @@ proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
 # This function must be called on the browser process UI thread.
 proc NCEndTracing*(tracing_file: string, callback: NCEndTracingCallback): bool =
   wrapProc(cef_end_tracing, result, tracing_file, callback)
-  
+
 # Returns the current system trace time or, if none is defined, the current
 # high-res time. Can be used by clients to synchronize with the time
 # information in trace events.

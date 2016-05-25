@@ -17,14 +17,14 @@ wrapCallback(NCApp, cef_app):
   # modify command-line arguments for non-browser processes as this may result
   # in undefined behavior including crashes.
   proc OnBeforeCommandLineProcessing*(self: T, process_type: string, command_line: NCCommandLine)
-  
+
   #--NCApp
   # Provides an opportunity to register custom schemes. Do not keep a reference
   # to the |registrar| object. This function is called on the main thread for
   # each process and the registered schemes should be the same across all
   # processes.
   proc OnRegisterCustomSchemes*(self: T, registrar: NCSchemeRegistrar)
-  
+
   # Return the handler for resource bundle events. If
   # CefSettings.pack_loading_disabled is true (1) a handler must be returned.
   # If no handler is returned resources will be loaded from pack files. This
@@ -38,7 +38,7 @@ wrapCallback(NCApp, cef_app):
   # Return the handler for functionality specific to the render process. This
   # function is called on the render process main thread.
   proc GetRenderProcessHandler*(self: T): NCRenderProcessHandler
-    
+
 # This function should be called from the application entry point function to
 # execute a secondary process. It can be used to run secondary processes from
 # the browser client executable (default behavior) or from a separate
@@ -58,7 +58,7 @@ proc NCExecuteProcess*(args: NCMainArgs, application: NCApp, windows_sandbox_inf
 # failed. The |windows_sandbox_info| parameter is only used on Windows and may
 # be NULL (see cef_sandbox_win.h for details).
 proc NCInitialize*(args: NCMainArgs, settings: NCSettings,
-  application: NCApp, windows_sandbox_info: NCSandboxInfo = nil): bool =  
+  application: NCApp, windows_sandbox_info: NCSandboxInfo = nil): bool =
   wrapProc(cef_initialize, result, args, settings, application, windows_sandbox_info)
 
 # This function should be called on the main application thread to shut down

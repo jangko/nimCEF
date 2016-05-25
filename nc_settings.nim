@@ -448,7 +448,7 @@ proc to_cef*(ns: NCBrowserSettings): cef_browser_settings =
   result.webgl = ns.webgl
   result.background_color = ns.background_color
   result.accept_language_list <= ns.accept_language_list
-  
+
 proc to_nim*(ns: ptr cef_browser_settings): NCBrowserSettings =
   result.windowless_frame_rate = ns.windowless_frame_rate.cint
   result.standard_font_family = $(ns.standard_font_family.addr)
@@ -483,7 +483,7 @@ proc to_nim*(ns: ptr cef_browser_settings): NCBrowserSettings =
   result.webgl = ns.webgl
   result.background_color = ns.background_color
   result.accept_language_list = $(ns.accept_language_list.addr)
-  
+
 proc nc_free*(cs: var cef_browser_settings) =
   cef_string_clear(cs.standard_font_family.addr)
   cef_string_clear(cs.fixed_font_family.addr)

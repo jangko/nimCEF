@@ -132,7 +132,7 @@ macro printWrapStat*(): stmt =
 
 macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
   inc(wrapAPIStat)
-  
+
   if importUtil.boolVal():
     var exim = "import impl/nc_util_impl, cef/" & $base & "_api\n"
     exim.add "export " & $base & "_api\n"
@@ -272,7 +272,7 @@ proc getBaseType(n: NimNode): string =
 
 macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   inc(wrapCallStat)
-  
+
   # Sanitary Check
   let
     selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
@@ -493,7 +493,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
 
 macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
   inc(wrapProcStat)
-  
+
   let hasResult = routineHasResult(routine)
   let argSize = args.len-1
 
@@ -653,7 +653,7 @@ var global_iidx {.compileTime.} = 0
 
 proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
   inc(wrapMethodStat)
-  
+
   let nname = getValidProcName(nproc[0])
   let cname = getValidProcName(cproc[0])
   let nparams = nproc[1][0]
@@ -742,7 +742,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       elif n.nType[0].typeKind == ntyPointer:
         proloque.add "    var $1_p = $1\n" % [$c.nName]
         params.add "$1_p" % [$c.nName]
-        epiloque.add "    $1 = $1_p\n" % [$c.nName]      
+        epiloque.add "    $1 = $1_p\n" % [$c.nName]
       elif n.nType[0].typeKind == ntyBool:
         proloque.add "    var $1_p = $1 == 1.$2\n" % [$c.nName, $c.nType[0]]
         params.add "$1_p" % [$c.nName]
@@ -774,6 +774,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
     of ntyPtr:
       if checkCefPtr(cres):
         body = "    result = $1($2).GetHandler()\n" % [calee, params]
+        body.add "    add_ref(result)\n"
       else:
         error("unknown ptr type")
     of ntyObject:
@@ -810,11 +811,11 @@ macro wrapMethods*(nc, n, c: typed): stmt =
 
 proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool): string =
   inc(wrapCallbackStat)
-  
+
   let nc_name = make_nc_name($cef)
 
   var glue = ""
-  if wrapAPI: 
+  if wrapAPI:
     glue.add "wrapAPI($1, $2, false)\n" % [$nc, $cef]
   glue.add "type\n"
   glue.add "  $1_i*[T] = object\n" % [nc_name]
@@ -830,13 +831,13 @@ proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool
 
   if wrapDebugMode:
     echo glue
-    
+
   result = glue
-  
+
 macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
   let glue = wrapCallbackImpl(nc, cef, methods, true)
   result = parseStmt(glue)
-  
+
 macro wrapHandler*(nc: untyped, cef: typed, methods: untyped): stmt =
   let glue = wrapCallbackImpl(nc, cef, methods, false)
   result = parseStmt(glue)

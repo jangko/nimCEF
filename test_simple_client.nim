@@ -19,7 +19,7 @@ proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
 const
   MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
   MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
-  
+
 proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
   frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
   discard model.AddSeparator()
@@ -39,7 +39,7 @@ proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
   if command_id == MY_QUIT_ID:
     var host = browser.GetHost()
     host.CloseBrowser(true)
-    
+
 var lshimpl = nc_life_span_handler_i[NCLifeSpanHandler](
   OnBeforeClose: OnBeforeClose
 )
@@ -54,7 +54,7 @@ proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
 
 proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
   return self.lsh
-    
+
 var clientimpl = nc_client_i[myClient](
   GetContextMenuHandler: GetContextMenuHandler,
   GetLifeSpanHandler: GetLifeSpanHandler

@@ -46,7 +46,7 @@ proc to_nim(cparts: cef_urlparts): NCUrlParts =
 
   for c in fields(cparts):
     cef_string_clear(c.unsafeAddr)
-    
+
 proc to_cef(parts: NCUrlParts): cef_urlparts =
   result.spec <= parts.spec
   result.scheme <= parts.scheme
@@ -61,7 +61,7 @@ proc to_cef(parts: NCUrlParts): cef_urlparts =
 proc nc_free(cparts: var cef_urlparts) =
   for c in fields(cparts):
     cef_string_clear(c.unsafeAddr)
-  
+
 # Parse the specified |url| into its component parts. Returns false *(0) if the
 # URL is NULL or invalid.
 proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
@@ -72,7 +72,7 @@ proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
 # if |parts| isn't initialized as described.
 proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
   wrapProc(cef_create_url, result, parts, url)
-  
+
 # This is a convenience function for formatting a URL in a concise and human-
 # friendly way to help users make security-related decisions *(or in other
 # circumstances when people need to distinguish sites, origins, or otherwise-

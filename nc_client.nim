@@ -55,13 +55,13 @@ wrapHandler(NCClient, cef_client):
 
   # Return the handler for browser request events.
   proc GetRequestHandler*(self: T): NCRequestHandler
-  
+
   # Called when a new message is received from a different process. Return true
   # (1) if the message was handled or false (0) otherwise. Do not keep a
   # reference to or attempt to access the message outside of this callback.
   proc OnRenderProcessMessageReceived*(self: T, browser: NCBrowser,
     source_process: cef_process_id, message: NCProcessMessage): bool
-    
+
 #proc get_client(browser: ptr_cef_browser): ptr nc_handler =
 #  var brow = cast[ptr cef_browser](browser)
 #  var host = brow.get_host(brow)

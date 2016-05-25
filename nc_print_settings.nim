@@ -28,7 +28,7 @@ proc IsLandscape*(self: NCPrintSettings): bool =
 # Set the printer printable area in device units. Some platforms already
 # provide flipped area. Set |landscape_needs_flip| to false (0) on those
 # platforms to avoid double flipping.
-proc SetPrinterPrintableArea*(self: NCPrintSettings, physical_size_device_units: NCSize, 
+proc SetPrinterPrintableArea*(self: NCPrintSettings, physical_size_device_units: NCSize,
   printable_area_device_units: NCRect, landscape_needs_flip: bool) =
   self.wrapCall(set_printer_printable_area, physical_size_device_units,
     printable_area_device_units, landscape_needs_flip)

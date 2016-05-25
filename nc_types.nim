@@ -35,7 +35,7 @@ template release*(x: ptr_cef_frame): expr = release(cast[ptr cef_frame](x))
 type
   NCMainArgs* = object
     args: cef_main_args
-    
+
 proc to_cef*(nc: NCMainArgs): cef_main_args =
   result = nc.args
 
@@ -46,7 +46,7 @@ when defined(windows):
 
   proc makeNCMainArgs*(): NCMainArgs =
     result.args.instance = getModuleHandle(nil)
-   
+
 else:
   import os
 
@@ -107,7 +107,7 @@ when defined(windows):
     result.windowless_rendering_enabled = nc.windowless_rendering_enabled.cint
     result.transparent_painting_enabled = nc.transparent_painting_enabled.cint
     result.window = nc.window
-    
+
   proc to_nim*(nc: ptr cef_window_info): NCWindowInfo =
     result.ex_style = nc.ex_style
     result.window_name = $(nc.window_name.addr)
@@ -121,7 +121,7 @@ when defined(windows):
     result.windowless_rendering_enabled = nc.windowless_rendering_enabled == 1.cint
     result.transparent_painting_enabled = nc.transparent_painting_enabled == 1.cint
     result.window = nc.window
-    
+
   proc nc_free*(nc: var cef_window_info) =
     cef_string_clear(nc.window_name.addr)
 
@@ -190,7 +190,7 @@ type
   # Structure representing a point.
   NCPoint* = object
     x*, y*: int
-    
+
   # Structure representing a rectangle.
   NCRect* = object
     x*, y*, width*, height*: int
@@ -198,12 +198,12 @@ type
   # Structure representing a size.
   NCSize* = object
     width*, height*: int
-    
+
   # Structure representing a print job page range.
   NCPageRange* = object
     page_from*: int
     page_to*: int
-  
+
   # Structure representing a draggable region.
   NCDraggableRegion* = object
     # Bounds of the region.
@@ -245,7 +245,7 @@ type
     # True if the focus is currently on an editable field on the page. This is
     # useful for determining if standard key events should be intercepted.
     focus_on_editable_field*: bool
-    
+
   # Structure representing cursor information. |buffer| will be
   # |size.width|*|size.height|*4 bytes in size and represents a BGRA image with
   # an upper-left origin.
@@ -295,7 +295,7 @@ type
     # The |rect| and |available_rect| properties are used to determine the
     # available surface for rendering popup views.
     available_rect*: NCRect
-    
+
   # Popup window features.
   NCPopupFeatures* = object
     x*: int
@@ -337,23 +337,23 @@ template nc_free*(nc: cef_point) = discard
 proc to_nim*(nc: cef_point): NCPoint =
   result.x = nc.x.int
   result.y = nc.x.int
-  
+
 proc to_cef*(nc: NCRect): cef_rect =
-  result = cef_rect(x: nc.x.cint, y: nc.y.cint, 
+  result = cef_rect(x: nc.x.cint, y: nc.y.cint,
     width: nc.width.cint, height: nc.height.cint)
-  
+
 proc to_nim*(nc: cef_rect): NCRect =
   result.x = nc.x.int
   result.y = nc.y.int
   result.width = nc.width.int
   result.height = nc.height.int
-  
+
 proc to_nim*(nc: ptr cef_rect): NCRect =
   result.x = nc.x.int
   result.y = nc.y.int
   result.width = nc.width.int
   result.height = nc.height.int
-  
+
 template nc_free*(nc: cef_rect) = discard
 
 proc to_cef*(nc: NCSize): cef_size =
@@ -363,7 +363,7 @@ proc to_cef*(nc: NCSize): cef_size =
 proc to_nim*(nc: cef_size): NCSize =
   result.width  = nc.width.int
   result.height = nc.height.int
-  
+
 template nc_free*(nc: cef_size) = discard
 
 proc to_cef*(nc: NCPageRange): cef_page_range =
@@ -395,7 +395,7 @@ proc to_cef*(nc: NCKeyEvent): cef_key_event =
   result.character = nc.character
   result.unmodified_character = nc.unmodified_character
   result.focus_on_editable_field = nc.focus_on_editable_field.cint
-    
+
 proc to_nim*(nc: ptr cef_key_event): NCKeyEvent =
   result.key_event_type = nc.key_event_type
   result.modifiers = nc.modifiers
@@ -405,16 +405,16 @@ proc to_nim*(nc: ptr cef_key_event): NCKeyEvent =
   result.character = nc.character
   result.unmodified_character = nc.unmodified_character
   result.focus_on_editable_field = nc.focus_on_editable_field == 1.cint
-    
+
 template nc_free*(nc: cef_key_event) = discard
-    
+
 proc to_nim*(nc: ptr cef_cursor_info): NCCursorInfo =
   result.hotspot = to_nim(nc.hotspot)
   result.image_scale_factor = nc.image_scale_factor.float32
   result.size = to_nim(nc.size)
   result.buffer = newString(result.size.height * result.size.width * 4)
   copyMem(result.buffer.cstring, nc.buffer, result.buffer.len)
-  
+
 proc to_nim*(nc: ptr cef_screen_info): NCScreenInfo =
   result.device_scale_factor = nc.device_scale_factor.float32
   result.depth = nc.depth.int
@@ -422,7 +422,7 @@ proc to_nim*(nc: ptr cef_screen_info): NCScreenInfo =
   result.is_monochrome = nc.is_monochrome == 1.cint
   result.rect = to_nim(nc.rect)
   result.available_rect = to_nim(nc.available_rect)
-  
+
 # Popup window features.
 proc to_nim*(nc: ptr cef_popup_features): NCPopupFeatures =
   result.x = nc.x.int
@@ -442,10 +442,10 @@ proc to_nim*(nc: ptr cef_popup_features): NCPopupFeatures =
   result.fullscreen = nc.fullscreen == 1.cint
   result.dialog = nc.dialog == 1.cint
   result.additionalFeatures = to_nim(nc.additionalFeatures)
-  
+
 proc to_cef*(nc: NCMouseEvent): cef_mouse_event =
   result.x = nc.x.cint
   result.y = nc.y.cint
   result.modifiers = nc.modifiers
-  
+
 template nc_free*(nc: cef_mouse_event) = discard

@@ -49,7 +49,7 @@ proc to_nim(cc: ptr cef_geoposition): NCGeoPosition =
   result.timestamp = to_nim(cc.timestamp)
   result.error_code = cc.error_code
   result.error_message = $(cc.error_message.addr)
-  
+
 # Implement this structure to receive geolocation updates. The functions of
 # this structure will be called on the browser process UI thread.
 wrapCallback(NCGetGeolocationCallback, cef_get_geolocation_callback):

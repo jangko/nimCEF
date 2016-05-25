@@ -18,12 +18,12 @@ wrapCallback(NCTask, cef_task):
 # cef_types.h list the common CEF threads. Task runners are also available for
 # other CEF threads as appropriate (for example, V8 WebWorker threads).
 wrapAPI(NCTaskRunner, cef_task_runner, false)
-  
+
 # Returns true (1) if this object is pointing to the same task runner as
 # |that| object.
 proc IsSame*(self, that: NCTaskRunner): bool =
   self.wrapCall(is_same, result, that)
-  
+
 # Returns true (1) if this task runner belongs to the current thread.
 proc BelongsToCurrentThread*(self: NCTaskRunner): bool =
   self.wrapCall(belongs_to_current_thread, result)

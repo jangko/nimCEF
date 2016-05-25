@@ -9,10 +9,10 @@ wrapAPI(NCJsDialogCallback, cef_jsdialog_callback, false)
 # was pressed. The |user_input| value should be specified for prompt dialogs.
 proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
   self.wrapCall(cont, success, user_input)
-  
+
 # Implement this structure to handle events related to JavaScript dialogs. The
-# functions of this structure will be called on the UI thread. 
-wrapCallback(NCJsDialogHandler, cef_jsdialog_handler):  
+# functions of this structure will be called on the UI thread.
+wrapCallback(NCJsDialogHandler, cef_jsdialog_handler):
   # Called to run a JavaScript dialog. If |origin_url| and |accept_lang| are
   # non-NULL they can be passed to the CefFormatUrlForSecurityDisplay function
   # to retrieve a secure and user-friendly display string. The
@@ -31,20 +31,20 @@ wrapCallback(NCJsDialogHandler, cef_jsdialog_handler):
   proc OnJsdialog*(self: T, browser: NCBrowser, origin_url, accept_lang: string,
       dialog_type: cef_jsdialog_type, message_text, default_prompt_text: string,
       callback: NCJsDialogCallback, suppress_message: var bool): bool
-  
+
   # Called to run a dialog asking the user if they want to leave a page. Return
   # false (0) to use the default dialog implementation. Return true (1) if the
   # application will use a custom dialog or if the callback has been executed
   # immediately. Custom dialogs may be either modal or modeless. If a custom
   # dialog is used the application must execute |callback| once the custom
   # dialog is dismissed.
-  proc OnBeforeUnloadDialog*(self: T, browser: NCBrowser, message_text: string, 
+  proc OnBeforeUnloadDialog*(self: T, browser: NCBrowser, message_text: string,
     is_reload: bool, callback: NCJsDialogCallback): bool
-  
+
   # Called to cancel any pending dialogs and reset any saved dialog state. Will
   # be called due to events like page navigation irregardless of whether any
   # dialogs are currently pending.
   proc OnResetDialogState*(self: T, browser: NCBrowser)
-  
+
   # Called when the default implementation dialog is closed.
   proc OnDialogClosed*(self: T, browser: NCBrowser)

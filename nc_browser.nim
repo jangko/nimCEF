@@ -12,7 +12,7 @@ wrapCallback(NCRunFileDialogCallback, cef_run_file_dialog_callback):
   # |file_paths| will be a single value or a list of values depending on the
   # dialog mode. If the selection was cancelled |file_paths| will be NULL.
   proc OnFileDialogDismissed*(self: T, selected_accept_filter: int, file_paths: seq[string])
-  
+
 # Callback structure for NCBrowserHost::GetNavigationEntries. The
 # functions of this structure will be called on the browser process UI thread.
 wrapCallback(NCNavigationEntryVisitor, cef_navigation_entry_visitor):
@@ -22,7 +22,7 @@ wrapCallback(NCNavigationEntryVisitor, cef_navigation_entry_visitor):
   # navigation entry. |index| is the 0-based index of this entry and |total| is
   # the total number of entries.
   proc Visit*(self: T, entry: NCNavigationEntry, current, index, total: int): bool
-  
+
 # Callback structure for NCBrowserHost::PrintToPDF. The functions of this
 # structure will be called on the browser process UI thread.
 wrapCallback(NCPdfPrintCallback, cef_pdf_print_callback):
@@ -186,10 +186,10 @@ proc SetZoomLevel*(self: NCBrowserHost, zoomLevel: float64) =
 # selected by default. |callback| will be executed after the dialog is
 # dismissed or immediately if another dialog is already pending. The dialog
 # will be initiated asynchronously on the UI thread.
-proc RunFileDialog*(self: NCBrowserHost, mode: cef_file_dialog_mode, 
+proc RunFileDialog*(self: NCBrowserHost, mode: cef_file_dialog_mode,
   title, default_file_path: string, accept_filters: seq[string], selected_accept_filter: int,
   callback: NCRunFileDialogCallback) =
-  self.wrapCall(run_file_dialog, mode, title, default_file_path, 
+  self.wrapCall(run_file_dialog, mode, title, default_file_path,
     accept_filters, selected_accept_filter, callback)
 
 # Download the file at |url| using cef_download_handler_t.
@@ -225,7 +225,7 @@ proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
 proc ShowDevTools*(self: NCBrowserHost, windowInfo: NCWindowInfo, client: NCClient,
   setting: NCBrowserSettings, inspect_element_at: NCPoint) =
   self.wrapCall(show_dev_tools, windowInfo, client, setting, inspect_element_at)
- 
+
 # Explicitly close the developer tools window if one exists for this browser
 # instance.
 proc CloseDevTools*(self: NCBrowserHost) =
@@ -415,12 +415,11 @@ proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
 # thread and will not block.
 proc NCBrowserHostCreateBrowser*(windowInfo: NCWindowInfo, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): bool =
-  wrapProc(cef_browser_host_create_browser, result, windowInfo, client, url, settings, request_context)  
-  
+  wrapProc(cef_browser_host_create_browser, result, windowInfo, client, url, settings, request_context)
+
 # Create a new browser window using the window parameters specified by
 # |windowInfo|. If |request_context| is NULL the global request context will be
 # used. This function can only be called on the browser process UI thread.
 proc NCBrowserHostCreateBrowserSync*(windowInfo: NCWindowInfo, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): NCBrowser =
   wrapProc(cef_browser_host_create_browser_sync, result, windowInfo, client, url, settings, request_context)
- 

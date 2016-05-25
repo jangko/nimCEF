@@ -5,7 +5,7 @@ include cef/cef_import
 # Implement this interface to handle events related to browser life span. The
 # methods of this class will be called on the UI thread unless otherwise
 # indicated.
-wrapCallback(NCLifeSpanHandler, cef_life_span_handler):  
+wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   # Called on the IO thread before a new popup browser is created. The
   # |browser| and |frame| values represent the source of the popup request. The
   # |target_url| and |target_frame_name| values indicate where the popup
@@ -31,12 +31,12 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
 
   # Called after a new browser is created.
   proc OnAfterCreated*(self: T, browser: NCBrowser)
-  
+
   # Called when a modal window is about to display and the modal loop should
   # begin running. Return false (0) to use the default modal loop
   # implementation or true (1) to use a custom implementation.
   proc RunModal*(self: T, browser: NCBrowser): int
-  
+
   # Called when a browser has recieved a request to close. This may result
   # directly from a call to cef_browser_host_t::close_browser() or indirectly
   # if the browser is a top-level OS window created by CEF and the user
@@ -93,7 +93,7 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   # browsers
   #     exist.
   proc DoClose*(self: T, browser: NCBrowser): int
-    
+
   # Called just before a browser is destroyed. Release all references to the
   # browser object and do not attempt to execute any functions on the browser
   # object after this callback returns. If this is a modal window and a custom

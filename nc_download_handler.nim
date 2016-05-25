@@ -16,7 +16,7 @@ proc Pause*(self: NCDownloadItemCallback) =
 # Call to resume the download.
 proc Resume*(self: NCDownloadItemCallback) =
   self.wrapCall(resume)
-  
+
 # Callback structure used to asynchronously continue a download.
 wrapAPI(NCBeforeDownloadCallback, cef_before_download_callback, false)
 
@@ -26,10 +26,10 @@ wrapAPI(NCBeforeDownloadCallback, cef_before_download_callback, false)
 # (1) if you do wish to show the default "Save As" dialog.
 proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
   self.wrapCall(cont, download_path, show_dialog)
-  
+
 # Structure used to handle file downloads. The functions of this structure will
-# called on the browser process UI thread. 
-wrapCallback(NCDownloadHandler, cef_download_handler):  
+# called on the browser process UI thread.
+wrapCallback(NCDownloadHandler, cef_download_handler):
   # Called before a download begins. |suggested_name| is the suggested name for
   # the download file. By default the download will be canceled. Execute
   # |callback| either asynchronously or in this function to continue the
@@ -38,7 +38,7 @@ wrapCallback(NCDownloadHandler, cef_download_handler):
   proc OnBeforeDownload*(self: T, browser: NCBrowser,
     download_item: NCDownloadItem, suggested_name: string,
     callback: NCBeforeDownloadCallback)
-  
+
   #--Download Handler
   # Called when a download's status or progress information has been updated.
   # This may be called multiple times before and after on_before_download().

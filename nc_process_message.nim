@@ -3,12 +3,12 @@ import nc_util, nc_value, nc_types
 # Structure representing a message. Can be used on any process and thread.
 wrapAPI(NCProcessMessage, cef_process_message)
 
-# Returns true (1) if this object is valid. 
+# Returns true (1) if this object is valid.
 # Do not call any other functions if this function returns false (0).
 proc IsValid*(self: NCProcessMessage): bool =
   self.wrapCall(is_valid, result)
 
-# Returns true (1) if the values of this object are read-only. 
+# Returns true (1) if the values of this object are read-only.
 # Some APIs may expose read-only objects.
 proc IsReadOnly*(self: NCProcessMessage): bool =
   self.wrapCall(is_read_only, result)

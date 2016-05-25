@@ -16,9 +16,11 @@ proc generic_add_ref[T](self: ptr cef_base) {.cef_callback.} =
 
 proc generic_release[T](self: ptr cef_base): cint {.cef_callback.} =
   var handler = cast[ptr T](cast[ByteAddress](self) - sizeof(pointer))
-  if atomicDec(handler.refCount) == 0:
-    freeShared(self)
+  atomicDec(handler.refCount)
   result = (handler.refCount == 0).cint
+  if handler.refCount == 0:
+    handler.container.handler = nil
+    freeShared(handler)
 
 proc generic_has_one_ref[T](self: ptr cef_base): cint {.cef_callback.} =
   var handler = cast[ptr T](cast[ByteAddress](self) - sizeof(pointer))

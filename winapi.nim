@@ -838,6 +838,86 @@ const
   IDRETRY* = 4
   IDYES* = 6
 
+  # GetSystemMetrics
+  SM_CYMIN* = 29
+  SM_CXMIN* = 28
+  SM_ARRANGE* = 56
+  SM_CLEANBOOT* = 67
+  # The right value for SM_CEMETRICS for NT 3.5 is 75.  For Windows 95
+  #     and NT 4.0, it is 76.  The meaning is undocumented, anyhow.
+  SM_CMETRICS* = 76
+  SM_CMOUSEBUTTONS* = 43
+  SM_CXBORDER* = 5
+  SM_CYBORDER* = 6
+  SM_CXCURSOR* = 13
+  SM_CYCURSOR* = 14
+  SM_CXDLGFRAME* = 7
+  SM_CYDLGFRAME* = 8
+  SM_CXDOUBLECLK* = 36
+  SM_CYDOUBLECLK* = 37
+  SM_CXDRAG* = 68
+  SM_CYDRAG* = 69
+  SM_CXEDGE* = 45
+  SM_CYEDGE* = 46
+  SM_CXFIXEDFRAME* = 7
+  SM_CYFIXEDFRAME* = 8
+  SM_CXFRAME* = 32
+  SM_CYFRAME* = 33
+  SM_CXFULLSCREEN* = 16
+  SM_CYFULLSCREEN* = 17
+  SM_CXHSCROLL* = 21
+  SM_CYHSCROLL* = 3
+  SM_CXHTHUMB* = 10
+  SM_CXICON* = 11
+  SM_CYICON* = 12
+  SM_CXICONSPACING* = 38
+  SM_CYICONSPACING* = 39
+  SM_CXMAXIMIZED* = 61
+  SM_CYMAXIMIZED* = 62
+  SM_CXMAXTRACK* = 59
+  SM_CYMAXTRACK* = 60
+  SM_CXMENUCHECK* = 71
+  SM_CYMENUCHECK* = 72
+  SM_CXMENUSIZE* = 54
+  SM_CYMENUSIZE* = 55
+  SM_CXMINIMIZED* = 57
+  SM_CYMINIMIZED* = 58
+  SM_CXMINSPACING* = 47
+  SM_CYMINSPACING* = 48
+  SM_CXMINTRACK* = 34
+  SM_CYMINTRACK* = 35
+  SM_CXSCREEN* = 0
+  SM_CYSCREEN* = 1
+  SM_CXSIZE* = 30
+  SM_CYSIZE* = 31
+  SM_CXSIZEFRAME* = 32
+  SM_CYSIZEFRAME* = 33
+  SM_CXSMICON* = 49
+  SM_CYSMICON* = 50
+  SM_CXSMSIZE* = 52
+  SM_CYSMSIZE* = 53
+  SM_CXVSCROLL* = 2
+  #SM_CYHSCROLL = 3;already above
+  #SM_CXHSCROLL = 21;already above
+  SM_CYVSCROLL* = 20
+  SM_CYVTHUMB* = 9
+  SM_CYCAPTION* = 4
+  SM_CYKANJIWINDOW* = 18
+  SM_CYMENU* = 15
+  SM_CYSMCAPTION* = 51
+  SM_DBCSENABLED* = 42
+  SM_DEBUG* = 22
+  SM_MENUDROPALIGNMENT* = 40
+  SM_MIDEASTENABLED* = 74
+  SM_MOUSEPRESENT* = 19
+  SM_MOUSEWHEELPRESENT* = 75
+  SM_NETWORK* = 63
+  SM_PENWINDOWS* = 41
+  SM_SECURE* = 44
+  SM_SHOWSOUNDS* = 70
+  SM_SLOWMACHINE* = 73
+  SM_SWAPBUTTON* = 23
+
 proc RGB*(r, g, b: int): COLORREF =
   result = toU32(r) or (toU32(g) shl 8) or (toU32(b) shl 16)
 
@@ -1102,3 +1182,6 @@ proc messageBoxW*(wnd: HWND, lpText: LPCWSTR, lpCaption: LPCWSTR, uType: int): i
 template messageBox*(wnd: HWND, lpText, lpCaption: string, uType: int): int32 =
   when defined(winUnicode): messageBoxW(wnd, WC(lpText), WC(lpCaption), uType)
   else: messageBoxA(wnd, WC(lpText), WC(lpCaption), uType)
+  
+proc GetSystemMetrics*(nIndex: int32): int32{.stdcall, dynlib: "user32",
+    importc: "GetSystemMetrics".}

@@ -224,6 +224,7 @@ proc checkWrapped(n: NimNode): bool =
   if nType.typeKind != ntyRef: return false
   let objSym = nType[1]
   let objType = getType(objSym)
+  if objType[1].len == 0: return false    
   let handler = objType[1][0]
   if $handler != "handler": return false
   let handlee = getType(handler)[1]
@@ -840,4 +841,87 @@ macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
 
 macro wrapHandler*(nc: untyped, cef: typed, methods: untyped): stmt =
   let glue = wrapCallbackImpl(nc, cef, methods, false)
+  result = parseStmt(glue)
+  
+proc isRefInherit(nc: NimNode): NimNode =
+  if nc.kind != nnkSym: return newEmptyNode()
+  let impl = getImpl(nc.symbol)
+  if impl.kind != nnkTypeDef: return newEmptyNode()
+  if impl[2].typeKind != ntyRef: return newEmptyNode()
+  if impl[2][0].typeKind != ntyObject: return newEmptyNode()
+  let obj = impl[2][0]
+  if obj[1].kind != nnkOfInherit: return newEmptyNode()
+  return obj[1][0]
+
+proc isNCObject(nc: NimNode): bool =
+  let base = isRefInherit(nc)
+  if base.kind == nnkEmpty: return false
+  if $base != "RootObj": return false
+  if not checkWrapped(getType(nc)[1]): return false
+  result = true
+
+proc isNCInherit(nc: NimNode): bool =
+  let base = isRefInherit(nc)
+  if base.kind == nnkEmpty: return false
+  if not checkWrapped(base): return false
+  result = true
+
+proc getHandlerType(nc: NimNode): string =
+  let nType = getImpl(nc.symbol)
+  let recList = nType[2][0][2]
+  let name = $recList[0][1][0]  
+  result = "nc" & name.substr(3)  
+  
+proc getParentHandlerType(nc: NimNode): string =
+  let base = isRefInherit(nc)
+  result = getHandlerType(base)
+  
+proc getHandlerName(nc: NimNode): string =
+  if isNCObject(nc): return getHandlerType(nc)
+  if isNCInherit(nc): return getParentHandlerType(nc)
+  error("unknown type, possibly not a nc object")
+  
+proc genField(nc: NimNode): string = 
+  if nc.kind != nnkProcDef: 
+    error("must be a proc def")
+  let name = $nc[0]  
+  result = "  $1:$1" % [name]
+  
+proc getBaseName(nc: NimNode): string =
+  if isNCObject(nc): return $nc
+  let base = isRefInherit(nc)
+  result = $base
+  
+macro callbackImpl*(inst: untyped, nc: typed, methods: varargs[typed]): stmt =
+  let hName = getHandlerName(nc)
+  let baseName = getBaseName(nc)
+  var glue = "type\n"
+  glue.add "  nc_type_$1 = $2_i[$3]\n" % [$global_iidx, hName, $nc]
+  glue.add "var $1 = nc_type_$2" % [$inst, $global_iidx]
+  
+  if methods.len == 0:
+    glue.add "()\n"
+  else:
+    glue.add "(\n"
+    
+  if methods.len > 0:
+    if methods[0].kind == nnkProcDef:
+      glue.add genField(methods[0]) 
+    else:
+      let len = methods[0].len
+      for i in 0.. <len:
+        let n = methods[0][i]
+        glue.add genField(n)
+        if i < len-1: glue.add ",\n"
+    
+  if methods.len != 0:
+    glue.add ")\n"
+  
+  glue.add "proc NCCreate*(impl: nc_type_$1): $2 = \n" % [$global_iidx, $nc]
+  glue.add "  result = make$1(impl)\n" % [baseName]
+  
+  if wrapDebugMode:
+    echo glue
+  
+  inc(global_iidx) 
   result = parseStmt(glue)

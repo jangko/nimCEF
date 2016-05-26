@@ -1,7 +1,7 @@
 import winapi, os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_settings, nc_context_menu_handler
-import nc_life_span_handler
+import nc_life_span_handler, nc_util
 
 type
   myClient = ref object of NCClient
@@ -12,67 +12,55 @@ type
 
   myApp = ref object of NCApp
 
-proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
-  NCQuitMessageLoop()
-  #echo "close: ", self.name, " no: ", self.abc
+callbackImpl(lshimpl, NCLifeSpanHandler):
+  proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
+    NCQuitMessageLoop()    
 
 const
   MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
   MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
 
-proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
-  frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
-  discard model.AddSeparator()
-  discard model.AddItem(MY_MENU_ID, "Hello There")
-  discard model.AddItem(MY_QUIT_ID, "Quit")
-  echo "page URL: ", params.GetPageUrl()
-  echo "frame URL: ", params.GetFrameUrl()
-  echo "link URL: ", params.GetLinkUrl()
+callbackImpl(cmhimpl, NCContextMenuHandler):
+  proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
+    frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
+    discard model.AddSeparator()
+    discard model.AddItem(MY_MENU_ID, "Hello There")
+    discard model.AddItem(MY_QUIT_ID, "Quit")
+    echo "page URL: ", params.GetPageUrl()
+    echo "frame URL: ", params.GetFrameUrl()
+    echo "link URL: ", params.GetLinkUrl()
 
-proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
-  frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
-  event_flags: cef_event_flags): int =
+  proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
+    frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
+    event_flags: cef_event_flags): int =
 
-  if command_id == MY_MENU_ID:
-    echo "Hello There Clicked"
+    if command_id == MY_MENU_ID:
+      echo "Hello There Clicked"
 
-  if command_id == MY_QUIT_ID:
-    var host = browser.GetHost()
-    host.CloseBrowser(true)
+    if command_id == MY_QUIT_ID:
+      var host = browser.GetHost()
+      host.CloseBrowser(true)
 
-var lshimpl = nc_life_span_handler_i[NCLifeSpanHandler](
-  OnBeforeClose: OnBeforeClose
-)
+callbackImpl(clientimpl, myClient):
+  proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
+    return self.cmh
 
-var cmhimpl = nc_context_menu_handler_i[NCContextMenuHandler](
-  OnBeforeContextMenu:OnBeforeContextMenu,
-  OnContextMenuCommand:OnContextMenuCommand
-)
-
-proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
-  return self.cmh
-
-proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
-  return self.lsh
-
-var clientimpl = nc_client_i[myClient](
-  GetContextMenuHandler: GetContextMenuHandler,
-  GetLifeSpanHandler: GetLifeSpanHandler
-)
+  proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
+    return self.lsh
 
 proc newClient(no: int, name: string): myClient =
-  result = makeNCClient(clientimpl)
+  result = clientimpl.NCCreate()
   result.abc = no
   result.name = name
-  result.cmh = makeNCContextMenuHandler(cmhimpl)
-  result.lsh = makeNCLifeSpanHandler(lshimpl)
+  result.cmh = cmhimpl.NCCreate()
+  result.lsh = lshimpl.NCCreate()
 
-var appimpl = nc_app_i[myApp]()
+callbackImpl(appimpl, myApp)
 
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
-  var app = makeNCApp(appimpl)
+  var app = appimpl.NCCreate()
 
   var code = NCExecuteProcess(mainArgs, app)
   if code >= 0:

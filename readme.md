@@ -1,3 +1,6 @@
+
+
+
 # nimCEF
 
 Chromium Embedded Framework(CEF3) wrapper
@@ -24,4 +27,41 @@ And many of the ref-count related issues already handled for you.
 | 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0  |
 | 3  | Simple Client Example | yes      | no      | yes      | no      | no       | 0.13.0  |
 | 4  | CefClient Example     | 20%      | no      | no       | no      | no       | 0.13.0  |
-| 5  | Convenience Layer     | 90%      | 75%     | 90%      | 75%     | 60%      | 0.13.0  |
+| 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      | 0.13.0  |
+
+
+### HOW TO CREATE HANDLER/CALLBACK DEFINITION AND INSTANCE
+
+* First import your needed file, notably nc_util and nc_types
+
+```nimrod
+import nc_context_menu_handler, nc_browser, nc_types
+import nc_util, nc_context_menu_params, nc_menu_model
+```
+
+* Then define your own handler type inherited from e.g. NCContextMenuHandler, but this is optional, you can use NCContextMenuHandler directly without inheriting it.
+
+```nimrod
+type
+  myHandler = ref object of NCContextMenuHandler
+``` 
+* Next step use **callbackImpl**, with three parameters,
+	* first param is anything you want
+	* second param is the type we already defined or the NCxxx type
+	* the third param is a list of your procs. The 'self' must have the same type with the second param
+
+```nimrod
+callbackImpl(abc, myHandler):
+  proc OnBeforeContextMenu(self: myHandler, browser: NCBrowser,
+    frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
+    discard
+   
+  proc OnContextMenuCommand(self: myHandler, browser: NCBrowser,
+    frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
+    event_flags: cef_event_flags): int =
+    discard
+```
+
+* if you want to create an instance of your handler, just call NCCreate
+```nimrod
+var cmhandler_inst = abc.NCCreate()

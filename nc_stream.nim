@@ -88,22 +88,25 @@ proc Flush*(self: NCStreamWriter): bool =
 proc MayBlock*(self: NCStreamWriter): bool =
   self.wrapCall(may_block, result)
 
-# Create a new cef_stream_reader_t object from a file.
+# Create a new NCStreamReader object from a file.
 proc NCStreamReaderCreateForFile*(fileName: string): NCStreamReader =
   wrapProc(cef_stream_reader_create_for_file, result, fileName)
 
-# Create a new cef_stream_reader_t object from data.
-proc NCSreamReaderCreateForData*(data: pointer, size: int): NCStreamReader =
+# Create a new NCStreamReader object from data.
+proc NCStreamReaderCreateForData*(data: pointer, size: int): NCStreamReader =
   wrapProc(cef_stream_reader_create_for_data, result, data, size)
 
-# Create a new cef_stream_reader_t object from a custom handler.
+proc NCStreamReaderCreateForData*(data: string): NCStreamReader =
+  result = NCStreamReaderCreateForData(data.cstring, data.len)
+
+# Create a new NCStreamReader object from a custom handler.
 proc NCStreamReaderCreateForHandler*(handler: NCReadHandler): NCStreamReader =
   wrapProc(cef_stream_reader_create_for_handler, result, handler)
 
-# Create a new cef_stream_writer_t object for a file.
+# Create a new NCStreamWriter object for a file.
 proc NCStreamWriterCreateForFile*(fileName: string): NCStreamWriter =
   wrapProc(cef_stream_writer_create_for_file, result, fileName)
 
-# Create a new cef_stream_writer_t object for a custom handler.
+# Create a new NCStreamWriter object for a custom handler.
 proc NCStreamWriterCreateForHandler*(handler: NCWriteHandler): NCStreamWriter =
   wrapProc(cef_stream_writer_create_for_handler, result, handler)

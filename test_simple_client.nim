@@ -17,8 +17,8 @@ callbackImpl(lshimpl, NCLifeSpanHandler):
     NCQuitMessageLoop()    
 
 const
-  MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
-  MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
+  MY_MENU_ID = USER_MENU_ID(1)
+  MY_QUIT_ID = USER_MENU_ID(2)
 
 callbackImpl(cmhimpl, NCContextMenuHandler):
   proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,

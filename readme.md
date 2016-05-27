@@ -3,7 +3,7 @@
 
 # nimCEF
 
-Chromium Embedded Framework(CEF3) wrapper
+Chromium Embedded Framework(CEF3) wrapper.
 
 ---
 
@@ -15,7 +15,8 @@ if you know how to use CEF3 C API, using **First part** is not much different.
 
 * Second part: Convenience layer added on top of C style API to ease
 the development in Nim style. Nim native datatypes will be used whenever possible.
-And many of the ref-count related issues already handled for you.
+And many of the ref-count related issues already handled for you. 
+The Convenience Layer heavily utilizing Nim macros to generate consistent and efficient wrapper.
 
 ---
 
@@ -32,7 +33,7 @@ And many of the ref-count related issues already handled for you.
 
 ### HOW TO CREATE HANDLER/CALLBACK DEFINITION AND INSTANCE
 
-* First import your needed file, notably nc_util and nc_types
+* First import your needed files, notably nc_util and nc_types
 
 ```nimrod
 import nc_context_menu_handler, nc_browser, nc_types
@@ -46,10 +47,11 @@ type
   myHandler = ref object of NCContextMenuHandler
 ``` 
 * Next step use **callbackImpl**, with three parameters,
-	* first param is anything you want
-	* second param is the type we already defined or the NCxxx type
+	* first param is any valid identifier you want
+	* second param is the typeDesc we already defined or the NCxxx type
 	* the third param is a list of your procs. The 'self' must have the same type with the second param
-
+  * the third param is optional, and default implementation will be used if no procs are defined
+  
 ```nimrod
 callbackImpl(abc, myHandler):
   proc OnBeforeContextMenu(self: myHandler, browser: NCBrowser,
@@ -62,6 +64,18 @@ callbackImpl(abc, myHandler):
     discard
 ```
 
-* if you want to create an instance of your handler, just call NCCreate
+* if you want to create an instance of your handler, just call NCCreate with single param from callbackImpl first param
 ```nimrod
 var cmhandler_inst = abc.NCCreate()
+
+
+### HOW TO CREATE USER DEFINED MENU ID
+If you use NCContextMenuModel and NCContextMenuHandler to create user defined menu entry, you also need
+to provide user defined menu id. You can simply use USER_MENU_ID with single integer parameter
+
+```nimrod
+const
+  MY_MENU_ID = USER_MENU_ID(1)
+  MY_QUIT_ID = USER_MENU_ID(2)
+  MY_PLUGIN_ID = USER_MENU_ID(3)
+```

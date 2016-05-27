@@ -19,7 +19,8 @@ proc generic_release[T](self: ptr cef_base): cint {.cef_callback.} =
   atomicDec(handler.refCount)
   result = (handler.refCount == 0).cint
   if handler.refCount == 0:
-    handler.container.handler = nil
+    if handler.container != nil:
+      handler.container.handler = nil
     freeShared(handler)
 
 proc generic_has_one_ref[T](self: ptr cef_base): cint {.cef_callback.} =
@@ -40,13 +41,18 @@ proc nc_init_base*[A](elem: ptr A) =
   elem.handler.base.size = sizeof(A)
   nc_initialize_base[A](cast[ptr cef_base](elem.handler.addr))
 
-proc nc_finalizer*[T](self: T) =
+proc nc_finalizer*[T, C](self: C) =
+  if self.handler != nil:
+    var handler = toType(T, self.handler)
+    handler.container = nil
   release(self.handler)
 
-template nc_init*(T, X: typedesc, impl: expr) =
+#T is nc_xxx from wrapCallback
+#C is NCxxx or it's descendant
+template nc_init*(T, C: typedesc, impl: expr) =
   var handler = createShared(T)
   nc_init_base[T](handler)
-  new(result, nc_finalizer[X])
+  new(result, nc_finalizer[T, C])
   result.handler = handler.handler.addr
   add_ref(handler.handler.addr)
   handler.container = result

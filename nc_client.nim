@@ -62,8 +62,7 @@ wrapHandler(NCClient, cef_client):
   proc OnRenderProcessMessageReceived*(self: T, browser: NCBrowser,
     source_process: cef_process_id, message: NCProcessMessage): bool
 
-#proc get_client(browser: ptr_cef_browser): ptr nc_handler =
-#  var brow = cast[ptr cef_browser](browser)
-#  var host = brow.get_host(brow)
-#  var client = host.get_client(host)
-#  result = cast[ptr nc_handler](client)
+proc getClient*[T](browser: NCBrowser): T =
+  let client = browser.GetHost().GetClient()
+  let handler = toType(nc_client, client.handler)
+  result = T(handler.container)

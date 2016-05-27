@@ -24,9 +24,10 @@ type
     lsh: NCLifeSpanHandler
 
 const
-  MY_MENU_ID = (MENU_ID_USER_FIRST.ord + 1).cef_menu_id
-  MY_QUIT_ID = (MENU_ID_USER_FIRST.ord + 2).cef_menu_id
-  MY_PLUGIN_ID = (MENU_ID_USER_FIRST.ord + 3).cef_menu_id
+  MY_MENU_ID = USER_MENU_ID(1)
+  MY_QUIT_ID = USER_MENU_ID(2)
+  MY_PLUGIN_ID = USER_MENU_ID(3)
+  MY_SHOW_DEVTOOLS = USER_MENU_ID(4)
 
 callbackImpl(cmhimpl, NCContextMenuHandler):
   proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
@@ -34,6 +35,7 @@ callbackImpl(cmhimpl, NCContextMenuHandler):
     discard model.AddSeparator()
     discard model.AddItem(MY_PLUGIN_ID, "Plugin Info")
     discard model.AddItem(MY_MENU_ID, "Hello There")
+    discard model.AddItem(MY_SHOW_DEVTOOLS, "Show DevTools")
     discard model.AddItem(MY_QUIT_ID, "Quit")
     echo "page URL: ", params.GetPageUrl()
     echo "frame URL: ", params.GetFrameUrl()
@@ -51,6 +53,9 @@ callbackImpl(cmhimpl, NCContextMenuHandler):
       var host = browser.GetHost()
       host.CloseBrowser(true)
 
+    #if command_id == MY_SHOW_DEVTOOLS:
+      #var devtools_url = browser.GetHost().GetDevToolsURL(true)
+      
     #if command_id == MY_PLUGIN_ID:
     #  echo "PLUGIN INFO"
     #  let visitor = makeNCWebPluginInfoVisitor(visitor_impl)
@@ -177,6 +182,8 @@ proc RegisterSchemeHandler() =
 
 callbackImpl(lshimpl, NCLifeSpanHandler):
   proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
+    var client = getClient[myClient](browser)
+    echo client.name
     NCQuitMessageLoop()
 
 callbackImpl(client_impl, myClient):

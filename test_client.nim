@@ -28,14 +28,34 @@ const
   MY_QUIT_ID = USER_MENU_ID(2)
   MY_PLUGIN_ID = USER_MENU_ID(3)
   MY_SHOW_DEVTOOLS = USER_MENU_ID(4)
+  MY_CLOSE_DEVTOOLS = USER_MENU_ID(5)
+  MY_INSPECT_ELEMENT = USER_MENU_ID(6)
+  
+handlerImpl(stdClient, NCClient)
 
-callbackImpl(cmhimpl, NCContextMenuHandler):
+proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
+  var windowInfo: NCWindowInfo
+  windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
+  windowInfo.parent_window = cef_window_handle(0)
+  windowInfo.x = CW_USEDEFAULT
+  windowInfo.y = CW_USEDEFAULT
+  windowInfo.width = CW_USEDEFAULT
+  windowInfo.height = CW_USEDEFAULT
+  
+  var setting: NCBrowserSettings  
+  host.ShowDevTools(windowInfo, stdClient.NCCreate(), setting, NCPoint(x:x, y:y))
+  
+handlerImpl(cmhimpl, NCContextMenuHandler):
   proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
     discard model.AddSeparator()
     discard model.AddItem(MY_PLUGIN_ID, "Plugin Info")
     discard model.AddItem(MY_MENU_ID, "Hello There")
+    discard model.AddSeparator()
     discard model.AddItem(MY_SHOW_DEVTOOLS, "Show DevTools")
+    discard model.AddItem(MY_CLOSE_DEVTOOLS, "Close DevTools")
+    discard model.AddItem(MY_INSPECT_ELEMENT, "Inspect Element")
+    discard model.AddSeparator()
     discard model.AddItem(MY_QUIT_ID, "Quit")
     echo "page URL: ", params.GetPageUrl()
     echo "frame URL: ", params.GetFrameUrl()
@@ -45,17 +65,26 @@ callbackImpl(cmhimpl, NCContextMenuHandler):
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
     event_flags: cef_event_flags): int =
 
-    if command_id == MY_MENU_ID:
+    case command_id 
+    of MY_MENU_ID:
       echo "Hello There Clicked"
       frame.ExecuteJavaScript("alert('Hello There Clicked!');", frame.GetURL(), 0)
 
-    if command_id == MY_QUIT_ID:
+    of MY_QUIT_ID:
       var host = browser.GetHost()
       host.CloseBrowser(true)
 
-    #if command_id == MY_SHOW_DEVTOOLS:
-      #var devtools_url = browser.GetHost().GetDevToolsURL(true)
+    of MY_SHOW_DEVTOOLS:
+      showDevTool(browser.GetHost())
       
+    of MY_CLOSE_DEVTOOLS:
+      browser.GetHost().CloseDevTools()
+      
+    of MY_INSPECT_ELEMENT:
+      showDevTool(browser.GetHost(), params.GetXCoord(), params.GetYCoord())
+      
+    else:
+      echo "unsupported MENU ID"
     #if command_id == MY_PLUGIN_ID:
     #  echo "PLUGIN INFO"
     #  let visitor = makeNCWebPluginInfoVisitor(visitor_impl)
@@ -98,7 +127,7 @@ proc DumpRequestContents(request: NCRequest): string =
           ss.write it.GetFile()
   result = ss.data
 
-callbackImpl(scheme, myScheme):
+handlerImpl(scheme, myScheme):
   proc ProcessRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
     NC_REQUIRE_IO_THREAD()
 
@@ -168,11 +197,11 @@ myScheme object handling the client:// protocol.
 
     result = has_data
 
-callbackImpl(appimpl, myApp):
+handlerImpl(appimpl, myApp):
   proc OnRegisterCustomSchemes*(self: myApp, registrar: NCSchemeRegistrar) =
     discard registrar.AddCustomScheme("client", true, false, false)
 
-callbackImpl(scimpl, NCSchemeHandlerFactory):
+handlerImpl(scimpl, NCSchemeHandlerFactory):
   proc Create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
     result = scheme.NCCreate()
@@ -180,13 +209,13 @@ callbackImpl(scimpl, NCSchemeHandlerFactory):
 proc RegisterSchemeHandler() =
   NCRegisterSchemeHandlerFactory("client", "tests", scimpl.NCCreate())
 
-callbackImpl(lshimpl, NCLifeSpanHandler):
+handlerImpl(lshimpl, NCLifeSpanHandler):
   proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
     var client = getClient[myClient](browser)
     echo client.name
     NCQuitMessageLoop()
 
-callbackImpl(client_impl, myClient):
+handlerImpl(client_impl, myClient):
   proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
 

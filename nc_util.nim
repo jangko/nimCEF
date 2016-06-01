@@ -892,7 +892,7 @@ proc getBaseName(nc: NimNode): string =
   let base = isRefInherit(nc)
   result = $base
   
-macro callbackImpl*(inst: untyped, nc: typed, methods: varargs[typed]): stmt =
+macro handlerImpl*(inst: untyped, nc: typed, methods: varargs[typed]): stmt =
   let hName = getHandlerName(nc)
   let baseName = getBaseName(nc)
   var glue = "type\n"

@@ -4,7 +4,7 @@ import nc_util, nc_context_menu_params, nc_menu_model
 type
   myHandler = ref object of NCContextMenuHandler
  
-callbackImpl(abc, myHandler):
+handlerImpl(abc, myHandler):
   proc OnBeforeContextMenu(self: myHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
     discard

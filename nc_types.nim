@@ -332,13 +332,13 @@ type
 
 proc to_cef*(nc: NCPoint): cef_point =
   result.x = nc.x.cint
-  result.y = nc.x.cint
+  result.y = nc.y.cint
 
 template nc_free*(nc: cef_point) = discard
 
 proc to_nim*(nc: cef_point): NCPoint =
   result.x = nc.x.int
-  result.y = nc.x.int
+  result.y = nc.y.int
 
 proc to_cef*(nc: NCRect): cef_rect =
   result = cef_rect(x: nc.x.cint, y: nc.y.cint,

@@ -12,7 +12,7 @@ type
 
   myApp = ref object of NCApp
 
-handlerImpl(lshimpl, NCLifeSpanHandler):
+handlerImpl(NCLifeSpanHandler):
   proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
     NCQuitMessageLoop()    
 
@@ -20,7 +20,7 @@ const
   MY_MENU_ID = USER_MENU_ID(1)
   MY_QUIT_ID = USER_MENU_ID(2)
 
-handlerImpl(cmhimpl, NCContextMenuHandler):
+handlerImpl(NCContextMenuHandler):
   proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
     discard model.AddSeparator()
@@ -41,7 +41,7 @@ handlerImpl(cmhimpl, NCContextMenuHandler):
       var host = browser.GetHost()
       host.CloseBrowser(true)
 
-handlerImpl(clientimpl, myClient):
+handlerImpl(myClient):
   proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
 
@@ -49,18 +49,18 @@ handlerImpl(clientimpl, myClient):
     return self.lsh
 
 proc newClient(no: int, name: string): myClient =
-  result = clientimpl.NCCreate()
+  result = myClient.NCCreate()
   result.abc = no
   result.name = name
-  result.cmh = cmhimpl.NCCreate()
-  result.lsh = lshimpl.NCCreate()
+  result.cmh = NCContextMenuHandler.NCCreate()
+  result.lsh = NCLifeSpanHandler.NCCreate()
 
-handlerImpl(appimpl, myApp)
+handlerImpl(myApp)
 
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
-  var app = appimpl.NCCreate()
+  var app = myApp.NCCreate()
 
   var code = NCExecuteProcess(mainArgs, app)
   if code >= 0:

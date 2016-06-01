@@ -46,14 +46,13 @@ import nc_util, nc_context_menu_params, nc_menu_model
 type
   myHandler = ref object of NCContextMenuHandler
 ``` 
-* Next step use **handlerImpl**, with three parameters,
-	* first param is any valid identifier you want
-	* second param is the typeDesc we already defined or the NCxxx type
-	* the third param is a list of your procs. The 'self' must have the same type with the second param
-  * the third param is optional, and default implementation will be used if no procs are defined
+* Next step use **handlerImpl**, with two parameters,
+	* first param is the typeDesc we already defined or the NCxxx type
+	* the second param is a list of your procs. The 'self' must have the same type with the first param
+  * the second param is optional, and default implementation will be used if no procs are defined
   
 ```nimrod
-handlerImpl(abc, myHandler):
+handlerImpl(myHandler):
   proc OnBeforeContextMenu(self: myHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
     discard
@@ -66,7 +65,7 @@ handlerImpl(abc, myHandler):
 
 * if you want to create an instance of your handler, just call NCCreate with single param from **handlerImpl** first param
 ```nimrod
-var cmhandler_inst = abc.NCCreate()
+var cmhandler_inst = myHandler.NCCreate()
 ```
 
 ### HOW TO CREATE USER DEFINED MENU ID

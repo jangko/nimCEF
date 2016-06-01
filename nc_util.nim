@@ -630,10 +630,10 @@ proc extractParam(res: var seq[paramPair], n: NimNode) =
   for i in 0.. <numParam:
     res.add paramPair(nName: n[i], nType: n[numParam])
 
-proc collectParams(n: NimNode): seq[paramPair] =
+proc collectParams(n: NimNode, start = 2): seq[paramPair] =
   result = @[]
   # skip result and self
-  for i in 2.. <n.len:
+  for i in start.. <n.len:
     extractParam(result, n[i])
 
 proc checkCefPtr(n: NimNode): bool =
@@ -894,13 +894,17 @@ proc getBaseName(nc: NimNode): string =
   if isNCObject(nc): return $nc
   let base = isRefInherit(nc)
   result = $base
-
-macro handlerImpl*(inst: untyped, nc: typed, methods: varargs[typed]): stmt =
+  
+proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): string =
   let hName = getHandlerName(nc)
   let baseName = getBaseName(nc)
+  let typeID = $global_iidx
+  let implID = $(global_iidx + 1)
+  inc(global_iidx, 2)
+  
   var glue = "type\n"
-  glue.add "  nc_type_$1 = $2_i[$3]\n" % [$global_iidx, hName, $nc]
-  glue.add "var $1 = nc_type_$2" % [$inst, $global_iidx]
+  glue.add "  nc_type_$1 = $2_i[$3]\n" % [typeID, hName, $nc]
+  glue.add "var nc_impl_$1 = nc_type_$2" % [implID, typeID]
 
   if methods.len == 0:
     glue.add "()\n"
@@ -920,15 +924,26 @@ macro handlerImpl*(inst: untyped, nc: typed, methods: varargs[typed]): stmt =
   if methods.len != 0:
     glue.add ")\n"
 
-  glue.add "proc NCCreate*(impl: nc_type_$1): $2 = \n" % [$global_iidx, $nc]
-  glue.add "  result = make$1(impl)\n" % [baseName]
+  let star = if constructorVisible: "*" else: ""  
+  glue.add "proc make$1NCImplNC$2(): $1 = \n" % [$nc, star]
+  glue.add "  result = make$1(nc_impl$2)\n" % [baseName, implID]
 
   if wrapDebugMode:
     echo glue
-
-  inc(global_iidx)
+    
+  result = glue
+    
+macro handlerImpl*(nc: typed, methods: varargs[typed]): stmt =    
+  let glue = handlerImplImpl(nc, methods, true)
   result = parseStmt(glue)
 
+macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): stmt =    
+  let glue = handlerImplImpl(nc, methods, false)
+  result = parseStmt(glue)
+  
+template NCCreate*(n: typed): expr =
+  `make n NCImplNC`()
+  
 var
   vm_menu_id {.compileTime.} = 1
 
@@ -943,4 +958,57 @@ macro MENU_ID*(n: untyped): stmt =
     glue.add "  $1 = USER_MENU_ID($2)\n" % [$c, $vm_menu_id]
     inc vm_menu_id
 
+  result = parseStmt(glue)
+  
+macro NCBindTask*(ident: untyped, routine: typed): stmt =
+  var procName: string
+  var rout: NimNode  
+  if routine.kind == nnkCall:
+    procName = $routine[0]
+    rout = getImpl(routine[0].symbol)
+  else:
+    procName = $routine
+    rout = getImpl(routine.symbol)
+    
+  let params = params(rout)
+  let paramList = collectParams(params, 1)
+  let typeID = $global_iidx
+  inc(global_iidx)
+  
+  var args = ""
+  var ex_args = ""
+  var call_args = ""
+  for i in 0.. <paramList.len:
+    let arg = paramList[i]
+    args.add "arg$1: $2" % [$i, arg.nType.toStrlit().strVal]
+    ex_args.add "self.nc_arg$1" % [$i]
+    call_args.add "arg$1" % [$i]
+    if i < paramList.len - 1: 
+      args.add ", "
+      ex_args.add ", "
+      call_args.add ", "
+      
+  var glue = "proc $1($2): NCTask =\n" % [$ident, args]
+  glue.add "  type\n"
+  glue.add "    nc_type_$1 = ref object of NCTask\n" % [typeID]
+  
+  for i in 0.. <paramList.len:
+    let arg = paramList[i]
+    glue.add "      nc_arg$1: $2\n" % [$i, arg.nType.toStrlit().strVal]
+
+  glue.add "  closureHandlerImpl(nc_type_$1):\n" % [typeID]
+  glue.add "    proc Execute(self: nc_type_$1) =\n" % [typeID]
+  glue.add "      $1($2)\n" % [procName, ex_args]
+  
+  glue.add "  proc newnc_type_$1($2): nc_type_$1 =\n" % [typeID, args]
+  glue.add "    result = nc_type_$1.NCCreate()\n" % [typeID]
+  
+  for i in 0.. <paramList.len:
+    glue.add "    result.nc_arg$1 = arg$1\n" % [$i]
+  
+  glue.add "  result = newnc_type_$1($2)\n" % [typeID, call_args]
+  
+  if wrapDebugMode:
+    echo glue
+    
   result = parseStmt(glue)

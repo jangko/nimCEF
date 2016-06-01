@@ -19,11 +19,6 @@ type
     read_on_file_thread: bool
     buffer: LocalBuffer
   
-  StreamResourceTask = ref object of NCTask
-    stream_handler: NCStreamResourceHandler
-    bytes_to_read: int
-    callback: NCCallback
-    
 proc newBuffer(): LocalBuffer =
   new(result)
   result.size = 0
@@ -66,19 +61,8 @@ proc ReadFrom(buf: LocalBuffer, reader: NCStreamReader): int =
   
 #forward declaration
 proc ReadOnFileThread(self: NCStreamResourceHandler, bytes_to_read: int, callback: NCCallback)
-   
-handlerImpl(stream_resource_task, StreamResourceTask):
-  proc Execute*(self: StreamResourceTask) =
-    ReadOnFileThread(self.stream_handler, self.bytes_to_read, self.callback)
-  
-proc newStreamResourceTask(handler: NCStreamResourceHandler, 
-  bytes_to_read: int, callback: NCCallback): StreamResourceTask =
-  result = stream_resource_task.NCCreate()
-  result.bytes_to_read = bytes_to_read
-  result.callback = callback
-  result.stream_handler = handler
-  
-handlerImpl(stream_resource_handler, NCStreamResourceHandler):
+
+handlerImpl(NCStreamResourceHandler):
   proc ProcessRequest*(self: NCStreamResourceHandler, request: NCRequest, callback: NCCallback): bool =
     callback.Continue()
     result = true
@@ -106,7 +90,8 @@ handlerImpl(stream_resource_handler, NCStreamResourceHandler):
       else:
         # Perform another read on the file thread.
         bytes_read = 0
-        discard NCPostTask(TID_FILE, newStreamResourceTask(self, bytes_to_read, callback))
+        NCBindTask(bindTask, ReadOnFileThread)
+        discard NCPostTask(TID_FILE, bindTask(self, bytes_to_read, callback))
         return true
     else:
       #Read until the buffer is full or until Read() returns 0 to indicate no
@@ -122,7 +107,7 @@ handlerImpl(stream_resource_handler, NCStreamResourceHandler):
       return bytes_read > 0
   
 proc newNCStreamResourceHandler*(mime_type: string, stream: NCStreamReader): NCStreamResourceHandler =
-  result = stream_resource_handler.NCCreate()
+  result = NCStreamResourceHandler.NCCreate()
   result.status_code = 200
   result.status_text = "OK"
   result.mime_type = mime_type
@@ -134,7 +119,7 @@ proc newNCStreamResourceHandler*(mime_type: string, stream: NCStreamReader): NCS
 
 proc newNCStreamResourceHandler*(status_code: int, status_text, mime_type: string, 
   header_map: NCStringMultiMap, stream: NCStreamReader): NCStreamResourceHandler =
-  result = stream_resource_handler.NCCreate()
+  result = NCStreamResourceHandler.NCCreate()
   result.status_code = status_code
   result.status_text = status_text
   result.mime_type = mime_type

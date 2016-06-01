@@ -79,3 +79,12 @@ const
   MY_QUIT_ID = USER_MENU_ID(2)
   MY_PLUGIN_ID = USER_MENU_ID(3)
 ```
+
+or better yet, you can use MENU_ID macro to guarantee you always get unique id for each identifier
+
+```nimrod
+MENU_ID:
+  MY_MENU_ID
+  MY_QUIT_ID
+  MY_PLUGIN_ID
+```

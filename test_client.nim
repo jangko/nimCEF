@@ -23,14 +23,15 @@ type
     cmh: NCContextMenuHandler
     lsh: NCLifeSpanHandler
 
-const
-  MY_MENU_ID = USER_MENU_ID(1)
-  MY_QUIT_ID = USER_MENU_ID(2)
-  MY_PLUGIN_ID = USER_MENU_ID(3)
-  MY_SHOW_DEVTOOLS = USER_MENU_ID(4)
-  MY_CLOSE_DEVTOOLS = USER_MENU_ID(5)
-  MY_INSPECT_ELEMENT = USER_MENU_ID(6)
-  
+
+MENU_ID:
+  MY_MENU_ID
+  MY_QUIT_ID
+  MY_PLUGIN_ID
+  MY_SHOW_DEVTOOLS
+  MY_CLOSE_DEVTOOLS
+  MY_INSPECT_ELEMENT
+
 handlerImpl(stdClient, NCClient)
 
 proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
@@ -41,10 +42,10 @@ proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
   windowInfo.y = CW_USEDEFAULT
   windowInfo.width = CW_USEDEFAULT
   windowInfo.height = CW_USEDEFAULT
-  
-  var setting: NCBrowserSettings  
+
+  var setting: NCBrowserSettings
   host.ShowDevTools(windowInfo, stdClient.NCCreate(), setting, NCPoint(x:x, y:y))
-  
+
 handlerImpl(cmhimpl, NCContextMenuHandler):
   proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
@@ -65,7 +66,7 @@ handlerImpl(cmhimpl, NCContextMenuHandler):
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
     event_flags: cef_event_flags): int =
 
-    case command_id 
+    case command_id
     of MY_MENU_ID:
       echo "Hello There Clicked"
       frame.ExecuteJavaScript("alert('Hello There Clicked!');", frame.GetURL(), 0)
@@ -76,13 +77,13 @@ handlerImpl(cmhimpl, NCContextMenuHandler):
 
     of MY_SHOW_DEVTOOLS:
       showDevTool(browser.GetHost())
-      
+
     of MY_CLOSE_DEVTOOLS:
       browser.GetHost().CloseDevTools()
-      
+
     of MY_INSPECT_ELEMENT:
       showDevTool(browser.GetHost(), params.GetXCoord(), params.GetYCoord())
-      
+
     else:
       echo "unsupported MENU ID"
     #if command_id == MY_PLUGIN_ID:
@@ -137,7 +138,7 @@ handlerImpl(scheme, myScheme):
       #Build the response html
       self.mData = """<html><head><title>Client Scheme Handler</title></head>
 <body bgcolor="white">
-This contents of this page page are served by the
+This contents of this page are served by the
 myScheme object handling the client:// protocol.
 <h2>Google</h2>
 <a href="https://www.google.com/">https://www.google.com/</a>

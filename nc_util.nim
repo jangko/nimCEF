@@ -9,6 +9,9 @@ export cef_string_multimap_api
 type
   NCStringMultiMap* = TableRef[string, seq[string]]
 
+proc newNCStringMultiMap*(): NCStringMultiMap =
+  result = newTable[string, seq[string]]()
+  
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
 proc to_cef*(str: string): ptr cef_string =

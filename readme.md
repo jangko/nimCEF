@@ -67,7 +67,7 @@ handlerImpl(abc, myHandler):
 * if you want to create an instance of your handler, just call NCCreate with single param from **handlerImpl** first param
 ```nimrod
 var cmhandler_inst = abc.NCCreate()
-
+```
 
 ### HOW TO CREATE USER DEFINED MENU ID
 If you use NCContextMenuModel and NCContextMenuHandler to create user defined menu entry, you also need

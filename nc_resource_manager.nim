@@ -117,7 +117,13 @@ proc OnRequestCanceled(prov: Provider, request: Request) =
   if prov.OnRequestCanceledImpl != nil:
     prov.OnRequestCanceledImpl(prov, request)
 
-    
+proc newProviderEntry(provider: Provider, order: int, identifier: string): ProviderEntry =
+  new(result)
+  result.provider = provider
+  result.order = order
+  result.identifier = identifier
+  result.deletion_pending = false
+  
 # Returns the URL associated with this request. The returned value will be
 # fully qualified but will not contain query or fragment components. It
 # will already have been passed through the URL filter.
@@ -327,7 +333,101 @@ proc IncrementProvider(self: NCResourceManager, state: RequestState): bool =
     return true
 
   result = false
- 
+
+proc AddProvider(self: NCResourceManager, provider: Provider, order: int, identifier: string) =
+  if not NCCurrentlyOn(TID_IO):
+    NCBindTask(bindAddProvider, AddProvider)
+    discard NCPostTask(TID_IO, bindAddProvider(self, provider, order, identifier))
+    return
+  
+  var new_entry = newProviderEntry(provider, order, identifier)
+  if self.providers.len == 0:
+    self.providers.add(new_entry)
+    return
+
+  # Insert before the first entry with a higher |order| value.
+  for i in 0.. <self.providers.len:
+    if self.providers[i].order > order:
+      self.providers.insert(new_entry, i)
+      break
+      
+proc DeleteProvider(self: NCResourceManager, it: int, stop: bool) =
+  NC_REQUIRE_IO_THREAD()
+  var current_entry = self.providers[it]
+  if current_entry.deletion_pending:
+    return
+
+  if current_entry.pending_requests.len != 0:
+    # Don't delete the provider entry until all pending requests have cleared.
+    current_entry.deletion_pending = true
+
+    # Continue pending requests immediately.
+    for request in current_entry.pending_requests:
+      if request.HasState():
+        if stop: request.Stop()
+        else: request.Continue(nil)
+        current_entry.provider.OnRequestCanceled(request)
+  else:
+    # Delete the provider entry now.
+    self.providers.delete(it)
+
+proc RemoveProviders(self: NCResourceManager, identifier: string) =
+  if not NCCurrentlyOn(TID_IO):
+    NCBindTask(bindRemoveProviders, RemoveProviders)
+    discard NCPostTask(TID_IO, bindRemoveProviders(self, identifier))
+    return
+
+  if self.providers.len == 0:
+    return
+
+  for it in 0.. <self.providers.len:
+    if self.providers[it].identifier == identifier:
+      DeleteProvider(it, false)
+    
+ #[  
+void CefResourceManager::RemoveAllProviders() {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO,
+        base::Bind(&CefResourceManager::RemoveAllProviders, this));
+    return;
+  }
+
+  if (providers_.empty())
+    return;
+
+  ProviderEntryList::iterator it = providers_.begin();
+  while (it != providers_.end())
+    DeleteProvider(it, true);
+}
+
+void CefResourceManager::SetMimeTypeResolver(const MimeTypeResolver& resolver) {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO,
+        base::Bind(&CefResourceManager::SetMimeTypeResolver, this, resolver));
+    return;
+  }
+
+  if (!resolver.is_null())
+    mime_type_resolver_ = resolver;
+  else
+    mime_type_resolver_ = base::Bind(GetMimeType);
+}
+
+void CefResourceManager::SetUrlFilter(const UrlFilter& filter) {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO,
+        base::Bind(&CefResourceManager::SetUrlFilter, this, filter));
+    return;
+  }
+
+  if (!filter.is_null())
+    url_filter_ = filter;
+  else
+    url_filter_ = base::Bind(GetFilteredUrl);
+}
+
+  ]#
+  
 proc cpOnRequest(prov: Provider, request: Request): bool =
   var self = ContentProvider(prov)
   NC_REQUIRE_IO_THREAD()

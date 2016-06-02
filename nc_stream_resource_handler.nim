@@ -10,7 +10,7 @@ type
     bytes_written: int
     bytes_read: int
     
-  NCStreamResourceHandler = ref object of NCResourceHandler
+  NCStreamResourceHandler* = ref object of NCResourceHandler
     status_code: int
     status_text: string
     mime_type: string

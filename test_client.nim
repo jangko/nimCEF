@@ -32,21 +32,25 @@ MENU_ID:
   MY_CLOSE_DEVTOOLS
   MY_INSPECT_ELEMENT
 
-handlerImpl(stdClient, NCClient)
+handlerImpl(NCClient)
 
 proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
+  let screenW = GetSystemMetrics(SM_CXSCREEN)
+  let screenH = GetSystemMetrics(SM_CYSCREEN)  
+  let devToolW = screenW - screenW div 3
+  let devToolH = screenH - screenH div 3
   var windowInfo: NCWindowInfo
-  windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
+  windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE
   windowInfo.parent_window = cef_window_handle(0)
-  windowInfo.x = CW_USEDEFAULT
-  windowInfo.y = CW_USEDEFAULT
-  windowInfo.width = CW_USEDEFAULT
-  windowInfo.height = CW_USEDEFAULT
+  windowInfo.x = (screenW - devToolW) div 2
+  windowInfo.y = (screenH - devToolH) div 2
+  windowInfo.width = devToolW
+  windowInfo.height = devToolH
 
   var setting: NCBrowserSettings
-  host.ShowDevTools(windowInfo, stdClient.NCCreate(), setting, NCPoint(x:x, y:y))
+  host.ShowDevTools(windowInfo, NCClient.NCCreate(), setting, NCPoint(x:x, y:y))
 
-handlerImpl(cmhimpl, NCContextMenuHandler):
+handlerImpl(NCContextMenuHandler):
   proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
     discard model.AddSeparator()
@@ -128,7 +132,7 @@ proc DumpRequestContents(request: NCRequest): string =
           ss.write it.GetFile()
   result = ss.data
 
-handlerImpl(scheme, myScheme):
+handlerImpl(myScheme):
   proc ProcessRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
     NC_REQUIRE_IO_THREAD()
 
@@ -198,25 +202,25 @@ myScheme object handling the client:// protocol.
 
     result = has_data
 
-handlerImpl(appimpl, myApp):
+handlerImpl(myApp):
   proc OnRegisterCustomSchemes*(self: myApp, registrar: NCSchemeRegistrar) =
     discard registrar.AddCustomScheme("client", true, false, false)
 
-handlerImpl(scimpl, NCSchemeHandlerFactory):
+handlerImpl(NCSchemeHandlerFactory):
   proc Create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
-    result = scheme.NCCreate()
+    result = myScheme.NCCreate()
 
 proc RegisterSchemeHandler() =
-  NCRegisterSchemeHandlerFactory("client", "tests", scimpl.NCCreate())
+  NCRegisterSchemeHandlerFactory("client", "tests", NCSchemeHandlerFactory.NCCreate())
 
-handlerImpl(lshimpl, NCLifeSpanHandler):
+handlerImpl(NCLifeSpanHandler):
   proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
     var client = getClient[myClient](browser)
-    echo client.name
+    echo client.name, " exit now"
     NCQuitMessageLoop()
 
-handlerImpl(client_impl, myClient):
+handlerImpl(myClient):
   proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
 
@@ -224,11 +228,11 @@ handlerImpl(client_impl, myClient):
     return self.lsh
 
 proc newClient(no: int, name: string): myClient =
-  result = client_impl.NCCreate()
+  result = myClient.NCCreate()
   result.abc = no
   result.name = name
-  result.cmh = cmhimpl.NCCreate()
-  result.lsh = lshimpl.NCCreate()
+  result.cmh = NCContextMenuHandler.NCCreate()
+  result.lsh = NCLifeSpanHandler.NCCreate()
 
 proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, top_origin_url: string,
   plugin_info: NCWebPluginInfo, plugin_policy: var cef_plugin_policy): bool =
@@ -244,7 +248,7 @@ proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, t
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
-  var app = appimpl.NCCreate()
+  var app = myApp.NCCreate()
 
   var code = NCExecuteProcess(mainArgs, app)
   if code >= 0:
@@ -274,7 +278,7 @@ proc main() =
   #It is mandatory to set the "size" member.
   var browserSettings: NCBrowserSettings
   #browserSettings.plugins = STATE_ENABLED
-  var client = newClient(123, "hello")
+  var client = newClient(123, "myClient")
 
   #var rch = makeNCRequestContextHandler(rch_impl)
   #var rcsetting: NCRequestContextSettings

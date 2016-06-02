@@ -83,11 +83,11 @@ proc GetValidExpiry*(self: NCSslInfo): NCTime =
   self.wrapCall(get_valid_expiry, result)
 
 # Returns the DER encoded data for the X.509 certificate.
-proc GetDerencoded*(self: NCSslInfo): NCBinaryValue =
+proc GetDERencoded*(self: NCSslInfo): NCBinaryValue =
   self.wrapCall(get_derencoded, result)
 
 # Returns the PEM encoded data for the X.509 certificate.
-proc GetPemencoded*(self: NCSslInfo): NCBinaryValue =
+proc GetPEMencoded*(self: NCSslInfo): NCBinaryValue =
   self.wrapCall(get_pemencoded, result)
 
 # Returns the number of certificates in the issuer chain. If 0, the
@@ -98,13 +98,13 @@ proc GetIssuerChainSize*(self: NCSslInfo): int =
 # Returns the DER encoded data for the certificate issuer chain. If we failed
 # to encode a certificate in the chain it is still present in the array but
 # is an NULL string.
-proc GetDerencodedIssuerChain*(self: NCSslInfo): seq[NCBinaryValue] =
+proc GetDERencodedIssuerChain*(self: NCSslInfo): seq[NCBinaryValue] =
   var size = self.GetIssuerChainSize()
   self.wrapCall(get_derencoded_issuer_chain, result, size)
 
 # Returns the PEM encoded data for the certificate issuer chain. If we failed
 # to encode a certificate in the chain it is still present in the array but
 # is an NULL string.
-proc GetPemencodedIssuerChain*(self: NCSslInfo): seq[NCBinaryValue] =
+proc GetPEMencodedIssuerChain*(self: NCSslInfo): seq[NCBinaryValue] =
   var size = self.GetIssuerChainSize()
   self.wrapCall(get_pemencoded_issuer_chain, result, size)

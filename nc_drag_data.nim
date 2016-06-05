@@ -25,38 +25,31 @@ proc IsFile*(self: NCDragData): bool =
   self.wrapCall(is_file, result)
 
 # Return the link URL that is being dragged.
-# The resulting string must be freed by calling string_free().
 proc GetLinkUrl*(self: NCDragData): string =
   self.wrapCall(get_link_url, result)
 
 # Return the title associated with the link being dragged.
-# The resulting string must be freed by calling string_free().
 proc GetLinkTitle*(self: NCDragData): string =
   self.wrapCall(get_link_title, result)
 
 # Return the metadata, if any, associated with the link being dragged.
-# The resulting string must be freed by calling string_free().
 proc GetLinkMetadata*(self: NCDragData): string =
   self.wrapCall(get_link_metadata, result)
 
 # Return the plain text fragment that is being dragged.
-# The resulting string must be freed by calling string_free().
 proc GetFragmentText*(self: NCDragData): string =
   self.wrapCall(get_fragment_text, result)
 
 # Return the text/html fragment that is being dragged.
-# The resulting string must be freed by calling string_free().
 proc GetFragmentHtml*(self: NCDragData): string =
   self.wrapCall(get_fragment_html, result)
 
 # Return the base URL that the fragment came from. This value is used for
 # resolving relative URLs and may be NULL.
-# The resulting string must be freed by calling string_free().
 proc GetFragmentBaseUrl*(self: NCDragData): string =
   self.wrapCall(get_fragment_base_url, result)
 
 # Return the name of the file being dragged out of the browser window.
-# The resulting string must be freed by calling string_free().
 proc GetFileName*(self: NCDragData): string =
   self.wrapCall(get_file_name, result)
 

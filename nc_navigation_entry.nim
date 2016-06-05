@@ -10,22 +10,18 @@ proc IsValid*(self: NCNavigationEntry): bool =
 
 # Returns the actual URL of the page. For some pages this may be data: URL or
 # similar. Use get_display_url() to return a display-friendly version.
-# The resulting string must be freed by calling string_free().
 proc GetUrl*(self: NCNavigationEntry): string =
   self.wrapCall(get_url, result)
 
 # Returns a display-friendly version of the URL.
-# The resulting string must be freed by calling string_free().
 proc GetDisplayUrl*(self: NCNavigationEntry): string =
   self.wrapCall(get_display_url, result)
 
 # Returns the original URL that was entered by the user before any redirects.
-# The resulting string must be freed by calling string_free().
 proc GetOriginalUrl*(self: NCNavigationEntry): string =
   self.wrapCall(get_original_url, result)
 
 # Returns the title set by the page. This value may be NULL.
-# The resulting string must be freed by calling string_free().
 proc GetTitle*(self: NCNavigationEntry): string =
   self.wrapCall(get_title, result)
 

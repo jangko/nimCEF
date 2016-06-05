@@ -17,7 +17,6 @@ proc SetStatus*(self: NCResponse, status: int) =
   self.wrapCall(set_status, status)
 
 # Get the response status text.
-# The resulting string must be freed by calling string_free().
 proc GetStatusText*(self: NCResponse): string =
   self.wrapCall(get_status_text, result)
 
@@ -26,7 +25,6 @@ proc SetStatusText*(self: NCResponse, statusText: string) =
   self.wrapCall(set_status_text, statusText)
 
 # Get the response mime type.
-# The resulting string must be freed by calling string_free().
 proc GetMimeType*(self: NCResponse): string =
   self.wrapCall(get_mime_type, result)
 
@@ -35,7 +33,6 @@ proc SetMimeType*(self: NCResponse, mimeType: string) =
   self.wrapCall(set_mime_type, mimeType)
 
 # Get the value for the specified response header field.
-# The resulting string must be freed by calling string_free().
 proc GetHeader*(self: NCResponse, name: string): string =
   self.wrapCall(get_header, result, name)
 

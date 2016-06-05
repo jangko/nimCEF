@@ -55,7 +55,7 @@ proc ReadFrom(buf: LocalBuffer, reader: NCStreamReader): int =
   while true:
     bytes_read = reader.Read(addr(buf.buffer[buf.bytes_written]), 1, buf.bytes_requested - buf.bytes_written)
     inc(buf.bytes_written, bytes_read)
-    if (bytes_read != 0) and (buf.bytes_written < buf.bytes_requested): break
+    if not ((bytes_read != 0) and (buf.bytes_written < buf.bytes_requested)): break
 
   result = buf.bytes_written
   
@@ -102,7 +102,7 @@ handlerImpl(NCStreamResourceHandler):
       while true:
         read = self.stream.Read(addr(buf[bytes_read]), 1, bytes_to_read - bytes_read)
         inc(bytes_read, read)
-        if (read != 0) and (bytes_read < bytes_to_read): break
+        if not ((read != 0) and (bytes_read < bytes_to_read)): break
 
       return bytes_read > 0
   

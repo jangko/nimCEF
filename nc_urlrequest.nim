@@ -13,36 +13,36 @@ wrapAPI(NCUrlRequest, cef_urlrequest)
 # functions of this structure will be called on the same thread that created
 # the request unless otherwise documented.
 wrapCallback(NCUrlRequestClient, cef_urlrequest_client):
-    # Notifies the client that the request has completed. Use the
-    # cef_urlrequest_t::GetRequestStatus function to determine if the request was
-    # successful or not.
-    proc OnRequestComplete*(self: T, request: NCUrlRequest)
+  # Notifies the client that the request has completed. Use the
+  # cef_urlrequest_t::GetRequestStatus function to determine if the request was
+  # successful or not.
+  proc OnRequestComplete*(self: T, request: NCUrlRequest)
 
-    # Notifies the client of upload progress. |current| denotes the number of
-    # bytes sent so far and |total| is the total size of uploading data (or -1 if
-    # chunked upload is enabled). This function will only be called if the
-    # UR_FLAG_REPORT_UPLOAD_PROGRESS flag is set on the request.
-    proc OnUploadProgress*(self: T, request: NCUrlRequest, current, total: int64)
+  # Notifies the client of upload progress. |current| denotes the number of
+  # bytes sent so far and |total| is the total size of uploading data (or -1 if
+  # chunked upload is enabled). This function will only be called if the
+  # UR_FLAG_REPORT_UPLOAD_PROGRESS flag is set on the request.
+  proc OnUploadProgress*(self: T, request: NCUrlRequest, current, total: int64)
 
-    # Notifies the client of download progress. |current| denotes the number of
-    # bytes received up to the call and |total| is the expected total size of the
-    # response (or -1 if not determined).
-    proc OnDownloadProgress*(self: T, request: NCUrlRequest, current, total: int64)
+  # Notifies the client of download progress. |current| denotes the number of
+  # bytes received up to the call and |total| is the expected total size of the
+  # response (or -1 if not determined).
+  proc OnDownloadProgress*(self: T, request: NCUrlRequest, current, total: int64)
 
-    # Called when some part of the response is read. |data| contains the current
-    # bytes received since the last call. This function will not be called if the
-    # UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request.
-    proc OnDownloadData*(self: T, request: NCUrlRequest, data: pointer, data_length: int)
+  # Called when some part of the response is read. |data| contains the current
+  # bytes received since the last call. This function will not be called if the
+  # UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request.
+  proc OnDownloadData*(self: T, request: NCUrlRequest, data: pointer, data_length: int)
 
-    # Called on the IO thread when the browser needs credentials from the user.
-    # |isProxy| indicates whether the host is a proxy server. |host| contains the
-    # hostname and |port| contains the port number. Return true (1) to continue
-    # the request and call cef_auth_callback_t::cont() when the authentication
-    # information is available. Return false (0) to cancel the request. This
-    # function will only be called for requests initiated from the browser
-    # process.
-    proc GetAuthCredentials*(self: T, isProxy: bool, host: string, port: int, realm: string,
-      scheme: string, callback: NCAuthCallback): bool
+  # Called on the IO thread when the browser needs credentials from the user.
+  # |isProxy| indicates whether the host is a proxy server. |host| contains the
+  # hostname and |port| contains the port number. Return true (1) to continue
+  # the request and call cef_auth_callback_t::cont() when the authentication
+  # information is available. Return false (0) to cancel the request. This
+  # function will only be called for requests initiated from the browser
+  # process.
+  proc GetAuthCredentials*(self: T, isProxy: bool, host: string, port: int, realm: string,
+    scheme: string, callback: NCAuthCallback): bool
 
 # Create a new URL request. Only GET_api, POST_api, HEAD_api, DELETE and PUT request
 # functions are supported. Multiple post data elements are not supported and

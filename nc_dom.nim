@@ -36,7 +36,6 @@ proc GetHead*(self: NCDomDocument): NCDomNode =
   self.wrapCall(get_head, result)
 
 # Returns the title of an HTML document.
-# The resulting string must be freed by calling string_free().
 proc GetTitle*(self: NCDomDocument): string =
   self.wrapCall(get_title, result)
 
@@ -61,23 +60,19 @@ proc GetSelectionEndOffset*(self: NCDomDocument): int =
   self.wrapCall(get_selection_end_offset, result)
 
 # Returns the contents of this selection as markup.
-# The resulting string must be freed by calling string_free().
 proc GetSelectionAsMarkup*(self: NCDomDocument): string =
   self.wrapCall(get_selection_as_markup, result)
 
 # Returns the contents of this selection as text.
-# The resulting string must be freed by calling string_free().
 proc GetSelectionAsText*(self: NCDomDocument): string =
   self.wrapCall(get_selection_as_text, result)
 
 # Returns the base URL for the document.
-# The resulting string must be freed by calling string_free().
 proc GetBaseUrl*(self: NCDomDocument): string =
   self.wrapCall(get_base_url, result)
 
 # Returns a complete URL based on the document base URL and the specified
 # partial URL.
-# The resulting string must be freed by calling string_free().
 proc GetCompleteUrl*(self: NCDomDocument, partialURL: string): string =
   self.wrapCall(get_complete_url, result, partialURL)
 
@@ -102,7 +97,6 @@ proc IsFormControlElement*(self: NCDomNode): bool =
   self.wrapCall(is_form_control_element, result)
 
 # Returns the type of this form control element node.
-# The resulting string must be freed by calling string_free().
 proc GetFormControlElementType*(self: NCDomNode): string =
   self.wrapCall(get_form_control_element_type, result)
 
@@ -112,12 +106,10 @@ proc IsSame*(self, that: NCDomNode): bool =
   self.wrapCall(is_same, result, that)
 
 # Returns the name of this node.
-# The resulting string must be freed by calling string_free().
 proc GetName*(self: NCDomNode): string =
   self.wrapCall(get_name, result)
 
 # Returns the value of this node.
-# The resulting string must be freed by calling string_free().
 proc GetValue*(self: NCDomNode): string =
   self.wrapCall(get_value, result)
 
@@ -126,7 +118,6 @@ proc SetValue*(self: NCDomNode, value: string): bool =
   self.wrapCall(set_value, result, value)
 
 # Returns the contents of this node as markup.
-# The resulting string must be freed by calling string_free().
 proc GetAsMarkup*(self: NCDomNode): string =
   self.wrapCall(get_as_markup, result)
 
@@ -160,7 +151,6 @@ proc GetLastChild*(self: NCDomNode): NCDomNode =
 
 # The following functions are valid only for element nodes.
 # Returns the tag name of this element.
-# The resulting string must be freed by calling string_free().
 proc GetElementTagName*(self: NCDomNode): string =
   self.wrapCall(get_element_tag_name, result)
 
@@ -173,7 +163,6 @@ proc HasElementAttribute*(self: NCDomNode, attrName: string): bool =
   self.wrapCall(has_element_attribute, result, attrName)
 
 # Returns the element attribute named |attrName|.
-# The resulting string must be freed by calling string_free().
 proc GetElementAttribute*(self: NCDomNode, attrName: string): string =
   self.wrapCall(get_element_attribute, result, attrName)
 
@@ -187,6 +176,5 @@ proc SetElementAttribute*(self: NCDomNode, attrName, value: string): bool =
   self.wrapCall(set_element_attribute, result, attrName, value)
 
 # Returns the inner text of the element.
-# The resulting string must be freed by calling string_free().
 proc GetElementInnerText*(self: NCDomNode): string =
   self.wrapCall(get_element_inner_text, result)

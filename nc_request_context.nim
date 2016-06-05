@@ -48,7 +48,6 @@ proc GetContextHandler*(self: NCRequestContext): NCRequestContextHandler =
 
 # Returns the cache path for this object. If NULL an "incognito mode" in-
 # memory cache is being used.
-# The resulting string must be freed by calling string_free().
 proc GetCachePath*(self: NCRequestContext): string =
   self.wrapCall(get_cache_path, result)
 

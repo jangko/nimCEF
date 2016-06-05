@@ -85,13 +85,11 @@ proc SetCommandIdAt*(self: NCMenuModel, index: int, command_id: cef_menu_id): bo
   self.wrapCall(set_command_id_at, result, index, command_id)
 
 # Returns the label for the specified |command_id| or NULL if not found.
-# The resulting string must be freed by calling nc_free*().
 proc GetLabel*(self: NCMenuModel, command_id: cef_menu_id): string =
   self.wrapCall(get_label, result, command_id)
 
 # Returns the label at the specified |index| or NULL if not found due to
 # invalid range or the index being a separator.
-# The resulting string must be freed by calling nc_free*().
 proc GetLabelAt*(self: NCMenuModel, index: int): string =
   self.wrapCall(get_label_at, result, index)
 

@@ -46,7 +46,6 @@ proc GetEndTime*(self: NCDownloadItem): NCTime =
   self.wrapCall(get_end_time, result)
 
 # Returns the full path to the downloaded or downloading file.
-# The resulting string must be freed by calling string_free().
 proc GetFullPath*(self: NCDownloadItem): string =
   self.wrapCall(get_full_path, result)
 
@@ -55,26 +54,21 @@ proc GetId*(self: NCDownloadItem): uint32 =
   self.wrapCall(get_id, result)
 
 # Returns the URL.
-# The resulting string must be freed by calling string_free().
 proc GetUrl*(self: NCDownloadItem): string =
   self.wrapCall(get_url, result)
 
 # Returns the original URL before any redirections.
-# The resulting string must be freed by calling string_free().
 proc GetOriginalUrl*(self: NCDownloadItem): string =
   self.wrapCall(get_original_url, result)
 
 # Returns the suggested file name.
-# The resulting string must be freed by calling string_free().
 proc GetSuggestedFileName*(self: NCDownloadItem): string =
   self.wrapCall(get_suggested_file_name, result)
 
 # Returns the content disposition.
-# The resulting string must be freed by calling string_free().
 proc GetContentDisposition*(self: NCDownloadItem): string =
   self.wrapCall(get_content_disposition, result)
 
 # Returns the mime type.
-# The resulting string must be freed by calling string_free().
 proc GetMimeType*(self: NCDownloadItem): string =
   self.wrapCall(get_mime_type, result)

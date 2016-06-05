@@ -38,7 +38,6 @@ proc SetDeviceName*(self: NCPrintSettings, name: string) =
   self.wrapCall(set_device_name, name)
 
 # Get the device name.
-# The resulting string must be freed by calling string_free().
 proc GetDeviceName*(self: NCPrintSettings): string =
   self.wrapCall(get_device_name, result)
 

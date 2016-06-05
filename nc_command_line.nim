@@ -47,12 +47,10 @@ proc GetArgv*(self: NCCommandLine): seq[string] =
 
 # Constructs and returns the represented command line string. Use this
 # function cautiously because quoting behavior is unclear.
-# The resulting string must be freed by calling nc_free().
 proc GetCommandLineString*(self: NCCommandLine): string =
   self.wrapCall(get_command_line_string, result)
 
 # Get the program part of the command line string (the first item).
-# The resulting string must be freed by calling nc_free().
 proc GetProgram*(self: NCCommandLine): string =
   self.wrapCall(get_program, result)
 
@@ -70,7 +68,6 @@ proc HasSwitch*(self: NCCommandLine, name: string): bool =
 
 # Returns the value associated with the given switch. If the switch has no
 # value or isn't present this function returns the NULL string.
-# The resulting string must be freed by calling nc_free().
 proc GetSwitchValue*(self: NCCommandLine, name: string): string =
   self.wrapCall(get_switch_value, result, name)
 

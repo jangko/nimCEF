@@ -1,6 +1,6 @@
 import nc_util, nc_types, nc_request, os, strutils, nc_parser, tables
 import nc_resource_handler, nc_request_handler, nc_task, hashes
-import nc_stream, nc_stream_resource_handler
+import nc_stream, nc_stream_resource_handler, lists
 
 type
   UrlFilter = proc(url: string): string
@@ -15,6 +15,9 @@ type
     url_filter: UrlFilter
     mime_type_resolver: MimeTypeResolver
 
+  ProviderIterator = DoublyLinkedNode[ProviderEntry]
+  RequestIterator = DoublyLinkedNode[Request]
+    
   # Values associated with the pending request only. Ownership will be passed
   # between requests and the resource manager as request handling proceeds.
   RequestState = ref object
@@ -25,11 +28,11 @@ type
 
     # Position of the currently associated ProviderEntry in the |providers_|
     # list.
-    current_entry_pos: int
+    current_entry_pos: ProviderIterator
 
     # Position of this request object in the currently associated
     # ProviderEntry's |pending_requests_| list.
-    current_request_pos: int
+    current_request_pos: RequestIterator
 
     # Params that will be copied to each request object.
     params: RequestParams
@@ -68,22 +71,22 @@ type
     url: string
     content: string
     mime_type: string
-  
-  PendingHandlersMap = Table[int64, NCResourceHandler]
-  
+
   ProviderEntry = ref object
     provider: Provider
     order: int
     identifier: string
     # List of pending requests currently associated with this provider.
-    pending_requests: seq[Request]
+    pending_requests: DoublyLinkedList[Request]
     # True if deletion of this provider is pending.
     deletion_pending: bool
+    
+  PendingHandlersMap = Table[int64, NCResourceHandler]  
 
   NCResourceManager = ref object
     # The below members are only accessed on the browser process IO thread.
     # List of providers including additional associated information.
-    providers: seq[ProviderEntry]
+    providers: DoublyLinkedList[ProviderEntry]
 
     # Map of response ID to pending NCResourceHandler object.    
     pending_handlers: PendingHandlersMap
@@ -201,20 +204,19 @@ proc newRequest(state: RequestState): Request =
   
   new(result)
   result.state = state
-  result.params = state.params
-  
-  var entry = state.manager.providers[state.current_entry_pos]
+  result.params = state.params  
+  var entry = state.current_entry_pos.value
   
   # Should not be on a deleted entry
   doAssert(not entry.deletion_pending)
 
   # Add this request to the entry's pending request list.
-  entry.pending_requests.add(result)
-  state.current_request_pos = entry.pending_requests.len - 1
+  entry.pending_requests.append(result)
+  state.current_request_pos = nil
     
 proc SendRequest(self: Request): RequestState =
   NC_REQUIRE_IO_THREAD()
-  var provider = self.state.manager.providers[self.state.current_entry_pos].provider
+  var provider = self.state.current_entry_pos.value.provider
   
   if not provider.OnRequest(self):
     return self.state
@@ -243,7 +245,7 @@ proc newNCResourceManager(): NCResourceManager =
   new(result)
   result.url_filter = GetFilteredUrl
   result.mime_type_resolver = GetMimeType    
-  result.providers = @[]
+  result.providers = initDoublyLinkedList[ProviderEntry]()
   result.pending_handlers = initTable[int64, NCResourceHandler]()
 
 # Send the request to providers in order until one potentially handles it or we
@@ -254,7 +256,7 @@ proc SendRequest(self: NCResourceManager, state: RequestState): bool =
 
   while true:
     # Should not be on the last provider entry.
-    doAssert(state.current_entry_pos != self.providers.len)
+    doAssert(state.current_entry_pos != nil)
     var request = newRequest(xstate)
 
     # Give the provider an opportunity to handle the request.
@@ -296,25 +298,28 @@ proc StopRequest(self: NCResourceManager, state: RequestState) =
   state.callback.Continue(true)
   state.callback = nil
 
+proc is_empty[T](L: var DoublyLinkedList[T]): bool =
+  result = L.tail == L.head and L.tail == nil
+  
 # The new provider, if any, should be determined before calling this method.
 proc DetachRequestFromProvider(self: NCResourceManager, state: RequestState) =
-  if state.current_entry_pos != self.providers.len:
+  if state.current_entry_pos != nil:
     # Remove the association from the current provider entry.
     var current_entry_pos = state.current_entry_pos
-    var current_entry = state.manager.providers[current_entry_pos]    
-    current_entry.pending_requests.delete(state.current_request_pos)
+    var current_entry = current_entry_pos.value
+    current_entry.pending_requests.remove(state.current_request_pos)
 
-    if current_entry.deletion_pending and (current_entry.pending_requests.len == 0):
+    if current_entry.deletion_pending and current_entry.pending_requests.is_empty():
       # Delete the current provider entry now.
-      self.providers.delete(current_entry_pos)
+      self.providers.remove(current_entry_pos)
 
     # Set to the end for error checking purposes.
-    state.current_entry_pos = self.providers.len
+    state.current_entry_pos = nil
  
 # Move to the next provider that is not pending deletion.
 proc GetNextValidProvider(self: NCResourceManager, it: var int) =
-  while (it != self.providers.len) and self.providers[it].deletion_pending:
-    inc(it)
+  while (it != nil) and it.value.deletion_pending:
+    it = it.next
   
 # Move state to the next provider if any and return true if there are more
 # providers.
@@ -341,7 +346,7 @@ proc AddProvider(self: NCResourceManager, provider: Provider, order: int, identi
     return
   
   var new_entry = newProviderEntry(provider, order, identifier)
-  if self.providers.len == 0:
+  if self.providers.is_empty():
     self.providers.add(new_entry)
     return
 

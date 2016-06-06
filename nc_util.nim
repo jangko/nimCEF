@@ -184,11 +184,21 @@ proc checkSelf(self: NimNode): NimNode =
   if not (result[1].kind == nnkSym and result[1].typeKind == ntyObject): err = true
   if err: error(lineinfo(self) & " self must be a ref object type")
 
+proc getRecList(n: NimNode): NimNode =
+  for c in n:
+    if c.kind == nnkRecList:
+      return c
+  result = newEmptyNode()
+  
 proc checkSymNC(nc: NimNode): NimNode =
   var err = false
-  result = getType(nc)
+  result = getType(nc)  
   if result.kind != nnkObjectTy: err = true
-  if not (result[1][0].kind == nnkSym and $result[1][0] == "handler"): err = true
+  let reclist = getRecList(result)
+  if reclist.len != 0:
+    if not (reclist[0].kind == nnkSym and $reclist[0] == "handler"): err = true
+  else:
+    err = true
   if err: error(lineinfo(nc) & " self must be a ref object type with a handler")
 
 proc checkSymHandler(nc: NimNode): NimNode =
@@ -225,10 +235,11 @@ proc checkWrapped(n: NimNode): bool =
   var err = false
   let nType = getType(n)
   if nType.typeKind != ntyRef: return false
-  let objSym = nType[1]
+  let objSym = nType[1]    
   let objType = getType(objSym)
-  if objType[1].len == 0: return false
-  let handler = objType[1][0]
+  let recList = getRecList(objType)
+  if recList.len == 0: return false
+  let handler = recList[0]
   if $handler != "handler": return false
   let handlee = getType(handler)[1]
   if objSym.typeKind != ntyObject: err = true
@@ -240,7 +251,7 @@ proc checkMultiMap(n: NimNode): bool =
   let objSym = getType(n)[1] #table
   if objSym.kind != nnkSym: return false
   if $objSym != "Table": return false
-  let data = getType(objSym)[1][0]
+  let data = getRecList(getType(objSym))[0]
   let A = getType(data)[1][2]
   if $A != "string": return false
   let B = getType(data)[1][3]
@@ -260,7 +271,7 @@ proc checkString(n: NimNode): bool =
 
 proc getHandler(n: NimNode): NimNode =
   let nType = getType(n[1])
-  let hType = getType(nType[1][0])
+  let hType = getType(getRecList(nType)[0])
   result = hType[1]
 
 proc getArgName(n: NimNode): string =
@@ -281,9 +292,13 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   let
     selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
     symNC      = checkSymNC(selfType[1]) # ObjectTy: Empty, Reclist: sym handler
-    symHandler = checkSymHandler(symNC[1][0]) # BracketExpr: sym ptr, sym cef_xxx
-    symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n
-    routineList= symCef[1]
+    
+  let
+    symHandler = checkSymHandler(getRecList(symNC)[0]) # BracketExpr: sym ptr, sym cef_xxx
+    symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n  
+    
+  let
+    routineList= getRecList(symCef)
     argSize    = args.len-1
     rout       = getRoutine(routineList, $routine)
     hasResult  = routineHasResult(rout)
@@ -640,7 +655,7 @@ proc checkCefPtr(n: NimNode): bool =
   if n.typeKind != ntyPtr: return false
   let objType = getType(n[0])
   if objType.typeKind != ntyObject: return false
-  if $objType[1][0] != "base": return false
+  if $getRecList(objType)[0] != "base": return false
   result = true
 
 proc procHasResult(n: NimNode): bool =

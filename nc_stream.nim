@@ -4,13 +4,18 @@ include cef/cef_import
 wrapAPI(NCStreamReader, cef_stream_reader, false)
 wrapAPI(NCStreamWriter, cef_stream_writer, false)
 
+const
+  NC_SEEK_SET* = 0
+  NC_SEEK_CUR* = 1
+  NC_SEEK_END* = 2
+  
 wrapCallback(NCReadHandler, cef_read_handler):
   # Read raw binary data.
   proc Read*(self: T, data: pointer, size: int, n: int): int
 
   # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-  proc Seek*(self: T, offset: int64, whence: int): bool
+  proc Seek*(self: T, offset: int64, whence: int): int
 
   # Return the current offset position.
   proc Tell*(self: T): int64
@@ -25,22 +30,22 @@ wrapCallback(NCReadHandler, cef_read_handler):
 
 wrapCallback(NCWriteHandler, cef_write_handler):
   # Write raw binary data.
-  proc OnWrite*(self: T, data: pointer, size: int, n: int): int
+  proc Write*(self: T, data: pointer, size: int, n: int): int
 
   # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-  proc OnWriteSeek*(self: T, offset: int64, whence: int): bool
+  proc Seek*(self: T, offset: int64, whence: int): int
 
   # Return the current offset position.
-  proc OnWriteTell*(self: T): int64
+  proc Tell*(self: T): int64
 
   # Flush the stream.
-  proc OnWriteFlush*(self: T): bool
+  proc Flush*(self: T): bool
 
   # Return true (1) if this handler performs work like accessing the file
   # system which may block. Used as a hint for determining the thread to access
   # the handler from.
-  proc OnWriteMayBlock*(self: T): bool
+  proc MayBlock*(self: T): bool
 
 # Read raw binary data.
 proc Read*(self: NCStreamReader, data: pointer, size: int, n: int): int =
@@ -48,7 +53,7 @@ proc Read*(self: NCStreamReader, data: pointer, size: int, n: int): int =
 
 # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
 # SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
-proc Seek*(self: NCStreamReader, offset: int64, whence: int): bool =
+proc Seek*(self: NCStreamReader, offset: int64, whence: int): int =
   self.wrapCall(seek, result, offset, whence)
 
 # Return the current offset position.
@@ -71,7 +76,7 @@ proc Write*(self: NCStreamWriter, data: pointer, size: int, n: int): int =
 
 # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
 # SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
-proc Seek*(self: NCStreamWriter, offset: int64, whence: int): bool =
+proc Seek*(self: NCStreamWriter, offset: int64, whence: int): int =
   self.wrapCall(seek, result, offset, whence)
 
 # Return the current offset position.

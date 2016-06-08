@@ -54,7 +54,7 @@ type
 
     # Called on the IO thread before a resource request is loaded. The |request|
     # object may be modified. Return RV_CONTINUE to continue the request
-    # immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
+    # immediately. Return RV_CONTINUE_ASYNC and call cef_request_callback::
     # cont() at a later time to continue or cancel the request asynchronously.
     # Return RV_CANCEL to cancel the request immediately.
     on_before_resource_load*: proc(self: ptr cef_request_handler,

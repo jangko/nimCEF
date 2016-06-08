@@ -68,23 +68,23 @@ proc SetHeaderMap*(self: NCRequest, headerMap: NCStringMultiMap) =
 proc SetValues*(self: NCRequest, url: string, the_method: string, postData: NCPostData, headerMap: NCStringMultiMap) =
   self.wrapCall(set_values, url, the_method, postData, headerMap)
 
-# Get the flags used in combination with cef_urlrequest_t. See
+# Get the flags used in combination with NCUrlRequest. See
 # cef_urlrequest_flags_t for supported values.
 proc GetFlags*(self: NCRequest): int =
   self.wrapCall(get_flags, result)
 
-# Set the flags used in combination with cef_urlrequest_t.  See
+# Set the flags used in combination with NCUrlRequest.  See
 # cef_urlrequest_flags_t for supported values.
 proc SetFlags*(self: NCRequest, flags: int) =
   self.wrapCall(set_flags, flags)
 
 # Set the URL to the first party for cookies used in combination with
-# cef_urlrequest_t.
+# NCUrlRequest.
 proc GetFirstPartyForCookies*(self: NCRequest): string =
   self.wrapCall(get_first_party_for_cookies, result)
 
 # Get the URL to the first party for cookies used in combination with
-# cef_urlrequest_t.
+# NCUrlRequest.
 proc SetFirstPartyForCookies*(self: NCRequest, url: string) =
   self.wrapCall(set_first_party_for_cookies, url)
 
@@ -100,7 +100,7 @@ proc GetTransitionType*(self: NCRequest): cef_transition_type =
   self.wrapCall(get_transition_type, result)
 
 # Returns the globally unique identifier for this request or 0 if not
-# specified. Can be used by cef_request_tHandler implementations in the
+# specified. Can be used by NCRequestHandler implementations in the
 # browser process to track a single request across multiple callbacks.
 proc GetIdentifier*(self: NCRequest): int64 =
   self.wrapCall(get_identifier, result)
@@ -110,8 +110,8 @@ proc IsReadOnly*(self: NCPostData): bool =
   self.wrapCall(is_read_only, result)
 
 # Returns true (1) if the underlying POST data includes elements that are not
-# represented by this cef_post_data_t object (for example, multi-part file
-# upload data). Modifying cef_post_data_t objects with excluded elements may
+# represented by this NCPostData object (for example, multi-part file
+# upload data). Modifying NCPostData objects with excluded elements may
 # result in the request failing.
 proc HasExcludedElements*(self: NCPostData): bool =
   self.wrapCall(has_excluded_elements, result)
@@ -178,14 +178,14 @@ proc GetBytes*(self: NCPostDataElement): string =
   let read = self.GetBytes(len, result.cstring)
   result.setLen(read)
 
-# Create a new cef_post_data_element_t object.
+# Create a new NCPostDataElement object.
 proc NCPostDataElementCreate*(): NCPostDataElement =
   wrapProc(cef_post_data_element_create, result)
 
-# Create a new cef_request_t object.
+# Create a new NCRequest object.
 proc NCRequestCreate*(): NCRequest =
   wrapProc(cef_request_create, result)
 
-# Create a new cef_post_data_t object.
+# Create a new NCPostData object.
 proc NCPostDataCreate*(): NCPostData =
   wrapProc(cef_post_data_create, result)

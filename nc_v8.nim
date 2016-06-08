@@ -330,7 +330,7 @@ proc SetValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
   self.wrapCall(set_value_byindex, result, index, value)
 
 # Registers an identifier and returns true (1) on success. Access to the
-# identifier will be forwarded to the cef_v8accessor_t instance passed to
+# identifier will be forwarded to the NCV8Accessor instance passed to
 # NCV8Value::NCV8ValueCreateObject(). Returns false (0) if this
 # function is called incorrectly or an exception is thrown. For read-only
 # values this function will return true (1) even though assignment failed.
@@ -386,8 +386,8 @@ proc GetFunctionHandler*(self: NCV8Value): NCV8Handler =
   self.wrapCall(get_function_handler, result)
 
 # Execute the function using the current V8 context. This function should
-# only be called from within the scope of a cef_v8handler_t or
-# cef_v8accessor_t callback, or in combination with calling enter() and
+# only be called from within the scope of a NCV8Handler or
+# NCV8Accessor callback, or in combination with calling enter() and
 # exit() on a stored NCV8Context reference. |object| is the receiver
 # ('this' object) of the function. If |object| is NULL the current context's
 # global object will be used. |arguments| is the list of arguments that will
@@ -554,8 +554,8 @@ proc NCV8ValueCreateDouble*(value: float64): NCV8Value =
   wrapProc(cef_v8value_create_double, result, value)
 
 # Create a new NCV8Value object of type Date. This function should only be
-# called from within the scope of a cef_render_process_handler_t,
-# cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
+# called from within the scope of a NCRenderProcessHandler,
+# NCV8Handler or NCV8Accessor callback, or in combination with calling
 # enter() and exit() on a stored NCV8Context reference.
 proc NCV8ValueCreateDate*(value: NCTime): NCV8Value =
   wrapProc(cef_v8value_create_date, result, value)
@@ -566,7 +566,7 @@ proc NCV8ValueCreateString*(value: string): NCV8Value =
 
 # Create a new NCV8Value object of type object with optional accessor. This
 # function should only be called from within the scope of a
-# cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
+# NCRenderProcessHandler, NCV8Handler or NCV8Accessor callback,
 # or in combination with calling enter() and exit() on a stored NCV8Context
 # reference.
 proc NCV8ValueCreateObject*(accessor: NCV8Accessor): NCV8Value =
@@ -575,15 +575,15 @@ proc NCV8ValueCreateObject*(accessor: NCV8Accessor): NCV8Value =
 # Create a new NCV8Value object of type array with the specified |length|.
 # If |length| is negative the returned array will have length 0. This function
 # should only be called from within the scope of a
-# cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
+# NCRenderProcessHandler, NCV8Handler or NCV8Accessor callback,
 # or in combination with calling enter() and exit() on a stored NCV8Context
 # reference.
 proc NCV8ValueCreateArray*(length: int): NCV8Value =
   wrapProc(cef_v8value_create_array, result, length)
 
 # Create a new NCV8Value object of type function. This function should only
-# be called from within the scope of a cef_render_process_handler_t,
-# cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
+# be called from within the scope of a NCRenderProcessHandler,
+# NCV8Handler or NCV8Accessor callback, or in combination with calling
 # enter() and exit() on a stored NCV8Context reference.
 proc NCV8ValueCreateFunction*(name: string, handler: NCV8Handler): NCV8Value =
   wrapProc(cef_v8value_create_function, result, name, handler)

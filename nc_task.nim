@@ -55,18 +55,17 @@ proc NCTaskRunnerGetForThread*(threadId: cef_thread_id): NCTaskRunner =
   wrapProc(cef_task_runner_get_for_thread, result, threadId)
 
 # Returns true (1) if called on the specified thread. Equivalent to using
-# cef_task_tRunner::GetForThread(threadId)->belongs_to_current_thread().
+# NCTaskRunner::GetForThread(threadId)->BelongsToCurrentThread().
 proc NCCurrentlyOn*(threadId: cef_thread_id): bool =
   wrapProc(cef_currently_on, result, threadId)
 
 # Post a task for execution on the specified thread. Equivalent to using
-# cef_task_tRunner::GetForThread(threadId)->PostTask(task).
+# NCTaskRunner::GetForThread(threadId)->PostTask(task).
 proc NCPostTask*(threadId: cef_thread_id, task: NCTask): bool =
   wrapProc(cef_post_task, result, threadId, task)
 
 # Post a task for delayed execution on the specified thread. Equivalent to
-# using cef_task_tRunner::GetForThread(threadId)->PostDelayedTask(task,
-# delay_ms).
+# using NCTaskRunner::GetForThread(threadId)->PostDelayedTask(task, delay_ms).
 proc NCPostDelayedTask*(threadId: cef_thread_id, task: NCTask, delay_ms: int64): bool =
   wrapProc(cef_post_delayed_task, result, threadId, task, delay_ms)
 

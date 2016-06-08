@@ -5,8 +5,8 @@ include cef/cef_import
 
 # A request context provides request handling for a set of related browser or
 # URL request objects. A request context can be specified when creating a new
-# browser via the cef_browser_host_t static factory functions or when creating
-# a new URL request via the cef_urlrequest_t static factory functions. Browser
+# browser via the NCBrowserHost static factory functions or when creating
+# a new URL request via the NCUrlRequest static factory functions. Browser
 # objects with different request contexts will never be hosted in the same
 # render process. Browser objects with the same request context may or may not
 # be hosted in the same render process depending on the process model. Browser
@@ -15,11 +15,11 @@ include cef/cef_import
 # context as the source browser. When running in single-process mode there is
 # only a single render process (the main process) and so all browsers created
 # in single-process mode will share the same request context. This will be the
-# first request context passed into a cef_browser_host_t static factory
+# first request context passed into a NCBrowserHost static factory
 # function and all other request context objects will be ignored.
 wrapAPI(NCRequestContext, cef_request_context)
 
-# Callback structure for cef_request_tContext::ResolveHost.
+# Callback structure for NCRequestContext::ResolveHost.
 wrapCallback(NCResolveCallback, cef_resolve_callback):
   # Called after the ResolveHost request has completed. |result| will be the
   # result code. |resolved_ips| will be the list of resolved IP addresses or
@@ -54,7 +54,7 @@ proc GetCachePath*(self: NCRequestContext): string =
 # Returns the default cookie manager for this object. This will be the global
 # cookie manager if this object is the global request context. Otherwise,
 # this will be the default cookie manager used when this request context does
-# not receive a value via cef_request_tContextHandler::get_cookie_manager().
+# not receive a value via NCRequestContextHandler::GetCookieManager().
 # If |callback| is non-NULL it will be executed asnychronously on the IO
 # thread after the manager's storage has been initialized.
 proc GetDefaultCookieManager*(self: NCRequestContext, callback: NCCompletionCallback): NCCookieManager =
@@ -83,7 +83,7 @@ proc ClearSchemeHandlerFactories*(self: NCRequestContext): bool =
 # Tells all renderer processes associated with this context to throw away
 # their plugin list cache. If |reload_pages| is true (1) they will also
 # reload all pages with plugins.
-# cef_request_tContextHandler::OnBeforePluginLoad may be called to rebuild
+# NCRequestContextHandler::OnBeforePluginLoad may be called to rebuild
 # the plugin list cache.
 proc PurgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
   self.wrapCall(purge_plugin_list_cache, reload_pages)
@@ -126,8 +126,8 @@ proc SetPreference*(self: NCRequestContext, name: string, value: NCValue, error:
   self.wrapCall(set_preference, result, name, value, error)
 
 # Clears all certificate exceptions that were added as part of handling
-# cef_request_tHandler::on_certificate_error(). If you call this it is
-# recommended that you also call close_all_connections() or you risk not
+# NCRequestHandler::OnCertificateError(). If you call this it is
+# recommended that you also call CloseAllConnections() or you risk not
 # being prompted again for server certificates if you reconnect quickly. If
 # |callback| is non-NULL it will be executed on the UI thread after
 # completion.

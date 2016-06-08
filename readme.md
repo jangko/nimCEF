@@ -22,13 +22,13 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 
 ###Translation status(CEF3 ver 2623):
 
-| No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver |
-|----|-----------------------|----------|---------|----------|---------|----------|---------|
-| 1  | CEF3 C API            | complete | 98%     | complete | 98%     | 90%      | 0.13.0  |
-| 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0  |
-| 3  | Simple Client Example | yes      | no      | yes      | no      | no       | 0.13.0  |
-| 4  | CefClient Example     | 20%      | no      | no       | no      | no       | 0.13.0  |
-| 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      | 0.13.0  |
+| No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver       |
+|----|-----------------------|----------|---------|----------|---------|----------|---------------|
+| 1  | CEF3 C API            | complete | 98%     | complete | 98%     | 90%      | 0.13.0-0.13.1 |
+| 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0-0.13.1 |
+| 3  | Simple Client Example | yes      | no      | yes      | no      | no       | 0.13.0-0.13.1 |
+| 4  | CefClient Example     | 20%      | no      | no       | no      | no       | 0.13.0-0.13.1 |
+| 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      | 0.13.0-0.13.1 |
 
 
 ### HOW TO CREATE HANDLER/CALLBACK DEFINITION AND INSTANCE

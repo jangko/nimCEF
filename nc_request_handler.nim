@@ -49,8 +49,8 @@ wrapCallback(NCRequestHandler, cef_request_handler):
 
   # Called on the IO thread before a resource request is loaded. The |request|
   # object may be modified. Return RV_CONTINUE to continue the request
-  # immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
-  # cont() at a later time to continue or cancel the request asynchronously.
+  # immediately. Return RV_CONTINUE_ASYNC and call NCRequestCallback::
+  # Continue() at a later time to continue or cancel the request asynchronously.
   # Return RV_CANCEL to cancel the request immediately.
   proc OnBeforeResourceLoad*(self: T,
     browser: NCBrowser, frame: NCFrame, request: NCRequest,
@@ -58,7 +58,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
 
   # Called on the IO thread before a resource is loaded. To allow the resource
   # to load normally return NULL. To specify a handler for the resource return
-  # a cef_resource_handler_t object. The |request| object should not be
+  # a NCResourceHandler object. The |request| object should not be
   # modified in this callback.
   proc GetResourceHandler*(self: T, browser: NCBrowser,
     frame: NCFrame, request: NCRequest): NCResourceHandler
@@ -111,7 +111,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   # origin of the page making the request. |new_size| is the requested quota
   # size in bytes. Return true (1) to continue the request and call
-  # cef_request_tCallback::cont() either in this function or at a later time to
+  # NCRequestCallback::Continue() either in this function or at a later time to
   # grant or deny the request. Return false (0) to cancel the request
   # immediately.
   proc OnQuotaRequest*(self: T, browser: NCBrowser, origin_url: string,

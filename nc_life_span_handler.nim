@@ -38,7 +38,7 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   proc RunModal*(self: T, browser: NCBrowser): int
 
   # Called when a browser has recieved a request to close. This may result
-  # directly from a call to cef_browser_host_t::close_browser() or indirectly
+  # directly from a call to NCBrowserHost::CloseBrowser() or indirectly
   # if the browser is a top-level OS window created by CEF and the user
   # attempts to close the window. This function will be called after the
   # JavaScript 'onunload' event has been fired. It will not be called for
@@ -54,18 +54,18 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   # receive close notification via some non-standard technique.
   #
   # If an application provides its own top-level window it should handle OS
-  # close notifications by calling cef_browser_host_t::CloseBrowser(false (0))
+  # close notifications by calling NCBrowserHost::CloseBrowser(false (0))
   # instead of immediately closing (see the example below). This gives CEF an
   # opportunity to process the 'onbeforeunload' event and optionally cancel the
   # close before do_close() is called.
   #
-  # The cef_life_span_handler_t::on_before_close() function will be called
+  # The NCLifeSpanHandler::OnBeforeClose() function will be called
   # immediately before the browser object is destroyed. The application should
   # only exit after on_before_close() has been called for all existing
   # browsers.
   #
   # If the browser represents a modal window and a custom modal loop
-  # implementation was provided in cef_life_span_handler_t::run_modal() this
+  # implementation was provided in NCLifeSpanHandler::RunModal() this
   # callback should be used to restore the opener window to a usable state.
   #
   # By way of example consider what should happen during window close when the
@@ -87,9 +87,9 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   # receives the OS close notification and
   #     allows the window to close based on the flag from #6B.
   # 9.  Browser OS window is destroyed. 10. Application's
-  # cef_life_span_handler_t::on_before_close() handler is called and
+  # NCLifeSpanHandler::OnBeforeClose() handler is called and
   #     the browser object is destroyed.
-  # 11. Application exits by calling cef_quit_message_loop() if no other
+  # 11. Application exits by calling NCQuitMessageLoop() if no other
   # browsers
   #     exist.
   proc DoClose*(self: T, browser: NCBrowser): int

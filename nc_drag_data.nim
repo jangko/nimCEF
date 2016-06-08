@@ -90,7 +90,7 @@ proc SetFragmentBaseUrl*(self: NCDragData, base_url: string) =
   self.wrapCall(set_fragment_base_url, base_url)
 
 # Reset the file contents. You should do this before calling
-# cef_browser_host_t::DragTargetDragEnter as the web view does not allow us
+# NCBrowserHost::DragTargetDragEnter as the web view does not allow us
 # to drag in this kind of data.
 proc ResetFileContents*(self: NCDragData) =
   self.wrapCall(reset_file_contents)

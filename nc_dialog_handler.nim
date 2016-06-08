@@ -6,7 +6,7 @@ wrapAPI(NCFileDialogCallback, cef_file_dialog_callback, false)
 
 # Continue the file selection. |selected_accept_filter| should be the 0-based
 # index of the value selected from the accept filters array passed to
-# cef_dialog_handler_t::OnFileDialog. |file_paths| should be a single value
+# NCDialogHandler::OnFileDialog. |file_paths| should be a single value
 # or a list of values depending on the dialog mode. An NULL |file_paths|
 # value is treated the same as calling cancel().
 proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =

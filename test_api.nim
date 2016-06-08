@@ -34,4 +34,7 @@ import nc_render_handler, nc_request_handler
 import nc_render_process_handler, nc_resource_bundle_handler
 import nc_browser_process_handler
 
+#this module purpose is to test the wrapper macro
+#and then print to console the statistics for each macro
+#that has been called during compile
 printWrapStat()

@@ -9,7 +9,7 @@ include cef/cef_import
 wrapCallback(NCApp, cef_app):
   # Provides an opportunity to view and/or modify command-line arguments before
   # processing by CEF and Chromium. The |process_type| value will be NULL for
-  # the browser process. Do not keep a reference to the cef_command_line_t
+  # the browser process. Do not keep a reference to the NCCommandLine
   # object passed to this function. The CefSettings.command_line_args_disabled
   # value can be used to start with an NULL command-line object. Any values
   # specified in CefSettings that equate to command-line arguments will be set

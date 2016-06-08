@@ -127,9 +127,9 @@ proc GetBrowser*(self: NCBrowserHost): NCBrowser =
 # be fired. If |force_close| is false (0) the event handler, if any, will be
 # allowed to prompt the user and the user can optionally cancel the close. If
 # |force_close| is true (1) the prompt will not be displayed and the close
-# will proceed. Results in a call to cef_life_span_handler_t::do_close() if
+# will proceed. Results in a call to NCLifeSpanHandler::DoClose() if
 # the event handler allows the close or if |force_close| is true (1). See
-# cef_life_span_handler_t::do_close() documentation for additional usage
+# NCLifeSpanHandler::DoClose() documentation for additional usage
 # information.
 proc CloseBrowser*(self: NCBrowserHost, force_close: bool) =
   self.wrapCall(close_browser, force_close)
@@ -192,7 +192,7 @@ proc RunFileDialog*(self: NCBrowserHost, mode: cef_file_dialog_mode,
   self.wrapCall(run_file_dialog, mode, title, default_file_path,
     accept_filters, selected_accept_filter, callback)
 
-# Download the file at |url| using cef_download_handler_t.
+# Download the file at |url| using NCDownloadHandler.
 proc StartDownload*(self: NCBrowserHost, url: string) =
   self.wrapCall(start_download, url)
 
@@ -203,7 +203,7 @@ proc Print*(self: NCBrowserHost) =
 # Print the current browser contents to the PDF file specified by |path| and
 # execute |callback| on completion. The caller is responsible for deleting
 # |path| when done. For PDF printing to work on Linux you must implement the
-# cef_print_handler_t::GetPdfPaperSize function.
+# NCPrintHandler::GetPdfPaperSize function.
 proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings, callback: NCPdfPrintCallback) =
   self.wrapCall(print_to_pdf, path, settings, callback)
 
@@ -211,8 +211,8 @@ proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings
 # running simultaniously. |forward| indicates whether to search forward or
 # backward within the page. |matchCase| indicates whether the search should
 # be case-sensitive. |findNext| indicates whether this is the first request
-# or a follow-up. The cef_find_handler_t instance, if any, returned via
-# cef_client_t::GetFindHandler will be called to report find results.
+# or a follow-up. The NCFindHandler instance, if any, returned via
+# NCClient::GetFindHandler will be called to report find results.
 proc Find*(self: NCBrowserHost, identifier: int, searchText: string, forward, matchCase, findNext: bool) =
   self.wrapCall(find, identifier, searchText, forward, matchCase, findNext)
 
@@ -261,20 +261,20 @@ proc IsWindowRenderingDisabled*(self: NCBrowserHost): bool =
   self.wrapCall(is_window_rendering_disabled, result)
 
 # Notify the browser that the widget has been resized. The browser will first
-# call cef_render_handler_t::GetViewRect to get the new size and then call
-# cef_render_handler_t::OnPaint asynchronously with the updated regions. This
+# call NCRenderHandler::GetViewRect to get the new size and then call
+# NCRenderHandler::OnPaint asynchronously with the updated regions. This
 # function is only used when window rendering is disabled.
 proc WasResized*(self: NCBrowserHost) =
   self.wrapCall(was_resized)
 
 # Notify the browser that it has been hidden or shown. Layouting and
-# cef_render_handler_t::OnPaint notification will stop when the browser is
+# NCRenderHandler::OnPaint notification will stop when the browser is
 # hidden. This function is only used when window rendering is disabled.
 proc WasHidden*(self: NCBrowserHost, hidden: bool) =
   self.wrapCall(was_hidden, hidden)
 
 # Send a notification to the browser that the screen info has changed. The
-# browser will then call cef_render_handler_t::GetScreenInfo to update the
+# browser will then call NCRenderHandler::GetScreenInfo to update the
 # screen information with the new values. This simulates moving the webview
 # window from one display to another, or changing the properties of the
 # current display. This function is only used when window rendering is
@@ -282,7 +282,7 @@ proc WasHidden*(self: NCBrowserHost, hidden: bool) =
 proc NotifyScreenInfoChanged*(self: NCBrowserHost) =
   self.wrapCall(notify_screen_info_changed)
 
-# Invalidate the view. The browser will call cef_render_handler_t::OnPaint
+# Invalidate the view. The browser will call NCRenderHandler::OnPaint
 # asynchronously. This function is only used when window rendering is
 # disabled.
 proc Invalidate*(self: NCBrowserHost, ptype: cef_paint_element_type) =
@@ -308,7 +308,7 @@ proc SendMouseMoveEvent*(self: NCBrowserHost,
 # relative to the upper-left corner of the view. The |deltaX| and |deltaY|
 # values represent the movement delta in the X and Y directions respectively.
 # In order to scroll inside select popups with window rendering disabled
-# cef_render_handler_t::GetScreenPoint should be implemented properly.
+# NCRenderHandler::GetScreenPoint should be implemented properly.
 proc SendMouseWheelEvent*(self: NCBrowserHost,
   event: NCMouseEvent, deltaX, deltaY: int) =
   self.wrapCall(send_mouse_wheel_event, event, deltaX, deltaY)
@@ -327,18 +327,18 @@ proc NotifyMoveOrResizeStarted*(self: NCBrowserHost) =
   self.wrapCall(notify_move_or_resize_started)
 
 # Returns the maximum rate in frames per second (fps) that
-# cef_render_handler_t:: OnPaint will be called for a windowless browser. The
+# NCRenderHandler::OnPaint will be called for a windowless browser. The
 # actual fps may be lower if the browser cannot generate frames at the
 # requested rate. The minimum value is 1 and the maximum value is 60 (default
 # 30). This function can only be called on the UI thread.
 proc GetWindowlessFrameRate*(self: NCBrowserHost): int =
   self.wrapCall(get_windowless_frame_rate, result)
 
-# Set the maximum rate in frames per second (fps) that cef_render_handler_t::
+# Set the maximum rate in frames per second (fps) that NCRenderHandler::
 # OnPaint will be called for a windowless browser. The actual fps may be
 # lower if the browser cannot generate frames at the requested rate. The
 # minimum value is 1 and the maximum value is 60 (default 30). Can also be
-# set at browser creation via cef_browser_tSettings.windowless_frame_rate.
+# set at browser creation via NCBrowserSettings.windowless_frame_rate.
 proc SetWindowlessFrameRate*(self: NCBrowserHost, frame_rate: int) =
   self.wrapCall(set_windowless_frame_rate, frame_rate)
 
@@ -360,8 +360,8 @@ proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_even
 # calling DragTargetDragOver/DragTargetLeave/DragTargetDrop). |drag_data|
 # should not contain file contents as this type of data is not allowed to be
 # dragged into the web view. File contents can be removed using
-# cef_drag_data_t::ResetFileContents (for example, if |drag_data| comes from
-# cef_render_handler_t::StartDragging). This function is only used when
+# NCDragData::ResetFileContents (for example, if |drag_data| comes from
+# NCRenderHandler::StartDragging). This function is only used when
 # window rendering is disabled.
 proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: NCDragData,
   event: NCMouseEvent, allowed_ops: cef_drag_operations_mask) =
@@ -390,20 +390,20 @@ proc DragTargetDrop*(self: NCBrowserHost, event: NCMouseEvent) =
   self.wrapCall(drag_target_drop, event)
 
 # Call this function when the drag operation started by a
-# cef_render_handler_t::StartDragging call has ended either in a drop or by
+# NCRenderHandler::StartDragging call has ended either in a drop or by
 # being cancelled. |x| and |y| are mouse coordinates relative to the upper-
 # left corner of the view. If the web view is both the drag source and the
 # drag target then all DragTarget* functions should be called before
-# DragSource* mthods. This function is only used when window rendering is
+# DragSource* methods. This function is only used when window rendering is
 # disabled.
 proc DragSourceEndedAt*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_mask) =
   self.wrapCall(drag_source_ended_at, x, y, op)
 
 # Call this function when the drag operation started by a
-# cef_render_handler_t::StartDragging call has completed. This function may
+# NCRenderHandler::StartDragging call has completed. This function may
 # be called immediately without first calling DragSourceEndedAt to cancel a
 # drag operation. If the web view is both the drag source and the drag target
-# then all DragTarget* functions should be called before DragSource* mthods.
+# then all DragTarget* functions should be called before DragSource* methods.
 # This function is only used when window rendering is disabled.
 proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
   self.wrapCall(drag_source_system_drag_ended)

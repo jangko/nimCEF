@@ -9,7 +9,7 @@ include cef/cef_import
 wrapCallback(NCRenderProcessHandler, cef_render_process_handler):
   # Called after the render process main thread has been created. |extra_info|
   # is a read-only value originating from
-  # cef_browser_process_handler_t::on_render_process_thread_created(). Do not
+  # NCBrowserProcessHandler::OnRenderProcessThreadCreated(). Do not
   # keep a reference to |extra_info| outside of this function.
   proc OnRenderThreadCreated*(self: T, extra_info: NCListValue)
 
@@ -35,10 +35,10 @@ wrapCallback(NCRenderProcessHandler, cef_render_process_handler):
 
   # Called immediately after the V8 context for a frame has been created. To
   # retrieve the JavaScript 'window' object use the
-  # cef_v8context_t::get_global() function. V8 handles can only be accessed
+  # NCV8Context::GetGlobal() function. V8 handles can only be accessed
   # from the thread on which they are created. A task runner for posting tasks
   # on the associated thread can be retrieved via the
-  # cef_v8context_t::get_task_runner() function.
+  # NCV8Context::GetTaskRunner() function.
   proc OnContextCreated*(self: T, browser: NCBrowser, frame: NCFrame,
     context: NCV8Context)
 

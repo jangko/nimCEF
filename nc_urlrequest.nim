@@ -14,7 +14,7 @@ wrapAPI(NCUrlRequest, cef_urlrequest)
 # the request unless otherwise documented.
 wrapCallback(NCUrlRequestClient, cef_urlrequest_client):
   # Notifies the client that the request has completed. Use the
-  # cef_urlrequest_t::GetRequestStatus function to determine if the request was
+  # NCUrlRequest::GetRequestStatus function to determine if the request was
   # successful or not.
   proc OnRequestComplete*(self: T, request: NCUrlRequest)
 
@@ -37,7 +37,7 @@ wrapCallback(NCUrlRequestClient, cef_urlrequest_client):
   # Called on the IO thread when the browser needs credentials from the user.
   # |isProxy| indicates whether the host is a proxy server. |host| contains the
   # hostname and |port| contains the port number. Return true (1) to continue
-  # the request and call cef_auth_callback_t::cont() when the authentication
+  # the request and call NCAuthCallback::Continue() when the authentication
   # information is available. Return false (0) to cancel the request. This
   # function will only be called for requests initiated from the browser
   # process.

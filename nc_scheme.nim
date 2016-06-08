@@ -72,13 +72,13 @@ proc AddCustomScheme*(self: NCSchemeRegistrar, schemeName: string, isStandard, i
 # schemes. If |scheme_name| is a built-in scheme and no handler is returned by
 # |factory| then the built-in scheme handler factory will be called. If
 # |scheme_name| is a custom scheme then you must also implement the
-# cef_app_t::on_register_custom_schemes() function in all processes. This
+# NCApp::OnRegisterCustomSchemes() function in all processes. This
 # function may be called multiple times to change or remove the factory that
 # matches the specified |scheme_name| and optional |domain_name|. Returns false
 # (0) if an error occurs. This function may be called on any thread in the
-# browser process. Using this function is equivalent to calling cef_request_tCo
-# ntext::cef_request_context_get_global_context()->register_scheme_handler_fact
-# ory().
+# browser process. Using this function is equivalent to calling 
+# NCRequestContext::NCRequestContextGetGlobalContext()->
+# RegisterSchemeHandlerFactory().
 proc NCRegisterSchemeHandlerFactory*(schemeName, domainName: string, factory: NCSchemeHandlerFactory) =
   wrapProc(cef_register_scheme_handler_factory, schemeName, domainName, factory)
 

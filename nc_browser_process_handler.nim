@@ -21,7 +21,7 @@ wrapCallback(NCBrowserProcessHandler, cef_browser_process_handler):
   # Called on the browser process IO thread after the main thread has been
   # created for a new render process. Provides an opportunity to specify extra
   # information that will be passed to
-  # cef_render_process_handler_t::on_render_thread_created() in the render
+  # NCRenderProcessHandler::OnRenderThreadCreated() in the render
   # process. Do not keep a reference to |extra_info| outside of this function.
   proc OnRenderProcessThreadCreated*(self: T, extra_info: NCListValue)
 

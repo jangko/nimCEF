@@ -16,7 +16,7 @@ wrapCallback(NCGeolocationHandler, cef_geolocation_handler):
   # Called when a page requests permission to access geolocation information.
   # |requesting_url| is the URL requesting permission and |request_id| is the
   # unique ID for the permission request. Return true (1) and call
-  # cef_geolocation_callback_t::cont() either in this function or at a later
+  # NCGeolocationCallback::Continue() either in this function or at a later
   # time to continue or cancel the request. Return false (0) to cancel the
   # request immediately.
   proc OnRequestGeolocationPermission*(self: T, browser: NCBrowser,

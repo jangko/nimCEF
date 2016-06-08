@@ -102,11 +102,11 @@ proc AppendArgument*(self: NCCommandLine, argument: string) =
 proc PrependWrapper*(self: NCCommandLine, wrapper: string) =
   self.wrapCall(prepend_wrapper, wrapper)
 
-# Create a new cef_command_line_t instance.
+# Create a new NCCommandLine instance.
 proc CommandLineCreate*(): NCCommandLine =
   wrapProc(cef_command_line_create, result)
 
-# Returns the singleton global cef_command_line_t object. The returned object
+# Returns the singleton global NCCommandLine object. The returned object
 # will be read-only.
 proc CommandLineGetGlobal*(): NCCommandLine =
   wrapProc(cef_command_line_get_global, result)

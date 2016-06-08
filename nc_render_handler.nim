@@ -56,10 +56,10 @@ wrapCallback(NCRenderHandler, cef_render_handler):
   # system message loop may be used within the StartDragging call.
   #
   # Return false (0) to abort the drag operation. Don't call any of
-  # cef_browser_host_t::DragSource*Ended* functions after returning false (0).
+  # NCBrowserHost::DragSource*Ended* functions after returning false (0).
   #
   # Return true (1) to handle the drag operation. Call
-  # cef_browser_host_t::DragSourceEndedAt and DragSourceSystemDragEnded either
+  # NCBrowserHost::DragSourceEndedAt and DragSourceSystemDragEnded either
   # synchronously or asynchronously to inform the web view that the drag
   # operation has ended.
   proc StartDragging*(self: T, browser: NCBrowser, drag_data: NCDragData,

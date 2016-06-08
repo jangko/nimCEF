@@ -65,7 +65,7 @@ proc GetValue*(self: NCXmlObject): string =
 
 proc SetValue*(self: NCXmlObject, value: string): bool =
   assert(self.children.len == 0)
-  if not self.children.len == 0: return false
+  if self.children.len != 0: return false
   self.value = value
   result = true
 

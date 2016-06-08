@@ -22,10 +22,10 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # Called on the UI thread before browser navigation. Return true (1) to
   # cancel the navigation or false (0) to allow the navigation to proceed. The
   # |request| object cannot be modified in this callback.
-  # cef_load_handler_t::OnLoadingStateChange will be called twice in all cases.
-  # If the navigation is allowed cef_load_handler_t::OnLoadStart and
-  # cef_load_handler_t::OnLoadEnd will be called. If the navigation is canceled
-  # cef_load_handler_t::OnLoadError will be called with an |errorCode| value of
+  # NCLoadHandler::OnLoadingStateChange will be called twice in all cases.
+  # If the navigation is allowed NCLoadHandler::OnLoadStart and
+  # NCLoadHandler::OnLoadEnd will be called. If the navigation is canceled
+  # NCLoadHandler::OnLoadError will be called with an |errorCode| value of
   # ERR_ABORTED.
   proc OnBeforeBrowse*(self: T, browser: NCBrowser, frame: NCFrame,
     request: NCRequest, is_redirect: bool): bool
@@ -100,7 +100,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # challenge and may be NULL. |scheme| is the authentication scheme used, such
   # as "basic" or "digest", and will be NULL if the source of the request is an
   # FTP server. Return true (1) to continue the request and call
-  # cef_auth_callback_t::cont() either in this function or at a later time when
+  # NCAuthCallback::Continue() either in this function or at a later time when
   # the authentication information is available. Return false (0) to cancel the
   # request immediately.
   proc GetAuthCredentials*(self: T, browser: NCBrowser, frame: NCFrame, isProxy: bool,

@@ -13,7 +13,7 @@ wrapAPI(NCPrintJobCallback, cef_print_job_callback, false)
 wrapCallback(NCPrintHandler, cef_print_handler):
   # Called when printing has started for the specified |browser|. This function
   # will be called before the other OnPrint*() functions and irrespective of
-  # how printing was initiated (e.g. cef_browser_host_t::print(), JavaScript
+  # how printing was initiated (e.g. NCBrowserHost::Print(), JavaScript
   # window.print() or PDF extension print button).
   proc OnPrintStart*(self: T, browser: NCBrowser)
 
@@ -36,7 +36,7 @@ wrapCallback(NCPrintHandler, cef_print_handler):
   proc OnPrintReset*(self: T)
 
   # Return the PDF paper size in device units. Used in combination with
-  # cef_browser_host_t::print_to_pdf().
+  # NCBrowserHost::PrintToPdf().
   proc GetPdfPaperSize*(self: T,  device_units_per_inch: int): NCSize
 
 

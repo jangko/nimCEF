@@ -5,11 +5,11 @@ include cef/cef_import
 # from the thread on which they are created. Valid threads for creating a V8
 # handle include the render process main thread (TID_RENDERER) and WebWorker
 # threads. A task runner for posting tasks on the associated thread can be
-# retrieved via the cef_v8context_t::get_task_runner() function.
+# retrieved via the NCV8Context::GetTaskRunner() function.
 wrapAPI(NCV8Context, cef_v8context)
 
 # Structure that should be implemented to handle V8 accessor calls. Accessor
-# identifiers are registered by calling cef_v8value_t::set_value(). The
+# identifiers are registered by calling NCV8Value::SetValue(). The
 # functions of this structure will be called on the thread associated with the
 # V8 accessor.
 wrapAPI(NCV8Accessor, cef_v8accessor, false)
@@ -22,21 +22,21 @@ wrapAPI(NCV8Exception, cef_v8exception, false)
 # from the thread on which they are created. Valid threads for creating a V8
 # handle include the render process main thread (TID_RENDERER) and WebWorker
 # threads. A task runner for posting tasks on the associated thread can be
-# retrieved via the cef_v8context_t::get_task_runner() function.
+# retrieved via the NCV8Context::GetTaskRunner() function.
 wrapAPI(NCV8Value, cef_v8value, false)
 
 # Structure representing a V8 stack trace handle. V8 handles can only be
 # accessed from the thread on which they are created. Valid threads for
 # creating a V8 handle include the render process main thread (TID_RENDERER)
 # and WebWorker threads. A task runner for posting tasks on the associated
-# thread can be retrieved via the cef_v8context_t::get_task_runner() function.
+# thread can be retrieved via the NCV8Context::GetTaskRunner() function.
 wrapAPI(NCV8StackTrace, cef_v8stacktrace, false)
 
 # Structure representing a V8 stack frame handle. V8 handles can only be
 # accessed from the thread on which they are created. Valid threads for
 # creating a V8 handle include the render process main thread (TID_RENDERER)
 # and WebWorker threads. A task runner for posting tasks on the associated
-# thread can be retrieved via the cef_v8context_t::get_task_runner() function.
+# thread can be retrieved via the NCV8Context::GetTaskRunner() function.
 wrapAPI(NCV8StackFrame, cef_v8stackframe, false)
 
 # Structure that should be implemented to handle V8 function calls. The
@@ -331,7 +331,7 @@ proc SetValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
 
 # Registers an identifier and returns true (1) on success. Access to the
 # identifier will be forwarded to the cef_v8accessor_t instance passed to
-# cef_v8value_t::cef_v8value_create_object(). Returns false (0) if this
+# NCV8Value::NCV8ValueCreateObject(). Returns false (0) if this
 # function is called incorrectly or an exception is thrown. For read-only
 # values this function will return true (1) even though assignment failed.
 proc SetValueByAccessor*(self: NCV8Value, key: string, settings: cef_v8_accesscontrol,
@@ -362,7 +362,7 @@ proc GetExternallyAllocatedMemory*(self: NCV8Value): int =
 # Adjusts the amount of registered external memory for the object. Used to
 # give V8 an indication of the amount of externally allocated memory that is
 # kept alive by JavaScript objects. V8 uses this information to decide when
-# to perform global garbage collection. Each cef_v8value_t tracks the amount
+# to perform global garbage collection. Each NCV8Value tracks the amount
 # of external memory associated with it and automatically decreases the
 # global total by the appropriate amount on its destruction.
 # |change_in_bytes| specifies the number of bytes to adjust by. This function
@@ -388,7 +388,7 @@ proc GetFunctionHandler*(self: NCV8Value): NCV8Handler =
 # Execute the function using the current V8 context. This function should
 # only be called from within the scope of a cef_v8handler_t or
 # cef_v8accessor_t callback, or in combination with calling enter() and
-# exit() on a stored cef_v8context_t reference. |object| is the receiver
+# exit() on a stored NCV8Context reference. |object| is the receiver
 # ('this' object) of the function. If |object| is NULL the current context's
 # global object will be used. |arguments| is the list of arguments that will
 # be passed to the function. Returns the function return value on success.
@@ -529,62 +529,62 @@ proc NCV8ContextGetEnteredContext*(): NCV8Context =
 proc NCV8ContextInContext*(): bool =
   wrapProc(cef_v8context_in_context, result)
 
-# Create a new cef_v8value_t object of type undefined.
+# Create a new NCV8Value object of type undefined.
 proc NCV8ValueCreateUndefined*(): NCV8Value =
   wrapProc(cef_v8value_create_undefined, result)
 
-# Create a new cef_v8value_t object of type null.
+# Create a new NCV8Value object of type null.
 proc NCV8ValueCreateNull*(): NCV8Value =
   wrapProc(cef_v8value_create_null, result)
 
-# Create a new cef_v8value_t object of type bool.
+# Create a new NCV8Value object of type bool.
 proc NCV8ValueCreateBool*(value: bool): NCV8Value =
   wrapProc(cef_v8value_create_bool, result, value)
 
-# Create a new cef_v8value_t object of type cint.
+# Create a new NCV8Value object of type cint.
 proc NCV8ValueCreateInt*(value: int32): NCV8Value =
   wrapProc(cef_v8value_create_int, result, value)
 
-# Create a new cef_v8value_t object of type unsigned cint.
+# Create a new NCV8Value object of type unsigned cint.
 proc NCV8ValueCreateUint*(value: uint32): NCV8Value =
   wrapProc(cef_v8value_create_uint, result, value)
 
-# Create a new cef_v8value_t object of type double.
+# Create a new NCV8Value object of type double.
 proc NCV8ValueCreateDouble*(value: float64): NCV8Value =
   wrapProc(cef_v8value_create_double, result, value)
 
-# Create a new cef_v8value_t object of type Date. This function should only be
+# Create a new NCV8Value object of type Date. This function should only be
 # called from within the scope of a cef_render_process_handler_t,
 # cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
-# enter() and exit() on a stored cef_v8context_t reference.
+# enter() and exit() on a stored NCV8Context reference.
 proc NCV8ValueCreateDate*(value: NCTime): NCV8Value =
   wrapProc(cef_v8value_create_date, result, value)
 
-# Create a new cef_v8value_t object of type string.
+# Create a new NCV8Value object of type string.
 proc NCV8ValueCreateString*(value: string): NCV8Value =
   wrapProc(cef_v8value_create_string, result, value)
 
-# Create a new cef_v8value_t object of type object with optional accessor. This
+# Create a new NCV8Value object of type object with optional accessor. This
 # function should only be called from within the scope of a
 # cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
-# or in combination with calling enter() and exit() on a stored cef_v8context_t
+# or in combination with calling enter() and exit() on a stored NCV8Context
 # reference.
 proc NCV8ValueCreateObject*(accessor: NCV8Accessor): NCV8Value =
   wrapProc(cef_v8value_create_object, result, accessor)
 
-# Create a new cef_v8value_t object of type array with the specified |length|.
+# Create a new NCV8Value object of type array with the specified |length|.
 # If |length| is negative the returned array will have length 0. This function
 # should only be called from within the scope of a
 # cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
-# or in combination with calling enter() and exit() on a stored cef_v8context_t
+# or in combination with calling enter() and exit() on a stored NCV8Context
 # reference.
 proc NCV8ValueCreateArray*(length: int): NCV8Value =
   wrapProc(cef_v8value_create_array, result, length)
 
-# Create a new cef_v8value_t object of type function. This function should only
+# Create a new NCV8Value object of type function. This function should only
 # be called from within the scope of a cef_render_process_handler_t,
 # cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
-# enter() and exit() on a stored cef_v8context_t reference.
+# enter() and exit() on a stored NCV8Context reference.
 proc NCV8ValueCreateFunction*(name: string, handler: NCV8Handler): NCV8Value =
   wrapProc(cef_v8value_create_function, result, name, handler)
 

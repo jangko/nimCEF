@@ -16,14 +16,14 @@ wrapCallback(NCCookieVisitor, cef_cookie_visitor):
   proc CookieVisit*(self: T, cookie: NCCookie, count, total: int, deleteCookie: var bool): bool
 
 # Structure to implement to be notified of asynchronous completion via
-# cef_cookie_manager_t::set_cookie().
+# NCCookieManager::set_cookie().
 wrapCallback(NCSetCookieCallback, cef_set_cookie_callback):
   # Method that will be called upon completion. |success| will be true (1) if
   # the cookie was set successfully.
   proc OnSetCookieComplete*(self: T, success: bool)
 
 # Structure to implement to be notified of asynchronous completion via
-# cef_cookie_manager_t::delete_cookies().
+# NCCookieManager::delete_cookies().
 wrapCallback(NCDeleteCookiesCallback, cef_delete_cookies_callback):
   # Method that will be called upon completion. |num_deleted| will be the
   # number of cookies that were deleted or -1 if unknown.
@@ -95,8 +95,8 @@ proc FlushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
 # CefSettings.cache_path if specified or in memory otherwise. If |callback| is
 # non-NULL it will be executed asnychronously on the IO thread after the
 # manager's storage has been initialized. Using this function is equivalent to
-# calling cef_request_tContext::cef_request_context_get_global_context()->get_d
-# efault_cookie_manager().
+# calling NCRequestContext::NCRequestContextGetGlobalContext()->
+# GetGefaultCookieManager().
 proc NCCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieManager =
   wrapProc(cef_cookie_manager_get_global_manager, result, callback)
 

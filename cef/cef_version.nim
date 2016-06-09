@@ -1,4 +1,4 @@
-include cef/cef_import
+include cef_import
 
 const
   CEF_VERSION*       = "3.2623.1395.g3034273"

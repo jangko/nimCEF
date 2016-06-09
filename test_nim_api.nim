@@ -1,6 +1,6 @@
 import winapi, os, strutils
-import cef/cef_base_api, cef/cef_app_api, cef/cef_client_api, cef/cef_browser_api
-include cef/cef_import
+import cef_base_api, cef_app_api, cef_client_api, cef_browser_api
+include cef_import
 
 # Structure defining the reference count implementation functions. All
 # framework structures must include the cef_base_t structure first.

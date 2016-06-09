@@ -104,8 +104,8 @@ type
     # The location where user data such as spell checking dictionary files will
     # be stored on disk. If empty then the default platform-specific user data
     # directory will be used ("~/.cef_user_data" directory on Linux,
-    # "~/Library/Application Support/CEF/User Data" directory on Mac OS X,
-    # "Local Settings\Application Data\CEF\User Data" directory under the user
+    # "~/Library/Application Support/User Data" directory on Mac OS X,
+    # "Local Settings\Application Data\User Data" directory under the user
     # profile directory on Windows).
     user_data_path*: cef_string
 

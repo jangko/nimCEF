@@ -1,22 +1,28 @@
 import strutils, nc_resource_manager, nc_util, nc_types, nc_task
 import nc_request, nc_stream_resource_handler, streams, nc_stream
-import nc_path_util
+import nc_path_util, os
 
 const
   kTestOrigin = "http://tests/"
 
 # Add a file extension to |url| if none is currently specified.
 proc RequestUrlFilter(url: string): string =
+  echo "FILTER A"
   if url.find(kTestOrigin) != 0:
     # Don't filter anything outside of the test origin.
     return url
 
+  echo "FILTER B"
   # Identify where the query or fragment component, if any, begins.
   var suffixPos = url.find('?')
   if suffixPos == -1:
     suffixPos = url.find('#')
+  
+  echo "FILTER C"
 
-  var urlBase, urlSuffix: string
+  var 
+    urlBase = ""
+    urlSuffix = ""
 
   if suffixPos == -1:
     urlBase = url
@@ -24,11 +30,14 @@ proc RequestUrlFilter(url: string): string =
     urlBase = url.substr(0, suffixPos)
     urlSuffix = url.substr(suffixPos)
 
+  echo "FILTER D"
+
   # Identify the last path component.
   var pathPos = urlBase.rfind('/')
   if pathPos == -1:
     return url
 
+  echo "FILTER E"
   let pathComponent = urlBase.substr(pathPos)
 
   # Identify if a file extension is currently specified.
@@ -36,8 +45,12 @@ proc RequestUrlFilter(url: string): string =
   if extPos != -1:
     return url
 
+  echo "FILTER F: ", urlBase
+  echo "FILTER F: ", urlSuffix
+  
   # Rebuild the URL with a file extension.
   result = urlBase & ".html" & urlSuffix
+  echo "FILTER C"
 
 proc DumpRequestContents*(request: NCRequest): string =
   var ss = newStringStream()
@@ -104,14 +117,21 @@ proc newRequestDumpResourceProvider(url: string): RequestDumpResourceProvider =
   doAssert(result.url.len != 0)
   result.OnRequestImpl = rdpOnRequest
 
-proc SetupResourceManager*(resourceManager: NCResourceManager) =
+var resourceManager: NCResourceManager
+
+proc getResourceManager*(): NCResourceManager =
+  result = resourceManager
+  
+proc SetupResourceManager*() =
   if not NCCurrentlyOn(TID_IO):
-    echo "NOT IN IO"
     # Execute on the browser IO thread.
     NCBindTask(setupResourceManagerTask, SetupResourceManager)
-    discard NCPostTask(TID_IO, setupResourceManagerTask(resourceManager))
+    discard NCPostTask(TID_IO, setupResourceManagerTask())
     return
 
+  setupForeignThreadGC()
+  resourceManager = newNCResourceManager()  
+  
   let testOrigin = kTestOrigin
 
   # Add the URL filter.
@@ -123,4 +143,5 @@ proc SetupResourceManager*(resourceManager: NCResourceManager) =
   # Read resources from a directory on disk.
   var resourceDir: string
   if NCGetPath(PK_DIR_EXE, resourceDir):
-    resourceManager.AddDirectoryProvider(testOrigin, resourceDir, 100, "")
+    echo "RES DIR: ", resourceDir
+    resourceManager.AddDirectoryProvider(testOrigin, resourceDir & DirSep & "resources", 100, "")

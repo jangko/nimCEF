@@ -21,7 +21,6 @@ type
     cmh: NCContextMenuHandler
     lsh: NCLifeSpanHandler
     reqh: NCRequestHandler
-    resourceManager: NCResourceManager
 
 MENU_ID:
   MY_MENU_ID
@@ -190,14 +189,18 @@ handlerImpl(NCRequestHandler):
   proc OnBeforeResourceLoad*(self: NCRequestHandler, browser: NCBrowser,
   frame: NCFrame, request: NCRequest, callback: NCRequestCallback): cef_return_value =
     NC_REQUIRE_IO_THREAD()
-    var client = getClient[myClient](browser)
-    result = client.resourceManager.OnBeforeResourceLoad(browser, frame, request, callback)
+    var resourceManager = getResourceManager()
+    echo "TIGA"
+    result = resourceManager.OnBeforeResourceLoad(browser, frame, request, callback)
+    echo "EMPAT"
     
   proc GetResourceHandler*(self: NCRequestHandler, browser: NCBrowser,
     frame: NCFrame, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
-    var client = getClient[myClient](browser)
-    result = client.resourceManager.GetResourceHandler(browser, frame, request)
+    var resourceManager = getResourceManager()
+    echo "SATU"
+    result = resourceManager.GetResourceHandler(browser, frame, request)
+    echo "DUA"
 
 handlerImpl(myClient):
   proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
@@ -206,8 +209,8 @@ handlerImpl(myClient):
   proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
     return self.lsh
 
-  #proc GetRequestHandler*(self: myClient): NCRequestHandler =
-    #return self.reqh
+  proc GetRequestHandler*(self: myClient): NCRequestHandler =
+    return self.reqh
 
 proc newClient(no: int, name: string): myClient =
   result = myClient.NCCreate()
@@ -216,9 +219,7 @@ proc newClient(no: int, name: string): myClient =
   result.cmh = NCContextMenuHandler.NCCreate()
   result.lsh = NCLifeSpanHandler.NCCreate()
   result.reqh = NCRequestHandler.NCCreate()
-  result.resourceManager = newNCResourceManager()
-  SetupResourceManager(result.resourceManager)
-  echo "SETUP OK"
+  SetupResourceManager()
 
 proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, top_origin_url: string,
   plugin_info: NCWebPluginInfo, plugin_policy: var cef_plugin_policy): bool =

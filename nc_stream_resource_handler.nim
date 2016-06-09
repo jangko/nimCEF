@@ -6,61 +6,61 @@ type
   LocalBuffer = ref object
     buffer: string
     size: int
-    bytes_requested: int
-    bytes_written: int
-    bytes_read: int
+    bytesRequested: int
+    bytesWritten: int
+    bytesRead: int
     
   NCStreamResourceHandler* = ref object of NCResourceHandler
-    status_code: int
-    status_text: string
-    mime_type: string
-    header_map: NCStringMultiMap
+    statusCode: int
+    statusText: string
+    mimeType: string
+    headerMap: NCStringMultiMap
     stream: NCStreamReader
-    read_on_file_thread: bool
+    readOnFileThread: bool
     buffer: LocalBuffer
   
 proc newBuffer(): LocalBuffer =
   new(result)
   result.size = 0
-  result.bytes_requested = 0
-  result.bytes_written = 0
-  result.bytes_read = 0
+  result.bytesRequested = 0
+  result.bytesWritten = 0
+  result.bytesRead = 0
 
-proc Reset(buf: LocalBuffer, new_size: int) =
-  if buf.size < new_size:
-    buf.size = new_size
+proc Reset(buf: LocalBuffer, newSize: int) =
+  if buf.size < newSize:
+    buf.size = newSize
     buf.buffer = newString(buf.size)
 
-  buf.bytes_requested = new_size
-  buf.bytes_written = 0
-  buf.bytes_read = 0
+  buf.bytesRequested = newSize
+  buf.bytesWritten = 0
+  buf.bytesRead = 0
   
 proc IsEmpty(buf: LocalBuffer): bool =
-  result = buf.bytes_written == 0
+  result = buf.bytesWritten == 0
 
 proc CanRead(buf: LocalBuffer): bool =
-  result = buf.bytes_read < buf.bytes_written
+  result = buf.bytesRead < buf.bytesWritten
 
-proc WriteTo(buf: LocalBuffer, data_out: pointer, bytes_to_read: int): int =
-  let write_size = min(bytes_to_read, buf.bytes_written - buf.bytes_read)
-  if write_size > 0:
-    copyMem(data_out, buf.buffer[buf.bytes_read].addr, write_size)
-    inc(buf.bytes_read, write_size)
-  result = write_size
+proc WriteTo(buf: LocalBuffer, data_out: pointer, bytesToRead: int): int =
+  let writeSize = min(bytesToRead, buf.bytesWritten - buf.bytesRead)
+  if writeSize > 0:
+    copyMem(data_out, buf.buffer[buf.bytesRead].addr, writeSize)
+    inc(buf.bytesRead, writeSize)
+  result = writeSize
 
 proc ReadFrom(buf: LocalBuffer, reader: NCStreamReader): int =
   # Read until the buffer is full or until Read() returns 0 to indicate no
   # more data.
-  var bytes_read: int
+  var bytesRead: int
   while true:
-    bytes_read = reader.Read(addr(buf.buffer[buf.bytes_written]), 1, buf.bytes_requested - buf.bytes_written)
-    inc(buf.bytes_written, bytes_read)
-    if not ((bytes_read != 0) and (buf.bytes_written < buf.bytes_requested)): break
+    bytesRead = reader.Read(addr(buf.buffer[buf.bytesWritten]), 1, buf.bytesRequested - buf.bytesWritten)
+    inc(buf.bytesWritten, bytesRead)
+    if not ((bytesRead != 0) and (buf.bytesWritten < buf.bytesRequested)): break
 
-  result = buf.bytes_written
+  result = buf.bytesWritten
   
 #forward declaration
-proc ReadOnFileThread(self: NCStreamResourceHandler, bytes_to_read: int, callback: NCCallback)
+proc ReadOnFileThread(self: NCStreamResourceHandler, bytesToRead: int, callback: NCCallback)
 
 handlerImpl(NCStreamResourceHandler):
   proc ProcessRequest*(self: NCStreamResourceHandler, request: NCRequest, callback: NCCallback): bool =
@@ -69,71 +69,71 @@ handlerImpl(NCStreamResourceHandler):
 
   proc GetResponseHeaders*(self: NCStreamResourceHandler, response: NCResponse,
     response_length: var int64, redirectUrl: var string) =
-    if self.header_map.len != 0:
-      response.SetHeaderMap(self.header_map)
+    if self.headerMap.len != 0:
+      response.SetHeaderMap(self.headerMap)
     response_length = -1
     
   proc ReadResponse*(self: NCStreamResourceHandler, data_out: cstring, 
-    bytes_to_read: int, bytes_read: var int, callback: NCCallback): bool =
-    doAssert(bytes_to_read > 0)
+    bytesToRead: int, bytesRead: var int, callback: NCCallback): bool =
+    doAssert(bytesToRead > 0)
 
-    if self.read_on_file_thread:
+    if self.readOnFileThread:
       if (self.buffer != nil) and (self.buffer.CanRead() or self.buffer.IsEmpty()):
         if self.buffer.CanRead():
           # Provide data from the buffer.
-          bytes_read = self.buffer.WriteTo(data_out, bytes_to_read)
-          return bytes_read > 0
+          bytesRead = self.buffer.WriteTo(data_out, bytesToRead)
+          return bytesRead > 0
         else:
           # End of the steam.
-          bytes_read = 0
+          bytesRead = 0
           return false
       else:
         # Perform another read on the file thread.
-        bytes_read = 0
-        NCBindTask(bindTask, ReadOnFileThread)
-        discard NCPostTask(TID_FILE, bindTask(self, bytes_to_read, callback))
+        bytesRead = 0
+        NCBindTask(readOnFileTask, ReadOnFileThread)
+        discard NCPostTask(TID_FILE, readOnFileTask(self, bytesToRead, callback))
         return true
     else:
       #Read until the buffer is full or until Read() returns 0 to indicate no
       # more data.
-      bytes_read = 0
+      bytesRead = 0
       var read = 0
       var buf = data_out
       while true:
-        read = self.stream.Read(addr(buf[bytes_read]), 1, bytes_to_read - bytes_read)
-        inc(bytes_read, read)
-        if not ((read != 0) and (bytes_read < bytes_to_read)): break
+        read = self.stream.Read(addr(buf[bytesRead]), 1, bytesToRead - bytesRead)
+        inc(bytesRead, read)
+        if not ((read != 0) and (bytesRead < bytesToRead)): break
 
-      return bytes_read > 0
+      return bytesRead > 0
   
-proc newNCStreamResourceHandler*(mime_type: string, stream: NCStreamReader): NCStreamResourceHandler =
+proc newNCStreamResourceHandler*(mimeType: string, stream: NCStreamReader): NCStreamResourceHandler =
   result = NCStreamResourceHandler.NCCreate()
-  result.status_code = 200
-  result.status_text = "OK"
-  result.mime_type = mime_type
+  result.statusCode = 200
+  result.statusText = "OK"
+  result.mimeType = mimeType
   result.stream = stream
-  result.header_map = newNCStringMultiMap()
-  doAssert(result.mime_type != "")
+  result.headerMap = newNCStringMultiMap()
+  doAssert(result.mimeType != "")
   doAssert(stream.GetHandler() != nil)
-  result.read_on_file_thread = stream.MayBlock()
+  result.readOnFileThread = stream.MayBlock()
 
-proc newNCStreamResourceHandler*(status_code: int, status_text, mime_type: string, 
-  header_map: NCStringMultiMap, stream: NCStreamReader): NCStreamResourceHandler =
+proc newNCStreamResourceHandler*(statusCode: int, statusText, mimeType: string, 
+  headerMap: NCStringMultiMap, stream: NCStreamReader): NCStreamResourceHandler =
   result = NCStreamResourceHandler.NCCreate()
-  result.status_code = status_code
-  result.status_text = status_text
-  result.mime_type = mime_type
-  result.header_map = header_map
+  result.statusCode = statusCode
+  result.statusText = statusText
+  result.mimeType = mimeType
+  result.headerMap = headerMap
   result.stream = stream
-  doAssert(result.mime_type != "")
+  doAssert(result.mimeType != "")
   doAssert(stream.GetHandler() != nil)
-  result.read_on_file_thread = stream.MayBlock()
+  result.readOnFileThread = stream.MayBlock()
 
-proc ReadOnFileThread(self: NCStreamResourceHandler, bytes_to_read: int, callback: NCCallback) =
+proc ReadOnFileThread(self: NCStreamResourceHandler, bytesToRead: int, callback: NCCallback) =
   NC_REQUIRE_FILE_THREAD()
   if self.buffer == nil:
     self.buffer = newBuffer()
     
-  self.buffer.Reset(bytes_to_read)
+  self.buffer.Reset(bytesToRead)
   discard self.buffer.ReadFrom(self.stream)
   callback.Continue()

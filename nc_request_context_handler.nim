@@ -9,7 +9,7 @@ include cef/cef_import
 wrapCallback(NCRequestContextHandler, cef_request_context_handler):
   # Called on the browser process IO thread to retrieve the cookie manager. If
   # this function returns NULL the default cookie manager retrievable via
-  # NCRequestContext::get_default_cookie_manager() will be used.
+  # NCRequestContext::GetDefaultCookieManager() will be used.
   proc GetCookieManager*(self: T): NCCookieManager
 
   # Called on multiple browser process threads before a plugin instance is

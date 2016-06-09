@@ -40,7 +40,7 @@ type
   # A request passed to Provider::OnRequestCanceled will already have been
   # detached. The methods of this class may be called on any browser process
   # thread.
-  Request = ref object
+  Request* = ref object
     # Will be non-NULL while the request is pending. Only accessed on the
     # browser process IO thread.
     state: RequestState
@@ -51,18 +51,18 @@ type
   # Interface implemented by resource providers. A provider may be created on
   # any thread but the methods will be called on, and the object will be
   # destroyed on the browser process IO thread.
-  Provider = ref object of RootObj
+  Provider* = ref object of RootObj
     # Called to handle a request. If the provider knows immediately that it
     # will not handle the request return false. Otherwise, return true and call
     # Request::Continue or Request::Stop either in this method or
     # asynchronously to indicate completion. See comments on Request for
     # additional usage information.
-    OnRequestImpl: proc(prov: Provider, request: Request): bool
+    OnRequestImpl*: proc(prov: Provider, request: Request): bool
 
     # Called when a request has been canceled. It is still safe to dereference
     # |request| but any calls to Request::Continue or Request::Stop will be
     # ignored.
-    OnRequestCanceledImpl: proc(prov: Provider, request: Request)
+    OnRequestCanceledImpl*: proc(prov: Provider, request: Request)
 
     order: int
     identifier: string
@@ -255,7 +255,7 @@ proc SendRequest(self: NCResourceManager, state: RequestState): bool =
 
   while true:
     # Should not be on the last provider entry.
-    doAssert(state.currentProviderPos != self.providers.len)
+    doAssert(nextState.currentProviderPos != self.providers.len)
     var request = newRequest(nextState)
 
     # Give the provider an opportunity to handle the request.
@@ -287,7 +287,9 @@ proc AddProvider*(self: NCResourceManager, provider: Provider, order: int, ident
   for i in 0.. <self.providers.len:
     if self.providers[i].order > order:
       self.providers.insert(provider, i)
-      break
+      return
+      
+  self.providers.add provider
 
 proc HasState(self: Request): bool =
   NC_REQUIRE_IO_THREAD()
@@ -347,7 +349,7 @@ proc ContinueOnIOThread(state: RequestState, handler: NCResourceHandler) =
 # then the next provider in order, if any, will be called. If there are no
 # additional providers then NULL will be returned via CefResourceManager::
 # GetResourceHandler.
-proc Continue(self: Request, handler: NCResourceHandler) =
+proc Continue*(self: Request, handler: NCResourceHandler) =
   if not NCCurrentlyOn(TID_IO):
     NCBindTask(ContinueTask, Continue(self, handler))
     discard NCPostTask(TID_IO, ContinueTask(self, handler))
@@ -416,7 +418,7 @@ proc RemoveAllProviders*(self: NCResourceManager) =
 
   self.providers = @[]
 
-proc SetMimeTypeResolver(self: NCResourceManager, resolver: MimeTypeResolver) =
+proc SetMimeTypeResolver*(self: NCResourceManager, resolver: MimeTypeResolver) =
   if not NCCurrentlyOn(TID_IO):
     NCBindTask(setMimeTask, SetMimeTypeResolver)
     discard NCPostTask(TID_IO, setMimeTask(self, resolver))
@@ -427,7 +429,7 @@ proc SetMimeTypeResolver(self: NCResourceManager, resolver: MimeTypeResolver) =
   else:
     self.mimeTypeResolver = GetMimeType
 
-proc SetUrlFilter(self: NCResourceManager, filter: UrlFilter) =
+proc SetUrlFilter*(self: NCResourceManager, filter: UrlFilter) =
   if not NCCurrentlyOn(TID_IO):
     NCBindTask(setUrlFilterTask, SetUrlFilter)
     discard NCPostTask(TID_IO, setUrlFilterTask(self, filter))
@@ -446,6 +448,9 @@ proc OnBeforeResourceLoad*(self: NCResourceManager, browser: NCBrowser,
   var currentProviderPos = 0
   currentProviderPos = self.GetNextValidProvider(currentProviderPos)
 
+  echo "ProviderPos: ", currentProviderPos
+  echo "numProv: ", self.providers.len
+  
   if self.providers.len == currentProviderPos:
     # No providers so continue the request immediately.
     return RV_CONTINUE

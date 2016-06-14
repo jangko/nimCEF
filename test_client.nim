@@ -6,6 +6,7 @@ import nc_urlrequest, nc_auth_callback, nc_frame, nc_web_plugin
 import nc_request_context_handler, nc_request_context
 import nc_life_span_handler, nc_context_menu_handler
 import test_runner, nc_resource_manager, nc_request_handler
+import nc_display_handler
 
 type
   myApp = ref object of NCApp
@@ -21,6 +22,7 @@ type
     cmh: NCContextMenuHandler
     lsh: NCLifeSpanHandler
     reqh: NCRequestHandler
+    disph: NCDisplayHandler
 
 MENU_ID:
   MY_MENU_ID
@@ -62,9 +64,6 @@ handlerImpl(NCContextMenuHandler):
     discard model.AddSeparator()
     discard model.AddItem(MY_OTHER_TESTS, "Other Tests")
     discard model.AddItem(MY_QUIT_ID, "Quit")
-    echo "page URL: ", params.GetPageUrl()
-    echo "frame URL: ", params.GetFrameUrl()
-    echo "link URL: ", params.GetLinkUrl()
 
   proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
@@ -72,7 +71,6 @@ handlerImpl(NCContextMenuHandler):
 
     case command_id
     of MY_MENU_ID:
-      echo "Hello There Clicked"
       frame.ExecuteJavaScript("alert('Hello There Clicked!');", frame.GetURL(), 0)
 
     of MY_QUIT_ID:
@@ -181,8 +179,6 @@ proc RegisterSchemeHandler() =
 
 handlerImpl(NCLifeSpanHandler):
   proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
-    var client = getClient[myClient](browser)
-    echo client.name, " exit now"
     NCQuitMessageLoop()
 
 handlerImpl(NCRequestHandler):
@@ -190,18 +186,20 @@ handlerImpl(NCRequestHandler):
   frame: NCFrame, request: NCRequest, callback: NCRequestCallback): cef_return_value =
     NC_REQUIRE_IO_THREAD()
     var resourceManager = getResourceManager()
-    echo "TIGA"
     result = resourceManager.OnBeforeResourceLoad(browser, frame, request, callback)
-    echo "EMPAT"
     
   proc GetResourceHandler*(self: NCRequestHandler, browser: NCBrowser,
     frame: NCFrame, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
     var resourceManager = getResourceManager()
-    echo "SATU"
     result = resourceManager.GetResourceHandler(browser, frame, request)
-    echo "DUA"
 
+handlerImpl(NCDisplayHandler):
+  proc OnTitleChange*(self: NCDisplayHandler, browser: NCBrowser, title: string) =
+    var host = browser.GetHost()
+    var hWnd = host.GetWindowHandle()
+    discard setWindowText(hWnd, title)
+  
 handlerImpl(myClient):
   proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
@@ -212,6 +210,9 @@ handlerImpl(myClient):
   proc GetRequestHandler*(self: myClient): NCRequestHandler =
     return self.reqh
 
+  proc GetDisplayHandler*(self: myClient): NCDisplayHandler =
+    return self.disph
+    
 proc newClient(no: int, name: string): myClient =
   result = myClient.NCCreate()
   result.abc = no
@@ -219,6 +220,7 @@ proc newClient(no: int, name: string): myClient =
   result.cmh = NCContextMenuHandler.NCCreate()
   result.lsh = NCLifeSpanHandler.NCCreate()
   result.reqh = NCRequestHandler.NCCreate()
+  result.disph = NCDisplayHandler.NCCreate()
   SetupResourceManager()
 
 proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, top_origin_url: string,
@@ -230,7 +232,6 @@ proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, t
     return true
 
   result = false
-
 
 proc main() =
   # Main args.

@@ -1182,6 +1182,39 @@ proc messageBoxW*(wnd: HWND, lpText: LPCWSTR, lpCaption: LPCWSTR, uType: int): i
 template messageBox*(wnd: HWND, lpText, lpCaption: string, uType: int): int32 =
   when defined(winUnicode): messageBoxW(wnd, WC(lpText), WC(lpCaption), uType)
   else: messageBoxA(wnd, WC(lpText), WC(lpCaption), uType)
-  
+
 proc GetSystemMetrics*(nIndex: int32): int32{.stdcall, dynlib: "user32",
     importc: "GetSystemMetrics".}
+
+proc SetWindowTextA(wnd: HWND, lpString: LPCSTR): WINBOOL{.stdcall,
+    dynlib: "user32", importc: "SetWindowTextA".}
+proc GetWindowTextA(wnd: HWND, lpString: LPCSTR, nMaxCount: int32): int32{.
+    stdcall, dynlib: "user32", importc: "GetWindowTextA".}
+proc GetWindowTextLengthA(wnd: HWND): int32{.stdcall, dynlib: "user32",
+    importc: "GetWindowTextLengthA".}
+
+proc SetWindowTextW(wnd: HWND, lpString: LPCWSTR): WINBOOL{.stdcall,
+    dynlib: "user32", importc: "SetWindowTextW".}
+proc GetWindowTextW(wnd: HWND, lpString: LPCWSTR, nMaxCount: int32): int32{.
+    stdcall, dynlib: "user32", importc: "GetWindowTextW".}
+proc GetWindowTextLengthW(wnd: HWND): int32{.stdcall, dynlib: "user32",
+    importc: "GetWindowTextLengthW".}
+
+template getWindowText*(wnd: HWND): string =
+  when defined(winUnicode):
+    let len = GetWindowTextLengthW(wnd)
+    var text: WideCString
+    unsafeNew(text, len + 1)
+    discard GetWindowTextW(wnd, text, len)
+    result = $text
+  else:
+    let len = GetWindowTextLengthA(wnd)
+    result = newString(len + 1)
+    discard GetWindowTextA(wnd, result, len)
+    result[len] = chr(0)
+
+template setWindowText*(wnd: HWND, text: string): expr =
+  when defined(winUnicode):
+    SetWindowTextW(wnd, WC(text)) == TRUE
+  else:
+    SetWindowTextA(wnd, text) == TRUE

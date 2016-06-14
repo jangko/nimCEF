@@ -144,7 +144,7 @@ proc SetWindowVisibility*(self: NCBrowserHost, visible: int) =
   self.wrapCall(set_window_visibility, visible)
 
 # Retrieve the window handle for this browser.
-proc GetWindowGandle*(self: NCBrowserHost): cef_window_handle =
+proc GetWindowHandle*(self: NCBrowserHost): cef_window_handle =
   self.wrapCall(get_window_handle, result)
 
 # Retrieve the window handle of the browser that opened this browser. Will

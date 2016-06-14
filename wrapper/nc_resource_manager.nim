@@ -197,12 +197,9 @@ proc SendRequest(self: Request): RequestState =
   let manager  = self.state.manager
   var provider = manager.providers[self.state.currentProviderPos]
 
-  echo "TO BE"
   if not provider.OnRequest(self):
-    echo "NOT HANDLED"
     return self.state
 
-  echo "HANDLED"
   result = nil
 
 proc removeElementAt[T](list: var seq[T], idx: int) =
@@ -331,22 +328,17 @@ proc Stop(self: Request) =
 proc ContinueRequest(self: NCResourceManager, state: RequestState, handler: NCResourceHandler) =
   NC_REQUIRE_IO_THREAD()
 
-  echo "CR A"
   if handler != nil:
     # The request has been handled. Associate the request ID with the handler.
-    echo "CR B"
     let id = state.params.request.GetIdentifier()
     self.pendingHandlers[id] = handler
     self.StopRequest(state)
-    echo "CR C"
   else:
-    echo "CR D"
     # Move to the next provider if any.
     if self.IncrementProvider(state):
       discard self.SendRequest(state)
     else:
       self.StopRequest(state)
-    echo "CR E"
 
 proc ContinueOnIOThread(state: RequestState, handler: NCResourceHandler) =
   NC_REQUIRE_IO_THREAD()
@@ -459,19 +451,15 @@ proc OnBeforeResourceLoad*(self: NCResourceManager, browser: NCBrowser,
   # Find the first provider that is not pending deletion.
   var currentProviderPos = 0
   currentProviderPos = self.GetNextValidProvider(currentProviderPos)
-  echo "POS A"
 
   if self.providers.len == currentProviderPos:
     # No providers so continue the request immediately.
     return RV_CONTINUE
 
-  echo "POS B"
   var state = new(RequestState)
   let url = request.GetURL()
-  echo "POS B: ", url
   let filteredURL = self.urlFilter(url)
 
-  echo "POS C"
   state.manager  = self
   state.callback = callback
   state.params.url     = GetUrlWithoutQueryOrFragment(filteredURL)
@@ -482,28 +470,22 @@ proc OnBeforeResourceLoad*(self: NCResourceManager, browser: NCBrowser,
   state.params.mimeTypeResolver = self.mimeTypeResolver
   state.currentProviderPos = currentProviderPos
 
-  echo "POS D"
   #If the request is potentially handled we need to continue asynchronously.
   result = if self.SendRequest(state): RV_CONTINUE_ASYNC else: RV_CONTINUE
-  echo "POS E"
 
 proc GetResourceHandler*(self: NCResourceManager, browser: NCBrowser,
   frame: NCFrame, request: NCRequest): NCResourceHandler =
   NC_REQUIRE_IO_THREAD()
 
-  echo "GRH A"
   if self.pendingHandlers.len == 0:
     return nil
 
-  echo "GRH B"
   let key = request.GetIdentifier()
   if self.pendingHandlers.hasKey(key):
     result = self.pendingHandlers[key]
     self.pendingHandlers.del key
   else:
     result = nil
-
-  echo "GRH C"
   
 proc cpOnRequest(prov: Provider, request: Request): bool =
   var self = ContentProvider(prov)
@@ -546,48 +528,36 @@ proc GetFilePath(self: DirectoryProvider, url: string): string =
 proc ContinueOpenOnIOThread(request: Request, stream: NCStreamReader) =
   NC_REQUIRE_IO_THREAD()
 
-  echo "IO A"
   if stream.GetHandler() != nil:
-    echo "IO B"
     let mimeType = request.getMimeTypeResolver()(request.getUrl())
-    echo "IO C"
     let handler = newNCStreamResourceHandler(mimeType, stream)
-    echo "IO D"
     request.Continue(handler)
-    echo "IO F"
 
 proc OpenOnFileThread(filePath: string, request: Request) =
   #NC_REQUIRE_FILE_THREAD()
 
   #setupForeignThreadGC()
-  echo "DIR PROV E ", filePath
   var stream = NCStreamReaderCreateForFile(filePath)
   
-  echo "DIR PROV F"
   # Continue loading on the IO thread.
   #NCBindTask(ContinueOpenFileTask, ContinueOpenOnIOThread)
-  echo "DIR PROV G"
   #discard NCPostTask(TID_IO, ContinueOpenFileTask(request, stream))
-  echo "DIR PROV H"
   ContinueOpenOnIOThread(request, stream)
 
 proc dpOnRequest(prov: Provider, request: Request): bool =
   var self = DirectoryProvider(prov)
   NC_REQUIRE_IO_THREAD()
 
-  echo "DIR PROV A"
   let url = request.getUrl()
   if url.find(self.urlPath) != 0:
     return false
 
-  echo "DIR PROV B"
   let filePath = self.GetFilePath(url)
 
   # Open |file_path| on the FILE thread.
   #NCBindTask(OpenFileTask, OpenOnFileThread)
   #discard NCPostTask(TID_FILE, OpenFileTask(filePath, request))
   OpenOnFileThread(filePath, request)
-  echo "DIR PROV C"
   result = true
 
 # Provider of contents loaded from a directory on the file system.

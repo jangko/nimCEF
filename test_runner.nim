@@ -7,19 +7,15 @@ const
 
 # Add a file extension to |url| if none is currently specified.
 proc RequestUrlFilter(url: string): string =
-  echo "FILTER A"
   if url.find(kTestOrigin) != 0:
     # Don't filter anything outside of the test origin.
     return url
 
-  echo "FILTER B"
   # Identify where the query or fragment component, if any, begins.
   var suffixPos = url.find('?')
   if suffixPos == -1:
     suffixPos = url.find('#')
   
-  echo "FILTER C"
-
   var 
     urlBase = ""
     urlSuffix = ""
@@ -30,27 +26,20 @@ proc RequestUrlFilter(url: string): string =
     urlBase = url.substr(0, suffixPos)
     urlSuffix = url.substr(suffixPos)
 
-  echo "FILTER D"
-
   # Identify the last path component.
   var pathPos = urlBase.rfind('/')
   if pathPos == -1:
     return url
 
-  echo "FILTER E"
   let pathComponent = urlBase.substr(pathPos)
 
   # Identify if a file extension is currently specified.
   let extPos = pathComponent.rfind('.')
   if extPos != -1:
     return url
-
-  echo "FILTER F: ", urlBase
-  echo "FILTER F: ", urlSuffix
   
   # Rebuild the URL with a file extension.
   result = urlBase & ".html" & urlSuffix
-  echo "FILTER C"
 
 proc DumpRequestContents*(request: NCRequest): string =
   var ss = newStringStream()
@@ -143,5 +132,4 @@ proc SetupResourceManager*() =
   # Read resources from a directory on disk.
   var resourceDir: string
   if NCGetPath(PK_DIR_EXE, resourceDir):
-    echo "RES DIR: ", resourceDir
     resourceManager.AddDirectoryProvider(testOrigin, resourceDir & DirSep & "resources", 100, "")

@@ -90,8 +90,9 @@ handlerImpl(NCStreamResourceHandler):
       else:
         # Perform another read on the file thread.
         bytesRead = 0
-        NCBindTask(readOnFileTask, ReadOnFileThread)
-        discard NCPostTask(TID_FILE, readOnFileTask(self, bytesToRead, callback))
+        #NCBindTask(readOnFileTask, ReadOnFileThread)
+        #discard NCPostTask(TID_FILE, readOnFileTask(self, bytesToRead, callback))
+        ReadOnFileThread(self, bytesToRead, callback)
         return true
     else:
       #Read until the buffer is full or until Read() returns 0 to indicate no
@@ -130,7 +131,7 @@ proc newNCStreamResourceHandler*(statusCode: int, statusText, mimeType: string,
   result.readOnFileThread = stream.MayBlock()
 
 proc ReadOnFileThread(self: NCStreamResourceHandler, bytesToRead: int, callback: NCCallback) =
-  NC_REQUIRE_FILE_THREAD()
+  #NC_REQUIRE_FILE_THREAD()
   if self.buffer == nil:
     self.buffer = newBuffer()
     

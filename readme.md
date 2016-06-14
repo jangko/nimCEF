@@ -87,3 +87,10 @@ MENU_ID:
   MY_QUIT_ID
   MY_PLUGIN_ID
 ```
+
+### MULTITHREAD ISSUE
+Nim memory model and C/C++ memory model is different. In C/C++, object can freely posted to another thread via CefPostTask.
+While in Nim, NCPostTask should be used carefully. Every Nim thread has their own heap and GC. if you must post object across
+threads, you must create object in global heap, it means you must manually manage the object lifetime and you cannot use 
+string or seq as usual(they must be manually marked by GC_ref/GC_unref). If you don't post object across threads boundary, 
+you can call setupForeignThreadGC() before you create any object and use them as usual inside that thread only.

@@ -77,12 +77,12 @@ proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
 # friendly way to help users make security-related decisions *(or in other
 # circumstances when people need to distinguish sites, origins, or otherwise-
 # simplified URLs from each other). Internationalized domain names *(IDN) may be
-# presented in Unicode if |languages| accepts the Unicode representation. The
-# returned value will *(a) omit the path for standard schemes, excepting file
-# and filesystem, and *(b) omit the port if it is the default for the scheme. Do
-# not use this for URLs which will be parsed or sent to other applications.
-proc NCFormatUrlForSecurityDisplay*(origin_url, languages: string): string =
-  wrapProc(cef_format_url_for_security_display, result, origin_url, languages)
+# presented in Unicode if the conversion is considered safe. The returned value
+# will (a) omit the path for standard schemes, excepting file and filesystem,
+# and (b) omit the port if it is the default for the scheme. Do not use this
+# for URLs which will be parsed or sent to other applications.
+proc NCFormatUrlForSecurityDisplay*(origin_url): string =
+  wrapProc(cef_format_url_for_security_display, result, origin_url)
 
 # Returns the mime type for the specified file extension or an NULL string if
 # unknown.
@@ -171,13 +171,6 @@ proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
 # supports further customization the decoding process.
 proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): string =
   wrapProc(cef_uridecode, result, text, convert_to_utf8, unescape_rule)
-
-# Parses |string| which represents a CSS color value. If |strict| is true *(1)
-# strict parsing rules will be applied. Returns true *(1) on success or false
-# *(0) on error. If parsing succeeds |color| will be set to the color value
-# otherwise |color| will remain unchanged.
-proc NCParseCssColor*(str: string, strict: int, color: var cef_color): bool =
-  wrapProc(cef_parse_csscolor, result, str, strict, color)
 
 type
   # Options that can be passed to CefParseJSON.

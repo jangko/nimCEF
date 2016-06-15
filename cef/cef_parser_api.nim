@@ -14,13 +14,13 @@ proc cef_create_url*(parts: ptr cef_urlparts, url: ptr cef_string): cint {.cef_i
 # friendly way to help users make security-related decisions *(or in other
 # circumstances when people need to distinguish sites, origins, or otherwise-
 # simplified URLs from each other). Internationalized domain names *(IDN) may be
-# presented in Unicode if |languages| accepts the Unicode representation. The
-# returned value will *(a) omit the path for standard schemes, excepting file
-# and filesystem, and *(b) omit the port if it is the default for the scheme. Do
-# not use this for URLs which will be parsed or sent to other applications.
+# presented in Unicode if the conversion is considered safe. The returned value
+# will (a) omit the path for standard schemes, excepting file and filesystem,
+# and (b) omit the port if it is the default for the scheme. Do not use this
+# for URLs which will be parsed or sent to other applications.
 
 # The resulting string must be freed by calling cef_string_userfree_free*().
-proc cef_format_url_for_security_display*(origin_url, languages: ptr cef_string): cef_string_userfree {.cef_import.}
+proc cef_format_url_for_security_display*(origin_url: ptr cef_string): cef_string_userfree {.cef_import.}
 
 # Returns the mime type for the specified file extension or an NULL string if
 # unknown.
@@ -62,12 +62,6 @@ proc cef_uriencode*(text: ptr cef_string, use_plus: cint): cef_string_userfree {
 # The resulting string must be freed by calling cef_string_userfree_free*().
 proc cef_uridecode*(text: ptr cef_string, convert_to_utf8: cint,
   unescape_rule: cef_uri_unescape_rule): cef_string_userfree {.cef_import.}
-
-# Parses |string| which represents a CSS color value. If |strict| is true *(1)
-# strict parsing rules will be applied. Returns true *(1) on success or false
-# *(0) on error. If parsing succeeds |color| will be set to the color value
-# otherwise |color| will remain unchanged.
-proc cef_parse_csscolor*(str: ptr cef_string, strict: cint, color: var cef_color): cint {.cef_import.}
 
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL.

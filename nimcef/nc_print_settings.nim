@@ -50,7 +50,7 @@ proc GetDpi*(self: NCPrintSettings): int =
   self.wrapCall(get_dpi, result)
 
 # Set the page ranges.
-proc SetPageRanges*(self: NCPrintSettings, ranges: seq[NCPageRange]) =
+proc SetPageRanges*(self: NCPrintSettings, ranges: seq[NCRange]) =
   self.wrapCall(set_page_ranges, ranges)
 
 # Returns the number of page ranges that currently exist.
@@ -58,7 +58,7 @@ proc GetPageRangesCount*(self: NCPrintSettings): int =
   self.wrapCall(get_page_ranges_count, result)
 
 # Retrieve the page ranges.
-proc GetPageRanges*(self: NCPrintSettings): seq[NCPageRange] =
+proc GetPageRanges*(self: NCPrintSettings): seq[NCRange] =
   var count = self.GetPageRangesCount()
   self.wrapCall(get_page_ranges, result, count)
 

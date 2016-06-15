@@ -54,29 +54,10 @@ proc cef_visit_web_plugin_info*(visitor: ptr cef_web_plugin_info_visitor) {.cef_
 # browser process.
 proc cef_refresh_web_plugins*() {.cef_import.}
 
-# Add a plugin path (directory + file). This change may not take affect until
-# after cef_refresh_web_plugins() is called. Can be called on any thread in the
-# browser process.
-proc cef_add_web_plugin_path*(path: ptr cef_string) {.cef_import.}
-
-# Add a plugin directory. This change may not take affect until after
-# cef_refresh_web_plugins() is called. Can be called on any thread in the
-# browser process.
-proc cef_add_web_plugin_directory*(dir: ptr cef_string) {.cef_import.}
-
-# Remove a plugin path (directory + file). This change may not take affect
-# until after cef_refresh_web_plugins() is called. Can be called on any thread
-# in the browser process.
-proc cef_remove_web_plugin_path*(path: ptr cef_string) {.cef_import.}
-
 # Unregister an internal plugin. This may be undone the next time
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc cef_unregister_internal_web_plugin*(path: ptr cef_string) {.cef_import.}
-
-# Force a plugin to shutdown. Can be called on any thread in the browser
-# process but will be executed on the IO thread.
-proc cef_force_web_plugin_shutdown*(path: ptr cef_string) {.cef_import.}
 
 # Register a plugin crash. Can be called on any thread in the browser process
 # but will be executed on the IO thread.

@@ -1,6 +1,6 @@
 import nc_types, cef_browser_api, nc_util, nc_process_message, nc_client
 import nc_request_context, nc_settings, nc_navigation_entry, nc_util_impl
-import nc_drag_data
+import nc_drag_data, nc_image
 include cef_import
 
 # Callback structure for NCBrowserHost::RunFileDialog. The functions of
@@ -31,6 +31,16 @@ wrapCallback(NCPdfPrintCallback, cef_pdf_print_callback):
   # successfully or false (0) otherwise.
   proc OnPdfPrintFinished*(self: T, path: string, ok: bool): bool
 
+# Callback structure for NCBrowserHost::DownloadImage. The functions of
+# this structure will be called on the browser process UI thread.
+wrapCallback(NCDownloadImageCallback, cef_download_image_callback):
+  # Method that will be executed when the image download has completed.
+  # |image_url| is the URL that was downloaded and |http_status_code| is the
+  # resulting HTTP status code. |image| is the resulting image, possibly at
+  # multiple scale factors, or NULL if the download failed.
+  OnDownloadImageFinished*: proc(self: T,
+    image_url: string, http_status_code: int, image: NCImage)
+    
 # Returns the browser host object. This function can only be called in the
 # browser process.
 proc GetHost*(self: NCBrowser): NCBrowserHost =
@@ -133,20 +143,30 @@ proc GetBrowser*(self: NCBrowserHost): NCBrowser =
 # information.
 proc CloseBrowser*(self: NCBrowserHost, force_close: bool) =
   self.wrapCall(close_browser, force_close)
-
+  
+# Helper for closing a browser. Call this function from the top-level window
+# close handler. Internally this calls CloseBrowser(false (0)) if the close
+# has not yet been initiated. This function returns false (0) while the close
+# is pending and true (1) after the close has completed. See close_browser()
+# and cef_life_span_handler_t::do_close() documentation for additional usage
+# information. This function must be called on the browser process UI thread.
+proc TryCloseBrowser*(self: NCBrowserHost): bool =
+  self.wrapCall(try_close_browser, result)
+  
 # Set whether the browser is focused.
 proc SetFocus*(self: NCBrowserHost, focus: bool) =
   self.wrapCall(set_focus, focus)
 
-# Set whether the window containing the browser is visible
-# (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
-proc SetWindowVisibility*(self: NCBrowserHost, visible: int) =
-  self.wrapCall(set_window_visibility, visible)
-
-# Retrieve the window handle for this browser.
+# Retrieve the window handle for this browser. If this browser is wrapped in
+# a NCBrowserView this function should be called on the browser process
+# UI thread and it will return the handle for the top-level native window.
 proc GetWindowHandle*(self: NCBrowserHost): cef_window_handle =
   self.wrapCall(get_window_handle, result)
-
+  
+# Returns true (1) if this browser is wrapped in a cef_browser_view_t.
+proc HasView*(self: NCBrowserHost): bool =
+  self.wrapCall(has_view, result)
+    
 # Retrieve the window handle of the browser that opened this browser. Will
 # return NULL for non-popup windows. This function can be used in combination
 # with custom handling of modal windows.
@@ -195,7 +215,21 @@ proc RunFileDialog*(self: NCBrowserHost, mode: cef_file_dialog_mode,
 # Download the file at |url| using NCDownloadHandler.
 proc StartDownload*(self: NCBrowserHost, url: string) =
   self.wrapCall(start_download, url)
-
+  
+# Download |image_url| and execute |callback| on completion with the images
+# received from the renderer. If |is_favicon| is true (1) then cookies are
+# not sent and not accepted during download. Images with density independent
+# pixel (DIP) sizes larger than |max_image_size| are filtered out from the
+# image results. Versions of the image at different scale factors may be
+# downloaded up to the maximum scale factor supported by the system. If there
+# are no image results <= |max_image_size| then the smallest image is resized
+# to |max_image_size| and is the only result. A |max_image_size| of 0 means
+# unlimited. If |bypass_cache| is true (1) then |image_url| is requested from
+# the server even if it is present in the browser cache.
+proc DownloadImage*(self: NCBrowserHost, image_url: string, 
+  is_favicon: bool, max_image_size: uint32, bypass_cache: int, callback: NCDownloadImageCallback) =
+  self.wrapCall(download_image, image_url, is_favicon, max_image_size, bypass_cache, callback)
+      
 # Print the current browser contents.
 proc Print*(self: NCBrowserHost) =
   self.wrapCall(print)
@@ -220,17 +254,26 @@ proc Find*(self: NCBrowserHost, identifier: int, searchText: string, forward, ma
 proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
   self.wrapCall(stop_finding, clearSelection)
 
-# Open developer tools in its own window. If |inspect_element_at| is non-
-# NULL the element at the specified (x,y) location will be inspected.
+# Open developer tools (DevTools) in its own browser. The DevTools browser
+# will remain associated with this browser. If the DevTools browser is
+# already open then it will be focused, in which case the |windowInfo|,
+# |client| and |settings| parameters will be ignored. If |inspect_element_at|
+# is non-NULL then the element at the specified (x,y) location will be
+# inspected. The |windowInfo| parameter will be ignored if this browser is
+# wrapped in a NCBrowserView.
 proc ShowDevTools*(self: NCBrowserHost, windowInfo: NCWindowInfo, client: NCClient,
   setting: NCBrowserSettings, inspect_element_at: NCPoint) =
   self.wrapCall(show_dev_tools, windowInfo, client, setting, inspect_element_at)
 
-# Explicitly close the developer tools window if one exists for this browser
-# instance.
+# Explicitly close the associated DevTools browser, if any.
 proc CloseDevTools*(self: NCBrowserHost) =
   self.wrapCall(close_dev_tools)
-
+  
+# Returns true (1) if this browser currently has an associated DevTools
+# browser. Must be called on the browser process UI thread.
+proc HasDevTools(self: NCBrowserHost): bool =
+  self.wrapCall(has_dev_tools, result)
+    
 # Retrieve a snapshot of current navigation entries as values sent to the
 # specified visitor. If |current_only| is true (1) only the current
 # navigation entry will be sent, otherwise all navigation entries will be

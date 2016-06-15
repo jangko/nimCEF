@@ -202,10 +202,17 @@ type
     width*, height*: int
 
   # Structure representing a print job page range.
-  NCPageRange* = object
-    page_from*: int
-    page_to*: int
+  NCRange* = object
+    start*: int
+    to*: int
 
+  # Structure representing insets.
+  NCInsets* = object
+    top*: int
+    left*: int
+    bottom*: int
+    right*: int
+    
   # Structure representing a draggable region.
   NCDraggableRegion* = object
     # Bounds of the region.
@@ -368,15 +375,29 @@ proc to_nim*(nc: cef_size): NCSize =
 
 template nc_free*(nc: cef_size) = discard
 
-proc to_cef*(nc: NCPageRange): cef_page_range =
-  result.page_from  = nc.page_from.cint
-  result.page_to = nc.page_to.cint
+proc to_cef*(nc: NCRange): cef_range =
+  result.start  = nc.start.cint
+  result.to = nc.to.cint
 
-proc to_nim*(nc: cef_page_range): NCPageRange =
-  result.page_from  = nc.page_from.int
-  result.page_to = nc.page_to.int
+proc to_nim*(nc: cef_range): NCRange =
+  result.start = nc.start.int
+  result.to = nc.to.int
 
-template nc_free*(nc: cef_page_range) = discard
+template nc_free*(nc: cef_range) = discard
+
+proc to_cef*(nc: NCInsets): cef_insets =
+  result.top = nc.top.cint
+  result.left = nc.left.cint
+  result.bottom = nc.bottom.cint
+  result.right = nc.right.cint
+
+proc to_nim*(nc: cef_insets): NCInsets =
+  result.top = nc.top.int
+  result.left = nc.left.int
+  result.bottom = nc.bottom.int
+  result.right = nc.right.int
+
+template nc_free*(nc: cef_insets) = discard
 
 proc to_cef*(nc: NCDraggableRegion): cef_draggable_region =
   result.bounds = to_cef(nc.bounds)

@@ -161,5 +161,5 @@ proc cef_request_context_create_context*(settings: ptr cef_request_context_setti
 
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.
-proc create_context_shared*(other: ptr cef_request_context,
+proc cef_create_context_shared*(other: ptr cef_request_context,
   handler: ptr cef_request_context_handler): ptr cef_request_context {.cef_import.}

@@ -1,4 +1,4 @@
-import nc_util
+import nc_util, nc_types
 
 # Structure used to represent a web response. The functions of this structure
 # may be called on any thread.
@@ -8,6 +8,15 @@ wrapAPI(NCResponse, cef_response)
 proc IsReadOnly*(self: NCResponse): bool =
   self.wrapCall(is_read_only, result)
 
+# Get the response error code. Returns ERR_NONE if there was no error.
+proc GetError*(self: NCResponse): cef_error_code =
+  self.wrapCall(get_error, result)
+  
+# Set the response error code. This can be used by custom scheme handlers to
+# return errors during initial request processing.
+proc SetError*(self: NCResponse, error: cef_error_code) =
+  self.wrapCall(set_error, error)
+    
 # Get the response status code.
 proc GetStatus*(self: NCResponse): int =
   self.wrapCall(get_status, result)

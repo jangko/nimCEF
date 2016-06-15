@@ -166,4 +166,4 @@ proc NCRequestContextCreateContext*(settings: NCRequestContextSettings, handler:
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.
 proc CreateContextShared*(other: NCRequestContext, handler: NCRequestContextHandler): NCRequestContext =
-  wrapProc(create_context_shared, result, other, handler)
+  wrapProc(cef_create_context_shared, result, other, handler)

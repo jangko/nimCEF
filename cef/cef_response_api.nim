@@ -11,6 +11,13 @@ type
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_response): cint {.cef_callback.}
 
+    # Get the response error code. Returns ERR_NONE if there was no error.
+    get_error*: proc(self: ptr cef_response): cef_error_code {.cef_callback.}
+
+    # Set the response error code. This can be used by custom scheme handlers to
+    # return errors during initial request processing.
+    set_error*: proc(self: ptr cef_response, error: cef_error_code) {.cef_callback.}
+
     # Get the response status code.
     get_status*: proc(self: ptr cef_response): cint {.cef_callback.}
 

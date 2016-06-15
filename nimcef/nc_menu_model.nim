@@ -1,4 +1,5 @@
 import nc_util, cef_types
+include cef_import
 
 # Supports creation and modification of menus. See cef_menu_id_t for the
 # command ids that have default implementations. All user-defined command ids
@@ -235,3 +236,17 @@ proc GetAccelerator*(self: NCMenuModel, command_id: cef_menu_id, key_code: var i
 proc GetAcceleratorAt*(self: NCMenuModel, index: int, key_code: var int,
   shift_pressed, ctrl_pressed, alt_pressed: var bool): bool =
   self.wrapCall(get_accelerator_at, result, index, key_code, shift_pressed, ctrl_pressed, alt_pressed)
+  
+wrapCallback(NCMenuModelDelegate, cef_menu_model_delegate):
+  #Perform the action associated with the specified |command_id| and optional
+  #|event_flags|.
+  proc ExecuteCommand*(self: NCMenuModelDelegate, menu_model: NCMenuModel, 
+    command_id: cef_menu_id, event_flags: cef_event_flags)
+
+    # The menu is about to show.
+  proc MenuWillShow*(self: NCMenuModelDelegate, menu_model: NCMenuModel)
+  
+# Create a new MenuModel with the specified |delegate|.
+proc NCMenuModelCreate*(delegate: NCMenuModelDelegate): NCMenuModel =
+  wrapProc(cef_menu_model_create, result, delegate)
+  

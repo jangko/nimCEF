@@ -46,34 +46,11 @@ proc NCVisitWebPluginInfo*(visitor: NCWebPluginInfoVisitor) =
 proc NCRefreshWebPlugins*() =
   wrapProc(cef_refresh_web_plugins)
 
-# Add a plugin path (directory + file). This change may not take affect until
-# after cef_refresh_web_plugins() is called. Can be called on any thread in the
-# browser process.
-proc NCAddWebPluginPath*(path: string) =
-  wrapProc(cef_add_web_plugin_path, path)
-
-# Add a plugin directory. This change may not take affect until after
-# cef_refresh_web_plugins() is called. Can be called on any thread in the
-# browser process.
-proc NCAddWebPluginDirectory*(dir: string) =
-  wrapProc(cef_add_web_plugin_directory, dir)
-
-# Remove a plugin path (directory + file). This change may not take affect
-# until after cef_refresh_web_plugins() is called. Can be called on any thread
-# in the browser process.
-proc NCRemoveWebPluginPath*(path: string) =
-  wrapProc(cef_remove_web_plugin_path, path)
-
 # Unregister an internal plugin. This may be undone the next time
 # cef_refresh_web_plugins() is called. Can be called on any thread in the
 # browser process.
 proc NCUnregisterInternalWebPlugin*(path: string) =
   wrapProc(cef_unregister_internal_web_plugin, path)
-
-# Force a plugin to shutdown. Can be called on any thread in the browser
-# process but will be executed on the IO thread.
-proc NCForceWebPluginShutdown*(path: string) =
-  wrapProc(cef_force_web_plugin_shutdown, path)
 
 # Register a plugin crash. Can be called on any thread in the browser process
 # but will be executed on the IO thread.

@@ -1,10 +1,12 @@
-import winapi, os, strutils, streams
+import winapi, os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
 import nc_urlrequest, nc_auth_callback, nc_frame, nc_web_plugin
 import nc_request_context_handler, nc_request_context
 import nc_life_span_handler, nc_context_menu_handler
+import test_runner, nc_resource_manager, nc_request_handler
+import nc_display_handler
 
 type
   myApp = ref object of NCApp
@@ -14,15 +16,13 @@ type
     mMimeType: string
     mOffset: int
 
-  myUrlRequestClient = ref object of NCUrlRequestClient
-    name: string
-
   myClient = ref object of NCClient
     abc: int
     name: string
     cmh: NCContextMenuHandler
     lsh: NCLifeSpanHandler
-
+    reqh: NCRequestHandler
+    disph: NCDisplayHandler
 
 MENU_ID:
   MY_MENU_ID
@@ -31,12 +31,13 @@ MENU_ID:
   MY_SHOW_DEVTOOLS
   MY_CLOSE_DEVTOOLS
   MY_INSPECT_ELEMENT
+  MY_OTHER_TESTS
 
 handlerImpl(NCClient)
 
 proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
   let screenW = GetSystemMetrics(SM_CXSCREEN)
-  let screenH = GetSystemMetrics(SM_CYSCREEN)  
+  let screenH = GetSystemMetrics(SM_CYSCREEN)
   let devToolW = screenW - screenW div 3
   let devToolH = screenH - screenH div 3
   var windowInfo: NCWindowInfo
@@ -61,10 +62,8 @@ handlerImpl(NCContextMenuHandler):
     discard model.AddItem(MY_CLOSE_DEVTOOLS, "Close DevTools")
     discard model.AddItem(MY_INSPECT_ELEMENT, "Inspect Element")
     discard model.AddSeparator()
+    discard model.AddItem(MY_OTHER_TESTS, "Other Tests")
     discard model.AddItem(MY_QUIT_ID, "Quit")
-    echo "page URL: ", params.GetPageUrl()
-    echo "frame URL: ", params.GetFrameUrl()
-    echo "link URL: ", params.GetLinkUrl()
 
   proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
@@ -72,7 +71,6 @@ handlerImpl(NCContextMenuHandler):
 
     case command_id
     of MY_MENU_ID:
-      echo "Hello There Clicked"
       frame.ExecuteJavaScript("alert('Hello There Clicked!');", frame.GetURL(), 0)
 
     of MY_QUIT_ID:
@@ -88,49 +86,14 @@ handlerImpl(NCContextMenuHandler):
     of MY_INSPECT_ELEMENT:
       showDevTool(browser.GetHost(), params.GetXCoord(), params.GetYCoord())
 
+    of MY_OTHER_TESTS:
+      browser.GetMainFrame().LoadURL("http://tests/other_tests")
     else:
       echo "unsupported MENU ID"
     #if command_id == MY_PLUGIN_ID:
     #  echo "PLUGIN INFO"
     #  let visitor = makeNCWebPluginInfoVisitor(visitor_impl)
     #  NCVisitWebPluginInfo(visitor)
-
-proc DumpRequestContents(request: NCRequest): string =
-  var ss = newStringStream()
-
-  ss.write "URL: "
-  ss.write request.GetURL()
-  ss.write "\nMethod: "
-  ss.write request.GetMethod()
-
-  var headerMap = request.GetHeaderMap()
-
-  if headerMap.len > 0:
-    ss.write "\nHeaders:"
-    for k, v in pairs(headerMap):
-      ss.write "\n\t"
-      ss.write k
-      ss.write ": "
-      ss.write $v
-
-  var postData = request.GetPostData()
-  if postData != nil:
-    var elements = postData.GetElements()
-    if elements.len > 0:
-      ss.write "\nPost Data:"
-      for it in elements:
-        if it.GetType() == PDE_TYPE_BYTES:
-          #the element is composed of bytes
-          ss.write "\n\tBytes: "
-          if it.GetBytesCount() == 0:
-            ss.write "(empty)"
-          else:
-            #retrieve the data.
-            ss.write it.GetBytes()
-        elif it.GetType() == PDE_TYPE_FILE:
-          ss.write "\n\tFile: "
-          ss.write it.GetFile()
-  result = ss.data
 
 handlerImpl(myScheme):
   proc ProcessRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
@@ -216,10 +179,27 @@ proc RegisterSchemeHandler() =
 
 handlerImpl(NCLifeSpanHandler):
   proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
-    var client = getClient[myClient](browser)
-    echo client.name, " exit now"
     NCQuitMessageLoop()
 
+handlerImpl(NCRequestHandler):
+  proc OnBeforeResourceLoad*(self: NCRequestHandler, browser: NCBrowser,
+  frame: NCFrame, request: NCRequest, callback: NCRequestCallback): cef_return_value =
+    NC_REQUIRE_IO_THREAD()
+    var resourceManager = getResourceManager()
+    result = resourceManager.OnBeforeResourceLoad(browser, frame, request, callback)
+    
+  proc GetResourceHandler*(self: NCRequestHandler, browser: NCBrowser,
+    frame: NCFrame, request: NCRequest): NCResourceHandler =
+    NC_REQUIRE_IO_THREAD()
+    var resourceManager = getResourceManager()
+    result = resourceManager.GetResourceHandler(browser, frame, request)
+
+handlerImpl(NCDisplayHandler):
+  proc OnTitleChange*(self: NCDisplayHandler, browser: NCBrowser, title: string) =
+    var host = browser.GetHost()
+    var hWnd = host.GetWindowHandle()
+    discard setWindowText(hWnd, title)
+  
 handlerImpl(myClient):
   proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
@@ -227,12 +207,21 @@ handlerImpl(myClient):
   proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
     return self.lsh
 
+  proc GetRequestHandler*(self: myClient): NCRequestHandler =
+    return self.reqh
+
+  proc GetDisplayHandler*(self: myClient): NCDisplayHandler =
+    return self.disph
+    
 proc newClient(no: int, name: string): myClient =
   result = myClient.NCCreate()
   result.abc = no
   result.name = name
   result.cmh = NCContextMenuHandler.NCCreate()
   result.lsh = NCLifeSpanHandler.NCCreate()
+  result.reqh = NCRequestHandler.NCCreate()
+  result.disph = NCDisplayHandler.NCCreate()
+  SetupResourceManager()
 
 proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, top_origin_url: string,
   plugin_info: NCWebPluginInfo, plugin_policy: var cef_plugin_policy): bool =
@@ -243,7 +232,6 @@ proc OnBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, t
     return true
 
   result = false
-
 
 proc main() =
   # Main args.

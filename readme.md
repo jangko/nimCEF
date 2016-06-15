@@ -30,6 +30,13 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 | 4  | CefClient Example     | 20%      | no      | no       | no      | no       | 0.13.0-0.14.0 |
 | 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      | 0.13.0-0.14.0 |
 
+### HOW TO BUILD nimCEF EXAMPLES
+From your console command prompt type: 
+
+```text
+nim e build.nims
+```
+
 
 ### HOW TO CREATE HANDLER/CALLBACK DEFINITION AND INSTANCE
 
@@ -124,7 +131,7 @@ proc readMyFile(fileId: int, mode: int) =
 You must be very careful when you post object across thread boundary for the reason below.
 
 ### MULTITHREAD ISSUE
-Nim memory model and C/C++ memory model is different. In C/C++, object can freely posted to another thread via CefPostTask.
+Nim memory model and C/C++ memory model is different. In C/C++, object can be freely posted to another thread via CefPostTask.
 While in Nim, NCPostTask should be used carefully. Every Nim thread has their own heap and GC. if you must post object across
 threads, you must create object in global heap, it means you must manually manage the object lifetime and you cannot use
 string or seq as usual(they must be manually marked by GC_ref/GC_unref). If you don't post object across threads boundary,

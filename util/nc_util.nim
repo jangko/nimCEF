@@ -340,7 +340,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
       proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
       params.add "arg$1" % [argi]
       epiloque.add "nc_free(arg$1)\n" % [argi]
-    of ntyBool, ntyInt, ntyFloat:
+    of ntyBool, ntyInt, ntyFloat, ntyFloat32:
       let argType = getType(rout)[i - startIndex + 3].getBaseType()
       if arg.kind == nnkHiddenDeref:
         proloque.add "var arg$1 = $2.$3\n" % [argi, argv, argType]
@@ -351,7 +351,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
           epiloque.add "$1 = arg$2\n" % [argv, argi]
       else:
         params.add "$1.$2" % [argv, argType]
-    of ntyPointer, ntyEnum, ntyInt64:
+    of ntyPointer, ntyEnum, ntyInt64, ntyCString, ntyUInt32:
       let argT = getType(rout)[i - startIndex + 3]
       if arg.typeKind == ntyEnum and argT.typeKind != ntyEnum:
         let argType = argT.getBaseType()

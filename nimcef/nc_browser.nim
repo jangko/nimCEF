@@ -38,7 +38,7 @@ wrapCallback(NCDownloadImageCallback, cef_download_image_callback):
   # |image_url| is the URL that was downloaded and |http_status_code| is the
   # resulting HTTP status code. |image| is the resulting image, possibly at
   # multiple scale factors, or NULL if the download failed.
-  OnDownloadImageFinished*: proc(self: T,
+  proc OnDownloadImageFinished*(self: T,
     image_url: string, http_status_code: int, image: NCImage)
     
 # Returns the browser host object. This function can only be called in the

@@ -81,7 +81,7 @@ proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
 # will (a) omit the path for standard schemes, excepting file and filesystem,
 # and (b) omit the port if it is the default for the scheme. Do not use this
 # for URLs which will be parsed or sent to other applications.
-proc NCFormatUrlForSecurityDisplay*(origin_url): string =
+proc NCFormatUrlForSecurityDisplay*(origin_url: string): string =
   wrapProc(cef_format_url_for_security_display, result, origin_url)
 
 # Returns the mime type for the specified file extension or an NULL string if
@@ -120,27 +120,37 @@ type
     # just the absence of them). All other unescape rules imply "normal" in
     # addition to their special meaning. Things like escaped letters, digits,
     # and most symbols will get unescaped with this mode.
-    NC_UU_NORMAL
+    NC_UU_NORMAL,
 
     # Convert %20 to spaces. In some places where we're showing URLs, we may
     # want this. In places where the URL may be copied and pasted out, then
     # you wouldn't want this since it might not be interpreted in one piece
     # by other applications.
-    NC_UU_SPACES
+    NC_UU_SPACES,
+
+    # Unescapes '/' and '\\'. If these characters were unescaped, the resulting
+    # URL won't be the same as the source one. Moreover, they are dangerous to
+    # unescape in strings that will be used as file paths or names. This value
+    # should only be used when slashes don't have special meaning, like data
+    # URLs.
+    NC_UU_PATH_SEPARATORS,
 
     # Unescapes various characters that will change the meaning of URLs,
-    # including '%', '+', '&', '/', '#'. If we unescaped these characters, the
-    # resulting URL won't be the same as the source one. This flag is used when
-    # generating final output like filenames for URLs where we won't be
-    # interpreting as a URL and want to do as much unescaping as possible.
-    NC_UU_URL_SPECIAL_CHARS
+    # including '%', '+', '&', '#'. Does not unescape path separators.
+    # If these characters were unescaped, the resulting URL won't be the same
+    # as the source one. This flag is used when generating final output like
+    # filenames for URLs where we won't be interpreting as a URL and want to do
+    # as much unescaping as possible.
+    NC_UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS,
 
-    # Unescapes control characters such as %01. This INCLUDES NULLs. This is
-    # used for rare cases such as data: URL decoding where the result is binary
-    # data. This flag also unescapes BiDi control characters.
-    # DO NOT use CONTROL_CHARS if the URL is going to be displayed in the UI
-    # for security reasons.
-    NC_UU_CONTROL_CHARS
+    # Unescapes characters that can be used in spoofing attempts (such as LOCK)
+    # and control characters (such as BiDi control characters and %01).  This
+    # INCLUDES NULLs.  This is used for rare cases such as data: URL decoding
+    # where the result is binary data.
+    #
+    # DO NOT use UU_SPOOFING_AND_CONTROL_CHARS if the URL is going to be
+    # displayed in the UI for security reasons.
+    NC_UU_SPOOFING_AND_CONTROL_CHARS,
 
     # URL queries use "+" for space. This flag controls that replacement.
     NC_UU_REPLACE_PLUS_WITH_SPACE
@@ -150,14 +160,22 @@ type
 const
   # Don't unescape anything at all.
   NC_UU_NONE*: NCUUR = {}
-  NC_UU_ALL* = {NC_UU_NORMAL, NC_UU_SPACES, NC_UU_URL_SPECIAL_CHARS, NC_UU_CONTROL_CHARS, NC_UU_REPLACE_PLUS_WITH_SPACE}
-
+  NC_UU_ALL* = {
+    NC_UU_NORMAL,
+    NC_UU_SPACES,
+    NC_UU_PATH_SEPARATORS,
+    NC_UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS,
+    NC_UU_SPOOFING_AND_CONTROL_CHARS,
+    NC_UU_REPLACE_PLUS_WITH_SPACE
+    }
+    
 proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
   var res: int = 0
   if NC_UU_NORMAL in rule: res = res or UU_NORMAL.ord
-  if NC_UU_SPACES in rule: res = res or UU_SPACES.ord
-  if NC_UU_URL_SPECIAL_CHARS in rule: res = res or UU_URL_SPECIAL_CHARS.ord
-  if NC_UU_CONTROL_CHARS in rule: res = res or UU_CONTROL_CHARS.ord
+  if NC_UU_SPACES in rule: res = res or UU_SPACES.ord    
+  if NC_UU_PATH_SEPARATORS in rule: res = res or UU_PATH_SEPARATORS.ord
+  if NC_UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS  in rule: res = res or UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS.ord
+  if NC_UU_SPOOFING_AND_CONTROL_CHARS in rule: res = res or UU_SPOOFING_AND_CONTROL_CHARS.ord    
   if NC_UU_REPLACE_PLUS_WITH_SPACE in rule: res = res or UU_REPLACE_PLUS_WITH_SPACE.ord
   result = cast[cef_uri_unescape_rule](res)
 

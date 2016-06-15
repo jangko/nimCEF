@@ -55,7 +55,7 @@ type
     # Removes the representation for |scale_factor|. Returns true (1) on success.
     remove_representation*: proc(self: ptr cef_image,
       scale_factor: cfloat): cint {.cef_callback.}
-  
+
     # Returns information for the representation that most closely matches
     # |scale_factor|. |actual_scale_factor| is the actual scale factor for the
     # representation. |pixel_width| and |pixel_height| are the representation
@@ -96,4 +96,4 @@ type
 # Create a new cef_image_t. It will initially be NULL. Use the Add*() functions
 # to add representations at different scale factors.
 
-proc cef_image_create(): ptr cef_image {.cef_import.}
+proc cef_image_create*(): ptr cef_image {.cef_import.}

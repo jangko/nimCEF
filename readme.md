@@ -20,7 +20,7 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 
 ---
 
-###Translation status(CEF3 ver 2704):
+### Translation status(CEF3 ver 2704):
 
 | No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver  |
 |----|-----------------------|----------|---------|----------|---------|----------|----------|
@@ -30,6 +30,16 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 | 4  | CefClient Example     | 20%      | no      | no       | no      | no       |  0.14.2  |
 | 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      |  0.14.2  |
 
+### Latest Statistics
+
+| Macro Name   | Call Count |
+|--------------|------------|
+| wrapCall     |    662     |
+| wrapProc     |    80      |
+| wrapMethod   |    151     |
+| wrapAPI      |    109     |
+| wrapCallback |    45      |
+
 ### HOW TO BUILD nimCEF EXAMPLES
 From your console command prompt type:
 
@@ -37,6 +47,11 @@ From your console command prompt type:
 nim e build.nims
 ```
 
+### HOW TO PREPARE RUNTIME LIBRARY
+* make sure your cef library binary bitness is compatible with your executable
+* download prebuilt binary from [here](http://www.magpcss.net/cef_downloads/), or built from the source yourself
+* place your binaries according to this [layout](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-application-layout)
+* run your executable
 
 ### HOW TO CREATE HANDLER/CALLBACK DEFINITION AND INSTANCE
 
@@ -128,7 +143,7 @@ proc readMyFile(fileId: int, mode: int) =
   discard NCPostTask(TID_IO, readMyFileTask(fileId, mode))
 ```
 
-You must be very careful when you post object across thread boundary for the reason below.
+You must be very careful when you post object across threads boundary for the reason below.
 
 ### MULTITHREAD ISSUE
 Nim memory model and C/C++ memory model is different. In C/C++, object can be freely posted to another thread via CefPostTask.

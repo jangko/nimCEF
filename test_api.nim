@@ -13,7 +13,7 @@ import cef_v8context_api, cef_browser_process_handler_api, cef_dialog_handler_ap
 import cef_display_handler_api, cef_download_handler_api, cef_load_handler_api
 import cef_navigation_entry_api, cef_origin_whitelist_api, cef_request_context_handler_api
 import cef_resource_bundle_api, cef_resource_bundle_handler_api, cef_response_filter_api
-import cef_trace_api, cef_zip_reader_api, cef_response_api
+import cef_trace_api, cef_zip_reader_api, cef_response_api, cef_view_api
 
 
 import nc_app, nc_client, nc_frame
@@ -32,7 +32,7 @@ import nc_focus_handler, nc_geolocation_handler, nc_jsdialog_handler
 import nc_keyboard_handler, nc_life_span_handler, nc_load_handler
 import nc_render_handler, nc_request_handler
 import nc_render_process_handler, nc_resource_bundle_handler
-import nc_browser_process_handler
+import nc_browser_process_handler, nc_view
 
 #this module purpose is to test the wrapper macro
 #and then print to console the statistics for each macro

@@ -468,44 +468,6 @@ type
     set_accessible_name*: proc(self: ptr cef_textfield,
       name: ptr cef_string) {.cef_callback.}
 
-  # Implement this structure to handle view events. The functions of this
-  # structure will be called on the browser process UI thread unless otherwise
-  # indicated.
-  cef_view_delegate* = object of cef_base
-    # Return the preferred size for |view|. The Layout will use this information
-    # to determine the display size.
-    get_preferred_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
-
-    # Return the minimum size for |view|.
-    get_minimum_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
-
-    # Return the maximum size for |view|.
-    get_maximum_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
-
-    # Return the height necessary to display |view| with the provided |width|. If
-    # not specified the result of get_preferred_size().height will be used by
-    # default. Override if |view|'s preferred height depends upon the width (for
-    # example, with Labels).
-    get_height_for_width*: proc(self: ptr cef_view_delegate,
-      view: ptr cef_view, width: cint): cint {.cef_callback.}
-
-    # Called when the parent of |view| has changed. If |view| is being added to
-    # |parent| then |added| will be true (1). If |view| is being removed from
-    # |parent| then |added| will be false (0). If |view| is being reparented the
-    # remove notification will be sent before the add notification. Do not modify
-    # the view hierarchy in this callback.
-    on_parent_view_changed*: proc(self: ptr cef_view_delegate,
-      view: ptr cef_view, added: cint, parent: ptr cef_view) {.cef_callback.}
-
-    # Called when a child of |view| has changed. If |child| is being added to
-    # |view| then |added| will be true (1). If |child| is being removed from
-    # |view| then |added| will be false (0). If |child| is being reparented the
-    # remove notification will be sent to the old parent before the add
-    # notification is sent to the new parent. Do not modify the view hierarchy in
-    # this callback.
-    on_child_view_changed*: proc(self: ptr cef_view_delegate,
-      view: ptr cef_view, added: cint, child: ptr cef_view) {.cef_callback.}
-
   # A Window is a top-level Window/widget in the Views hierarchy. By default it
   # will have a non-client area with title bar, icon and buttons that supports
   # moving and resizing. All size and position values are in density independent
@@ -746,6 +708,44 @@ type
     show_menu*: proc(self: ptr cef_menu_button,
       menu_model: ptr cef_menu_model, screen_point: ptr cef_point,
       anchor_position: cef_menu_anchor_position) {.cef_callback.}
+
+  # Implement this structure to handle view events. The functions of this
+  # structure will be called on the browser process UI thread unless otherwise
+  # indicated.
+  cef_view_delegate* = object of cef_base
+    # Return the preferred size for |view|. The Layout will use this information
+    # to determine the display size.
+    get_preferred_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
+
+    # Return the minimum size for |view|.
+    get_minimum_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
+
+    # Return the maximum size for |view|.
+    get_maximum_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
+
+    # Return the height necessary to display |view| with the provided |width|. If
+    # not specified the result of get_preferred_size().height will be used by
+    # default. Override if |view|'s preferred height depends upon the width (for
+    # example, with Labels).
+    get_height_for_width*: proc(self: ptr cef_view_delegate,
+      view: ptr cef_view, width: cint): cint {.cef_callback.}
+
+    # Called when the parent of |view| has changed. If |view| is being added to
+    # |parent| then |added| will be true (1). If |view| is being removed from
+    # |parent| then |added| will be false (0). If |view| is being reparented the
+    # remove notification will be sent before the add notification. Do not modify
+    # the view hierarchy in this callback.
+    on_parent_view_changed*: proc(self: ptr cef_view_delegate,
+      view: ptr cef_view, added: cint, parent: ptr cef_view) {.cef_callback.}
+
+    # Called when a child of |view| has changed. If |child| is being added to
+    # |view| then |added| will be true (1). If |child| is being removed from
+    # |view| then |added| will be false (0). If |child| is being reparented the
+    # remove notification will be sent to the old parent before the add
+    # notification is sent to the new parent. Do not modify the view hierarchy in
+    # this callback.
+    on_child_view_changed*: proc(self: ptr cef_view_delegate,
+      view: ptr cef_view, added: cint, child: ptr cef_view) {.cef_callback.}
 
   # Implement this structure to handle BrowserView events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise

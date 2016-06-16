@@ -130,7 +130,7 @@ proc nc_add_ref*[T](elem: T) =
 proc nc_release*[T](elem: T) =
   if elem != nil: discard elem.release(cast[ptr cef_base](elem))
 
-macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
+macro wrapAPI*(x, base: untyped, importUtil: bool = true, parent: typed = RootObj): typed =
   inc(wrapAPIStat)
 
   if importUtil.boolVal():
@@ -144,7 +144,7 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
 
   result.add quote do:
     type
-      `x`* = ref object of RootObj
+      `x`* = ref object of `parent`
         handler*: ptr `base`
 
     proc GetHandler*(self: `x`): ptr `base` {.inline.} =

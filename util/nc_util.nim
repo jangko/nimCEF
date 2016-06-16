@@ -130,34 +130,63 @@ proc nc_add_ref*[T](elem: T) =
 proc nc_release*[T](elem: T) =
   if elem != nil: discard elem.release(cast[ptr cef_base](elem))
 
-macro wrapAPI*(x, base: untyped, importUtil: bool = true, parent: typed = RootObj): typed =
+type
+  APIPair = object
+    nApi : NimNode
+    nBase: NimNode
+    
+var apiList {.compileTime.} : seq[APIPair] = @[]
+
+macro registerAPI*(api, base: typed): stmt =
+  apiList.add APIPair(nApi: api, nBase: base)
+  result = newEmptyNode()
+
+macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = RootObj): typed =
   inc(wrapAPIStat)
-
+  
+  let baseName = $base
+  let parentName = $parent
+  let apiName = $api
+  let isRoot = parentName == "RootObj"
+  var glue = ""
+  
   if importUtil.boolVal():
-    var exim = "import nc_util_impl, " & $base & "_api\n"
-    exim.add "export " & $base & "_api\n"
-    result = parseStmt exim
+    glue.add "import nc_util_impl, $1_api\n" % [baseName]
+    glue.add "export $1_api\n" % [baseName]
+
+  glue.add "type\n"
+  glue.add "  $1* = ref object of $2\n" % [apiName, parentName]
+  
+  if isRoot:
+    glue.add "    handler*: ptr $1\n" % [baseName]
+
+  glue.add "proc GetHandler*(self: $1): ptr $2 {.inline.} =\n" % [apiName, baseName]
+  
+  if isRoot:
+    glue.add "  result = if self == nil: nil else: self.handler\n"
   else:
-    result = newNimNode(nnkStmtList)
+    glue.add "  result = if self == nil: nil else: cast[ptr $1](self.handler)\n" % [baseName]
 
-  var res = newIdentNode("result")
+  glue.add "template nc_cast_handler*(self: $1): expr =\n" % [apiName]
+  if isRoot:
+    glue.add "  self.handler\n"
+  else:
+    glue.add "  cast[ptr $1](self.handler)\n" % [baseName]
+    
+  glue.add "proc nc_finalizer(self: $1) =\n" % [apiName]
+  glue.add "  nc_release(self.handler)\n"
 
-  result.add quote do:
-    type
-      `x`* = ref object of `parent`
-        handler*: ptr `base`
-
-    proc GetHandler*(self: `x`): ptr `base` {.inline.} =
-      `res` = if self == nil: nil else: self.handler
-
-    proc nc_finalizer(self: `x`) =
-      nc_release(self.handler)
-
-    proc nc_wrap*(handler: ptr `base`): `x` =
-      if handler == nil: return nil
-      new(`res`, nc_finalizer)
-      `res`.handler = handler
-      nc_add_ref(handler)
+  glue.add "proc nc_wrap*(handler: ptr $1): $2 =\n" % [baseName, apiName]
+  glue.add "  if handler == nil: return nil\n"
+  glue.add "  new(result, nc_finalizer)\n"
+  glue.add "  result.handler = handler\n"
+  glue.add "  nc_add_ref(handler)\n"
+  glue.add "registerAPI($1, $2)\n" % [apiName, baseName]
+  
+  if wrapDebugMode:
+    echo glue
+    
+  result = parseStmt(glue)
       
 macro debugModeOn*(): stmt =
   wrapDebugMode = true
@@ -187,24 +216,35 @@ proc getRecList(n: NimNode): NimNode =
       return c
   result = newEmptyNode()
   
-proc checkSymNC(nc: NimNode): NimNode =
+proc findRoot(n: NimNode): NimNode =
+  var parent = n
+  while true:
+    if parent[1].kind == nnkEmpty: break
+    if parent[1].kind == nnkSym: 
+      if $parent[1] == "RootObj": break
+    parent = getType(parent[1])
+  result = parent
+  
+proc checkSymNC(n: NimNode): NimNode =
   var err = false
-  result = getType(nc)  
-  if result.kind != nnkObjectTy: err = true
-  let reclist = getRecList(result)
+  if n.typeKind != ntyObject: err = true
+  let root = findRoot(getType(n))
+  let reclist = getRecList(root)
   if reclist.len != 0:
     if not (reclist[0].kind == nnkSym and $reclist[0] == "handler"): err = true
   else:
     err = true
-  if err: error(lineinfo(nc) & " self must be a ref object type with a handler")
+  if err: error(lineinfo(n) & " self must be a ref object type with a handler")
+  result = root
 
 proc checkSymHandler(nc: NimNode): NimNode =
-  var err = false
-  result = getType(nc)
-  if result.kind != nnkBracketExpr: err = true
-  if result[0].typeKind != ntyPtr: err = true
-  if not (result[1].kind == nnkSym and substr($result[1], 0, 3) == "cef_"): err = true
-  if err: error(lineinfo(nc) & " self.handler must be a ptr to cef_xxx")
+  var ncstr = $nc
+  let pos = ncstr.find(':')
+  if pos != -1: 
+    ncstr = ncstr.substr(0, pos-1)
+  for n in apiList:
+    if $n.nAPI == ncstr: return getType(n.nBase)
+  error(lineinfo(nc) & " unregistered nc type")
 
 proc getRoutine(list: NimNode, elem: string): NimNode =
   for c in list:
@@ -229,20 +269,17 @@ proc checkBase(n: NimNode): bool =
   result = not err
 
 proc checkWrapped(n: NimNode): bool =
-  var err = false
   let nType = getType(n)
   if nType.typeKind != ntyRef: return false
-  let objSym = nType[1]    
-  let objType = getType(objSym)
-  let recList = getRecList(objType)
-  if recList.len == 0: return false
-  let handler = recList[0]
-  if $handler != "handler": return false
+  let parent = getType(nType[1])
+  let root = findRoot(parent)
+  if root[2].len == 0: return false
+  let handler = root[2][0]
+  if not (handler.typeKind == ntyPtr and $handler == "handler"): return false
   let handlee = getType(handler)[1]
-  if objSym.typeKind != ntyObject: err = true
-  if not (handler.typeKind == ntyPtr and $handler == "handler"): err = true
-  if handler.typeKind == ntyPtr and substr($handlee, 0, 3) != "cef_": err = true
-  result = not err
+  if handlee.typeKind != ntyObject: return false
+  if handler.typeKind == ntyPtr and substr($handlee, 0, 3) != "cef_": return false
+  result = true
 
 proc checkMultiMap(n: NimNode): bool =
   let objSym = getType(n)[1] #table
@@ -289,12 +326,9 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   let
     selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
     symNC      = checkSymNC(selfType[1]) # ObjectTy: Empty, Reclist: sym handler
-    
-  let
-    symHandler = checkSymHandler(getRecList(symNC)[0]) # BracketExpr: sym ptr, sym cef_xxx
+    baseHandler= getRecList(symNC)[0]  
+    symHandler = checkSymHandler(selfType[1]) # BracketExpr: sym ptr, sym cef_xxx
     symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n  
-    
-  let
     routineList= getRecList(symCef)
     argSize    = args.len-1
     rout       = getRoutine(routineList, $routine)
@@ -308,8 +342,8 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     startIndex = 0
     proloque = ""
     epiloque = ""
-    params = "self.handler"
-    calee = "self.handler." & $routine
+    params = "nc_cast_handler(self)"
+    calee = "nc_cast_handler(self)." & $routine
     body = ""
 
   if hasResult and args.len > 1:

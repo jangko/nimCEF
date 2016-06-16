@@ -75,15 +75,15 @@ wrapAPI(NCDisplay, cef_display, false)
 wrapAPI(NCMenuButton, cef_menu_button, false, NCLabelButton)
   
 # Returns this Layout as a BoxLayout or NULL if this is not a BoxLayout.
-proc AsBoxLayout*(self: NCLayout): NCBoxLayout =
+proc asBoxLayout*(self: NCLayout): NCBoxLayout =
   self.wrapCall(as_box_layout, result)
 
 # Returns this Layout as a FillLayout or NULL if this is not a FillLayout.
-proc AsFillLayout*(self: NCLayout): NCFillLayout =
+proc asFillLayout*(self: NCLayout): NCFillLayout =
   self.wrapCall(as_fill_layout, result)
 
 # Returns true (1) if this Layout is valid.
-proc IsValid*(self: NCLayout): bool =
+proc isValid*(self: NCLayout): bool =
   self.wrapCall(is_valid, result)
 
 # Set the flex weight for the given |view|. Using the preferred size as the
@@ -91,33 +91,40 @@ proc IsValid*(self: NCLayout): bool =
 # of their flex weights. Similarly, if the views will overflow the parent,
 # space is subtracted in these ratios. A flex of 0 means this view is not
 # resized. Flex values must not be negative.
-proc SetFlexForView*(self: NCBoxLayout, view: NCView, flex: int) =
+proc setFlexForView*(self: NCBoxLayout, view: NCView, flex: int) =
   self.wrapCall(set_flex_for_view, view, flex)
-
+  
 # Clears the flex for the given |view|, causing it to use the default flex
 # specified via cef_box_layout_tSettings.default_flex.
-proc ClearFlexForView*(self: NCBoxLayout, view: NCView) =
+proc clearFlexForView*(self: NCBoxLayout, view: NCView) =
   self.wrapCall(clear_flex_for_view, view)
-#[
+
 # Returns this View as a BrowserView or NULL if this is not a BrowserView.
-proc as_browser_view*(self: NCView): NCBrowserView =
+proc asBrowserView*(self: NCView): NCBrowserView =
+  self.wrapCall(as_browser_view, result)
 
 # Returns this View as a Button or NULL if this is not a Button.
-proc as_button*(self: NCView): NCButton =
-
+proc asButton*(self: NCView): NCButton =
+  self.wrapCall(as_button, result)
+  
 # Returns this View as a Panel or NULL if this is not a Panel.
-proc as_panel*(self: NCView): NCPanel =
+proc asPanel*(self: NCView): NCPanel =
+  self.wrapCall(as_panel, result)
 
 # Returns this View as a ScrollView or NULL if this is not a ScrollView.
-proc as_scroll_view*(self: NCView): NCScrollView =
+proc asScrollView*(self: NCView): NCScrollView =
+  self.wrapCall(as_scroll_view, result)
 
 # Returns this View as a Textfield or NULL if this is not a Textfield.
-proc as_textfield*(self: NCView): NCTextField =
+proc asTextField*(self: NCView): NCTextField =
+  self.wrapCall(as_textfield, result)
 
 # Returns the type of this View as a string. Used primarily for testing
 # purposes.
-proc get_type_string*(self: NCView): string =
+proc getTypeString*(self: NCView): string =
+  self.wrapCall(get_type_string, result)
 
+#[
 # Returns a string representation of this View which includes the type and
 # various type-specific identifying attributes. If |include_children| is true
 # (1) any child Views will also be included. Used primarily for testing

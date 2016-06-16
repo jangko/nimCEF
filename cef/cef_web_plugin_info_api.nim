@@ -3,9 +3,7 @@ include cef_import
 
 type
   # Information about a specific web plugin.
-  cef_web_plugin_info* = object
-    base*: cef_base
-
+  cef_web_plugin_info* = object of cef_base
     # Returns the plugin name (i.e. Flash).
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_name*: proc(self: ptr cef_web_plugin_info): cef_string_userfree {.cef_callback.}
@@ -24,9 +22,7 @@ type
 
   # Structure to implement for visiting web plugin information. The functions of
   # this structure will be called on the browser process UI thread.
-  cef_web_plugin_info_visitor* = object
-    base*: cef_base
-
+  cef_web_plugin_info_visitor* = object of cef_base
     # Method that will be called once for each plugin. |count| is the 0-based
     # index for the current plugin. |total| is the total number of plugins.
     # Return false (0) to stop visiting plugins. This function may never be
@@ -36,9 +32,7 @@ type
 
   # Structure to implement for receiving unstable plugin information. The
   # functions of this structure will be called on the browser process IO thread.
-  cef_web_plugin_unstable_callback* = object
-    base*: cef_base
-
+  cef_web_plugin_unstable_callback* = object of cef_base
     # Method that will be called for the requested plugin. |unstable| will be
     # true (1) if the plugin has reached the crash count threshold of 3 times in
     # 120 seconds.

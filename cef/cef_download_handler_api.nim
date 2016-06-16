@@ -3,10 +3,7 @@ include cef_import
 
 type
   # Callback structure used to asynchronously continue a download.
-  cef_before_download_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_before_download_callback* = object of cef_base
     # Call to continue the download. Set |download_path| to the full file path
     # for the download including the file name or leave blank to use the
     # suggested name and the default temp directory. Set |show_dialog| to true
@@ -15,10 +12,7 @@ type
       download_path: ptr cef_string, show_dialog: cint) {.cef_callback.}
 
   # Callback structure used to asynchronously cancel a download.
-  cef_download_item_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_download_item_callback* = object of cef_base
     # Call to cancel the download.
     cancel*: proc(self: ptr cef_download_item_callback) {.cef_callback.}
 
@@ -31,10 +25,7 @@ type
 
   # Structure used to handle file downloads. The functions of this structure will
   # called on the browser process UI thread.
-  cef_download_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_download_handler* = object of cef_base
     # Called before a download begins. |suggested_name| is the suggested name for
     # the download file. By default the download will be canceled. Execute
     # |callback| either asynchronously or in this function to continue the

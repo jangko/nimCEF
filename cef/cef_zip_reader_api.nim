@@ -5,10 +5,7 @@ type
   # Structure that supports the reading of zip archives via the zlib unzip API.
   # The functions of this structure should only be called on the thread that
   # creates the object.
-  cef_zip_reader* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_zip_reader* = object of cef_base
     # Moves the cursor to the first file in the archive. Returns true (1) if the
     # cursor position was set successfully.
     move_to_first_file*: proc(self: ptr cef_zip_reader): cint {.cef_callback.}

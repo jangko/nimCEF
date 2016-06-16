@@ -3,9 +3,7 @@ include cef_import
 
 # Structure representing a message. Can be used on any process and thread.
 type
-  cef_process_message* = object
-    base*: cef_base
-
+  cef_process_message* = object of cef_base
     # Returns true (1) if this object is valid. Do not call any other functions
     # if this function returns false (0).
     is_valid*: proc(self: ptr cef_process_message): cint {.cef_callback.}

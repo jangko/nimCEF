@@ -26,7 +26,6 @@ proc GetError*(self: NCXmlReader): string =
 
 # The below functions retrieve data for the node at the current cursor
 # position.
-
 # Returns the node type.
 proc GetType*(self: NCXmlReader): cef_xml_node_type =
   self.wrapCall(get_type, result)

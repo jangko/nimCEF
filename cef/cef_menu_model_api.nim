@@ -6,10 +6,7 @@ type
   # command ids that have default implementations. All user-defined command ids
   # should be between MENU_ID_USER_FIRST and MENU_ID_USER_LAST. The functions of
   # this structure can only be accessed on the browser process the UI thread.
-  cef_menu_model* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_menu_model* = object of cef_base
     # Clears the menu. Returns true (1) on success.
     clear*: proc(self: ptr cef_menu_model): cint {.cef_callback.}
 
@@ -229,10 +226,7 @@ type
 
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_menu_model_delegate* = object
-    # Base structure.
-    base*: cef_base
-    
+  cef_menu_model_delegate* = object of cef_base
     #Perform the action associated with the specified |command_id| and optional
     #|event_flags|.
     execute_command*: proc(self: ptr cef_menu_model_delegate,

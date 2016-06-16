@@ -28,9 +28,9 @@ wrapAPI(NCClient, cef_client, false)
 template nc_wrap*(x: ptr_cef_client): expr = nc_wrap(cast[ptr cef_client](x))
 template nc_wrap*(x: ptr_cef_browser): expr = nc_wrap(cast[ptr cef_browser](x))
 template nc_wrap*(x: ptr_cef_frame): expr = nc_wrap(cast[ptr cef_frame](x))
-template release*(x: ptr_cef_browser): expr = release(cast[ptr cef_browser](x))
-template release*(x: ptr_cef_client): expr = release(cast[ptr cef_client](x))
-template release*(x: ptr_cef_frame): expr = release(cast[ptr cef_frame](x))
+template nc_release*(x: ptr_cef_browser): expr = nc_release(cast[ptr cef_browser](x))
+template nc_release*(x: ptr_cef_client): expr = nc_release(cast[ptr cef_client](x))
+template nc_release*(x: ptr_cef_frame): expr = nc_release(cast[ptr cef_frame](x))
 
 template USER_MENU_ID*(n: int): expr = (MENU_ID_USER_FIRST.ord + n).cef_menu_id
 

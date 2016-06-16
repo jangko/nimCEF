@@ -5,9 +5,7 @@ include cef_import
 # of this structure will always be called on the IO thread.
 
 type
-  cef_resource_handler* = object
-    base*: cef_base
-
+  cef_resource_handler* = object of cef_base
     # Begin processing the request. To handle the request return true (1) and
     # call cef_callback_t::cont() once the response header information is
     # available (cef_callback_t::cont() can also be called from inside this

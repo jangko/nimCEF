@@ -4,10 +4,7 @@ include cef_import
 # Implement this structure to handle events related to focus. The functions of
 # this structure will be called on the UI thread.
 type
-  cef_focus_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_focus_handler* = object of cef_base
     # Called when the browser component is about to loose focus. For instance, if
     # focus was on the last HTML element and the user pressed the TAB key. |next|
     # will be true (1) if the browser is giving focus to the next component and

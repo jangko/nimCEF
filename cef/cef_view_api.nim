@@ -6,29 +6,23 @@ type
   # A Layout handles the sizing of the children of a Panel according to
   # implementation-specific heuristics. Methods must be called on the browser
   # process UI thread unless otherwise indicated.
-  cef_layout* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_layout* = object of cef_base
     # Returns this Layout as a BoxLayout or NULL if this is not a BoxLayout.
     as_box_layout*: proc(self: ptr cef_layout): ptr cef_box_layout {.cef_callback.}
 
     # Returns this Layout as a FillLayout or NULL if this is not a FillLayout.
     as_fill_layout*: proc(self: ptr cef_layout): ptr cef_fill_layout {.cef_callback.}
-  
+
     # Returns true (1) if this Layout is valid.
     is_valid*: proc(self: ptr cef_layout): cint {.cef_callback.}
-    
+
   # A Layout manager that arranges child views vertically or horizontally in a
   # side-by-side fashion with spacing around and between the child views. The
   # child views are always sized according to their preferred size. If the host's
   # bounds provide insufficient space, child views will be clamped. Excess space
   # will not be distributed. Methods must be called on the browser process UI
   # thread unless otherwise indicated.
-  cef_box_layout* = object
-    # Base structure.
-    base*: cef_layout
-  
+  cef_box_layout* = object of cef_layout
     # Set the flex weight for the given |view|. Using the preferred size as the
     # basis, free space along the main axis is distributed to views in the ratio
     # of their flex weights. Similarly, if the views will overflow the parent,
@@ -36,7 +30,7 @@ type
     # resized. Flex values must not be negative.
     set_flex_for_view*: proc(self: ptr cef_box_layout,
       view: ptr cef_view, flex: int) {.cef_callback.}
-  
+
     # Clears the flex for the given |view|, causing it to use the default flex
     # specified via cef_box_layout_tSettings.default_flex.
     clear_flex_for_view*: proc(self: ptr cef_box_layout,
@@ -45,18 +39,13 @@ type
   # A simple Layout that causes the associated Panel's one child to be sized to
   # match the bounds of its parent. Methods must be called on the browser process
   # UI thread unless otherwise indicated.
-  cef_fill_layout* = object
-    # Base structure.
-    base*: cef_layout
+  cef_fill_layout* = object of cef_layout
 
   # A View is a rectangle within the views View hierarchy. It is the base
   # structure for all Views. All size and position values are in density
   # independent pixels (DIP) unless otherwise indicated. Methods must be called
   # on the browser process UI thread unless otherwise indicated.
-  cef_view* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_view* = object of cef_base
     # Returns this View as a BrowserView or NULL if this is not a BrowserView.
     as_browser_view*: proc(self: ptr cef_view): ptr cef_browser_view {.cef_callback.}
 
@@ -176,22 +165,22 @@ type
     # is_drawn() to determine whether this View and all parent views are visible
     # and will be drawn.
     is_visible*: proc(self: ptr cef_view): cint {.cef_callback.}
-  
+
     # Returns whether this View is visible and drawn in a Window. A view is drawn
     # if it and all parent views are visible. If this View is a Window then
     # calling this function is equivalent to calling is_visible(). Otherwise, to
     # determine if the containing Window is visible to the user on-screen call
     # is_visible() on the Window.
     is_drawn*: proc(self: ptr cef_view): cint {.cef_callback.}
-  
+
     # Set whether this View is enabled. A disabled View does not receive keyboard
     # or mouse inputs. If |enabled| differs from the current value the View will
     # be repainted. Also, clears focus if the focused View is disabled.
     set_enabled*: proc(self: ptr cef_view, enabled: cint) {.cef_callback.}
-  
+
     # Returns whether this View is enabled.
     is_enabled*: proc(self: ptr cef_view): cint {.cef_callback.}
-  
+
     # Sets whether this View is capable of taking focus. It will clear focus if
     # the focused View is set to be non-focusable. This is false (0) by default
     # so that a View used as a container does not get the focus.
@@ -199,7 +188,7 @@ type
 
     # Returns true (1) if this View is focusable, enabled and drawn.
     is_focusable*: proc(self: ptr cef_view): cint {.cef_callback.}
-  
+
     # Return whether this View is focusable when the user requires full keyboard
     # access, even though it may not be normally focusable.
     is_accessibility_focusable*: proc(self: ptr cef_view): cint {.cef_callback.}
@@ -210,7 +199,7 @@ type
 
     # Sets the background color for this View.
     set_background_color*: proc(self: ptr cef_view, color: cef_color) {.cef_callback.}
-  
+
     # Returns the background color for this View.
     get_background_color*: proc(self: ptr cef_view): cef_color {.cef_callback.}
 
@@ -220,7 +209,7 @@ type
     # cef_display_t::convert_point_to_pixels() after calling this function if
     # further conversion to display-specific pixel coordinates is desired.
     convert_point_to_screen*: proc(self: ptr cef_view, point: ptr cef_point): cint {.cef_callback.}
-  
+
     # Convert |point| to this View's coordinate system from that of the screen.
     # This View must belong to a Window when calling this function. Returns true
     # (1) if the conversion is successful or false (0) otherwise. Use
@@ -232,7 +221,7 @@ type
     # This View must belong to a Window when calling this function. Returns true
     # (1) if the conversion is successful or false (0) otherwise.
     convert_point_to_window*: proc(self: ptr cef_view, point: ptr cef_point): cint {.cef_callback.}
-  
+
     # Convert |point| to this View's coordinate system from that of the Window.
     # This View must belong to a Window when calling this function. Returns true
     # (1) if the conversion is successful or false (0) otherwise.
@@ -251,24 +240,18 @@ type
 
   # A View hosting a cef_browser_t instance. Methods must be called on the
   # browser process UI thread unless otherwise indicated.
-  cef_browser_view* = object
-    # Base structure.
-    base: cef_view
-
+  cef_browser_view* = object of cef_view
     # Returns the cef_browser_t hosted by this BrowserView. Will return NULL if
     # the browser has not yet been created or has already been destroyed.
-  
+
     get_browser: proc(self: ptr cef_browser_view): ptr cef_browser {.cef_callback.}
+
   # A View representing a button. Depending on the specific type, the button
   # could be implemented by a native control or custom rendered. Methods must be
   # called on the browser process UI thread unless otherwise indicated.
-  
-  cef_button* = object
-    # Base structure.
-    base: cef_view
-
+  cef_button* = object of cef_view
     # Returns this Button as a LabelButton or NULL if this is not a LabelButton.
-    as_label_button*: proc(self: ptr cef_button): cef_label_button {.cef_callback.}
+    as_label_button*: proc(self: ptr cef_button): ptr cef_label_button {.cef_callback.}
 
     # Sets the current display state of the Button.
     set_state*: proc(self: ptr cef_button, state: cef_button_state) {.cef_callback.}
@@ -282,14 +265,11 @@ type
 
     # Sets the accessible name that will be exposed to assistive technology (AT).
     set_accessible_name*: proc(self: ptr cef_button, name: ptr cef_string) {.cef_callback.}
-  
+
   # A Panel is a container in the views hierarchy that can contain other Views as
   # children. Methods must be called on the browser process UI thread unless
   # otherwise indicated.
-  cef_panel* = object
-    # Base structure.
-    base: cef_view
-
+  cef_panel* = object of cef_view
     # Returns this Panel as a Window or NULL if this is not a Window.
     as_window*: proc(self: ptr cef_panel): ptr cef_window {.cef_callback.}
 
@@ -332,14 +312,11 @@ type
 
     # Returns the child View at the specified |index|.
     get_child_view_at*: proc(self: ptr cef_panel, index: cint): ptr cef_view {.cef_callback.}
-  
+
   # A ScrollView will show horizontal and/or vertical scrollbars when necessary
   # based on the size of the attached content view. Methods must be called on the
   # browser process UI thread unless otherwise indicated.
-  cef_scroll_view* = object
-    # Base structure.
-    base: cef_view
-
+  cef_scroll_view* = object of cef_view
     # Set the content View. The content View must have a specified size (e.g. via
     # cef_view_t::SetBounds or cef_view_tDelegate::GetPreferredSize).
     set_content_view*: proc(self: ptr cef_scroll_view, view: ptr cef_view) {.cef_callback.}
@@ -361,14 +338,11 @@ type
 
     # Returns the width of the vertical scrollbar.
     get_vertical_scrollbar_width*: proc(self: ptr cef_scroll_view): cint {.cef_callback.}
-  
+
   # A Textfield supports editing of text. This control is custom rendered with no
   # platform-specific code. Methods must be called on the browser process UI
   # thread unless otherwise indicated.
-  cef_textfield* = object
-    # Base structure.
-    base: cef_view
-  
+  cef_textfield* = object of cef_view
     # Sets whether the text will be displayed as asterisks.
     set_password_input*: proc(self: ptr cef_textfield, password_input: cint) {.cef_callback.}
 
@@ -384,7 +358,7 @@ type
     # Returns the currently displayed text.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_text*: proc(self: ptr cef_textfield): cef_string_userfree {.cef_callback.}
-  
+
     # Sets the contents to |text|. The cursor will be moved to end of the text if
     # the current position is outside of the text range.
     set_text*: proc(self: ptr cef_textfield, text: ptr cef_string) {.cef_callback.}
@@ -438,7 +412,7 @@ type
 
     # Returns the selection background color.
     get_selection_background_color*: proc(self: ptr cef_textfield): cef_color {.cef_callback.}
-  
+
     # Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
     # where: - FONT_FAMILY_LIST is a comma-separated list of font family names, -
     # STYLES is an optional space-separated list of style names (case-sensitive
@@ -470,7 +444,7 @@ type
     # IDS_APP_PASTE, IDS_APP_DELETE, IDS_APP_SELECT_ALL, IDS_DELETE_* and
     # IDS_MOVE_*. See include/cef_pack_strings.h for definitions.
     execute_command*: proc(self: ptr cef_textfield, command_id: cint): cint {.cef_callback.}
-  
+
     # Clears Edit history.
     clear_edit_history*: proc(self: ptr cef_textfield) {.cef_callback.}
 
@@ -493,14 +467,11 @@ type
     # Set the accessible name that will be exposed to assistive technology (AT).
     set_accessible_name*: proc(self: ptr cef_textfield,
       name: ptr cef_string) {.cef_callback.}
-  
+
   # Implement this structure to handle view events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_view_delegate* = object
-    # Base structure.
-    base: cef_base
-  
+  cef_view_delegate* = object of cef_base
     # Return the preferred size for |view|. The Layout will use this information
     # to determine the display size.
     get_preferred_size*: proc(self: ptr cef_view_delegate, view: ptr cef_view): cef_size {.cef_callback.}
@@ -534,16 +505,13 @@ type
     # this callback.
     on_child_view_changed*: proc(self: ptr cef_view_delegate,
       view: ptr cef_view, added: cint, child: ptr cef_view) {.cef_callback.}
-  
+
   # A Window is a top-level Window/widget in the Views hierarchy. By default it
   # will have a non-client area with title bar, icon and buttons that supports
   # moving and resizing. All size and position values are in density independent
   # pixels (DIP) unless otherwise indicated. Methods must be called on the
   # browser process UI thread unless otherwise indicated.
-  cef_window* = object
-    # Base structure.
-    base: cef_panel
-  
+  cef_window* = object of cef_panel
     # Show the Window.
     show*: proc(self: ptr cef_window) {.cef_callback.}
 
@@ -662,7 +630,7 @@ type
     # (screen_x, screen_y) position. This function is exposed primarily for
     # testing purposes.
     send_mouse_move*: proc(self: ptr cef_window, screen_x, screen_y: cint) {.cef_callback.}
-  
+
     # Simulate mouse down and/or mouse up events. |button| is the mouse button
     # type. If |mouse_down| is true (1) a mouse down event will be sent. If
     # |mouse_up| is true (1) a mouse up event will be sent. If both are true (1)
@@ -672,13 +640,10 @@ type
     # the mouse. This function is exposed primarily for testing purposes.
     send_mouse_events*: proc(self: ptr cef_window,
       button: cef_mouse_button_type, mouse_down, mouse_up: cint) {.cef_callback.}
-  
+
   # LabelButton is a button with optional text and/or icon. Methods must be
   # called on the browser process UI thread unless otherwise indicated.
-  cef_label_button* = object
-    # Base structure.
-    base: cef_button
-
+  cef_label_button* = object of cef_button
     # Returns this LabelButton as a MenuButton or NULL if this is not a
     # MenuButton.
     as_menu_button*: proc(self: ptr cef_label_button): ptr cef_menu_button {.cef_callback.}
@@ -693,12 +658,12 @@ type
 
     # Sets the image shown for |button_state|. When this Button is drawn if no
     # image exists for the current state then the image for
-    # CEF_BUTTON_STATE_NORMAL, if any, will be shown.
+    # cef_button_state_NORMAL, if any, will be shown.
     set_image*: proc(self: ptr cef_label_button,
       state: cef_button_state, image: ptr cef_image) {.cef_callback.}
 
     # Returns the image shown for |button_state|. If no image exists for that
-    # state then the image for CEF_BUTTON_STATE_NORMAL will be returned.
+    # state then the image for cef_button_state_NORMAL will be returned.
     get_image*: proc(self: ptr cef_label_button, state: cef_button_state): ptr cef_image {.cef_callback.}
 
     # Sets the text color shown for the specified button |for_state| to |color|.
@@ -732,17 +697,14 @@ type
     # Reset the maximum size of this LabelButton to |size|.
     set_maximum_size*: proc(self: ptr cef_label_button,
       size: ptr cef_size) {.cef_callback.}
-  
+
   # This structure typically, but not always, corresponds to a physical display
   # connected to the system. A fake Display may exist on a headless system, or a
   # Display may correspond to a remote, virtual display. All size and position
   # values are in density independent pixels (DIP) unless otherwise indicated.
   # Methods must be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_display* = object
-    # Base structure.
-    base: cef_base
-  
+  cef_display* = object of cef_base
     # Returns the unique identifier for this Display.
     get_id*: proc(self: ptr cef_display): int64 {.cef_callback.}
 
@@ -756,7 +718,7 @@ type
     # using this Display's device scale factor.
     vconvert_point_to_pixels*: proc(self: ptr cef_display,
       point: ptr cef_point) {.cef_callback.}
-  
+
     # Convert |point| from pixel coordinates to density independent pixels (DIP)
     # using this Display's device scale factor.
     vconvert_point_from_pixels*: proc(self: ptr cef_display,
@@ -768,18 +730,15 @@ type
     # Returns this Display's work area. This excludes areas of the display that
     # are occupied for window manager toolbars, etc.
     get_work_area*: proc(self: ptr cef_display): cef_rect {.cef_callback.}
-  
+
     # Returns this Display's rotation in degrees.
     get_rotation*: proc(self: ptr cef_display): cint {.cef_callback.}
-  
+
   # MenuButton is a button with optional text, icon and/or menu marker that shows
   # a menu when clicked with the left mouse button. All size and position values
   # are in density independent pixels (DIP) unless otherwise indicated. Methods
   # must be called on the browser process UI thread unless otherwise indicated.
-  cef_menu_button* = object
-    # Base structure.
-    base: cef_label_button
-
+  cef_menu_button* = object of cef_label_button
     # Show a menu with contents |menu_model|. |screen_point| specifies the menu
     # position in screen coordinates. |anchor_position| specifies how the menu
     # will be anchored relative to |screen_point|. This function should be called
@@ -787,14 +746,11 @@ type
     show_menu*: proc(self: ptr cef_menu_button,
       menu_model: ptr cef_menu_model, screen_point: ptr cef_point,
       anchor_position: cef_menu_anchor_position) {.cef_callback.}
-  
+
   # Implement this structure to handle BrowserView events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_browser_view_delegate* = object
-    # Base structure.
-    base: cef_view_delegate
-
+  cef_browser_view_delegate* = object of cef_view_delegate
     # Called when |browser| associated with |browser_view| is created. This
     # function will be called after cef_life_span_handler_t::on_after_created()
     # is called for |browser| and before on_popup_browser_view_created() is
@@ -828,61 +784,47 @@ type
     on_popup_browser_view_created*: proc(self: ptr cef_browser_view_delegate,
       browser_view: ptr cef_browser_view,
       popup_browser_view: ptr cef_browser_view, is_devtools: cint): cint {.cef_callback.}
-  
+
   # Implement this structure to handle Panel events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_panel_delegate* = object
-    # Base structure.
-    base: cef_view_delegate
-  
+  cef_panel_delegate* = object of cef_view_delegate
+
   # Implement this structure to handle Button events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_button_delegate* = object
-    # Base structure.
-    base: cef_view_delegate
-  
+  cef_button_delegate* = object of cef_view_delegate
     # Called when |button| is pressed.
-    on_button_pressed*: proc(self: ptr cef_button_delegate, button: ptr cef_button) {.cef_callback.} 
+    on_button_pressed*: proc(self: ptr cef_button_delegate, button: ptr cef_button) {.cef_callback.}
 
   # Implement this structure to handle MenuButton events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_menu_button_delegate* = object
-    # Base structure.
-    base: cef_button_delegate
-  
+  cef_menu_button_delegate* = object of cef_button_delegate
     # Called when |button| is pressed. Call cef_menu_button_t::show_menu() to
     # show the resulting menu at |screen_point|.
     on_menu_button_pressed*: proc(self: ptr cef_menu_button_delegate,
       menu_button: ptr cef_menu_button, screen_point: ptr cef_point) {.cef_callback.}
-  
+
   # Implement this structure to handle Textfield events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_textfield_delegate* = object
-    # Base structure.
-    base: cef_view_delegate
-
+  cef_textfield_delegate* = object of cef_view_delegate
     # Called when |textfield| recieves a keyboard event. |event| contains
     # information about the keyboard event. Return true (1) if the keyboard event
     # was handled or false (0) otherwise for default handling.
     on_key_event*: proc(self: ptr cef_textfield_delegate,
       textfield: ptr cef_textfield,
       event: ptr cef_key_event): cint {.cef_callback.}
-  
+
     # Called after performing a user action that may change |textfield|.
     on_after_user_action*: proc(self: ptr cef_textfield_delegate,
       textfield: ptr cef_textfield) {.cef_callback.}
-  
+
   # Implement this structure to handle window events. The functions of this
   # structure will be called on the browser process UI thread unless otherwise
   # indicated.
-  cef_window_delegate* = object
-    # Base structure.
-    base: cef_panel_delegate
-
+  cef_window_delegate* = object of cef_panel_delegate
     # Called when |window| is created.
     on_window_created*: proc(self: ptr cef_window_delegate,
       window: ptr cef_window) {.cef_callback.}
@@ -892,7 +834,7 @@ type
     # returns.
     on_window_destroyed*: proc(self: ptr cef_window_delegate,
       window: ptr cef_window) {.cef_callback.}
-  
+
     # Return true (1) if |window| should be created without a frame or title bar.
     # The window will be resizable if can_resize() returns true (1). Use
     # cef_window_t::set_draggable_regions() to specify draggable regions.
@@ -915,7 +857,7 @@ type
     # initiated window close actions and when cef_window_t::close() is called.
     can_close*: proc(self: ptr cef_window_delegate,
       window: ptr cef_window): cint {.cef_callback.}
-      
+
 # Create a new BrowserView. The underlying cef_browser_t will not be created
 # until this view is added to the views hierarchy.
 proc cef_browser_view_create*(client: ptr cef_client, url: ptr cef_string,
@@ -941,9 +883,9 @@ proc cef_window_create_top_level*(delegate: ptr cef_window_delegate): ptr cef_wi
 # minimum size of 70x33 DIP. If |with_frame| is false (0) the button will only
 # have a visible frame on hover/press, left alignment, less padding and no
 # default minimum size.
-proc cef_label_button_create*(delegate: ptr cef_button_delegate, 
+proc cef_label_button_create*(delegate: ptr cef_button_delegate,
   text: ptr cef_string, with_frame: cint): ptr cef_label_button {.cef_import.}
-  
+
 # Returns the primary Display.
 proc cef_display_get_primary*(): ptr cef_display {.cef_import.}
 

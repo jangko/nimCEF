@@ -8,10 +8,7 @@ include cef_import
 # will display with a DIP size of 100x100 units. The functions of this
 # structure must be called on the browser process UI thread.
 type
-  cef_image* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_image* = object of cef_base
     # Returns true (1) if this Image is NULL.
     is_empty*: proc(self: ptr cef_image): cint {.cef_callback.}
 

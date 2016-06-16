@@ -5,10 +5,7 @@ type
   # Implement this structure to provide handler implementations. The handler
   # instance will not be released until all objects related to the context have
   # been destroyed.
-  cef_request_context_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_request_context_handler* = object of cef_base
     # Called on the browser process IO thread to retrieve the cookie manager. If
     # this function returns NULL the default cookie manager retrievable via
     # cef_request_tContext::get_default_cookie_manager() will be used.

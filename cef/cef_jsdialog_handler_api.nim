@@ -4,9 +4,7 @@ include cef_import
 type
   # Callback structure used for asynchronous continuation of JavaScript dialog
   # requests.
-  cef_jsdialog_callback* = object
-    base*: cef_base
-
+  cef_jsdialog_callback* = object of cef_base
     # Continue the JS dialog request. Set |success| to true (1) if the OK button
     # was pressed. The |user_input| value should be specified for prompt dialogs.
     cont*: proc(self: ptr cef_jsdialog_callback, success: cint,
@@ -15,9 +13,7 @@ type
 
   # Implement this structure to handle events related to JavaScript dialogs. The
   # functions of this structure will be called on the UI thread.
-  cef_jsdialog_handler* = object
-    base*: cef_base
-
+  cef_jsdialog_handler* = object of cef_base
     # Called to run a JavaScript dialog. If |origin_url| is non-NULL it can be
     # passed to the CefFormatUrlForSecurityDisplay function to retrieve a secure
     # and user-friendly display string. The |default_prompt_text| value will be

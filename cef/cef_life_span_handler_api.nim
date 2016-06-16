@@ -5,9 +5,7 @@ include cef_import
 # methods of this class will be called on the UI thread unless otherwise
 # indicated.
 type
-  cef_life_span_handler* = object
-    base*: cef_base
-
+  cef_life_span_handler* = object of cef_base
     # Called on the IO thread before a new popup browser is created. The
     # |browser| and |frame| values represent the source of the popup request. The
     # |target_url| and |target_frame_name| values indicate where the popup

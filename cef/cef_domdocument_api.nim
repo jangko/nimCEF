@@ -4,10 +4,7 @@ include cef_import
 type
   # Structure to implement for visiting the DOM. The functions of this structure
   # will be called on the render process main thread.
-  cef_domvisitor* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_domvisitor* = object of cef_base
     # Method executed for visiting the DOM. The document object passed to this
     # function represents a snapshot of the DOM at the time this function is
     # executed. DOM objects are only valid for the scope of this function. Do not
@@ -19,10 +16,7 @@ type
 
   # Structure used to represent a DOM document. The functions of this structure
   # should only be called on the render process main thread thread.
-  cef_domdocument* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_domdocument* = object of cef_base
     # Returns the document type.
     get_type*: proc(self: ptr cef_domdocument): cef_dom_document_type {.cef_callback.}
 
@@ -73,10 +67,7 @@ type
 
   # Structure used to represent a DOM node. The functions of this structure
   # should only be called on the render process main thread.
-  cef_domnode* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_domnode* = object of cef_base
     # Returns the type for this node.
     get_type*: proc(self: ptr cef_domnode): cef_dom_node_type {.cef_callback.}
 

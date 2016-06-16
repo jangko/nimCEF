@@ -5,10 +5,7 @@ type
   # Implement this structure to receive notification when tracing has completed.
   # The functions of this structure will be called on the browser process UI
   # thread.
-  cef_end_tracing_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_end_tracing_callback* = object of cef_base
     # Called after all processes have sent their trace data. |tracing_file| is
     # the path at which tracing data was written. The client is responsible for
     # deleting |tracing_file|.

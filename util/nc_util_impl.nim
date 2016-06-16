@@ -38,14 +38,14 @@ proc nc_initialize_base[T](base: ptr cef_base) =
   base.has_one_ref = generic_has_one_ref[T]
 
 proc nc_init_base*[A](elem: ptr A) =
-  elem.handler.base.size = sizeof(A)
+  elem.handler.size = sizeof(A)
   nc_initialize_base[A](cast[ptr cef_base](elem.handler.addr))
 
 proc nc_finalizer*[T, C](self: C) =
   if self.handler != nil:
     var handler = toType(T, self.handler)
     handler.container = nil
-  release(self.handler)
+  nc_release(self.handler)
 
 #T is nc_xxx from wrapCallback
 #C is NCxxx or it's descendant
@@ -54,7 +54,7 @@ template nc_init*(T, C: typedesc, impl: expr) =
   nc_init_base[T](handler)
   new(result, nc_finalizer[T, C])
   result.handler = handler.handler.addr
-  add_ref(handler.handler.addr)
+  nc_add_ref(handler.handler.addr)
   handler.container = result
   copyMem(handler.impl.addr, impl.unsafeAddr, sizeof(impl))
 

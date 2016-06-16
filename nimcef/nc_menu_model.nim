@@ -245,7 +245,7 @@ wrapCallback(NCMenuModelDelegate, cef_menu_model_delegate):
 
     # The menu is about to show.
   proc MenuWillShow*(self: NCMenuModelDelegate, menu_model: NCMenuModel)
-  
+
 # Create a new MenuModel with the specified |delegate|.
 proc NCMenuModelCreate*(delegate: NCMenuModelDelegate): NCMenuModel =
   wrapProc(cef_menu_model_create, result, delegate)

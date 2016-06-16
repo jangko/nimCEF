@@ -4,18 +4,14 @@ include cef_import
 type
   # Callback structure used for asynchronous continuation of geolocation
   # permission requests.
-  cef_geolocation_callback* = object
-    base*: cef_base
-
+  cef_geolocation_callback* = object of cef_base
     # Call to allow or deny geolocation access.
     cont*: proc(self: ptr cef_geolocation_callback, allow: cint): cint {.cef_callback.}
 
   # Implement this structure to handle events related to geolocation permission
   # requests. The functions of this structure will be called on the browser
   # process UI thread.
-  cef_geolocation_handler* = object
-    base*: cef_base
-
+  cef_geolocation_handler* = object of cef_base
     # Called when a page requests permission to access geolocation information.
     # |requesting_url| is the URL requesting permission and |request_id| is the
     # unique ID for the permission request. Return true (1) and call

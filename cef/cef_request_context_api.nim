@@ -4,10 +4,7 @@ include cef_import
 
 type
   # Callback structure for cef_request_tContext::ResolveHost.
-  cef_resolve_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_resolve_callback* = object of cef_base
     # Called after the ResolveHost request has completed. |result| will be the
     # result code. |resolved_ips| will be the list of resolved IP addresses or
     # NULL if the resolution failed.
@@ -28,10 +25,7 @@ type
   # in single-process mode will share the same request context. This will be the
   # first request context passed into a cef_browser_host_t static factory
   # function and all other request context objects will be ignored.
-  cef_request_context* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_request_context* = object of cef_base
     # Returns true (1) if this object is pointing to the same context as |that|
     # object.
     is_same*: proc(self, other: ptr cef_request_context): cint {.cef_callback.}

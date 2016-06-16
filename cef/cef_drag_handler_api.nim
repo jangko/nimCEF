@@ -4,9 +4,7 @@ include cef_import
 # Implement this structure to handle events related to dragging. The functions
 # of this structure will be called on the UI thread.
 type
-  cef_drag_handler* = object
-    base*: cef_base
-
+  cef_drag_handler* = object of cef_base
     # Called when an external drag event enters the browser window. |dragData|
     # contains the drag event data and |mask| represents the type of drag
     # operation. Return false (0) for default drag handling behavior or true (1)

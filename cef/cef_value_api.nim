@@ -5,9 +5,7 @@ type
   # Structure that wraps other data value types. Complex types (binary,
   # dictionary and list) will be referenced but not owned by this object. Can be
   # used on any process and thread.
-  cef_value* = object
-    base*: cef_base
-
+  cef_value* = object of cef_base
     # Returns true (1) if the underlying data is valid. This will always be true
     # (1) for simple types. For complex types (binary, dictionary and list) the
     # underlying data may become invalid if owned by another object (e.g. list or
@@ -112,9 +110,7 @@ type
     set_list*: proc(self: ptr cef_value, value: ptr cef_list_value): cint {.cef_callback.}
 
   # Structure representing a binary value. Can be used on any process and thread.
-  cef_binary_value* = object
-    base*: cef_base
-
+  cef_binary_value* = object of cef_base
     # Returns true (1) if this object is valid. This object may become invalid if
     # the underlying data is owned by another object (e.g. list or dictionary)
     # and that other object is then modified or destroyed. Do not call any other
@@ -145,9 +141,7 @@ type
 
   # Structure representing a dictionary value. Can be used on any process and
   # thread.
-  cef_dictionary_value* = object
-    base*: cef_base
-
+  cef_dictionary_value* = object of cef_base
     # Returns true (1) if this object is valid. This object may become invalid if
     # the underlying data is owned by another object (e.g. list or dictionary)
     # and that other object is then modified or destroyed. Do not call any other
@@ -296,9 +290,7 @@ type
       key: ptr cef_string, value: ptr cef_list_value): cint {.cef_callback.}
 
   # Structure representing a list value. Can be used on any process and thread.
-  cef_list_value* = object
-    base*: cef_base
-
+  cef_list_value* = object of cef_base
     # Returns true (1) if this object is valid. This object may become invalid if
     # the underlying data is owned by another object (e.g. list or dictionary)
     # and that other object is then modified or destroyed. Do not call any other

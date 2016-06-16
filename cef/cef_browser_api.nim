@@ -10,9 +10,7 @@ type
   # process the functions of this structure may be called on any thread unless
   # otherwise indicated in the comments. When used in the render process the
   # functions of this structure may only be called on the main thread.
-  cef_browser* = object
-    base*: cef_base
-
+  cef_browser* = object of cef_base
     # Returns the browser host object. This function can only be called in the
     # browser process.
     get_host*: proc(self: ptr cef_browser): ptr cef_browser_host {.cef_callback.}
@@ -88,9 +86,7 @@ type
   # The functions of this structure can only be called in the browser process.
   # They may be called on any thread in that process unless otherwise indicated
   # in the comments.
-  cef_browser_host* = object
-    base*: cef_base
-
+  cef_browser_host* = object of cef_base
     # Returns the hosted browser object.
     get_browser*: proc(self: ptr cef_browser_host): ptr cef_browser {.cef_callback.}
 
@@ -111,7 +107,7 @@ type
     # and cef_life_span_handler_t::do_close() documentation for additional usage
     # information. This function must be called on the browser process UI thread.
     try_close_browser*: proc(self: ptr cef_browser_host): cint {.cef_callback.}
-  
+
     # Set whether the browser is focused.
     set_focus*: proc(self: ptr cef_browser_host, focus: cint) {.cef_callback.}
 
@@ -122,7 +118,7 @@ type
 
     # Returns true (1) if this browser is wrapped in a cef_browser_view_t.
     has_view*: proc(self: ptr cef_browser_host): cint {.cef_callback.}
-  
+
     # Retrieve the window handle of the browser that opened this browser. Will
     # return NULL for non-popup windows. This function can be used in combination
     # with custom handling of modal windows.
@@ -181,7 +177,7 @@ type
     download_image*: proc(self: ptr cef_browser_host,
       image_url: ptr cef_string, is_favicon: cint, max_image_size: uint32,
       bypass_cache: cint, callback: ptr cef_download_image_callback) {.cef_callback.}
-      
+
     # Print the current browser contents.
     print*: proc(self: ptr cef_browser_host) {.cef_callback.}
 
@@ -391,9 +387,7 @@ type
 
   # Callback structure for cef_browser_host_t::RunFileDialog. The functions of
   # this structure will be called on the browser process UI thread.
-  cef_run_file_dialog_callback* = object
-    base*: cef_base
-
+  cef_run_file_dialog_callback* = object of cef_base
     # Called asynchronously after the file dialog is dismissed.
     # |selected_accept_filter| is the 0-based index of the value selected from
     # the accept filters array passed to cef_browser_host_t::RunFileDialog.
@@ -406,24 +400,19 @@ type
   # Callback structure for cef_browser_host_t::GetNavigationEntries. The
   # functions of this structure will be called on the browser process UI thread.
 
-  cef_navigation_entry_visitor* = object
-    base*: cef_base
-
+  cef_navigation_entry_visitor* = object of cef_base
     # Method that will be executed. Do not keep a reference to |entry| outside of
     # this callback. Return true (1) to continue visiting entries or false (0) to
     # stop. |current| is true (1) if this entry is the currently loaded
     # navigation entry. |index| is the 0-based index of this entry and |total| is
     # the total number of entries.
-
     visit*: proc(self: ptr cef_navigation_entry_visitor,
       entry: ptr cef_navigation_entry, current, index, total: cint): cint {.cef_callback.}
 
   # Callback structure for cef_browser_host_t::PrintToPDF. The functions of this
   # structure will be called on the browser process UI thread.
 
-  cef_pdf_print_callback* = object
-    base*: cef_base
-
+  cef_pdf_print_callback* = object of cef_base
     # Method that will be executed when the PDF printing has completed. |path| is
     # the output path. |ok| will be true (1) if the printing completed
     # successfully or false (0) otherwise.
@@ -433,16 +422,14 @@ type
 
   # Callback structure for cef_browser_host_t::DownloadImage. The functions of
   # this structure will be called on the browser process UI thread.
-  cef_download_image_callback* = object
-    base*: cef_base
-
+  cef_download_image_callback* = object of cef_base
     # Method that will be executed when the image download has completed.
     # |image_url| is the URL that was downloaded and |http_status_code| is the
     # resulting HTTP status code. |image| is the resulting image, possibly at
     # multiple scale factors, or NULL if the download failed.
     on_download_image_finished*: proc(self: ptr cef_download_image_callback,
       image_url: ptr cef_string, http_status_code: cint, image: ptr cef_image) {.cef_callback.}
-    
+
 # Create a new browser window using the window parameters specified by
 # |windowInfo|. All values will be copied internally and the actual window will
 # be created on the UI thread. If |request_context| is NULL the global request

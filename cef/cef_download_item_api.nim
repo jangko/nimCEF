@@ -3,9 +3,7 @@ include cef_import
 
 type
   # Structure used to represent a download item.
-  cef_download_item* = object
-    base*: cef_base
-
+  cef_download_item* = object of cef_base
     # Returns true (1) if this object is valid. Do not call any other functions
     # if this function returns false (0).
     is_valid*: proc(self: ptr cef_download_item): cint {.cef_callback.}

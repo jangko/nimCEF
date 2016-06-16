@@ -109,15 +109,6 @@ proc to_cef*(map: NCStringMultiMap): cef_string_multimap =
 template nc_free*(cmap: cef_string_multimap) =
   cef_string_multimap_free(cmap)
 
-template add_ref*(elem: expr) =
-  if elem != nil: elem.base.add_ref(cast[ptr cef_base](elem))
-
-template release*(elem: expr) =
-  if elem != nil: discard elem.base.release(cast[ptr cef_base](elem))
-
-template has_one_ref*(elem: expr): expr =
-  elem.base.has_one_ref(cast[ptr cef_base](elem))
-
 var
   wrapDebugMode    {.compileTime.} = false
   wrapCallStat     {.compileTime.} = 0
@@ -132,6 +123,12 @@ macro printWrapStat*(): stmt =
   echo "wrapMethod  : ", wrapMethodStat
   echo "wrapAPI     : ", wrapAPIStat
   echo "wrapCallback: ", wrapCallbackStat
+
+proc nc_add_ref*[T](elem: T) =
+  if elem != nil: elem.add_ref(cast[ptr cef_base](elem))
+
+proc nc_release*[T](elem: T) =
+  if elem != nil: discard elem.release(cast[ptr cef_base](elem))
 
 macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
   inc(wrapAPIStat)
@@ -154,14 +151,14 @@ macro wrapAPI*(x, base: untyped, importUtil: bool = true): typed =
       `res` = if self == nil: nil else: self.handler
 
     proc nc_finalizer(self: `x`) =
-      release(self.handler)
+      nc_release(self.handler)
 
     proc nc_wrap*(handler: ptr `base`): `x` =
       if handler == nil: return nil
       new(`res`, nc_finalizer)
       `res`.handler = handler
-      add_ref(handler)
-
+      nc_add_ref(handler)
+      
 macro debugModeOn*(): stmt =
   wrapDebugMode = true
   result = newEmptyNode()
@@ -365,7 +362,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         params.add "arg" & argi
       elif checkWrapped(arg):
         let argType = getType(rout)[i - startIndex + 3]
-        proloque.add "add_ref($1.GetHandler())\n" % [argv]
+        proloque.add "nc_add_ref($1.GetHandler())\n" % [argv]
         if argType.typeKind == ntyDistinct:
           params.add "cast[$1]($2.GetHandler())" % [$argType, argv]
         else:
@@ -383,7 +380,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         proloque.add "var arg$1 = newSeq[ptr $2]($3.len)\n" % [argi, handler, argv]
         proloque.add "for i in 0.. <$1.len:\n" % [argv]
         proloque.add "  arg$1[i] = $2[i].GetHandler()\n" % [argi, argv]
-        proloque.add "  add_ref(arg$1[i])\n" % [argi]
+        proloque.add "  nc_add_ref(arg$1[i])\n" % [argi]
         params.add "$1.len.$2, cast[ptr ptr $3](arg$4[0].addr)" % [argv, argType, handler, argi]
       elif checkString(T):
         proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
@@ -541,7 +538,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
     let argv = getArgName(arg)
     case arg.typeKind
     of ntyPtr:
-      if checkBase(arg): proloque.add "add_ref($1)\n" % [argv]
+      if checkBase(arg): proloque.add "nc_add_ref($1)\n" % [argv]
       else: error(lineinfo(arg) & " unsupported ptr type")
       params.add argv
     of ntyEnum, ntyPointer, ntyInt64:
@@ -564,7 +561,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         params.add "arg$1" % [argi]
         epiloque.add "nc_free(arg$1)\n" % [argi]
     of ntyRef:
-      if checkWrapped(arg): proloque.add "add_ref($1.GetHandler())\n" % [argv]
+      if checkWrapped(arg): proloque.add "nc_add_ref($1.GetHandler())\n" % [argv]
       else: error(lineinfo(arg) & " unsupported ref type: " & argv)
       params.add "$1.GetHandler()" % [argv]
     of ntyBool, ntyInt, ntyFloat, ntyInt32, ntyUint32:
@@ -652,11 +649,20 @@ proc collectParams(n: NimNode, start = 2): seq[paramPair] =
     extractParam(result, n[i])
 
 proc checkCefPtr(n: NimNode): bool =
-  if n.typeKind != ntyPtr: return false
-  let objType = getType(n[0])
-  if objType.typeKind != ntyObject: return false
-  if $getRecList(objType)[0] != "base": return false
-  result = true
+  var node = n
+  while true:
+    let objType = getImpl(node[0].symbol)
+    if objType.len < 3: return false
+    if objType[2].typeKind != ntyObject: return false
+    if objType[2].len < 2: return false
+    let ofInherit = objType[2][1]
+    if ofInherit.kind != nnkEmpty: 
+      node = ofInherit
+      continue
+    else:
+      if $node[0] == "cef_base": return true
+      else: return false
+  result = false
 
 proc procHasResult(n: NimNode): bool =
   if n[0].kind == nnkEmpty: return false
@@ -708,7 +714,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       proloque.add "      $1_p[i] = nc_wrap(idxptr($2, i))\n" % [$n.nName, $cc.nName]
       epiloque.add "    for i in 0.. <$1_p.len:\n" % [$n.nName]
       epiloque.add "      var xx = idxptr($1, i)\n" % [$cc.nName]
-      epiloque.add "      release(xx)\n" % [$n.nName]
+      epiloque.add "      nc_release(xx)\n" % [$n.nName]
       params.add "$1_p" % [$n.nName]
       inc(ci)
       if i < argSize-1: params.add ", "
@@ -723,7 +729,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
           error("unknow ptr type")
       elif checkCefPtr(c.nType):
         params.add "nc_wrap($1)" % [$c.nName]
-        epiloque2.add "  release($1)\n" % [$c.nName]
+        epiloque2.add "  nc_release($1)\n" % [$c.nName]
       elif n.nType.typeKind == ntyString:
         params.add "$$($1)" % [$c.nName]
       elif n.nType.typeKind == ntyVar:
@@ -748,7 +754,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
     of ntyDistinct:
       if $c.nType == "ptr_cef_browser":
         params.add "nc_wrap($1)" % [$c.nName]
-        epiloque2.add "  release($1)\n" % [$c.nName]
+        epiloque2.add "  nc_release($1)\n" % [$c.nName]
       elif $c.nType == "cef_string_list":
         params.add "$$($1)" % [$c.nName]
       else:
@@ -793,7 +799,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
     of ntyPtr:
       if checkCefPtr(cres):
         body = "    result = $1($2).GetHandler()\n" % [calee, params]
-        body.add "    add_ref(result)\n"
+        body.add "    nc_add_ref(result)\n"
       else:
         error("unknown ptr type")
     of ntyObject:
@@ -816,7 +822,7 @@ macro wrapMethods*(nc, n, c: typed): stmt =
   constructor.add "  nc_init($1, T, impl)\n" % [ns]
 
   for i in 0.. <nlist.len:
-    let cproc = clist[i+1] # +1 skip base
+    let cproc = clist[i]
     let cname = getValidProcName(cproc[0])
     glue.add glueSingleMethod(ns, nlist[i], cproc, global_iidx)
     constructor.add "  result.handler.$1 = $1_i$2\n" % [cname, $global_iidx]

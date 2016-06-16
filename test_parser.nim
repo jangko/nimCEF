@@ -14,7 +14,7 @@ if NCCreateUrl(parts, url):
 else:
   echo "NCCreateUrl failed"
 
-echo NCFormatUrlForSecurityDisplay(url, "EN")
+echo NCFormatUrlForSecurityDisplay(url)
 let mime = NCGetMimeType("jpg")
 echo mime
 

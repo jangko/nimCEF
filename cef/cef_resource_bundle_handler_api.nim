@@ -5,10 +5,7 @@ type
   # Structure used to implement a custom resource bundle structure. See
   # CefSettings for additional options related to resource bundle loading. The
   # functions of this structure may be called on multiple threads.
-  cef_resource_bundle_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_resource_bundle_handler* = object of cef_base
     # Called to retrieve a localized translation for the specified |string_id|.
     # To provide the translation set |string| to the translation string and
     # return true (1). To use the default translation return false (0). Include

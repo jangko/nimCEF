@@ -10,9 +10,7 @@ include cef_import
 # arguments. Switch names are considered case-insensitive. This structure can
 # be used before cef_initialize() is called.
 type
-  cef_command_line* = object
-    base*: cef_base
-
+  cef_command_line* = object of cef_base
     # Returns true (1) if this object is valid. Do not call any other functions
     # if this function returns false (0).
     is_valid*: proc(self: ptr cef_command_line): cint {.cef_callback.}

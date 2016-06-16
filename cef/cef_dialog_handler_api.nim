@@ -3,10 +3,7 @@ include cef_import
 
 type
   # Callback structure for asynchronous continuation of file dialog requests.
-  cef_file_dialog_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_file_dialog_callback* = object of cef_base
     # Continue the file selection. |selected_accept_filter| should be the 0-based
     # index of the value selected from the accept filters array passed to
     # cef_dialog_handler_t::OnFileDialog. |file_paths| should be a single value
@@ -20,10 +17,7 @@ type
 
   # Implement this structure to handle dialog events. The functions of this
   # structure will be called on the browser process UI thread.
-  cef_dialog_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_dialog_handler* = object of cef_base
     # Called to run a file chooser dialog. |mode| represents the type of dialog
     # to display. |title| to the title to be used for the dialog and may be NULL
     # to show the default title ("Open" or "Save" depending on the mode).

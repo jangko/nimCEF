@@ -3,9 +3,7 @@ include cef_import
 
 type
   # Callback structure for asynchronous continuation of print dialog requests.
-  cef_print_dialog_callback* = object
-    base*: cef_base
-
+  cef_print_dialog_callback* = object of cef_base
     # Continue printing with the specified |settings|.
     cont*: proc(self: ptr cef_print_dialog_callback,
       settings: ptr cef_print_settings) {.cef_callback.}
@@ -14,17 +12,13 @@ type
     cancel*: proc(self: ptr cef_print_dialog_callback) {.cef_callback.}
 
   # Callback structure for asynchronous continuation of print job requests.
-  cef_print_job_callback* = object
-    base*: cef_base
-
+  cef_print_job_callback* = object of cef_base
     # Indicate completion of the print job.
     cont*: proc(self: ptr cef_print_job_callback) {.cef_callback.}
 
   # Implement this structure to handle printing on Linux. The functions of this
   # structure will be called on the browser process UI thread.
-  cef_print_handler* = object
-    base*: cef_base
-
+  cef_print_handler* = object of cef_base
     # Called when printing has started for the specified |browser|. This function
     # will be called before the other OnPrint*() functions and irrespective of
     # how printing was initiated (e.g. cef_browser_host_t::print(), JavaScript

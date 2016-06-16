@@ -4,9 +4,7 @@ include cef_import
 # Callback structure used for asynchronous continuation of authentication
 # requests.
 type
-  cef_auth_callback* = object
-    base*: cef_base
-
+  cef_auth_callback* = object of cef_base
     # Continue the authentication request.
     cont*: proc(self: ptr cef_auth_callback,
       username, password: ptr cef_string) {.cef_callback.}

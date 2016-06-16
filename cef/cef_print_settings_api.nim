@@ -3,9 +3,7 @@ include cef_import
 
 # Structure representing print settings.
 type
-  cef_print_settings* = object
-    base*: cef_base
-
+  cef_print_settings* = object of cef_base
     # Returns true (1) if this object is valid. Do not call any other functions
     # if this function returns false (0).
     is_valid*: proc(self: ptr cef_print_settings): cint {.cef_callback.}

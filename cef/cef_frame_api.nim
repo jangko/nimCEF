@@ -7,9 +7,7 @@ include cef_import
 # the functions of this structure may only be called on the main thread.
 
 type
-  cef_frame* = object
-    base*: cef_base
-
+  cef_frame* = object of cef_base
     # True if this object is currently attached to a valid frame.
     is_valid*: proc(self: ptr cef_frame): cint {.cef_callback.}
 

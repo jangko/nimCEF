@@ -7,10 +7,7 @@ type
   # handle include the render process main thread (TID_RENDERER) and WebWorker
   # threads. A task runner for posting tasks on the associated thread can be
   # retrieved via the cef_v8context_t::get_task_runner() function.
-  cef_v8context* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8context* = object of cef_base
     # Returns the task runner associated with this context. V8 handles can only
     # be accessed from the thread on which they are created. This function can be
     # called on any render process thread.
@@ -59,10 +56,7 @@ type
   # Structure that should be implemented to handle V8 function calls. The
   # functions of this structure will be called on the thread associated with the
   # V8 function.
-  cef_v8handler* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8handler* = object of cef_base
     # Handle execution of the function identified by |name|. |object| is the
     # receiver ('this' object) of the function. |arguments| is the list of
     # arguments passed to the function. If execution succeeds set |retval| to the
@@ -77,10 +71,7 @@ type
   # identifiers are registered by calling cef_v8value_t::set_value(). The
   # functions of this structure will be called on the thread associated with the
   # V8 accessor.
-  cef_v8accessor* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8accessor* = object of cef_base
     # Handle retrieval the accessor value identified by |name|. |object| is the
     # receiver ('this' object) of the accessor. If retrieval succeeds set
     # |retval| to the return value. If retrieval fails set |exception| to the
@@ -101,10 +92,7 @@ type
 
   # Structure representing a V8 exception. The functions of this structure may be
   # called on any render process thread.
-  cef_v8exception* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8exception* = object of cef_base
     # Returns the exception message.
     # The resulting string must be freed by calling cef_string_userfree_free().
     get_message*: proc(self: ptr cef_v8exception): cef_string_userfree {.cef_callback.}
@@ -143,10 +131,7 @@ type
   # handle include the render process main thread (TID_RENDERER) and WebWorker
   # threads. A task runner for posting tasks on the associated thread can be
   # retrieved via the cef_v8context_t::get_task_runner() function.
-  cef_v8value* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8value* = object of cef_base
     # Returns true (1) if the underlying handle is valid and it can be accessed
     # on the current thread. Do not call any other functions if this function
     # returns false (0).
@@ -361,10 +346,7 @@ type
   # creating a V8 handle include the render process main thread (TID_RENDERER)
   # and WebWorker threads. A task runner for posting tasks on the associated
   # thread can be retrieved via the cef_v8context_t::get_task_runner() function.
-  cef_v8stack_trace* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8stack_trace* = object of cef_base
     # Returns true (1) if the underlying handle is valid and it can be accessed
     # on the current thread. Do not call any other functions if this function
     # returns false (0).
@@ -381,10 +363,7 @@ type
   # creating a V8 handle include the render process main thread (TID_RENDERER)
   # and WebWorker threads. A task runner for posting tasks on the associated
   # thread can be retrieved via the cef_v8context_t::get_task_runner() function.
-  cef_v8stack_frame* = object
-    # Base structure.
-    base* : cef_base
-
+  cef_v8stack_frame* = object of cef_base
     # Returns true (1) if the underlying handle is valid and it can be accessed
     # on the current thread. Do not call any other functions if this function
     # returns false (0).

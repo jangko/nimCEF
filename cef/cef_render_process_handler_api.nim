@@ -6,9 +6,7 @@ type
   # Structure used to implement render process callbacks. The functions of this
   # structure will be called on the render process main thread (TID_RENDERER)
   # unless otherwise indicated.
-  cef_render_process_handler* = object
-    base*: cef_base
-
+  cef_render_process_handler* = object of cef_base
     # Called after the render process main thread has been created. |extra_info|
     # is a read-only value originating from
     # cef_browser_process_handler_t::on_render_process_thread_created(). Do not

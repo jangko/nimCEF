@@ -8,9 +8,7 @@ type
   # can be created on any valid CEF thread in either the browser or render
   # process. Once created the functions of the URL request object must be
   # accessed on the same thread that created it.
-  cef_urlrequest* = object
-    base*: cef_base
-
+  cef_urlrequest* = object of cef_base
     # Returns the request object used to create this URL request. The returned
     # object is read-only and should not be modified.
     get_request*: proc(self: ptr cef_urlrequest): ptr cef_request {.cef_callback.}
@@ -37,9 +35,7 @@ type
   # Structure that should be implemented by the cef_urlrequest_t client. The
   # functions of this structure will be called on the same thread that created
   # the request unless otherwise documented.
-  cef_urlrequest_client* = object
-    base*: cef_base
-
+  cef_urlrequest_client* = object of cef_base
     # Notifies the client that the request has completed. Use the
     # cef_urlrequest_t::GetRequestStatus function to determine if the request was
     # successful or not.

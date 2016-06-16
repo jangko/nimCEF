@@ -4,10 +4,7 @@ include cef_import
 type
   # Structure used to represent a web response. The functions of this structure
   # may be called on any thread.
-  cef_response* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_response* = object of cef_base
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_response): cint {.cef_callback.}
 

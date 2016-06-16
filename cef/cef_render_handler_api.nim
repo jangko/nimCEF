@@ -4,9 +4,7 @@ include cef_import
 type
   # Implement this structure to handle events when window rendering is disabled.
   # The functions of this structure will be called on the UI thread.
-  cef_render_handler* = object
-    base*: cef_base
-
+  cef_render_handler* = object of cef_base
     # Called to retrieve the root window rectangle in screen coordinates. Return
     # true (1) if the rectangle was provided.
     get_root_screen_rect*: proc(self: ptr cef_render_handler,

@@ -4,9 +4,7 @@ include cef_import
 # Implement this structure to handle events related to keyboard input. The
 # functions of this structure will be called on the UI thread.
 type
-  cef_keyboard_handler* = object
-    base*: cef_base
-
+  cef_keyboard_handler* = object of cef_base
     # Called before a keyboard event is sent to the renderer. |event| contains
     # information about the keyboard event. |os_event| is the operating system
     # event message, if any. Return true (1) if the event was handled or false

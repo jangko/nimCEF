@@ -13,24 +13,24 @@ type
   myApp = ref object of NCApp
 
 handlerImpl(NCLifeSpanHandler):
-  proc OnBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
-    NCQuitMessageLoop()    
+  proc onBeforeClose(self: NCLifeSpanHandler, browser: NCBrowser) =
+    ncQuitMessageLoop()    
 
 const
   MY_MENU_ID = USER_MENU_ID(1)
   MY_QUIT_ID = USER_MENU_ID(2)
 
 handlerImpl(NCContextMenuHandler):
-  proc OnBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
+  proc onBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
-    discard model.AddSeparator()
-    discard model.AddItem(MY_MENU_ID, "Hello There")
-    discard model.AddItem(MY_QUIT_ID, "Quit")
-    echo "page URL: ", params.GetPageUrl()
-    echo "frame URL: ", params.GetFrameUrl()
-    echo "link URL: ", params.GetLinkUrl()
+    discard model.addSeparator()
+    discard model.addItem(MY_MENU_ID, "Hello There")
+    discard model.addItem(MY_QUIT_ID, "Quit")
+    echo "page URL: ", params.getPageUrl()
+    echo "frame URL: ", params.getFrameUrl()
+    echo "link URL: ", params.getLinkUrl()
 
-  proc OnContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
+  proc onContextMenuCommand(self: NCContextMenuHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
     event_flags: cef_event_flags): int =
 
@@ -38,38 +38,38 @@ handlerImpl(NCContextMenuHandler):
       echo "Hello There Clicked"
 
     if command_id == MY_QUIT_ID:
-      var host = browser.GetHost()
-      host.CloseBrowser(true)
+      var host = browser.getHost()
+      host.closeBrowser(true)
 
 handlerImpl(myClient):
-  proc GetContextMenuHandler*(self: myClient): NCContextMenuHandler =
+  proc getContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
 
-  proc GetLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
+  proc getLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
     return self.lsh
 
 proc newClient(no: int, name: string): myClient =
-  result = myClient.NCCreate()
+  result = myClient.ncCreate()
   result.abc = no
   result.name = name
-  result.cmh = NCContextMenuHandler.NCCreate()
-  result.lsh = NCLifeSpanHandler.NCCreate()
+  result.cmh = NCContextMenuHandler.ncCreate()
+  result.lsh = NCLifeSpanHandler.ncCreate()
 
 handlerImpl(myApp)
 
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
-  var app = myApp.NCCreate()
+  var app = myApp.ncCreate()
 
-  var code = NCExecuteProcess(mainArgs, app)
+  var code = ncExecuteProcess(mainArgs, app)
   if code >= 0:
     echo "failure execute process ", code
     quit(code)
 
   var settings = NCSettings()
   settings.no_sandbox = true
-  discard NCInitialize(mainArgs, settings, app)
+  discard ncInitialize(mainArgs, settings, app)
   echo "cef_initialize thread id: ", getCurrentThreadId()
 
   var windowInfo: NCWindowInfo
@@ -91,10 +91,10 @@ proc main() =
 
   # Create browser.
   echo "cef_browser_host_create_browser"
-  discard NCBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
+  discard ncBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
 
   # Message loop.
-  NCRunMessageLoop()
-  NCShutdown()
+  ncRunMessageLoop()
+  ncShutdown()
 
 main()

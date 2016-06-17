@@ -14,12 +14,12 @@ proc newNCStringMultiMap*(): NCStringMultiMap =
   
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
-proc to_cef*(str: string): ptr cef_string =
+proc toCef*(str: string): ptr cef_string =
   if str == nil: return nil
   result = cef_string_userfree_alloc()
   discard cef_string_from_utf8(str.cstring, str.len.csize, result)
 
-proc to_nim*(str: cef_string_userfree, dofree = true): string =
+proc toNim*(str: cef_string_userfree, dofree = true): string =
   if str == nil: return nil
   var res: cef_string_utf8
   if cef_string_to_utf8(str.str, str.length, res.addr) == 1:
@@ -30,16 +30,16 @@ proc to_nim*(str: cef_string_userfree, dofree = true): string =
     result = ""
   if dofree: cef_string_userfree_free(str)
 
-proc `$`*(str: ptr cef_string): string = to_nim(str, false)
+proc `$`*(str: ptr cef_string): string = toNim(str, false)
 
 proc `<=`*(cstr: var cef_string, str: string) =
   if str != nil:
     discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
 
-template nc_free*(str: ptr cef_string) =
+template ncFree*(str: ptr cef_string) =
   if str != nil: cef_string_userfree_free(str)
 
-proc to_nim*(strlist: cef_string_list, dofree = true): seq[string] =
+proc toNim*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
   result = newSeq[string](len)
   var res: cef_string
@@ -51,10 +51,10 @@ proc to_nim*(strlist: cef_string_list, dofree = true): seq[string] =
       result[i] = ""
   if dofree: cef_string_list_free(strlist)
 
-proc `$`*(list: cef_string_list): seq[string] = to_nim(list, false)
+proc `$`*(list: cef_string_list): seq[string] = toNim(list, false)
 
 #don't forget to call cef_string_list_free
-proc to_cef*(input: seq[string]): cef_string_list =
+proc toCef*(input: seq[string]): cef_string_list =
   var list = cef_string_list_alloc()
   var res: cef_string
   for x in input:
@@ -63,10 +63,10 @@ proc to_cef*(input: seq[string]): cef_string_list =
       cef_string_clear(res.addr)
   result = list
 
-template nc_free*(list: cef_string_list) =
+template ncFree*(list: cef_string_list) =
   cef_string_list_free(list)
 
-proc to_nim*(map: cef_string_map, doFree = true): StringTableRef =
+proc toNim*(map: cef_string_map, doFree = true): StringTableRef =
   let count = cef_string_map_size(map)
   result = newStringTable(modeCaseSensitive)
   var key, value: cef_string
@@ -78,7 +78,7 @@ proc to_nim*(map: cef_string_map, doFree = true): StringTableRef =
     cef_string_clear(value.addr)
   if doFree: cef_string_map_free(map)
 
-proc to_nim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
+proc toNim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
   result = newTable[string, seq[string]]()
   let len = cef_string_multimap_size(map)
   var key, val: cef_string
@@ -95,18 +95,18 @@ proc to_nim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
   if doFree: cef_string_multimap_free(map)
 
 #don't forget to call cef_string_multi_map_free
-proc to_cef*(map: NCStringMultiMap): cef_string_multimap =
+proc toCef*(map: NCStringMultiMap): cef_string_multimap =
   let cmap = cef_string_multimap_alloc()
   for key, elem in map:
-    let ckey = to_cef(key)
+    let ckey = toCef(key)
     for val in elem:
-      let cval = to_cef(val)
+      let cval = toCef(val)
       discard cef_string_multimap_append(cmap, ckey, cval)
       cef_string_userfree_free(cval)
     cef_string_userfree_free(ckey)
   result = cmap
 
-template nc_free*(cmap: cef_string_multimap) =
+template ncFree*(cmap: cef_string_multimap) =
   cef_string_multimap_free(cmap)
 
 var
@@ -124,10 +124,10 @@ macro printWrapStat*(): stmt =
   echo "wrapAPI     : ", wrapAPIStat
   echo "wrapCallback: ", wrapCallbackStat
 
-proc nc_add_ref*[T](elem: T) =
+proc ncAddRef*[T](elem: T) =
   if elem != nil: elem.add_ref(cast[ptr cef_base](elem))
 
-proc nc_release*[T](elem: T) =
+proc ncRelease*[T](elem: T) =
   if elem != nil: discard elem.release(cast[ptr cef_base](elem))
 
 type
@@ -160,27 +160,27 @@ macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = Root
   if isRoot:
     glue.add "    handler*: ptr $1\n" % [baseName]
 
-  glue.add "proc GetHandler*(self: $1): ptr $2 {.inline.} =\n" % [apiName, baseName]
+  glue.add "proc getHandler*(self: $1): ptr $2 {.inline.} =\n" % [apiName, baseName]
   
   if isRoot:
     glue.add "  result = if self == nil: nil else: self.handler\n"
   else:
     glue.add "  result = if self == nil: nil else: cast[ptr $1](self.handler)\n" % [baseName]
 
-  glue.add "template nc_cast_handler*(self: $1): expr =\n" % [apiName]
+  glue.add "template ncCastHandler*(self: $1): expr =\n" % [apiName]
   if isRoot:
     glue.add "  self.handler\n"
   else:
     glue.add "  cast[ptr $1](self.handler)\n" % [baseName]
     
-  glue.add "proc nc_finalizer(self: $1) =\n" % [apiName]
-  glue.add "  nc_release(self.handler)\n"
+  glue.add "proc ncFinalizer(self: $1) =\n" % [apiName]
+  glue.add "  ncRelease(self.handler)\n"
 
-  glue.add "proc nc_wrap*(handler: ptr $1): $2 =\n" % [baseName, apiName]
+  glue.add "proc ncWrap*(handler: ptr $1): $2 =\n" % [baseName, apiName]
   glue.add "  if handler == nil: return nil\n"
-  glue.add "  new(result, nc_finalizer)\n"
+  glue.add "  new(result, ncFinalizer)\n"
   glue.add "  result.handler = handler\n"
-  glue.add "  nc_add_ref(handler)\n"
+  glue.add "  ncAddRef(handler)\n"
   glue.add "registerAPI($1, $2)\n" % [apiName, baseName]
   
   if wrapDebugMode:
@@ -342,8 +342,8 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     startIndex = 0
     proloque = ""
     epiloque = ""
-    params = "nc_cast_handler(self)"
-    calee = "nc_cast_handler(self)." & $routine
+    params = "ncCastHandler(self)"
+    calee = "ncCastHandler(self)." & $routine
     body = ""
 
   if hasResult and args.len > 1:
@@ -368,9 +368,9 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     let argv = getArgName(arg)
     case arg.typeKind
     of ntyString:
-      proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
+      proloque.add "let arg$1 = toCef($2)\n" % [argi, argv]
       params.add "arg$1" % [argi]
-      epiloque.add "nc_free(arg$1)\n" % [argi]
+      epiloque.add "ncFree(arg$1)\n" % [argi]
     of ntyBool, ntyInt, ntyFloat, ntyFloat32:
       let argType = getType(rout)[i - startIndex + 3].getBaseType()
       if arg.kind == nnkHiddenDeref:
@@ -391,20 +391,20 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         params.add argv
     of ntyRef:
       if arg.kind == nnkHiddenDeref:
-        proloque.add "var arg$1 = $2.GetHandler()\n" % [argi, argv]
-        epiloque.add "$1 = nc_wrap(arg$2)\n" % [argv, argi]
+        proloque.add "var arg$1 = $2.getHandler()\n" % [argi, argv]
+        epiloque.add "$1 = ncWrap(arg$2)\n" % [argv, argi]
         params.add "arg" & argi
       elif checkWrapped(arg):
         let argType = getType(rout)[i - startIndex + 3]
-        proloque.add "nc_add_ref($1.GetHandler())\n" % [argv]
+        proloque.add "ncAddRef($1.getHandler())\n" % [argv]
         if argType.typeKind == ntyDistinct:
-          params.add "cast[$1]($2.GetHandler())" % [$argType, argv]
+          params.add "cast[$1]($2.getHandler())" % [$argType, argv]
         else:
-          params.add "$1.GetHandler()" % [argv]
+          params.add "$1.getHandler()" % [argv]
       elif checkMultiMap(arg):
-        proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
+        proloque.add "let arg$1 = toCef($2)\n" % [argi, argv]
         params.add "arg$1" % [argi]
-        epiloque.add "nc_free(arg$1)\n" % [argi]
+        epiloque.add "ncFree(arg$1)\n" % [argi]
       else: error(lineinfo(arg) & " unsupported ref type: " & argv)
     of ntySequence:
       let T = getType(arg)[1]
@@ -413,26 +413,26 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         let argType = getType(rout)[i - startIndex + 3].getBaseType()
         proloque.add "var arg$1 = newSeq[ptr $2]($3.len)\n" % [argi, handler, argv]
         proloque.add "for i in 0.. <$1.len:\n" % [argv]
-        proloque.add "  arg$1[i] = $2[i].GetHandler()\n" % [argi, argv]
-        proloque.add "  nc_add_ref(arg$1[i])\n" % [argi]
+        proloque.add "  arg$1[i] = $2[i].getHandler()\n" % [argi, argv]
+        proloque.add "  ncAddRef(arg$1[i])\n" % [argi]
         params.add "$1.len.$2, cast[ptr ptr $3](arg$4[0].addr)" % [argv, argType, handler, argi]
       elif checkString(T):
-        proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
+        proloque.add "var arg$1 = toCef($2)\n" % [argi, argv]
         params.add "arg$1" % [argi]
-        epiloque.add "nc_free(arg$1)\n" % [argi]
+        epiloque.add "ncFree(arg$1)\n" % [argi]
       elif T.typeKind == ntyObject:
         let argLen  = getType(rout)[i - startIndex + 3].getBaseType()
         let argBase = getType(rout)[i - startIndex + 4].getBaseType()
         proloque.add "var arg$1 = newSeq[$2]($3.len)\n" % [argi, argBase, argv]
         proloque.add "for i in 0.. <$1.len:\n" % [argv]
-        proloque.add "  arg$1[i] = $2[i].to_cef()\n" % [argi, argv]
+        proloque.add "  arg$1[i] = $2[i].toCef()\n" % [argi, argv]
         params.add "$1.len.$2, cast[ptr $3](arg$4[0].addr)" % [argv, argLen, argBase, argi]
       else:
         error(lineinfo(arg) & " unsupported param: " & getType(arg).treeRepr)
     of ntyObject:
-      proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
+      proloque.add "var arg$1 = toCef($2)\n" % [argi, argv]
       params.add "arg$1.addr" % [argi]
-      epiloque.add "nc_free(arg$1)\n" % [argi]
+      epiloque.add "ncFree(arg$1)\n" % [argi]
     of ntyPtr:
       let cType = getType(rout)[i - startIndex + 3]
       let nType = getType(arg)
@@ -449,7 +449,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     of ntyBool:
       body = "result = $1($2) == 1.cint\n" % [calee, params]
     of ntyString, ntyObject:
-      body = "result = to_nim($1($2))\n" % [calee, params]
+      body = "result = toNim($1($2))\n" % [calee, params]
     of ntyInt64, ntyEnum:
       body = "result = $1($2)\n" % [calee, params]
     of ntyInt:
@@ -459,17 +459,17 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
     of ntyUInt32:
       body = "result = $1($2).uint32\n" % [calee, params]
     of ntyRef:
-      if checkWrapped(res): body = "result = nc_wrap($1($2))\n" % [calee, params]
+      if checkWrapped(res): body = "result = ncWrap($1($2))\n" % [calee, params]
       elif checkMultiMap(res):
         proloque.add "var map = cef_string_multimap_alloc()\n"
         params.add ", map"
         body = "$1($2)\n" % [calee, params]
-        epiloque.add "result = to_nim(map)\n"
+        epiloque.add "result = toNim(map)\n"
       elif checkStringMap(res):
         proloque.add "var map = cef_string_map_alloc()\n"
         params.add ", map"
         body = "$1($2)\n" % [calee, params]
-        epiloque.add "result = to_nim(map)\n"
+        epiloque.add "result = toNim(map)\n"
       else: error(lineinfo(res) & " unsupported ref type of \"result\"")
     of ntyFloat:
       body = "result = $1($2).float64\n" % [calee, params]
@@ -480,13 +480,13 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         params.add ", res"
         if hasResult:
           body.add "if $1($2) == 1.cint:\n" % [calee, params]
-          body.add "  result = to_nim(res)\n"
+          body.add "  result = toNim(res)\n"
           body.add "else:\n"
-          body.add "  nc_free(res)\n"
+          body.add "  ncFree(res)\n"
           body.add "  result = @[]\n"
         else:
           body.add "$1($2)\n" % [calee, params]
-          body.add "result = to_nim(res)\n"
+          body.add "result = toNim(res)\n"
       elif checkWrapped(T):
         let handler = $getHandler(T)
         let size = $args[args.len-1]
@@ -498,7 +498,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         params.add ", buf" & argi
         body = "$1($2)\n" % [calee, params]
         epiloque.add "for i in 0.. <$1:\n" % [size]
-        epiloque.add "  result[i] = nc_wrap(res$1[i])\n" % [argi]
+        epiloque.add "  result[i] = ncWrap(res$1[i])\n" % [argi]
       elif T.typeKind == ntyInt64:
         let size = $args[args.len-1]
         proloque.add "result = newSeq[int64]($1.int)\n" % [size]
@@ -515,7 +515,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
         params.add ", buf" & argi
         body = "$1($2)\n" % [calee, params]
         epiloque.add "for i in 0.. <$1:\n" % [size]
-        epiloque.add "  result[i] = to_nim(res$1[i])\n" % [argi]
+        epiloque.add "  result[i] = toNim(res$1[i])\n" % [argi]
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
     of ntyDistinct:
@@ -572,7 +572,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
     let argv = getArgName(arg)
     case arg.typeKind
     of ntyPtr:
-      if checkBase(arg): proloque.add "nc_add_ref($1)\n" % [argv]
+      if checkBase(arg): proloque.add "ncAddRef($1)\n" % [argv]
       else: error(lineinfo(arg) & " unsupported ptr type")
       params.add argv
     of ntyEnum, ntyPointer, ntyInt64:
@@ -591,13 +591,13 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         epiloque.add "$1 = $$arg$2.addr\n" % [argv, argi]
         epiloque.add "cef_string_clear(arg$1.addr)\n" % [argi]
       else:
-        proloque.add "let arg$1 = to_cef($2)\n" % [argi, argv]
+        proloque.add "let arg$1 = toCef($2)\n" % [argi, argv]
         params.add "arg$1" % [argi]
-        epiloque.add "nc_free(arg$1)\n" % [argi]
+        epiloque.add "ncFree(arg$1)\n" % [argi]
     of ntyRef:
-      if checkWrapped(arg): proloque.add "nc_add_ref($1.GetHandler())\n" % [argv]
+      if checkWrapped(arg): proloque.add "ncAddRef($1.getHandler())\n" % [argv]
       else: error(lineinfo(arg) & " unsupported ref type: " & argv)
-      params.add "$1.GetHandler()" % [argv]
+      params.add "$1.getHandler()" % [argv]
     of ntyBool, ntyInt, ntyFloat, ntyInt32, ntyUint32:
       if arg.kind == nnkHiddenDeref:
         let argType = $getType(routine)[i - startIndex + 2][1]
@@ -609,15 +609,15 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         params.add "$1.$2" % [argv, argType]
     of ntyObject:
       if arg.kind == nnkHiddenDeref:
-        proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
+        proloque.add "var arg$1 = toCef($2)\n" % [argi, argv]
         params.add "arg$1.addr" % [argi]
-        epiloque.add "$1 = to_nim(arg$2)\n" % [argv, argi]
+        epiloque.add "$1 = toNim(arg$2)\n" % [argv, argi]
       else:
-        proloque.add "var arg$1 = to_cef($2)\n" % [argi, argv]
+        proloque.add "var arg$1 = toCef($2)\n" % [argi, argv]
         params.add "arg$1.addr" % [argi]
-        epiloque.add "nc_free(arg$1)\n" % [argi]
+        epiloque.add "ncFree(arg$1)\n" % [argi]
     of ntySet:
-      params.add "to_cef($1)" % [argv]
+      params.add "toCef($1)" % [argv]
     else:
       error(lineinfo(arg) & " unsupported param type: " & $arg.typeKind)
 
@@ -628,7 +628,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
     case res.typeKind
     of ntyRef:
       if checkWrapped(res):
-        body = "result = nc_wrap($1($2))\n" % [calee, params]
+        body = "result = ncWrap($1($2))\n" % [calee, params]
       else:
         error(lineinfo(res) & " unsupported ref result")
     of ntyBool:
@@ -636,14 +636,14 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
     of ntyInt64, ntyInt:
       body = "result = $1($2)\n" % [calee, params]
     of ntyString:
-      body = "result = to_nim($1($2))\n" % [calee, params]
+      body = "result = toNim($1($2))\n" % [calee, params]
     of ntySequence:
       let T = getType(res)[1]
       if checkString(T):
         proloque.add "var res = cef_string_list_alloc()\n"
         params.add ", res"
         body.add "$1($2)\n" % [calee, params]
-        epiloque.add "result = to_nim(res)\n"
+        epiloque.add "result = toNim(res)\n"
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
     else:
@@ -745,10 +745,10 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       proloque.add "      cast[ptr ptr $1](cast[ByteAddress](a) + i * sizeof(pointer))[]\n" % [$cc.nType[0][0]]
       proloque.add "    var $1_p = newSeq[$2]($3.int)\n" % [$n.nName, $n.nType[1], $c.nName]
       proloque.add "    for i in 0.. <$1_p.len:\n" % [$n.nName]
-      proloque.add "      $1_p[i] = nc_wrap(idxptr($2, i))\n" % [$n.nName, $cc.nName]
+      proloque.add "      $1_p[i] = ncWrap(idxptr($2, i))\n" % [$n.nName, $cc.nName]
       epiloque.add "    for i in 0.. <$1_p.len:\n" % [$n.nName]
       epiloque.add "      var xx = idxptr($1, i)\n" % [$cc.nName]
-      epiloque.add "      nc_release(xx)\n" % [$n.nName]
+      epiloque.add "      ncRelease(xx)\n" % [$n.nName]
       params.add "$1_p" % [$n.nName]
       inc(ci)
       if i < argSize-1: params.add ", "
@@ -762,8 +762,8 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
         else:
           error("unknow ptr type")
       elif checkCefPtr(c.nType):
-        params.add "nc_wrap($1)" % [$c.nName]
-        epiloque2.add "  nc_release($1)\n" % [$c.nName]
+        params.add "ncWrap($1)" % [$c.nName]
+        epiloque2.add "  ncRelease($1)\n" % [$c.nName]
       elif n.nType.typeKind == ntyString:
         params.add "$$($1)" % [$c.nName]
       elif n.nType.typeKind == ntyVar:
@@ -775,7 +775,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
         else:
           error("unknown var ptr type: " & $n.nName)
       elif n.nType.typeKind == ntyObject:
-        params.add "to_nim($1)" % [$c.nName]
+        params.add "toNim($1)" % [$c.nName]
       else:
         error("unknown ptr type: " & $n.nName)
     of ntyInt32:
@@ -787,8 +787,8 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       params.add $c.nName
     of ntyDistinct:
       if $c.nType == "ptr_cef_browser":
-        params.add "nc_wrap($1)" % [$c.nName]
-        epiloque2.add "  nc_release($1)\n" % [$c.nName]
+        params.add "ncWrap($1)" % [$c.nName]
+        epiloque2.add "  ncRelease($1)\n" % [$c.nName]
       elif $c.nType == "cef_string_list":
         params.add "$$($1)" % [$c.nName]
       else:
@@ -813,7 +813,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       elif n.nType[0].typeKind == ntyRef:
         proloque.add "    var $1_p: $2\n" % [$n.nName, $n.nType[0]]
         params.add "$1_p" % [$n.nName]
-        epiloque.add "    $1 = cast[$2]($1_p.GetHandler())\n" % [$n.nName, c.nType[0].toStrLit().strVal()]
+        epiloque.add "    $1 = cast[$2]($1_p.getHandler())\n" % [$n.nName, c.nType[0].toStrLit().strVal()]
       else:
         error("unknown var param " & $n.nType[0].typeKind)
     of ntyFloat:
@@ -832,12 +832,12 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       body = "    result = $1($2)\n" % [calee, params]
     of ntyPtr:
       if checkCefPtr(cres):
-        body = "    result = $1($2).GetHandler()\n" % [calee, params]
-        body.add "    nc_add_ref(result)\n"
+        body = "    result = $1($2).getHandler()\n" % [calee, params]
+        body.add "    ncAddRef(result)\n"
       else:
         error("unknown ptr type")
     of ntyObject:
-      body = "    result = to_cef($1($2))\n" % [calee, params]
+      body = "    result = toCef($1($2))\n" % [calee, params]
     else:
       error("$1: unknown result kind $2" % [nname, $cres.typeKind])
   else:
@@ -853,7 +853,7 @@ macro wrapMethods*(nc, n, c: typed): stmt =
 
   var glue = ""
   var constructor = "proc make$1*[T](impl: $2[T]): T =\n" % [$nc, ni]
-  constructor.add "  nc_init($1, T, impl)\n" % [ns]
+  constructor.add "  ncInit($1, T, impl)\n" % [ns]
 
   for i in 0.. <nlist.len:
     let cproc = clist[i]
@@ -884,7 +884,7 @@ proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool
     let params = m[3].toStrLit().strVal()
     glue.add "    $1: proc$2\n" % [procName, params]
 
-  glue.add "  $1 = object of nc_base[$2, $3]\n" % [nc_name, $cef, $nc]
+  glue.add "  $1 = object of NCBase[$2, $3]\n" % [nc_name, $cef, $nc]
   glue.add "    impl: $1_i[$2]\n" % [nc_name, $nc]
   glue.add "wrapMethods($1, $2_i, $3)\n" % [$nc, nc_name, $cef]
 
@@ -958,8 +958,8 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
   inc(global_iidx, 2)
   
   var glue = "type\n"
-  glue.add "  nc_type_$1 = $2_i[$3]\n" % [typeID, hName, $nc]
-  glue.add "var nc_impl_$1 = nc_type_$2" % [implID, typeID]
+  glue.add "  NCType$1 = $2_i[$3]\n" % [typeID, hName, $nc]
+  glue.add "var NCImpl$1 = NCType$2" % [implID, typeID]
 
   if methods.len == 0:
     glue.add "()\n"
@@ -981,7 +981,7 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
 
   let star = if constructorVisible: "*" else: ""  
   glue.add "proc make$1NCImplNC$2(): $1 = \n" % [$nc, star]
-  glue.add "  result = make$1(nc_impl$2)\n" % [baseName, implID]
+  glue.add "  result = make$1(NCImpl$2)\n" % [baseName, implID]
 
   if wrapDebugMode:
     echo glue
@@ -996,7 +996,7 @@ macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): stmt =
   let glue = handlerImplImpl(nc, methods, false)
   result = parseStmt(glue)
   
-template NCCreate*(n: typed): expr =
+template ncCreate*(n: typed): expr =
   `make n NCImplNC`()
   
 var
@@ -1015,7 +1015,7 @@ macro MENU_ID*(n: untyped): stmt =
 
   result = parseStmt(glue)
   
-macro NCBindTask*(ident: untyped, routine: typed): stmt =
+macro ncBindTask*(ident: untyped, routine: typed): stmt =
   var procName: string
   var rout: NimNode  
   if routine.kind == nnkCall:
@@ -1045,23 +1045,23 @@ macro NCBindTask*(ident: untyped, routine: typed): stmt =
       
   var glue = "proc $1($2): NCTask =\n" % [$ident, args]
   glue.add "  type\n"
-  glue.add "    nc_type_$1 = ref object of NCTask\n" % [typeID]
+  glue.add "    NCType$1 = ref object of NCTask\n" % [typeID]
   
   for i in 0.. <paramList.len:
     let arg = paramList[i]
     glue.add "      nc_arg$1: $2\n" % [$i, arg.nType.toStrlit().strVal]
 
-  glue.add "  closureHandlerImpl(nc_type_$1):\n" % [typeID]
-  glue.add "    proc Execute(self: nc_type_$1) =\n" % [typeID]
+  glue.add "  closureHandlerImpl(NCType$1):\n" % [typeID]
+  glue.add "    proc Execute(self: NCType$1) =\n" % [typeID]
   glue.add "      $1($2)\n" % [procName, ex_args]
   
-  glue.add "  proc newnc_type_$1($2): nc_type_$1 =\n" % [typeID, args]
-  glue.add "    result = nc_type_$1.NCCreate()\n" % [typeID]
+  glue.add "  proc newNCType$1($2): NCType$1 =\n" % [typeID, args]
+  glue.add "    result = NCType$1.ncCreate()\n" % [typeID]
   
   for i in 0.. <paramList.len:
     glue.add "    result.nc_arg$1 = arg$1\n" % [$i]
   
-  glue.add "  result = newnc_type_$1($2)\n" % [typeID, call_args]
+  glue.add "  result = newNCType$1($2)\n" % [typeID, call_args]
   
   if wrapDebugMode:
     echo glue

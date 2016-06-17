@@ -127,14 +127,10 @@ proc do_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {
 # be used to exit the custom modal loop. See do_close() documentation for
 # additional usage information.
 proc on_before_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
-  var brow = cast[ptr cef_browser](browser)
-  var host = brow.get_host(brow)
-  var client = host.get_client(host)
   cef_quit_message_loop()
 
-
 proc initialize_life_span_handler(span: ptr cef_life_span_handler) =
-  span.base.size = sizeof(span[])
+  span.size = sizeof(span[])
   initialize_cef_base(cast[ptr cef_base](span))
 
   span.on_before_popup = on_before_popup
@@ -185,7 +181,7 @@ proc get_render_process_handler(self: ptr cef_app): ptr cef_render_process_handl
   result = nil
 
 proc initialize_app_handler(app: ptr cef_app) =
-  app.base.size = sizeof(app[])
+  app.size = sizeof(app[])
   initialize_cef_base(cast[ptr cef_base](app))
 
   # callbacks
@@ -272,7 +268,7 @@ proc on_process_message_received(self: ptr cef_client,
   result = 0
 
 proc initialize_client_handler(client: ptr my_client) =
-  client.handler.base.size = sizeof(my_client)
+  client.handler.size = sizeof(my_client)
   initialize_cef_base(cast[ptr cef_base](client))
 
   # callbacks
@@ -316,7 +312,7 @@ proc main() =
 
   #Execute subprocesses.
   #let argc = paramCount()
-  echo "cef_execute_process, app size: ", app.base.size
+  echo "cef_execute_process, app size: ", app.size
   var code = cef_execute_process(mainArgs.addr, app.addr, nil)
   if code >= 0:
     echo "failure execute process ", code

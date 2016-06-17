@@ -8,7 +8,7 @@ wrapCallback(NCEndTracingCallback, cef_end_tracing_callback):
   # Called after all processes have sent their trace data. |tracing_file| is
   # the path at which tracing data was written. The client is responsible for
   # deleting |tracing_file|.
-  proc OnEndTracingComplete*(self: T, tracing_file: string)
+  proc onEndTracingComplete*(self: T, tracing_file: string)
 
 # Start tracing events on all processes. Tracing is initialized asynchronously
 # and |callback| will be executed on the UI thread after initialization is
@@ -25,7 +25,7 @@ wrapCallback(NCEndTracingCallback, cef_end_tracing_callback):
 # "-excluded_category1,-excluded_category2"
 #
 # This function must be called on the browser process UI thread.
-proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
+proc ncBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
   wrapProc(cef_begin_tracing, result, categories, callback)
 
 # Stop tracing events on all processes.
@@ -39,11 +39,11 @@ proc NCBeginTracing*(categories: string, callback: NCCompletionCallback): bool =
 # used. If |callback| is NULL no trace data will be written.
 #
 # This function must be called on the browser process UI thread.
-proc NCEndTracing*(tracing_file: string, callback: NCEndTracingCallback): bool =
+proc ncEndTracing*(tracing_file: string, callback: NCEndTracingCallback): bool =
   wrapProc(cef_end_tracing, result, tracing_file, callback)
 
 # Returns the current system trace time or, if none is defined, the current
 # high-res time. Can be used by clients to synchronize with the time
 # information in trace events.
-proc NCNowFromSystemTraceTime*(): int64 =
+proc ncNowFromSystemTraceTime*(): int64 =
   wrapProc(cef_now_from_system_trace_time, result)

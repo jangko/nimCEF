@@ -38,7 +38,7 @@ type
     # Human-readable error message.
     error_message*: string
 
-proc to_nim(cc: ptr cef_geoposition): NCGeoPosition =
+proc toNim(cc: ptr cef_geoposition): NCGeoPosition =
   result.latitude = cc.latitude.float64
   result.longitude = cc.longitude.float64
   result.altitude = cc.altitude.float64
@@ -46,7 +46,7 @@ proc to_nim(cc: ptr cef_geoposition): NCGeoPosition =
   result.altitude_accuracy = cc.altitude_accuracy.float64
   result.heading = cc.heading.float64
   result.speed = cc.speed.float64
-  result.timestamp = to_nim(cc.timestamp)
+  result.timestamp = toNim(cc.timestamp)
   result.error_code = cc.error_code
   result.error_message = $(cc.error_message.addr)
 
@@ -55,10 +55,10 @@ proc to_nim(cc: ptr cef_geoposition): NCGeoPosition =
 wrapCallback(NCGetGeolocationCallback, cef_get_geolocation_callback):
   # Called with the 'best available' location information or, if the location
   # update failed, with error information.
-  proc OnLocationUpdate*(self: T, position: NCGeoPosition)
+  proc onLocationUpdate*(self: T, position: NCGeoPosition)
 
 # Request a one-time geolocation update. This function bypasses any user
 # permission checks so should only be used by code that is allowed to access
 # location information.
-proc NCGetGeolocation*(callback: NCGetGeolocationCallback): bool =
+proc ncGetGeolocation*(callback: NCGetGeolocationCallback): bool =
   wrapProc(cef_get_geolocation, result, callback)

@@ -330,7 +330,7 @@ const
   WM_MOVING* = 534
   WM_NCACTIVATE* = 134
   WM_NCCALCSIZE* = 131
-  WM_NCCREATE* = 129
+  WM_ncCreate* = 129
   WM_NCDESTROY* = 130
   WM_NCHITTEST* = 132
   WM_NCLBUTTONDBLCLK* = 163
@@ -930,13 +930,13 @@ proc PALETTERGB*(r, g, b: range[0..255]): COLORREF =
 proc PALETTEINDEX*(i: DWORD): COLORREF =
   result = COLORREF(0x01000000'i32 or i and 0xffff'i32)
 
-proc GetRValue*(rgb: COLORREF): int8 =
+proc getRValue*(rgb: COLORREF): int8 =
   result = toU8(rgb)
 
-proc GetGValue*(rgb: COLORREF): int8 =
+proc getGValue*(rgb: COLORREF): int8 =
   result = toU8(rgb shr 8)
 
-proc GetBValue*(rgb: COLORREF): int8 =
+proc getBValue*(rgb: COLORREF): int8 =
   result = toU8(rgb shr 16)
 
 proc HIBYTE*(w: int32): int8 =
@@ -1063,12 +1063,12 @@ template registerClass*(wndClass: expr): ATOM =
 
 proc getCurrentThreadId*(): DWORD{.stdcall, dynlib: "kernel32", importc: "GetCurrentThreadId".}
 
-proc GetModuleHandleA(lpModuleName: LPCSTR): HMODULE {.stdcall, dynlib: "kernel32", importc: "GetModuleHandleA".}
-proc GetModuleHandleW(lpModuleName: LPCWSTR): HMODULE {.stdcall, dynlib: "kernel32", importc: "GetModuleHandleW".}
+proc getModuleHandleA(lpModuleName: LPCSTR): HMODULE {.stdcall, dynlib: "kernel32", importc: "GetModuleHandleA".}
+proc getModuleHandleW(lpModuleName: LPCWSTR): HMODULE {.stdcall, dynlib: "kernel32", importc: "GetModuleHandleW".}
 
 template getModuleHandle*(moduleName: string): HMODULE =
-  when defined(winUnicode): GetModuleHandleW(WC(moduleName))
-  else: GetModuleHandleA(moduleName.cstring)
+  when defined(winUnicode): getModuleHandleW(WC(moduleName))
+  else: getModuleHandleA(moduleName.cstring)
 
 proc LoadLibraryA(lpLibFileName: LPCSTR): HINST {.stdcall, dynlib: "kernel32", importc: "LoadLibraryA".}
 proc LoadLibraryW(lpLibFileName: LPCWSTR): HINST {.stdcall, dynlib: "kernel32", importc: "LoadLibraryW".}
@@ -1077,10 +1077,10 @@ template loadLibrary*(libName: string): HINST =
   when defined(winUnicode): LoadLibraryW(WC(libName))
   else: LoadLibraryA(libName.cstring)
 
-proc GetMessageA(lpMsg: LPMSG, wnd: HWND, wMsgFilterMin: WINUINT,
+proc getMessageA(lpMsg: LPMSG, wnd: HWND, wMsgFilterMin: WINUINT,
                   wMsgFilterMax: WINUINT): WINBOOL {.stdcall, dynlib: "user32", importc: "GetMessageA".}
 
-proc GetMessageW(lpMsg: LPMSG, wnd: HWND, wMsgFilterMin: WINUINT,
+proc getMessageW(lpMsg: LPMSG, wnd: HWND, wMsgFilterMin: WINUINT,
                   wMsgFilterMax: WINUINT): WINBOOL {.stdcall, dynlib: "user32", importc: "GetMessageW".}
 
 template getMessage*(lpMsg: expr, wnd: HWND, wMsgFilterMin, wMsgFilterMax: WINUINT): expr =
@@ -1101,40 +1101,40 @@ template dispatchMessage*(lpMsg: expr): expr =
   else: DispatchMessageA(addr(lpMsg))
 
 when defined(cpu64):
-  proc GetWindowLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getWindowLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetWindowLongPtrA".}
-  proc SetWindowLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setWindowLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetWindowLongPtrA".}
-  proc GetClassLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getClassLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetClassLongPtrA".}
-  proc SetClassLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setClassLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetClassLongPtrA".}
 
-  proc GetWindowLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getWindowLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetWindowLongPtrW".}
-  proc SetWindowLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setWindowLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetWindowLongPtrW".}
-  proc GetClassLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getClassLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetClassLongPtrW".}
-  proc SetClassLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setClassLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetClassLongPtrW".}
 else:
-  proc GetWindowLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getWindowLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetWindowLongA".}
-  proc SetWindowLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setWindowLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetWindowLongA".}
-  proc GetClassLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getClassLongPtrA(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetClassLongA".}
-  proc SetClassLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setClassLongPtrA(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetClassLongA".}
 
-  proc GetWindowLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getWindowLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetWindowLongW".}
-  proc SetWindowLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setWindowLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetWindowLongW".}
-  proc GetClassLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
+  proc getClassLongPtrW(wnd: HWND, nIndex: int32): LONG_PTR{.stdcall,
       dynlib: "user32", importc: "GetClassLongW".}
-  proc SetClassLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
+  proc setClassLongPtrW(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR{.
       stdcall, dynlib: "user32", importc: "SetClassLongW".}
 
 template setWindowLongPtr*(wnd: HWND, nIndex: int32, dwNewLong: LONG_PTR): LONG_PTR =
@@ -1183,21 +1183,21 @@ template messageBox*(wnd: HWND, lpText, lpCaption: string, uType: int): int32 =
   when defined(winUnicode): messageBoxW(wnd, WC(lpText), WC(lpCaption), uType)
   else: messageBoxA(wnd, WC(lpText), WC(lpCaption), uType)
 
-proc GetSystemMetrics*(nIndex: int32): int32{.stdcall, dynlib: "user32",
+proc getSystemMetrics*(nIndex: int32): int32{.stdcall, dynlib: "user32",
     importc: "GetSystemMetrics".}
 
-proc SetWindowTextA(wnd: HWND, lpString: LPCSTR): WINBOOL{.stdcall,
+proc setWindowTextA(wnd: HWND, lpString: LPCSTR): WINBOOL{.stdcall,
     dynlib: "user32", importc: "SetWindowTextA".}
-proc GetWindowTextA(wnd: HWND, lpString: LPCSTR, nMaxCount: int32): int32{.
+proc getWindowTextA(wnd: HWND, lpString: LPCSTR, nMaxCount: int32): int32{.
     stdcall, dynlib: "user32", importc: "GetWindowTextA".}
-proc GetWindowTextLengthA(wnd: HWND): int32{.stdcall, dynlib: "user32",
+proc getWindowTextLengthA(wnd: HWND): int32{.stdcall, dynlib: "user32",
     importc: "GetWindowTextLengthA".}
 
-proc SetWindowTextW(wnd: HWND, lpString: LPCWSTR): WINBOOL{.stdcall,
+proc setWindowTextW(wnd: HWND, lpString: LPCWSTR): WINBOOL{.stdcall,
     dynlib: "user32", importc: "SetWindowTextW".}
-proc GetWindowTextW(wnd: HWND, lpString: LPCWSTR, nMaxCount: int32): int32{.
+proc getWindowTextW(wnd: HWND, lpString: LPCWSTR, nMaxCount: int32): int32{.
     stdcall, dynlib: "user32", importc: "GetWindowTextW".}
-proc GetWindowTextLengthW(wnd: HWND): int32{.stdcall, dynlib: "user32",
+proc getWindowTextLengthW(wnd: HWND): int32{.stdcall, dynlib: "user32",
     importc: "GetWindowTextLengthW".}
 
 template getWindowText*(wnd: HWND): string =
@@ -1215,6 +1215,6 @@ template getWindowText*(wnd: HWND): string =
 
 template setWindowText*(wnd: HWND, text: string): expr =
   when defined(winUnicode):
-    SetWindowTextW(wnd, WC(text)) == TRUE
+    setWindowTextW(wnd, WC(text)) == TRUE
   else:
-    SetWindowTextA(wnd, text) == TRUE
+    setWindowTextA(wnd, text) == TRUE

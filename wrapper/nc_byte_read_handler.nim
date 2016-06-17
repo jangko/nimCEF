@@ -12,7 +12,7 @@ type
     lock: RLock
 
 handlerImpl(NCByteReadHandler):
-  proc Read*(self: NCByteReadHandler, data: pointer, size: int, n: int): int =
+  proc read*(self: NCByteReadHandler, data: pointer, size: int, n: int): int =
     acquire(self.lock)
     let s = (self.size - self.offset) div size
     let ret = min(n, s)
@@ -61,7 +61,7 @@ handlerImpl(NCByteReadHandler):
   proc MayBlock*(self: NCByteReadHandler): bool = false
 
 proc newNCByteReadHandler*(bytes: cstring, size: int, source: ref RootObj): NCByteReadHandler =
-  result = NCByteReadHandler.NCCreate()
+  result = NCByteReadHandler.ncCreate()
   result.bytes = bytes
   result.size = size
   result.offset = 0

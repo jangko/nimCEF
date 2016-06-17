@@ -20,7 +20,7 @@ wrapCallback(NCResourceHandler, cef_resource_handler):
   # values. To redirect the request to a new URL set |redirectUrl| to the new
   # URL. If an error occured while setting up the request you can call
   # set_error() on |response| to indicate the error condition.
-  proc GetResponseHeaders*(self: T, response: NCResponse,
+  proc getResponseHeaders*(self: T, response: NCResponse,
     response_length: var int64, redirectUrl: var string)
 
   # Read response data. If data is available immediately copy up to
@@ -28,7 +28,7 @@ wrapCallback(NCResourceHandler, cef_resource_handler):
   # bytes copied, and return true (1). To read the data at a later time set
   # |bytes_read| to 0, return true (1) and call NCCallback::Continue() when the
   # data is available. To indicate response completion return false (0).
-  proc ReadResponse*(self: T, data_out: cstring, bytes_to_read: int, bytes_read: var int,
+  proc readResponse*(self: T, data_out: cstring, bytes_to_read: int, bytes_read: var int,
     callback: NCCallback): bool
 
   # Return true (1) if the specified cookie can be sent with the request or

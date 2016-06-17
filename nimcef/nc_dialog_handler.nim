@@ -32,6 +32,6 @@ wrapCallback(NCDialogHandler, cef_dialog_handler):
   # the filter that should be selected by default. To display a custom dialog
   # return true (1) and execute |callback| either inline or at a later time. To
   # display the default dialog return false (0).
-  proc OnFileDialog*(self: T, browser: NCBrowser, mode: cef_file_dialog_mode,
+  proc onFileDialog*(self: T, browser: NCBrowser, mode: cef_file_dialog_mode,
     title, default_file_path: string, accept_filters: seq[string],
     selected_accept_filter: int, callback: NCFileDialogCallback): bool

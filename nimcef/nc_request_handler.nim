@@ -27,7 +27,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # NCLoadHandler::OnLoadEnd will be called. If the navigation is canceled
   # NCLoadHandler::OnLoadError will be called with an |errorCode| value of
   # ERR_ABORTED.
-  proc OnBeforeBrowse*(self: T, browser: NCBrowser, frame: NCFrame,
+  proc onBeforeBrowse*(self: T, browser: NCBrowser, frame: NCFrame,
     request: NCRequest, is_redirect: bool): bool
 
   # Called on the UI thread before OnBeforeBrowse in certain limited cases
@@ -44,7 +44,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # it navigated automatically (e.g. via the DomContentLoaded event). Return
   # true (1) to cancel the navigation or false (0) to allow the navigation to
   # proceed in the source browser's top-level frame.
-  proc OnOpenUrlFromTab*(self: T, browser: NCBrowser, frame: NCFrame, target_url: string,
+  proc onOpenUrlFromTab*(self: T, browser: NCBrowser, frame: NCFrame, target_url: string,
     target_disposition: cef_window_open_disposition, user_gesture: bool): bool
 
   # Called on the IO thread before a resource request is loaded. The |request|
@@ -52,7 +52,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # immediately. Return RV_CONTINUE_ASYNC and call NCRequestCallback::
   # Continue() at a later time to continue or cancel the request asynchronously.
   # Return RV_CANCEL to cancel the request immediately.
-  proc OnBeforeResourceLoad*(self: T,
+  proc onBeforeResourceLoad*(self: T,
     browser: NCBrowser, frame: NCFrame, request: NCRequest,
     callback: NCRequestCallback): cef_return_value
 
@@ -60,28 +60,28 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # to load normally return NULL. To specify a handler for the resource return
   # a NCResourceHandler object. The |request| object should not be
   # modified in this callback.
-  proc GetResourceHandler*(self: T, browser: NCBrowser,
+  proc getResourceHandler*(self: T, browser: NCBrowser,
     frame: NCFrame, request: NCRequest): NCResourceHandler
 
   # Called on the IO thread when a resource load is redirected. The |request|
   # parameter will contain the old URL and other request-related information.
   # The |new_url| parameter will contain the new URL and can be changed if
   # desired. The |request| object cannot be modified in this callback.
-  proc OnResourceRedirect*(self: T, browser: NCBrowser, frame: NCFrame,
+  proc onResourceRedirect*(self: T, browser: NCBrowser, frame: NCFrame,
     request: NCRequest, new_url: string)
 
   # Called on the IO thread when a resource response is received. To allow the
   # resource to load normally return false (0). To redirect or retry the
   # resource modify |request| (url, headers or post body) and return true (1).
   # The |response| object cannot be modified in this callback.
-  proc OnResourceResponse*(self: T,
+  proc onResourceResponse*(self: T,
     browser: NCBrowser, frame: NCFrame,
     request: NCRequest, response: NCResponse): bool
 
   # Called on the IO thread to optionally filter resource response content.
   # |request| and |response| represent the request and response respectively
   # and cannot be modified in this callback.
-  proc GetResourceResponseFilter*(self: T, browser: NCBrowser,
+  proc getResourceResponseFilter*(self: T, browser: NCBrowser,
     frame: NCFrame, request: NCRequest,
     response: NCResponse): NCResponseFilter
 
@@ -89,7 +89,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # |response| represent the request and response respectively and cannot be
   # modified in this callback. |status| indicates the load completion status.
   # |received_content_length| is the number of response bytes actually read.
-  proc OnResourceLoadComplete*(self: T, browser: NCBrowser,
+  proc onResourceLoadComplete*(self: T, browser: NCBrowser,
     frame: NCFrame, request: NCRequest,
     response: NCResponse, status: cef_urlrequest_status,
     received_content_length: int64)
@@ -103,7 +103,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # NCAuthCallback::Continue() either in this function or at a later time when
   # the authentication information is available. Return false (0) to cancel the
   # request immediately.
-  proc GetAuthCredentials*(self: T, browser: NCBrowser, frame: NCFrame, isProxy: bool,
+  proc getAuthCredentials*(self: T, browser: NCBrowser, frame: NCFrame, isProxy: bool,
     host: string, port: int, realm: string,
     scheme: string, callback: NCAuthCallback): bool
 
@@ -114,7 +114,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # NCRequestCallback::Continue() either in this function or at a later time to
   # grant or deny the request. Return false (0) to cancel the request
   # immediately.
-  proc OnQuotaRequest*(self: T, browser: NCBrowser, origin_url: string,
+  proc onQuotaRequest*(self: T, browser: NCBrowser, origin_url: string,
     new_size: int64, callback: NCRequestCallback): bool
 
   # Called on the UI thread to handle requests for URLs with an unknown
@@ -122,7 +122,7 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # execution via the registered OS protocol handler, if any. SECURITY WARNING:
   # YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR
   # OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
-  proc OnProtocolExecution*(self: T, browser: NCBrowser,
+  proc onProtocolExecution*(self: T, browser: NCBrowser,
     url: string, allow_os_execution: var bool)
 
   # Called on the UI thread to handle requests for URLs with an invalid SSL
@@ -131,21 +131,21 @@ wrapCallback(NCRequestHandler, cef_request_handler):
   # Return false (0) to cancel the request immediately. If
   # CefSettings.ignore_certificate_errors is set all invalid certificates will
   # be accepted without calling this function.
-  proc OnCertificateError*(self: T,
+  proc onCertificateError*(self: T,
       browser: NCBrowser, cert_error: cef_errorcode,
       request_url: string, ssl_info: NCSslInfo,
       callback: NCRequestCallback): bool
 
   # Called on the browser process UI thread when a plugin has crashed.
   # |plugin_path| is the path of the plugin that crashed.
-  proc OnPluginCrashed*(self: T, browser: NCBrowser, plugin_path: string)
+  proc onPluginCrashed*(self: T, browser: NCBrowser, plugin_path: string)
 
   # Called on the browser process UI thread when the render view associated
   # with |browser| is ready to receive/handle IPC messages in the render
   # process.
-  proc OnRenderViewReady*(self: T, browser: NCBrowser)
+  proc onRenderViewReady*(self: T, browser: NCBrowser)
 
   # Called on the browser process UI thread when the render process terminates
   # unexpectedly. |status| indicates how the process terminated.
-  proc OnRenderProcessTerminated*(self: T, browser: NCBrowser,
+  proc onRenderProcessTerminated*(self: T, browser: NCBrowser,
     status: cef_termination_status)

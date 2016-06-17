@@ -12,16 +12,16 @@ wrapAPI(NCCommandLine, cef_command_line)
 
 # Returns true (1) if this object is valid. Do not call any other functions
 # if this function returns false (0).
-proc IsValid*(self: NCCommandLine): bool =
+proc isValid*(self: NCCommandLine): bool =
   self.wrapCall(is_valid, result)
 
 # Returns true (1) if the values of this object are read-only. Some APIs may
 # expose read-only objects.
-proc IsReadOnly*(self: NCCommandLine): bool =
+proc isReadOnly*(self: NCCommandLine): bool =
   self.wrapCall(is_read_only, result)
 
 # Returns a writable copy of this object.
-proc Copy*(self: NCCommandLine): NCCommandLine =
+proc copy*(self: NCCommandLine): NCCommandLine =
   self.wrapCall(copy, result)
 
 # Initialize the command line with the specified |argc| and |argv| values.
@@ -42,38 +42,38 @@ proc Reset*(self: NCCommandLine) =
 
 # Retrieve the original command line string as a vector of strings. The argv
 # array: { program, [(--|-|/)switch[=value]]*, [--], [argument]* }
-proc GetArgv*(self: NCCommandLine): seq[string] =
+proc getArgv*(self: NCCommandLine): seq[string] =
   self.wrapCall(get_argv, result)
 
 # Constructs and returns the represented command line string. Use this
 # function cautiously because quoting behavior is unclear.
-proc GetCommandLineString*(self: NCCommandLine): string =
+proc getCommandLineString*(self: NCCommandLine): string =
   self.wrapCall(get_command_line_string, result)
 
 # Get the program part of the command line string (the first item).
-proc GetProgram*(self: NCCommandLine): string =
+proc getProgram*(self: NCCommandLine): string =
   self.wrapCall(get_program, result)
 
 # Set the program part of the command line string (the first item).
-proc SetProgram*(self: NCCommandLine, program: string) =
+proc setProgram*(self: NCCommandLine, program: string) =
   self.wrapCall(set_program, program)
 
 # Returns true (1) if the command line has switches.
-proc HasSwitches*(self: NCCommandLine): bool =
+proc hasSwitches*(self: NCCommandLine): bool =
   self.wrapCall(has_switches, result)
 
 # Returns true (1) if the command line contains the given switch.
-proc HasSwitch*(self: NCCommandLine, name: string): bool =
+proc hasSwitch*(self: NCCommandLine, name: string): bool =
   self.wrapCall(has_switch, result, name)
 
 # Returns the value associated with the given switch. If the switch has no
 # value or isn't present this function returns the NULL string.
-proc GetSwitchValue*(self: NCCommandLine, name: string): string =
+proc getSwitchValue*(self: NCCommandLine, name: string): string =
   self.wrapCall(get_switch_value, result, name)
 
 # Returns the map of switch names and values. If a switch has no value an
 # NULL string is returned.
-proc GetSwitches*(self: NCCommandLine): StringTableRef =
+proc getSwitches*(self: NCCommandLine): StringTableRef =
   self.wrapCall(get_switches, result)
 
 # Add a switch to the end of the command line. If the switch has no value
@@ -86,11 +86,11 @@ proc AppendSwitchWithValue*(self: NCCommandLine, name, value: string) =
   self.wrapCall(append_switch_with_value, name, value)
 
 # True if there are remaining command line arguments.
-proc HasArguments*(self: NCCommandLine): bool =
+proc hasArguments*(self: NCCommandLine): bool =
   self.wrapCall(has_arguments, result)
 
 # Get the remaining command line arguments.
-proc GetArguments*(self: NCCommandLine): seq[string] =
+proc getArguments*(self: NCCommandLine): seq[string] =
   self.wrapCall(get_arguments, result)
 
 # Add an argument to the end of the command line.

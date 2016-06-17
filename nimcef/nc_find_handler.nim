@@ -11,5 +11,5 @@ wrapCallback(NCFindHandler, cef_find_handler):
   # match was found (in window coordinates), |activeMatchOrdinal| is the
   # current position in the search results, and |finalUpdate| is true (1) if
   # this is the last find notification.
-  proc OnFindResult*(self: T, browser: NCBrowser, identifier, count: int,
+  proc onFindResult*(self: T, browser: NCBrowser, identifier, count: int,
     selectionRect: NCRect, activeMatchOrdinal: int, finalUpdate: bool)

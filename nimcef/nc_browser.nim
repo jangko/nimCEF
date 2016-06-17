@@ -11,7 +11,7 @@ wrapCallback(NCRunFileDialogCallback, cef_run_file_dialog_callback):
   # the accept filters array passed to NCBrowserHost::RunFileDialog.
   # |file_paths| will be a single value or a list of values depending on the
   # dialog mode. If the selection was cancelled |file_paths| will be NULL.
-  proc OnFileDialogDismissed*(self: T, selected_accept_filter: int, file_paths: seq[string])
+  proc onFileDialogDismissed*(self: T, selected_accept_filter: int, file_paths: seq[string])
 
 # Callback structure for NCBrowserHost::GetNavigationEntries. The
 # functions of this structure will be called on the browser process UI thread.
@@ -29,7 +29,7 @@ wrapCallback(NCPdfPrintCallback, cef_pdf_print_callback):
   # Method that will be executed when the PDF printing has completed. |path| is
   # the output path. |ok| will be true (1) if the printing completed
   # successfully or false (0) otherwise.
-  proc OnPdfPrintFinished*(self: T, path: string, ok: bool): bool
+  proc onPdfPrintFinished*(self: T, path: string, ok: bool): bool
 
 # Callback structure for NCBrowserHost::DownloadImage. The functions of
 # this structure will be called on the browser process UI thread.
@@ -38,12 +38,12 @@ wrapCallback(NCDownloadImageCallback, cef_download_image_callback):
   # |image_url| is the URL that was downloaded and |http_status_code| is the
   # resulting HTTP status code. |image| is the resulting image, possibly at
   # multiple scale factors, or NULL if the download failed.
-  proc OnDownloadImageFinished*(self: T,
+  proc onDownloadImageFinished*(self: T,
     image_url: string, http_status_code: int, image: NCImage)
     
 # Returns the browser host object. This function can only be called in the
 # browser process.
-proc GetHost*(self: NCBrowser): NCBrowserHost =
+proc getHost*(self: NCBrowser): NCBrowserHost =
   self.wrapCall(get_host, result)
 
 # Returns true (1) if the browser can navigate backwards.
@@ -63,7 +63,7 @@ proc GoGorward*(self: NCBrowser) =
   self.wrapCall(go_forward)
 
 # Returns true (1) if the browser is currently loading.
-proc IsLoading*(self: NCBrowser): bool =
+proc isLoading*(self: NCBrowser): bool =
   self.wrapCall(is_loading, result)
 
 # Reload the current page.
@@ -79,49 +79,49 @@ proc StopLoad*(self: NCBrowser) =
   self.wrapCall(stop_load)
 
 # Returns the globally unique identifier for this browser.
-proc GetIdentifier*(self: NCBrowser): int =
+proc getIdentifier*(self: NCBrowser): int =
   self.wrapCall(get_identifier, result)
 
 # Returns true (1) if this object is pointing to the same handle as |that|
 # object.
-proc IsSame*(self, that: NCBrowser): bool =
+proc isSame*(self, that: NCBrowser): bool =
   self.wrapCall(is_same, result, that)
 
 # Returns true (1) if the window is a popup window.
-proc IsPopup*(self: NCBrowser): bool =
+proc isPopup*(self: NCBrowser): bool =
   self.wrapCall(is_popup, result)
 
 # Returns true (1) if a document has been loaded in the browser.
-proc HasDocument*(self: NCBrowser): bool =
+proc hasDocument*(self: NCBrowser): bool =
   self.wrapCall(has_document, result)
 
 # Returns the main (top-level) frame for the browser window.
-proc GetMainFrame*(self: NCBrowser): NCFrame =
+proc getMainFrame*(self: NCBrowser): NCFrame =
   self.wrapCall(get_main_frame, result)
 
 # Returns the focused frame for the browser window.
-proc GetFocusedFrame*(self: NCBrowser): NCFrame =
+proc getFocusedFrame*(self: NCBrowser): NCFrame =
   self.wrapCall(get_focused_frame, result)
 
 # Returns the frame with the specified identifier, or NULL if not found.
-proc GetFrameByident*(self: NCBrowser, identifier: int64): NCFrame =
+proc getFrameByident*(self: NCBrowser, identifier: int64): NCFrame =
   self.wrapCall(get_frame_byident, result, identifier)
 
 # Returns the frame with the specified name, or NULL if not found.
-proc GetFrame*(self: NCBrowser, name: string): NCFrame =
+proc getFrame*(self: NCBrowser, name: string): NCFrame =
   self.wrapCall(get_frame, result, name)
 
 # Returns the number of frames that currently exist.
-proc GetFrameCount*(self: NCBrowser): int =
+proc getFrameCount*(self: NCBrowser): int =
   self.wrapCall(get_frame_count, result)
 
 # Returns the identifiers of all existing frames.
-proc GetFrameIdentifiers*(self: NCBrowser): seq[int64] =
-  var count = self.GetFrameCount()
+proc getFrameIdentifiers*(self: NCBrowser): seq[int64] =
+  var count = self.getFrameCount()
   self.wrapCall(get_frame_identifiers, result, count)
 
 # Returns the names of all existing frames.
-proc GetFrameNames*(self: NCBrowser): seq[string] =
+proc getFrameNames*(self: NCBrowser): seq[string] =
   self.wrapCall(get_frame_names, result)
 
 # Send a message to the specified |target_process|. Returns true (1) if the
@@ -130,7 +130,7 @@ proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id, messag
   self.wrapCall(send_process_message, result, target_process, message)
 
 # Returns the hosted browser object.
-proc GetBrowser*(self: NCBrowserHost): NCBrowser =
+proc getBrowser*(self: NCBrowserHost): NCBrowser =
   self.wrapCall(get_browser, result)
 
 # Request that the browser close. The JavaScript 'onbeforeunload' event will
@@ -141,7 +141,7 @@ proc GetBrowser*(self: NCBrowserHost): NCBrowser =
 # the event handler allows the close or if |force_close| is true (1). See
 # NCLifeSpanHandler::DoClose() documentation for additional usage
 # information.
-proc CloseBrowser*(self: NCBrowserHost, force_close: bool) =
+proc closeBrowser*(self: NCBrowserHost, force_close: bool) =
   self.wrapCall(close_browser, force_close)
   
 # Helper for closing a browser. Call this function from the top-level window
@@ -154,42 +154,42 @@ proc TryCloseBrowser*(self: NCBrowserHost): bool =
   self.wrapCall(try_close_browser, result)
   
 # Set whether the browser is focused.
-proc SetFocus*(self: NCBrowserHost, focus: bool) =
+proc setFocus*(self: NCBrowserHost, focus: bool) =
   self.wrapCall(set_focus, focus)
 
 # Retrieve the window handle for this browser. If this browser is wrapped in
 # a NCBrowserView this function should be called on the browser process
 # UI thread and it will return the handle for the top-level native window.
-proc GetWindowHandle*(self: NCBrowserHost): cef_window_handle =
+proc getWindowHandle*(self: NCBrowserHost): cef_window_handle =
   self.wrapCall(get_window_handle, result)
   
 # Returns true (1) if this browser is wrapped in a cef_browser_view_t.
-proc HasView*(self: NCBrowserHost): bool =
+proc hasView*(self: NCBrowserHost): bool =
   self.wrapCall(has_view, result)
     
 # Retrieve the window handle of the browser that opened this browser. Will
 # return NULL for non-popup windows. This function can be used in combination
 # with custom handling of modal windows.
-proc GetOpenerWindowGandle*(self: NCBrowserHost): cef_window_handle =
+proc getOpenerWindowGandle*(self: NCBrowserHost): cef_window_handle =
   self.wrapCall(get_opener_window_handle, result)
 
 # Returns the client for this browser.
-proc GetClient*(self: NCBrowserHost): NCClient =
+proc getClient*(self: NCBrowserHost): NCClient =
   self.wrapCall(get_client, result)
 
 # Returns the request context for this browser.
-proc GetRequestContext*(self: NCBrowserHost): NCRequestContext =
+proc getRequestContext*(self: NCBrowserHost): NCRequestContext =
   self.wrapCall(get_request_context, result)
 
 # Get the current zoom level. The default zoom level is 0.0. This function
 # can only be called on the UI thread.
-proc GetZoomLevel*(self: NCBrowserHost): float64 =
+proc getZoomLevel*(self: NCBrowserHost): float64 =
   self.wrapCall(get_zoom_level, result)
 
 # Change the zoom level to the specified value. Specify 0.0 to reset the zoom
 # level. If called on the UI thread the change will be applied immediately.
 # Otherwise, the change will be applied asynchronously on the UI thread.
-proc SetZoomLevel*(self: NCBrowserHost, zoomLevel: float64) =
+proc setZoomLevel*(self: NCBrowserHost, zoomLevel: float64) =
   self.wrapCall(set_zoom_level, zoomLevel)
 
 # Call to run a file chooser dialog. Only a single file chooser dialog may be
@@ -247,7 +247,7 @@ proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings
 # be case-sensitive. |findNext| indicates whether this is the first request
 # or a follow-up. The NCFindHandler instance, if any, returned via
 # NCClient::GetFindHandler will be called to report find results.
-proc Find*(self: NCBrowserHost, identifier: int, searchText: string, forward, matchCase, findNext: bool) =
+proc find*(self: NCBrowserHost, identifier: int, searchText: string, forward, matchCase, findNext: bool) =
   self.wrapCall(find, identifier, searchText, forward, matchCase, findNext)
 
 # Cancel all searches that are currently going on.
@@ -266,28 +266,28 @@ proc ShowDevTools*(self: NCBrowserHost, windowInfo: NCWindowInfo, client: NCClie
   self.wrapCall(show_dev_tools, windowInfo, client, setting, inspect_element_at)
 
 # Explicitly close the associated DevTools browser, if any.
-proc CloseDevTools*(self: NCBrowserHost) =
+proc closeDevTools*(self: NCBrowserHost) =
   self.wrapCall(close_dev_tools)
   
 # Returns true (1) if this browser currently has an associated DevTools
 # browser. Must be called on the browser process UI thread.
-proc HasDevTools(self: NCBrowserHost): bool =
+proc hasDevTools(self: NCBrowserHost): bool =
   self.wrapCall(has_dev_tools, result)
     
 # Retrieve a snapshot of current navigation entries as values sent to the
 # specified visitor. If |current_only| is true (1) only the current
 # navigation entry will be sent, otherwise all navigation entries will be
 # sent.
-proc GetNavigationEntries*(self: NCBrowserHost,
+proc getNavigationEntries*(self: NCBrowserHost,
   visitor: NCNavigationEntryVisitor, current_only: bool) =
   self.wrapCall(get_navigation_entries, visitor, current_only)
 
 # Set whether mouse cursor change is disabled.
-proc SetMouseCursorChangeDisabled*(self: NCBrowserHost, disabled: bool) =
+proc setMouseCursorChangeDisabled*(self: NCBrowserHost, disabled: bool) =
   self.wrapCall(set_mouse_cursor_change_disabled, disabled)
 
 # Returns true (1) if mouse cursor change is disabled.
-proc IsMouseCursorChangeDisabled*(self: NCBrowserHost): bool =
+proc isMouseCursorChangeDisabled*(self: NCBrowserHost): bool =
   self.wrapCall(is_mouse_cursor_change_disabled, result)
 
 # If a misspelled word is currently selected in an editable node calling this
@@ -296,11 +296,11 @@ proc ReplaceMisspelling*(self: NCBrowserHost, word: string) =
   self.wrapCall(replace_misspelling, word)
 
 # Add the specified |word| to the spelling dictionary.
-proc AddWordToDictionary*(self: NCBrowserHost, word: string) =
+proc addWordToDictionary*(self: NCBrowserHost, word: string) =
   self.wrapCall(add_word_to_dictionary, word)
 
 # Returns true (1) if window rendering is disabled.
-proc IsWindowRenderingDisabled*(self: NCBrowserHost): bool =
+proc isWindowRenderingDisabled*(self: NCBrowserHost): bool =
   self.wrapCall(is_window_rendering_disabled, result)
 
 # Notify the browser that the widget has been resized. The browser will first
@@ -374,7 +374,7 @@ proc NotifyMoveOrResizeStarted*(self: NCBrowserHost) =
 # actual fps may be lower if the browser cannot generate frames at the
 # requested rate. The minimum value is 1 and the maximum value is 60 (default
 # 30). This function can only be called on the UI thread.
-proc GetWindowlessFrameRate*(self: NCBrowserHost): int =
+proc getWindowlessFrameRate*(self: NCBrowserHost): int =
   self.wrapCall(get_windowless_frame_rate, result)
 
 # Set the maximum rate in frames per second (fps) that NCRenderHandler::
@@ -382,12 +382,12 @@ proc GetWindowlessFrameRate*(self: NCBrowserHost): int =
 # lower if the browser cannot generate frames at the requested rate. The
 # minimum value is 1 and the maximum value is 60 (default 30). Can also be
 # set at browser creation via NCBrowserSettings.windowless_frame_rate.
-proc SetWindowlessFrameRate*(self: NCBrowserHost, frame_rate: int) =
+proc setWindowlessFrameRate*(self: NCBrowserHost, frame_rate: int) =
   self.wrapCall(set_windowless_frame_rate, frame_rate)
 
 # Get the NSTextInputContext implementation for enabling IME on Mac when
 # window rendering is disabled.
-proc GetNstextInputContext*(self: NCBrowserHost): cef_text_input_context =
+proc getNstextInputContext*(self: NCBrowserHost): cef_text_input_context =
   self.wrapCall(get_nstext_input_context, result)
 
 # Handles a keyDown event prior to passing it through the NSTextInputClient
@@ -456,13 +456,13 @@ proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
 # be created on the UI thread. If |request_context| is NULL the global request
 # context will be used. This function can be called on any browser process
 # thread and will not block.
-proc NCBrowserHostCreateBrowser*(windowInfo: NCWindowInfo, client: NCClient,
+proc ncBrowserHostCreateBrowser*(windowInfo: NCWindowInfo, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): bool =
   wrapProc(cef_browser_host_create_browser, result, windowInfo, client, url, settings, request_context)
 
 # Create a new browser window using the window parameters specified by
 # |windowInfo|. If |request_context| is NULL the global request context will be
 # used. This function can only be called on the browser process UI thread.
-proc NCBrowserHostCreateBrowserSync*(windowInfo: NCWindowInfo, client: NCClient,
+proc ncBrowserHostCreateBrowserSync*(windowInfo: NCWindowInfo, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): NCBrowser =
   wrapProc(cef_browser_host_create_browser_sync, result, windowInfo, client, url, settings, request_context)

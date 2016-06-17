@@ -7,50 +7,50 @@ wrapAPI(NCZipReader, cef_zip_reader)
 
 # Moves the cursor to the first file in the archive. Returns true (1) if the
 # cursor position was set successfully.
-proc MoveToFirstFile*(self: NCZipReader): bool =
+proc moveToFirstFile*(self: NCZipReader): bool =
   self.wrapCall(move_to_first_file, result)
 
 # Moves the cursor to the next file in the archive. Returns true (1) if the
 # cursor position was set successfully.
-proc MoveToNextFile*(self: NCZipReader): bool =
+proc moveToNextFile*(self: NCZipReader): bool =
   self.wrapCall(move_to_next_file, result)
 
 # Moves the cursor to the specified file in the archive. If |caseSensitive|
 # is true (1) then the search will be case sensitive. Returns true (1) if the
 # cursor position was set successfully.
-proc MoveToFile*(self: NCZipReader, fileName: string, caseSensitive: bool): bool =
+proc moveToFile*(self: NCZipReader, fileName: string, caseSensitive: bool): bool =
   self.wrapCall(move_to_file, result, fileName, caseSensitive)
 
 # Closes the archive. This should be called directly to ensure that cleanup
 # occurs on the correct thread.
-proc Close*(self: NCZipReader): bool =
+proc close*(self: NCZipReader): bool =
   self.wrapCall(close, result)
 
 # The below functions act on the file at the current cursor position.
 # Returns the name of the file.
-proc GetFileName*(self: NCZipReader): string =
+proc getFileName*(self: NCZipReader): string =
   self.wrapCall(get_file_name, result)
 
 # Returns the uncompressed size of the file.
-proc GetFileSize*(self: NCZipReader): int64 =
+proc getFileSize*(self: NCZipReader): int64 =
   self.wrapCall(get_file_size, result)
 
 # Returns the last modified timestamp for the file.
-proc GetFileLastModified*(self: NCZipReader): NCTime =
+proc getFileLastModified*(self: NCZipReader): NCTime =
   self.wrapCall(get_file_last_modified, result)
 
 # Opens the file for reading of uncompressed data. A read password may
 # optionally be specified.
-proc OpenFile*(self: NCZipReader, password: string = nil): bool =
+proc openFile*(self: NCZipReader, password: string = nil): bool =
   self.wrapCall(open_file, result, password)
 
 # Closes the file.
-proc CloseFile*(self: NCZipReader): bool =
+proc closeFile*(self: NCZipReader): bool =
   self.wrapCall(close_file, result)
 
 # Read uncompressed file contents into the specified buffer. Returns < 0 if
 # an error occurred, 0 if at the end of file, or the number of bytes read.
-proc ReadFile*(self: NCZipReader, buffer: pointer, bufferSize: int): int =
+proc readFile*(self: NCZipReader, buffer: pointer, bufferSize: int): int =
   self.wrapCall(read_file, result, buffer, bufferSize)
 
 # Returns the current offset in the uncompressed file contents.
@@ -63,5 +63,5 @@ proc Eof*(self: NCZipReader): bool =
 
 # Create a new NCZipReader object. The returned object's functions can
 # only be called from the thread that created the object.
-proc NCZipReaderCreate*(stream: NCStreamReader): NCZipReader =
+proc ncZipReaderCreate*(stream: NCStreamReader): NCZipReader =
   wrapProc(cef_zip_reader_create, result, stream)

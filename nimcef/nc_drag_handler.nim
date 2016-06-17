@@ -9,7 +9,7 @@ wrapCallback(NCDragHandler, cef_drag_handler):
   # contains the drag event data and |mask| represents the type of drag
   # operation. Return false (0) for default drag handling behavior or true (1)
   # to cancel the drag event.
-  proc OnDragEnter*(self: T, browser: NCBrowser, dragData: NCDragData,
+  proc onDragEnter*(self: T, browser: NCBrowser, dragData: NCDragData,
     mask: cef_drag_operations_mask): bool
 
   # Called whenever draggable regions for the browser window change. These can
@@ -17,5 +17,5 @@ wrapCallback(NCDragHandler, cef_drag_handler):
   # draggable regions are never defined in a document this function will also
   # never be called. If the last draggable region is removed from a document
   # this function will be called with an NULL vector.
-  proc OnDraggableRegionsChanged*(self: T, browser: NCBrowser,
+  proc onDraggableRegionsChanged*(self: T, browser: NCBrowser,
     regionsCount: int, regions: NCDraggableRegion)

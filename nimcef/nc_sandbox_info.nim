@@ -23,8 +23,8 @@ type
   NCSandboxInfo* = pointer
 
 # Destroy the specified sandbox information object.
-proc NCSandboxInfoDestroy*(self: NCSandboxInfo) =
+proc ncSandboxInfoDestroy*(self: NCSandboxInfo) =
   cef_sandbox_info_destroy(self)
 
-proc NCSandboxInfoCreate*(): NCSandboxInfo =
+proc ncSandboxInfoCreate*(): NCSandboxInfo =
   result = cef_sandbox_info_create()

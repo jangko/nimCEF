@@ -11,7 +11,7 @@ const
   
 wrapCallback(NCReadHandler, cef_read_handler):
   # Read raw binary data.
-  proc Read*(self: T, data: pointer, size: int, n: int): int
+  proc read*(self: T, data: pointer, size: int, n: int): int
 
   # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
@@ -30,7 +30,7 @@ wrapCallback(NCReadHandler, cef_read_handler):
 
 wrapCallback(NCWriteHandler, cef_write_handler):
   # Write raw binary data.
-  proc Write*(self: T, data: pointer, size: int, n: int): int
+  proc write*(self: T, data: pointer, size: int, n: int): int
 
   # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
@@ -48,7 +48,7 @@ wrapCallback(NCWriteHandler, cef_write_handler):
   proc MayBlock*(self: T): bool
 
 # Read raw binary data.
-proc Read*(self: NCStreamReader, data: pointer, size: int, n: int): int =
+proc read*(self: NCStreamReader, data: pointer, size: int, n: int): int =
   self.wrapCall(read, result, data, size, n)
 
 # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
@@ -71,7 +71,7 @@ proc MayBlock*(self: NCStreamReader): bool =
   self.wrapCall(may_block, result)
 
 # Write raw binary data.
-proc Write*(self: NCStreamWriter, data: pointer, size: int, n: int): int =
+proc write*(self: NCStreamWriter, data: pointer, size: int, n: int): int =
   self.wrapCall(write, result, data, size, n)
 
 # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
@@ -94,24 +94,24 @@ proc MayBlock*(self: NCStreamWriter): bool =
   self.wrapCall(may_block, result)
 
 # Create a new NCStreamReader object from a file.
-proc NCStreamReaderCreateForFile*(fileName: string): NCStreamReader =
+proc ncStreamReaderCreateForFile*(fileName: string): NCStreamReader =
   wrapProc(cef_stream_reader_create_for_file, result, fileName)
 
 # Create a new NCStreamReader object from data.
-proc NCStreamReaderCreateForData*(data: pointer, size: int): NCStreamReader =
+proc ncStreamReaderCreateForData*(data: pointer, size: int): NCStreamReader =
   wrapProc(cef_stream_reader_create_for_data, result, data, size)
 
-proc NCStreamReaderCreateForData*(data: string): NCStreamReader =
-  result = NCStreamReaderCreateForData(data.cstring, data.len)
+proc ncStreamReaderCreateForData*(data: string): NCStreamReader =
+  result = ncStreamReaderCreateForData(data.cstring, data.len)
 
 # Create a new NCStreamReader object from a custom handler.
-proc NCStreamReaderCreateForHandler*(handler: NCReadHandler): NCStreamReader =
+proc ncStreamReaderCreateForHandler*(handler: NCReadHandler): NCStreamReader =
   wrapProc(cef_stream_reader_create_for_handler, result, handler)
 
 # Create a new NCStreamWriter object for a file.
-proc NCStreamWriterCreateForFile*(fileName: string): NCStreamWriter =
+proc ncStreamWriterCreateForFile*(fileName: string): NCStreamWriter =
   wrapProc(cef_stream_writer_create_for_file, result, fileName)
 
 # Create a new NCStreamWriter object for a custom handler.
-proc NCStreamWriterCreateForHandler*(handler: NCWriteHandler): NCStreamWriter =
+proc ncStreamWriterCreateForHandler*(handler: NCWriteHandler): NCStreamWriter =
   wrapProc(cef_stream_writer_create_for_handler, result, handler)

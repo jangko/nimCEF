@@ -10,7 +10,7 @@ wrapCallback(NCRequestContextHandler, cef_request_context_handler):
   # Called on the browser process IO thread to retrieve the cookie manager. If
   # this function returns NULL the default cookie manager retrievable via
   # NCRequestContext::GetDefaultCookieManager() will be used.
-  proc GetCookieManager*(self: T): NCCookieManager
+  proc getCookieManager*(self: T): NCCookieManager
 
   # Called on multiple browser process threads before a plugin instance is
   # loaded. |mime_type| is the mime type of the plugin that will be loaded.
@@ -27,5 +27,5 @@ wrapCallback(NCRequestContextHandler, cef_request_context_handler):
   # PLUGIN_POLICY_DISABLED may be cached when |top_origin_url| is NULL. To
   # purge the plugin list cache and potentially trigger new calls to this
   # function call NCRequestContext::PurgePluginListCache.
-  proc OnBeforePluginLoad*(self: T, mime_type, plugin_url, top_origin_url: string,
+  proc onBeforePluginLoad*(self: T, mime_type, plugin_url, top_origin_url: string,
     plugin_info: NCWebPluginInfo, plugin_policy: var cef_plugin_policy): bool

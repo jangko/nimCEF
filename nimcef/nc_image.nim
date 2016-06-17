@@ -9,12 +9,12 @@ import nc_util, nc_types, nc_value
 wrapAPI(NCImage, cef_image)
 
 # Returns true (1) if this Image is NULL.
-proc IsEmpty*(self: NCImage): bool =
+proc isEmpty*(self: NCImage): bool =
   self.wrapCall(is_empty, result)
 
 # Returns true (1) if this Image and |that| Image share the same underlying
 # storage. Will also return true (1) if both images are NULL.
-proc IsSame*(self, that: NCImage): bool =
+proc isSame*(self, that: NCImage): bool =
   self.wrapCall(is_same, result, that)
 
 # Add a bitmap image representation for |scale_factor|. Only 32-bit RGBA/BGRA
@@ -22,7 +22,7 @@ proc IsSame*(self, that: NCImage): bool =
 # representation size in pixel coordinates. |pixel_data| is the array of
 # pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in size.
 # |color_type| and |alpha_type| values specify the pixel format.
-proc AddBitmap*(self: NCImage, scale_factor: float32,
+proc addBitmap*(self: NCImage, scale_factor: float32,
   pixel_width, pixel_height: int, color_type: cef_color_type,
   alpha_type: cef_alpha_type, pixel_data: cstring,
   pixel_data_size: int): int =
@@ -32,39 +32,39 @@ proc AddBitmap*(self: NCImage, scale_factor: float32,
 # Add a PNG image representation for |scale_factor|. |png_data| is the image
 # data of size |png_data_size|. Any alpha transparency in the PNG data will
 # be maintained.
-proc AddPNG*(self: NCImage, scale_factor: float32,
+proc addPNG*(self: NCImage, scale_factor: float32,
   png_data: cstring, png_data_size: int): int =
   self.wrapCall(add_png, result, scale_factor, png_data, png_data_size)
 
 # Create a JPEG image representation for |scale_factor|. |jpeg_data| is the
 # image data of size |jpeg_data_size|. The JPEG format does not support
 # transparency so the alpha byte will be set to 0xFF for all pixels.
-proc AddJPEG*(self: NCImage, scale_factor: float32,
+proc addJPEG*(self: NCImage, scale_factor: float32,
   jpeg_data: cstring, jpeg_data_size: int): int =
   self.wrapCall(add_jpeg, result, scale_factor, jpeg_data, jpeg_data_size)
 
 # Returns the image width in density independent pixel (DIP) units.
-proc GetWidth*(self: NCImage): int =
+proc getWidth*(self: NCImage): int =
   self.wrapCall(get_width, result)
 
 # Returns the image height in density independent pixel (DIP) units.
-proc GetHeight*(self: NCImage): int =
+proc getHeight*(self: NCImage): int =
   self.wrapCall(get_height, result)
 
 # Returns true (1) if this image contains a representation for
 # |scale_factor|.
-proc HasRepresentation*(self: NCImage, scale_factor: float32): int =
+proc hasRepresentation*(self: NCImage, scale_factor: float32): int =
   self.wrapCall(has_representation, result, scale_factor)
 
 # Removes the representation for |scale_factor|. Returns true (1) on success.
-proc RemoveRepresentation*(self: NCImage, scale_factor: float32): int =
+proc removeRepresentation*(self: NCImage, scale_factor: float32): int =
   self.wrapCall(remove_representation, result, scale_factor)
 
 # Returns information for the representation that most closely matches
 # |scale_factor|. |actual_scale_factor| is the actual scale factor for the
 # representation. |pixel_width| and |pixel_height| are the representation
 # size in pixel coordinates. Returns true (1) on success.
-proc GetRepresentationInfo*(self: NCImage,
+proc getRepresentationInfo*(self: NCImage,
   scale_factor: float32, actual_scale_factor: var float32, pixel_width: var int,
   pixel_height: var int): int =
   self.wrapCall(get_representation_info, result, scale_factor, actual_scale_factor,
@@ -76,7 +76,7 @@ proc GetRepresentationInfo*(self: NCImage,
 # |pixel_height| are the output representation size in pixel coordinates.
 # Returns a cef_binary_value_t containing the pixel data on success or NULL
 # on failure.
-proc GetAsBitmap*(self: NCImage, scale_factor: float32,
+proc getAsBitmap*(self: NCImage, scale_factor: float32,
   color_type: cef_color_type, alpha_type: cef_alpha_type,
   pixel_width: var int, pixel_height: var int): NCBinaryValue =
   self.wrapCall(get_as_bitmap, result, scale_factor, color_type, alpha_type,
@@ -88,7 +88,7 @@ proc GetAsBitmap*(self: NCImage, scale_factor: float32,
 # the output representation size in pixel coordinates. Returns a
 # cef_binary_value_t containing the PNG image data on success or NULL on
 # failure.
-proc GetAsPNG*(self: NCImage, scale_factor: float32, with_transparency: int,
+proc getAsPNG*(self: NCImage, scale_factor: float32, with_transparency: int,
   pixel_width: var int, pixel_height: var int): ptr cef_binary_value =
   self.wrapCall(get_as_png, result, scale_factor, with_transparency,
     pixel_width, pixel_height)
@@ -100,12 +100,12 @@ proc GetAsPNG*(self: NCImage, scale_factor: float32, with_transparency: int,
 # the output representation size in pixel coordinates. Returns a
 # cef_binary_value_t containing the JPEG image data on success or NULL on
 # failure.
-proc GetAsJPEG*(self: NCImage, scale_factor: float32, quality: int,
+proc getAsJPEG*(self: NCImage, scale_factor: float32, quality: int,
   pixel_width: var int, pixel_height: var int): ptr cef_binary_value =
   self.wrapCall(get_as_jpeg, result, scale_factor, quality, pixel_width, pixel_height)
 
 # Create a new cef_image_t. It will initially be NULL. Use the Add*() functions
 # to add representations at different scale factors.
 
-proc NCImageCreate(): NCImage =
+proc ncImageCreate(): NCImage =
   wrapProc(cef_image_create, result)

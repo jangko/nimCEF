@@ -20,20 +20,20 @@ wrapCallback(NCCookieVisitor, cef_cookie_visitor):
 wrapCallback(NCSetCookieCallback, cef_set_cookie_callback):
   # Method that will be called upon completion. |success| will be true (1) if
   # the cookie was set successfully.
-  proc OnSetCookieComplete*(self: T, success: bool)
+  proc onSetCookieComplete*(self: T, success: bool)
 
 # Structure to implement to be notified of asynchronous completion via
 # NCCookieManager::delete_cookies().
 wrapCallback(NCDeleteCookiesCallback, cef_delete_cookies_callback):
   # Method that will be called upon completion. |num_deleted| will be the
   # number of cookies that were deleted or -1 if unknown.
-  proc OnDeleteCookiesComplete*(self: T, num_deleted: int)
+  proc onDeleteCookiesComplete*(self: T, num_deleted: int)
 
 # Set the schemes supported by this manager. The default schemes ("http",
 # "https", "ws" and "wss") will always be supported. If |callback| is non-
 # NULL it will be executed asnychronously on the IO thread after the change
 # has been applied. Must be called before any cookies are accessed.
-proc SetSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback: NCCompletionCallback) =
+proc setSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback: NCCompletionCallback) =
   self.wrapCall(set_supported_schemes, schemes, callback)
 
 # Visit all cookies on the IO thread. The returned cookies are ordered by
@@ -57,7 +57,7 @@ proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool,
 # such characters are found. If |callback| is non-NULL it will be executed
 # asnychronously on the IO thread after the cookie has been set. Returns
 # false (0) if an invalid URL is specified or if cookies cannot be accessed.
-proc SetCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: NCSetCookieCallback): bool =
+proc setCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: NCSetCookieCallback): bool =
   self.wrapCall(set_cookie, result, url, cookie, callback)
 
 # Delete all cookies that match the specified parameters. If both |url| and
@@ -80,7 +80,7 @@ proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string, callback: N
 # browsers do not persist them. If |callback| is non-NULL it will be executed
 # asnychronously on the IO thread after the manager's storage has been
 # initialized. Returns false (0) if cookies cannot be accessed.
-proc SetStoragePath*(self: NCCookieManager, path: string, persist_session_cookies: bool,
+proc setStoragePath*(self: NCCookieManager, path: string, persist_session_cookies: bool,
   callback: NCCompletionCallback): bool =
   self.wrapCall(set_storage_path, result, path, persist_session_cookies, callback)
 
@@ -97,7 +97,7 @@ proc FlushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
 # manager's storage has been initialized. Using this function is equivalent to
 # calling NCRequestContext::NCRequestContextGetGlobalContext()->
 # GetGefaultCookieManager().
-proc NCCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieManager =
+proc ncCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieManager =
   wrapProc(cef_cookie_manager_get_global_manager, result, callback)
 
 # Creates a new cookie manager. If |path| is NULL data will be stored in memory
@@ -107,7 +107,7 @@ proc NCCookieManagerGetGlobalManager*(callback: NCCompletionCallback): NCCookieM
 # to be transient and most Web browsers do not persist them. If |callback| is
 # non-NULL it will be executed asnychronously on the IO thread after the
 # manager's storage has been initialized.
-proc NCCookieManagerCreateManager*(path: string, persist_session_cookies: bool,
+proc ncCookieManagerCreateManager*(path: string, persist_session_cookies: bool,
   callback: NCCompletionCallback): NCCookieManager =
   wrapProc(cef_cookie_manager_create_manager, result, path,
     persist_session_cookies, callback)

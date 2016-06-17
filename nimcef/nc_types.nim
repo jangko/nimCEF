@@ -25,12 +25,12 @@ wrapAPI(NCBrowserHost, cef_browser_host, false)
 # Implement this structure to provide handler implementations.
 wrapAPI(NCClient, cef_client, false)
 
-template nc_wrap*(x: ptr_cef_client): expr = nc_wrap(cast[ptr cef_client](x))
-template nc_wrap*(x: ptr_cef_browser): expr = nc_wrap(cast[ptr cef_browser](x))
-template nc_wrap*(x: ptr_cef_frame): expr = nc_wrap(cast[ptr cef_frame](x))
-template nc_release*(x: ptr_cef_browser): expr = nc_release(cast[ptr cef_browser](x))
-template nc_release*(x: ptr_cef_client): expr = nc_release(cast[ptr cef_client](x))
-template nc_release*(x: ptr_cef_frame): expr = nc_release(cast[ptr cef_frame](x))
+template ncWrap*(x: ptr_cef_client): expr = ncWrap(cast[ptr cef_client](x))
+template ncWrap*(x: ptr_cef_browser): expr = ncWrap(cast[ptr cef_browser](x))
+template ncWrap*(x: ptr_cef_frame): expr = ncWrap(cast[ptr cef_frame](x))
+template ncRelease*(x: ptr_cef_browser): expr = ncRelease(cast[ptr cef_browser](x))
+template ncRelease*(x: ptr_cef_client): expr = ncRelease(cast[ptr cef_client](x))
+template ncRelease*(x: ptr_cef_frame): expr = ncRelease(cast[ptr cef_frame](x))
 
 template USER_MENU_ID*(n: int): expr = (MENU_ID_USER_FIRST.ord + n).cef_menu_id
 
@@ -38,10 +38,10 @@ type
   NCMainArgs* = object
     args: cef_main_args
 
-proc to_cef*(nc: NCMainArgs): cef_main_args =
+proc toCef*(nc: NCMainArgs): cef_main_args =
   result = nc.args
 
-proc nc_free*(nc: cef_main_args) = discard
+proc ncFree*(nc: cef_main_args) = discard
 
 when defined(windows):
   import winapi
@@ -70,11 +70,11 @@ when defined(windows):
   type
     NCWindowInfo* = object
       #Standard parameters required by CreateWindowEx()
-      ex_style*: DWORD
-      window_name*: string
+      exStyle*: DWORD
+      windowName*: string
       style*: DWORD
       x*, y*, width*, height*: int
-      parent_window*: cef_window_handle
+      parentWindow*: cef_window_handle
       menu*: HMENU
 
       # Set to true (1) to create the browser using windowless (off-screen)
@@ -85,46 +85,46 @@ when defined(windows):
       # monitor will be used and some functionality that requires a parent window
       # may not function correctly. In order to create windowless browsers the
       # CefSettings.windowless_rendering_enabled value must be set to true.
-      windowless_rendering_enabled*: bool
+      windowlessRenderingEnabled*: bool
 
       # Set to true (1) to enable transparent painting in combination with
       # windowless rendering. When this value is true a transparent background
       # color will be used (RGBA=0x00000000). When this value is false the
       # background will be white and opaque.
-      transparent_painting_enabled*: bool
+      transparentPaintingEnabled*: bool
 
       # Handle for the new browser window. Only used with windowed rendering.
       window*: cef_window_handle
 
-  proc to_cef*(nc: NCWindowInfo): cef_window_info =
-    result.ex_style = nc.ex_style
-    result.window_name <= nc.window_name
+  proc toCef*(nc: NCWindowInfo): cef_window_info =
+    result.ex_style = nc.exStyle
+    result.window_name <= nc.windowName
     result.style = nc.style
     result.x = nc.x.cint
     result.y = nc.y.cint
     result.width = nc.width.cint
     result.height = nc.height.cint
-    result.parent_window = nc.parent_window
+    result.parent_window = nc.parentWindow
     result.menu = nc.menu
-    result.windowless_rendering_enabled = nc.windowless_rendering_enabled.cint
-    result.transparent_painting_enabled = nc.transparent_painting_enabled.cint
+    result.windowless_rendering_enabled = nc.windowlessRenderingEnabled.cint
+    result.transparent_painting_enabled = nc.transparentPaintingEnabled.cint
     result.window = nc.window
 
-  proc to_nim*(nc: ptr cef_window_info): NCWindowInfo =
-    result.ex_style = nc.ex_style
-    result.window_name = $(nc.window_name.addr)
+  proc toNim*(nc: ptr cef_window_info): NCWindowInfo =
+    result.exStyle = nc.ex_style
+    result.windowName = $(nc.window_name.addr)
     result.style = nc.style
     result.x = nc.x.int
     result.y = nc.y.int
     result.width = nc.width.int
     result.height = nc.height.int
-    result.parent_window = nc.parent_window
+    result.parentWindow = nc.parent_window
     result.menu = nc.menu
-    result.windowless_rendering_enabled = nc.windowless_rendering_enabled == 1.cint
-    result.transparent_painting_enabled = nc.transparent_painting_enabled == 1.cint
+    result.windowlessRenderingEnabled = nc.windowless_rendering_enabled == 1.cint
+    result.transparentPaintingEnabled = nc.transparent_painting_enabled == 1.cint
     result.window = nc.window
 
-  proc nc_free*(nc: var cef_window_info) =
+  proc ncFree*(nc: var cef_window_info) =
     cef_string_clear(nc.window_name.addr)
 
 elif defined(UNIX):
@@ -136,7 +136,7 @@ elif defined(UNIX):
       height*: uint
 
       # Pointer for the parent window.
-      parent_window*: cef_window_handle
+      parentWindow*: cef_window_handle
 
       # Set to true (1) to create the browser using windowless (off-screen)
       # rendering. No window will be created for the browser and all rendering will
@@ -146,13 +146,13 @@ elif defined(UNIX):
       # monitor will be used and some functionality that requires a parent window
       # may not function correctly. In order to create windowless browsers the
       # CefSettings.windowless_rendering_enabled value must be set to true.
-      windowless_rendering_enabled*: bool
+      windowlessRenderingEnabled*: bool
 
       # Set to true (1) to enable transparent painting in combination with
       # windowless rendering. When this value is true a transparent background
       # color will be used (RGBA=0x00000000). When this value is false the
       # background will be white and opaque.
-      transparent_painting_enabled*: bool
+      transparentPaintingEnabled*: bool
 
       #Pointer for the new browser window. Only used with windowed rendering.
       window*: cef_window_handle
@@ -160,14 +160,14 @@ elif defined(UNIX):
 elif defined(MACOSX):
   type
     NCWindowInfo* = object
-      window_name*: string
+      windowName*: string
       x*, y*, width*, height*: int
 
       # Set to true (1) to create the view initially hidden.
       hidden*: bool
 
       # NSView pointer for the parent view.
-      parent_view*: cef_window_handle
+      parentView*: cef_window_handle
 
       # Set to true (1) to create the browser using windowless (off-screen)
       # rendering. No view will be created for the browser and all rendering will
@@ -177,13 +177,13 @@ elif defined(MACOSX):
       # monitor will be used and some functionality that requires a parent view
       # may not function correctly. In order to create windowless browsers the
       # CefSettings.windowless_rendering_enabled value must be set to true.
-      windowless_rendering_enabled*: bool
+      windowlessRenderingEnabled*: bool
 
       # Set to true (1) to enable transparent painting in combination with
       # windowless rendering. When this value is true a transparent background
       # color will be used (RGBA=0x00000000). When this value is false the
       # background will be white and opaque.
-      transparent_painting_enabled*: bool
+      transparentPaintingEnabled*: bool
 
       # NSView pointer for the new browser view. Only used with windowed rendering.
       view*: cef_window_handle
@@ -224,7 +224,7 @@ type
    # Structure representing keyboard event information.
   NCKeyEvent* = object
     # The type of keyboard event.
-    key_event_type*: cef_key_event_type
+    keyEventType*: cef_key_event_type
 
     # Bit flags describing any pressed modifier keys. See
     # cef_event_flags_t for values.
@@ -234,33 +234,33 @@ type
     # specification. Sometimes it comes directly from the event (i.e. on
     # Windows) and sometimes it's determined using a mapping function. See
     # WebCore/platform/chromium/KeyboardCodes.h for the list of values.
-    windows_key_code*: int
+    windowsKeyCode*: int
 
     # The actual key code genenerated by the platform.
-    native_key_code*: int
+    nativeKeyCode*: int
 
     # Indicates whether the event is considered a "system key" event (see
     # http:#msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx for details).
     # This value will always be false on non-Windows platforms.
-    is_system_key*: bool
+    isSystemKey*: bool
 
     # The character generated by the keystroke.
     character*: uint16
 
     # Same as |character| but unmodified by any concurrently-held modifiers
     # (except shift). This is useful for working out shortcut keys.
-    unmodified_character*: uint16
+    unmodifiedCharacter*: uint16
 
     # True if the focus is currently on an editable field on the page. This is
     # useful for determining if standard key events should be intercepted.
-    focus_on_editable_field*: bool
+    focusOnEditableField*: bool
 
   # Structure representing cursor information. |buffer| will be
   # |size.width|*|size.height|*4 bytes in size and represents a BGRA image with
   # an upper-left origin.
   NCCursorInfo* = object
     hotspot*: NCPoint
-    image_scale_factor*: float32
+    imageScaleFactor*: float32
     buffer*: string
     size*: NCSize
 
@@ -270,17 +270,17 @@ type
   NCScreenInfo* = object
     # Device scale factor. Specifies the ratio between physical and logical
     # pixels.
-    device_scale_factor*: float32
+    deviceScaleFactor*: float32
 
     # The screen depth in bits per pixel.
     depth*: int
 
     # The bits per color component. This assumes that the colors are balanced
     # equally.
-    depth_per_component*: int
+    depthPerComponent*: int
 
     # This can be true for black and white printers.
-    is_monochrome*: bool
+    isMonochrome*: bool
 
     # This is set from the rcMonitor member of MONITORINFOEX, to whit:
     #   "A RECT structure that specifies the display monitor rectangle,
@@ -303,7 +303,7 @@ type
     #
     # The |rect| and |available_rect| properties are used to determine the
     # available surface for rendering popup views.
-    available_rect*: NCRect
+    availableRect*: NCRect
 
   # Popup window features.
   NCPopupFeatures* = object
@@ -337,117 +337,117 @@ type
     # cef_event_flags_t for values.
     modifiers*: uint32
 
-proc to_cef*(nc: NCPoint): cef_point =
+proc toCef*(nc: NCPoint): cef_point =
   result.x = nc.x.cint
   result.y = nc.y.cint
 
-template nc_free*(nc: cef_point) = discard
+template ncFree*(nc: cef_point) = discard
 
-proc to_nim*(nc: cef_point): NCPoint =
+proc toNim*(nc: cef_point): NCPoint =
   result.x = nc.x.int
   result.y = nc.y.int
 
-proc to_cef*(nc: NCRect): cef_rect =
+proc toCef*(nc: NCRect): cef_rect =
   result = cef_rect(x: nc.x.cint, y: nc.y.cint,
     width: nc.width.cint, height: nc.height.cint)
 
-proc to_nim*(nc: cef_rect): NCRect =
+proc toNim*(nc: cef_rect): NCRect =
   result.x = nc.x.int
   result.y = nc.y.int
   result.width = nc.width.int
   result.height = nc.height.int
 
-proc to_nim*(nc: ptr cef_rect): NCRect =
+proc toNim*(nc: ptr cef_rect): NCRect =
   result.x = nc.x.int
   result.y = nc.y.int
   result.width = nc.width.int
   result.height = nc.height.int
 
-template nc_free*(nc: cef_rect) = discard
+template ncFree*(nc: cef_rect) = discard
 
-proc to_cef*(nc: NCSize): cef_size =
+proc toCef*(nc: NCSize): cef_size =
   result.width  = nc.width.cint
   result.height = nc.height.cint
 
-proc to_nim*(nc: cef_size): NCSize =
+proc toNim*(nc: cef_size): NCSize =
   result.width  = nc.width.int
   result.height = nc.height.int
 
-template nc_free*(nc: cef_size) = discard
+template ncFree*(nc: cef_size) = discard
 
-proc to_cef*(nc: NCRange): cef_range =
+proc toCef*(nc: NCRange): cef_range =
   result.start  = nc.start.cint
   result.to = nc.to.cint
 
-proc to_nim*(nc: cef_range): NCRange =
+proc toNim*(nc: cef_range): NCRange =
   result.start = nc.start.int
   result.to = nc.to.int
 
-template nc_free*(nc: cef_range) = discard
+template ncFree*(nc: cef_range) = discard
 
-proc to_cef*(nc: NCInsets): cef_insets =
+proc toCef*(nc: NCInsets): cef_insets =
   result.top = nc.top.cint
   result.left = nc.left.cint
   result.bottom = nc.bottom.cint
   result.right = nc.right.cint
 
-proc to_nim*(nc: cef_insets): NCInsets =
+proc toNim*(nc: cef_insets): NCInsets =
   result.top = nc.top.int
   result.left = nc.left.int
   result.bottom = nc.bottom.int
   result.right = nc.right.int
 
-template nc_free*(nc: cef_insets) = discard
+template ncFree*(nc: cef_insets) = discard
 
-proc to_cef*(nc: NCDraggableRegion): cef_draggable_region =
-  result.bounds = to_cef(nc.bounds)
+proc toCef*(nc: NCDraggableRegion): cef_draggable_region =
+  result.bounds = toCef(nc.bounds)
   result.draggable = nc.draggable.cint
 
-template nc_free*(nc: cef_point) = discard
+template ncFree*(nc: cef_point) = discard
 
-proc to_nim*(nc: ptr cef_draggable_region): NCDraggableRegion =
-  result.bounds = to_nim(nc.bounds)
+proc toNim*(nc: ptr cef_draggable_region): NCDraggableRegion =
+  result.bounds = toNim(nc.bounds)
   result.draggable = nc.draggable == 1.cint
 
-proc to_cef*(nc: NCKeyEvent): cef_key_event =
-  result.key_event_type = nc.key_event_type
+proc toCef*(nc: NCKeyEvent): cef_key_event =
+  result.key_event_type = nc.keyEventType
   result.modifiers = nc.modifiers
-  result.windows_key_code = nc.windows_key_code.cint
-  result.native_key_code = nc.native_key_code.cint
-  result.is_system_key = nc.is_system_key.cint
+  result.windows_key_code = nc.windowsKeyCode.cint
+  result.native_key_code = nc.nativeKeyCode.cint
+  result.is_system_key = nc.isSystemKey.cint
   result.character = nc.character
-  result.unmodified_character = nc.unmodified_character
-  result.focus_on_editable_field = nc.focus_on_editable_field.cint
+  result.unmodified_character = nc.unmodifiedCharacter
+  result.focus_on_editable_field = nc.focusOnEditableField.cint
 
-proc to_nim*(nc: ptr cef_key_event): NCKeyEvent =
-  result.key_event_type = nc.key_event_type
+proc toNim*(nc: ptr cef_key_event): NCKeyEvent =
+  result.keyEventType = nc.key_event_type
   result.modifiers = nc.modifiers
-  result.windows_key_code = nc.windows_key_code.int
-  result.native_key_code = nc.native_key_code.int
-  result.is_system_key = nc.is_system_key == 1.cint
+  result.windowsKeyCode = nc.windows_key_code.int
+  result.nativeKeyCode = nc.native_key_code.int
+  result.isSystemKey = nc.is_system_key == 1.cint
   result.character = nc.character
-  result.unmodified_character = nc.unmodified_character
-  result.focus_on_editable_field = nc.focus_on_editable_field == 1.cint
+  result.unmodifiedCharacter = nc.unmodified_character
+  result.focusOnEditableField = nc.focus_on_editable_field == 1.cint
 
-template nc_free*(nc: cef_key_event) = discard
+template ncFree*(nc: cef_key_event) = discard
 
-proc to_nim*(nc: ptr cef_cursor_info): NCCursorInfo =
-  result.hotspot = to_nim(nc.hotspot)
-  result.image_scale_factor = nc.image_scale_factor.float32
-  result.size = to_nim(nc.size)
+proc toNim*(nc: ptr cef_cursor_info): NCCursorInfo =
+  result.hotspot = toNim(nc.hotspot)
+  result.imageScaleFactor = nc.image_scale_factor.float32
+  result.size = toNim(nc.size)
   result.buffer = newString(result.size.height * result.size.width * 4)
   copyMem(result.buffer.cstring, nc.buffer, result.buffer.len)
 
-proc to_nim*(nc: ptr cef_screen_info): NCScreenInfo =
-  result.device_scale_factor = nc.device_scale_factor.float32
+proc toNim*(nc: ptr cef_screen_info): NCScreenInfo =
+  result.deviceScaleFactor = nc.device_scale_factor.float32
   result.depth = nc.depth.int
-  result.depth_per_component = nc.depth_per_component.int
-  result.is_monochrome = nc.is_monochrome == 1.cint
-  result.rect = to_nim(nc.rect)
-  result.available_rect = to_nim(nc.available_rect)
+  result.depthPerComponent = nc.depth_per_component.int
+  result.isMonochrome = nc.is_monochrome == 1.cint
+  result.rect = toNim(nc.rect)
+  result.availableRect = toNim(nc.available_rect)
 
 # Popup window features.
-proc to_nim*(nc: ptr cef_popup_features): NCPopupFeatures =
+proc toNim*(nc: ptr cef_popup_features): NCPopupFeatures =
   result.x = nc.x.int
   result.xSet = nc.xSet.int
   result.y = nc.y.int
@@ -464,11 +464,11 @@ proc to_nim*(nc: ptr cef_popup_features): NCPopupFeatures =
   result.resizable = nc.resizable == 1.cint
   result.fullscreen = nc.fullscreen == 1.cint
   result.dialog = nc.dialog == 1.cint
-  result.additionalFeatures = to_nim(nc.additionalFeatures)
+  result.additionalFeatures = toNim(nc.additionalFeatures)
 
-proc to_cef*(nc: NCMouseEvent): cef_mouse_event =
+proc toCef*(nc: NCMouseEvent): cef_mouse_event =
   result.x = nc.x.cint
   result.y = nc.y.cint
   result.modifiers = nc.modifiers
 
-template nc_free*(nc: cef_mouse_event) = discard
+template ncFree*(nc: cef_mouse_event) = discard

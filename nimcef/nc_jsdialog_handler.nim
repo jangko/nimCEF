@@ -28,7 +28,7 @@ wrapCallback(NCJsDialogHandler, cef_jsdialog_handler):
   # Custom dialogs may be either modal or modeless. If a custom dialog is used
   # the application must execute |callback| once the custom dialog is
   # dismissed.
-  proc OnJsdialog*(self: T, browser: NCBrowser, origin_url: string,
+  proc onJsdialog*(self: T, browser: NCBrowser, origin_url: string,
       dialog_type: cef_jsdialog_type, message_text, default_prompt_text: string,
       callback: NCJsDialogCallback, suppress_message: var bool): bool
 
@@ -38,13 +38,13 @@ wrapCallback(NCJsDialogHandler, cef_jsdialog_handler):
   # immediately. Custom dialogs may be either modal or modeless. If a custom
   # dialog is used the application must execute |callback| once the custom
   # dialog is dismissed.
-  proc OnBeforeUnloadDialog*(self: T, browser: NCBrowser, message_text: string,
+  proc onBeforeUnloadDialog*(self: T, browser: NCBrowser, message_text: string,
     is_reload: bool, callback: NCJsDialogCallback): bool
 
   # Called to cancel any pending dialogs and reset any saved dialog state. Will
   # be called due to events like page navigation irregardless of whether any
   # dialogs are currently pending.
-  proc OnResetDialogState*(self: T, browser: NCBrowser)
+  proc onResetDialogState*(self: T, browser: NCBrowser)
 
   # Called when the default implementation dialog is closed.
-  proc OnDialogClosed*(self: T, browser: NCBrowser)
+  proc onDialogClosed*(self: T, browser: NCBrowser)

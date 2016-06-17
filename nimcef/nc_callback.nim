@@ -6,7 +6,7 @@ wrapAPI(NCCallback, cef_callback)
 
 wrapCallback(NCCompletionCallback, cef_completion_callback):
   # Method that will be called once the task is complete.
-  proc OnComplete*(self: T)
+  proc onComplete*(self: T)
 
 # Continue processing.
 proc Continue*(self: NCCallback) =

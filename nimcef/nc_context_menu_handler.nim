@@ -22,7 +22,7 @@ wrapCallback(NCContextMenuHandler, cef_context_menu_handler):
   # context menu. The |model| can be cleared to show no context menu or
   # modified to show a custom menu. Do not keep references to |params| or
   # |model| outside of this callback.
-  proc OnBeforeContextMenu*(self: T, browser: NCBrowser,
+  proc onBeforeContextMenu*(self: T, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel)
 
   # Called to allow custom display of the context menu. |params| provides
@@ -42,10 +42,10 @@ wrapCallback(NCContextMenuHandler, cef_context_menu_handler):
   # MENU_ID_USER_LAST. |params| will have the same values as what was passed to
   # on_before_context_menu(). Do not keep a reference to |params| outside of
   # this callback.
-  proc OnContextMenuCommand*(self: T, browser: NCBrowser,
+  proc onContextMenuCommand*(self: T, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
     event_flags: cef_event_flags): int
 
   # Called when the context menu is dismissed irregardless of whether the menu
   # was NULL or a command was selected.
-  proc OnContextMenuDismissed*(self: T,  browser: NCBrowser, frame: NCFrame)
+  proc onContextMenuDismissed*(self: T,  browser: NCBrowser, frame: NCFrame)

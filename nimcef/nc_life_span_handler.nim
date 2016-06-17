@@ -24,7 +24,7 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   # hosted in the same renderer process as the source browser. Any
   # modifications to |windowInfo| will be ignored if the parent browser is
   # wrapped in a NCBrowserView.
-  proc OnBeforePopup*(self: T, browser: NCBrowser, frame: NCFrame,
+  proc onBeforePopup*(self: T, browser: NCBrowser, frame: NCFrame,
       target_url, target_frame_name: string,
       target_disposition: cef_window_open_disposition, user_gesture: int,
       popupFeatures: NCPopupFeatures,
@@ -33,7 +33,7 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
 
   # Called after a new browser is created. This callback will be the first
   # notification that references |browser|.
-  proc OnAfterCreated*(self: T, browser: NCBrowser)
+  proc onAfterCreated*(self: T, browser: NCBrowser)
 
   # Called when a browser has recieved a request to close. This may result
   # directly from a call to NCBrowserHost::*CloseBrowser() or indirectly
@@ -129,4 +129,4 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   # object after this callback returns. This callback will be the last
   # notification that references |browser|. See do_close() documentation for
   # additional usage information.
-  proc OnBeforeClose*(self: T, browser: NCBrowser)
+  proc onBeforeClose*(self: T, browser: NCBrowser)

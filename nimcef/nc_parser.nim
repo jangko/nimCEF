@@ -33,7 +33,7 @@ type
     # Query string component (i.e., everything following the '?').
     query*: string
 
-proc to_nim(cparts: cef_urlparts): NCUrlParts =
+proc toNim(cparts: cef_urlparts): NCUrlParts =
   result.spec = $cparts.spec.unsafeAddr
   result.scheme = $cparts.scheme.unsafeAddr
   result.username = $cparts.username.unsafeAddr
@@ -47,7 +47,7 @@ proc to_nim(cparts: cef_urlparts): NCUrlParts =
   for c in fields(cparts):
     cef_string_clear(c.unsafeAddr)
 
-proc to_cef(parts: NCUrlParts): cef_urlparts =
+proc toCef(parts: NCUrlParts): cef_urlparts =
   result.spec <= parts.spec
   result.scheme <= parts.scheme
   result.username <= parts.username
@@ -58,19 +58,19 @@ proc to_cef(parts: NCUrlParts): cef_urlparts =
   result.path <= parts.path
   result.query <= parts.query
 
-proc nc_free(cparts: var cef_urlparts) =
+proc ncFree(cparts: var cef_urlparts) =
   for c in fields(cparts):
     cef_string_clear(c.unsafeAddr)
 
 # Parse the specified |url| into its component parts. Returns false *(0) if the
 # URL is NULL or invalid.
-proc NCParseUrl*(url: string, parts: var NCUrlParts): bool =
+proc ncParseUrl*(url: string, parts: var NCUrlParts): bool =
   wrapProc(cef_parse_url, result, url, parts)
 
 # Creates a URL from the specified |parts|, which must contain a non-NULL spec
 # or a non-NULL host and path *(at a minimum), but not both. Returns false *(0)
 # if |parts| isn't initialized as described.
-proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
+proc ncCreateUrl*(parts: NCUrlParts, url: var string): bool =
   wrapProc(cef_create_url, result, parts, url)
 
 # This is a convenience function for formatting a URL in a concise and human-
@@ -81,35 +81,35 @@ proc NCCreateUrl*(parts: NCUrlParts, url: var string): bool =
 # will (a) omit the path for standard schemes, excepting file and filesystem,
 # and (b) omit the port if it is the default for the scheme. Do not use this
 # for URLs which will be parsed or sent to other applications.
-proc NCFormatUrlForSecurityDisplay*(origin_url: string): string =
+proc ncFormatUrlForSecurityDisplay*(origin_url: string): string =
   wrapProc(cef_format_url_for_security_display, result, origin_url)
 
 # Returns the mime type for the specified file extension or an NULL string if
 # unknown.
-proc NCGetMimeType*(extension: string): string =
+proc ncGetMimeType*(extension: string): string =
   wrapProc(cef_get_mime_type, result, extension)
 
 # Get the extensions associated with the given mime type. This should be passed
 # in lower case. There could be multiple extensions for a given mime type, like
 # "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
 # elements in the provided vector will not be erased.
-proc NCGetExtensionsForMimeType*(mime_type: string): seq[string] =
+proc ncGetExtensionsForMimeType*(mime_type: string): seq[string] =
   wrapProc(cef_get_extensions_for_mime_type, result, mime_type)
 
 # Encodes |data| as a base64 string.
-proc NCBase64Encode*(data: pointer, data_size: int): string =
+proc ncBase64Encode*(data: pointer, data_size: int): string =
   wrapProc(cef_base64encode, result, data, data_size)
 
 # Decodes the base64 encoded string |data|. The returned value will be NULL if
 # the decoding fails.
-proc NCBase64Decode*(data: string): NCBinaryValue =
+proc ncBase64Decode*(data: string): NCBinaryValue =
   wrapProc(cef_base64decode, result, data)
 
 # Escapes characters in |text| which are unsuitable for use as a query
 # parameter value. Everything except alphanumerics and -_.!~*'*() will be
 # converted to "%XX". If |use_plus| is true *(1) spaces will change to "+". The
 # result is basically the same as encodeURIComponent in Javacript.
-proc NCUriEncode*(text: string, use_plus: bool): string =
+proc ncUriEncode*(text: string, use_plus: bool): string =
   wrapProc(cef_uriencode, result, text, use_plus)
 
 type
@@ -169,7 +169,7 @@ const
     NC_UU_REPLACE_PLUS_WITH_SPACE
     }
     
-proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
+proc toCef(rule: NCUUR): cef_uri_unescape_rule =
   var res: int = 0
   if NC_UU_NORMAL in rule: res = res or UU_NORMAL.ord
   if NC_UU_SPACES in rule: res = res or UU_SPACES.ord    
@@ -187,7 +187,7 @@ proc to_cef(rule: NCUUR): cef_uri_unescape_rule =
 # convertable into UTF-8 it will be returned as converted. Otherwise the
 # initial decoded result will be returned.  The |unescape_rule| parameter
 # supports further customization the decoding process.
-proc NCUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): string =
+proc ncUriDecode*(text: string, convert_to_utf8: bool, unescape_rule: NCUUR): string =
   wrapProc(cef_uridecode, result, text, convert_to_utf8, unescape_rule)
 
 type
@@ -202,7 +202,7 @@ type
 
   NCJPO* = set[NCJsonParserOptions]
 
-proc to_cef(flags: NCJPO): cef_json_parser_options =
+proc toCef(flags: NCJPO): cef_json_parser_options =
   var res: int = 0
   if NC_JSON_PARSER_RFC in flags: res = res or JSON_PARSER_RFC.int
   if NC_JSON_PARSER_ALLOW_TRAILING_COMMAS in flags: res = res or JSON_PARSER_ALLOW_TRAILING_COMMAS.int
@@ -210,14 +210,14 @@ proc to_cef(flags: NCJPO): cef_json_parser_options =
 
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL.
-proc NCParseJson*(json_string: string, options: NCJPO): NCValue =
+proc ncParseJson*(json_string: string, options: NCJPO): NCValue =
   wrapProc(cef_parse_json, result, json_string, options)
 
 # Parses the specified |json_string| and returns a dictionary or list
 # representation. If JSON parsing fails this function returns NULL and
 # populates |error_code_out| and |error_msg_out| with an error code and a
 # formatted error message respectively.
-proc NCParseJsonAndReturnError*(json_string: string, options: NCJPO,
+proc ncParseJsonAndReturnError*(json_string: string, options: NCJPO,
   error_code_out: var cef_json_parser_error, error_msg_out: var string): NCValue =
   wrapProc(cef_parse_jsonand_return_error, result, json_string, options, error_code_out, error_msg_out)
 
@@ -245,7 +245,7 @@ type
 
   NCJWO* = set[NCJsonWriterOptions]
 
-proc to_cef(flags: NCJWO): cef_json_writer_options =
+proc toCef(flags: NCJWO): cef_json_writer_options =
   var res: int = 0
   if NC_JSON_WRITER_DEFAULT in flags: res = res or JSON_WRITER_DEFAULT.int
   if NC_JSON_WRITER_OMIT_BINARY_VALUES in flags: res = res or JSON_WRITER_OMIT_BINARY_VALUES.int
@@ -256,5 +256,5 @@ proc to_cef(flags: NCJWO): cef_json_writer_options =
 # Generates a JSON string from the specified root |node| which should be a
 # dictionary or list value. Returns an NULL string on failure. This function
 # requires exclusive access to |node| including any underlying data.
-proc NCWriteJson*(node: NCValue, options: NCJWO): string =
+proc ncWriteJson*(node: NCValue, options: NCJWO): string =
   wrapProc(cef_write_json, result, node, options)

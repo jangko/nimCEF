@@ -16,11 +16,11 @@ type
     NC_API_HASH_UNIVERSAL
     NC_COMMIT_HASH
 
-proc NCVersionInfo*(entry: NC_VERSION_INFO_INDEX): int =
+proc ncVersionInfo*(entry: NC_VERSION_INFO_INDEX): int =
   result = cef_version_info(entry.cint).int
 
 # Returns CEF API hashes for the libcef library. The returned string is owned
 # by the library and should not be freed. The |entry| parameter describes which
 # hash value will be returned:
-proc NCApiHash*(entry: NC_API_HASH_INDEX): string =
+proc ncApiHash*(entry: NC_API_HASH_INDEX): string =
   result = $cef_api_hash(entry.cint)

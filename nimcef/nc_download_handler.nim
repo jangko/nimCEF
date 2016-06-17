@@ -35,7 +35,7 @@ wrapCallback(NCDownloadHandler, cef_download_handler):
   # |callback| either asynchronously or in this function to continue the
   # download if desired. Do not keep a reference to |download_item| outside of
   # this function.
-  proc OnBeforeDownload*(self: T, browser: NCBrowser,
+  proc onBeforeDownload*(self: T, browser: NCBrowser,
     download_item: NCDownloadItem, suggested_name: string,
     callback: NCBeforeDownloadCallback)
 
@@ -45,5 +45,5 @@ wrapCallback(NCDownloadHandler, cef_download_handler):
   # Execute |callback| either asynchronously or in this function to cancel the
   # download if desired. Do not keep a reference to |download_item| outside of
   # this function.
-  proc OnDownloadUpdated*(self: T, browser: NCBrowser,
+  proc onDownloadUpdated*(self: T, browser: NCBrowser,
     download_item: NCDownloadItem, callback: NCDownloadItemCallback)

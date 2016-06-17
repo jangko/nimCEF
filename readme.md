@@ -43,8 +43,19 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 ### HOW TO BUILD nimCEF EXAMPLES
 From your console command prompt type:
 
-```text
+To build all examples:
+
+```sh
 nim e build.nims
+```
+
+To build individual example:
+
+```sh
+nim c test_client
+nim c test_api
+nim c test_parser
+etc
 ```
 
 ### HOW TO PREPARE RUNTIME LIBRARY

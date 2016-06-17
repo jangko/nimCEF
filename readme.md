@@ -20,16 +20,49 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 
 ---
 
-###Translation status(CEF3 ver 2623):
+### Translation status(CEF3 ver 2704):
 
-| No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver       |
-|----|-----------------------|----------|---------|----------|---------|----------|---------------|
-| 1  | CEF3 C API            | complete | 98%     | complete | 98%     | 90%      | 0.13.0-0.14.0 |
-| 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       | 0.13.0-0.14.0 |
-| 3  | Simple Client Example | yes      | no      | yes      | no      | no       | 0.13.0-0.14.0 |
-| 4  | CefClient Example     | 20%      | no      | no       | no      | no       | 0.13.0-0.14.0 |
-| 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      | 0.13.0-0.14.0 |
+| No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver  |
+|----|-----------------------|----------|---------|----------|---------|----------|----------|
+| 1  | CEF3 C API            | complete | 98%     | complete | 98%     | 90%      |  0.14.2  |
+| 2  | CEF3 C API example    | yes      | no      | yes      | no      | no       |  0.14.2  |
+| 3  | Simple Client Example | yes      | no      | yes      | no      | no       |  0.14.2  |
+| 4  | CefClient Example     | 20%      | no      | no       | no      | no       |  0.14.2  |
+| 5  | Convenience Layer     | complete | 75%     | complete | 75%     | 60%      |  0.14.2  |
 
+### Latest Statistics
+
+| Macro Name   | Call Count |
+|--------------|------------|
+| wrapCall     |    811     |
+| wrapProc     |    92      |
+| wrapMethod   |    172     |
+| wrapAPI      |    116     |
+| wrapCallback |    52      |
+
+### HOW TO BUILD nimCEF EXAMPLES
+From your console command prompt type:
+
+To build all examples:
+
+```sh
+nim e build.nims
+```
+
+To build individual example:
+
+```sh
+nim c test_client
+nim c test_api
+nim c test_parser
+etc
+```
+
+### HOW TO PREPARE RUNTIME LIBRARY
+* make sure your cef library binary bitness is compatible with your executable
+* download prebuilt binary from [here](http://www.magpcss.net/cef_downloads/), or built from the source yourself
+* place your binaries according to this [layout](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-application-layout)
+* run your executable
 
 ### HOW TO CREATE HANDLER/CALLBACK DEFINITION AND INSTANCE
 
@@ -121,10 +154,10 @@ proc readMyFile(fileId: int, mode: int) =
   discard NCPostTask(TID_IO, readMyFileTask(fileId, mode))
 ```
 
-You must be very careful when you post object across thread boundary for the reason below.
+You must be very careful when you post object across threads boundary for the reason below.
 
 ### MULTITHREAD ISSUE
-Nim memory model and C/C++ memory model is different. In C/C++, object can freely posted to another thread via CefPostTask.
+Nim memory model and C/C++ memory model is different. In C/C++, object can be freely posted to another thread via CefPostTask.
 While in Nim, NCPostTask should be used carefully. Every Nim thread has their own heap and GC. if you must post object across
 threads, you must create object in global heap, it means you must manually manage the object lifetime and you cannot use
 string or seq as usual(they must be manually marked by GC_ref/GC_unref). If you don't post object across threads boundary,

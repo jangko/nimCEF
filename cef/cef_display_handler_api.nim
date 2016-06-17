@@ -4,10 +4,7 @@ include cef_import
 type
   # Implement this structure to handle events related to browser display state.
   # The functions of this structure will be called on the UI thread.
-  cef_display_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_display_handler* = object of cef_base
     # Called when a frame's address has changed.
     on_address_change*: proc(self: ptr cef_display_handler,
       browser: ptr_cef_browser, frame: ptr cef_frame,

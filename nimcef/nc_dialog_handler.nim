@@ -9,11 +9,11 @@ wrapAPI(NCFileDialogCallback, cef_file_dialog_callback, false)
 # NCDialogHandler::OnFileDialog. |file_paths| should be a single value
 # or a list of values depending on the dialog mode. An NULL |file_paths|
 # value is treated the same as calling cancel().
-proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
+proc continueCallback*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
   self.wrapCall(cont, selected_accept_filter, file_paths)
 
 # Cancel the file selection.
-proc Cancel*(self: NCFileDialogCallback) =
+proc cancel*(self: NCFileDialogCallback) =
   self.wrapCall(cancel)
 
 # Implement this structure to handle dialog events. The functions of this
@@ -32,6 +32,6 @@ wrapCallback(NCDialogHandler, cef_dialog_handler):
   # the filter that should be selected by default. To display a custom dialog
   # return true (1) and execute |callback| either inline or at a later time. To
   # display the default dialog return false (0).
-  proc OnFileDialog*(self: T, browser: NCBrowser, mode: cef_file_dialog_mode,
+  proc onFileDialog*(self: T, browser: NCBrowser, mode: cef_file_dialog_mode,
     title, default_file_path: string, accept_filters: seq[string],
     selected_accept_filter: int, callback: NCFileDialogCallback): bool

@@ -16,7 +16,7 @@ wrapCallback(NCSchemeHandlerFactory, cef_scheme_handler_factory):
   # request or NULL if the request did not originate from a browser window (for
   # example, if the request came from cef_urlrequest_t). The |request| object
   # passed to this function will not contain cookie data.
-  proc Create*(self: T, browser: NCBrowser,
+  proc create*(self: T, browser: NCBrowser,
     frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler
 
 # Register a custom scheme. This function should not be called for the built-
@@ -63,7 +63,7 @@ wrapCallback(NCSchemeHandlerFactory, cef_scheme_handler_factory):
 # This function may be called on any thread. It should only be called once
 # per unique |scheme_name| value. If |scheme_name| is already registered or
 # if an error occurs this function will return false (0).
-proc AddCustomScheme*(self: NCSchemeRegistrar, schemeName: string, isStandard, isLocal, isDisplayIsolated: bool): bool =
+proc addCustomScheme*(self: NCSchemeRegistrar, schemeName: string, isStandard, isLocal, isDisplayIsolated: bool): bool =
   self.wrapCall(add_custom_scheme, result, schemeName, isStandard, isLocal, isDisplayIsolated)
 
 # Register a scheme handler factory with the global request context. An NULL
@@ -79,7 +79,7 @@ proc AddCustomScheme*(self: NCSchemeRegistrar, schemeName: string, isStandard, i
 # browser process. Using this function is equivalent to calling 
 # NCRequestContext::NCRequestContextGetGlobalContext()->
 # RegisterSchemeHandlerFactory().
-proc NCRegisterSchemeHandlerFactory*(schemeName, domainName: string, factory: NCSchemeHandlerFactory) =
+proc ncRegisterSchemeHandlerFactory*(schemeName, domainName: string, factory: NCSchemeHandlerFactory) =
   wrapProc(cef_register_scheme_handler_factory, schemeName, domainName, factory)
 
 # Clear all scheme handler factories registered with the global request
@@ -87,5 +87,5 @@ proc NCRegisterSchemeHandlerFactory*(schemeName, domainName: string, factory: NC
 # thread in the browser process. Using this function is equivalent to calling c
 # ef_request_tContext::cef_request_context_get_global_context()->clear_scheme_h
 # andler_factories().
-proc NCClearSchemeHandlerFactories*(): bool =
+proc ncClearSchemeHandlerFactories*(): bool =
   wrapProc(cef_clear_scheme_handler_factories, result)

@@ -3,9 +3,7 @@ include cef_import
 
 type
   # Structure representing the issuer or subject field of an X.509 certificate.
-  cef_sslcert_principal* = object
-    base*: cef_base
-
+  cef_sslcert_principal* = object of cef_base
     # Returns a name that can be used to represent the issuer.  It tries in this
     # order: CN, O and OU and returns the first non-NULL one found.
     # The resulting string must be freed by calling cef_string_userfree_free().
@@ -40,10 +38,7 @@ type
     get_domain_components*: proc(self: ptr cef_sslcert_principal, components: cef_string_list) {.cef_callback.}
 
   # Structure representing SSL information.
-  cef_sslinfo* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_sslinfo* = object of cef_base
     # Returns a bitmask containing any and all problems verifying the server
     # certificate.
     get_cert_status*: proc(self: ptr cef_sslinfo): cef_cert_status {.cef_callback.}

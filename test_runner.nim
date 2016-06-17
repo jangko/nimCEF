@@ -6,7 +6,7 @@ const
   kTestOrigin = "http://tests/"
 
 # Add a file extension to |url| if none is currently specified.
-proc RequestUrlFilter(url: string): string =
+proc requestUrlFilter(url: string): string =
   if url.find(kTestOrigin) != 0:
     # Don't filter anything outside of the test origin.
     return url
@@ -41,15 +41,15 @@ proc RequestUrlFilter(url: string): string =
   # Rebuild the URL with a file extension.
   result = urlBase & ".html" & urlSuffix
 
-proc DumpRequestContents*(request: NCRequest): string =
+proc dumpRequestContents*(request: NCRequest): string =
   var ss = newStringStream()
 
   ss.write "URL: "
-  ss.write request.GetURL()
+  ss.write request.getURL()
   ss.write "\nMethod: "
-  ss.write request.GetMethod()
+  ss.write request.getMethod()
 
-  var headerMap = request.GetHeaderMap()
+  var headerMap = request.getHeaderMap()
 
   if headerMap.len > 0:
     ss.write "\nHeaders:"
@@ -59,23 +59,23 @@ proc DumpRequestContents*(request: NCRequest): string =
       ss.write ": "
       ss.write $v
 
-  var postData = request.GetPostData()
+  var postData = request.getPostData()
   if postData != nil:
-    var elements = postData.GetElements()
+    var elements = postData.getElements()
     if elements.len > 0:
       ss.write "\nPost Data:"
       for it in elements:
-        if it.GetType() == PDE_TYPE_BYTES:
+        if it.getType() == PDE_TYPE_BYTES:
           #the element is composed of bytes
           ss.write "\n\tBytes: "
-          if it.GetBytesCount() == 0:
+          if it.getBytesCount() == 0:
             ss.write "(empty)"
           else:
             #retrieve the data.
-            ss.write it.GetBytes()
-        elif it.GetType() == PDE_TYPE_FILE:
+            ss.write it.getBytes()
+        elif it.getType() == PDE_TYPE_FILE:
           ss.write "\n\tFile: "
-          ss.write it.GetFile()
+          ss.write it.getFile()
 
   result = ss.data
 
@@ -93,29 +93,29 @@ proc rdpOnRequest(prov: Provider, request: Request): bool =
     # Not handled by this provider.
     return false
 
-  let dump = DumpRequestContents(request.getRequest())
+  let dump = dumpRequestContents(request.getRequest())
   let str = "<html><body bgcolor=\"white\"><pre>" & dump & "</pre></body></html>"
-  var stream = NCStreamReaderCreateForData(str)
-  doAssert(stream.GetHandler() != nil)
-  request.Continue(newNCStreamResourceHandler("text/html", stream))
+  var stream = ncStreamReaderCreateForData(str)
+  doAssert(stream.getHandler() != nil)
+  request.continueRequest(newNCStreamResourceHandler("text/html", stream))
   result = true
 
 proc newRequestDumpResourceProvider(url: string): RequestDumpResourceProvider =
   new(result)
   result.url = url
   doAssert(result.url.len != 0)
-  result.OnRequestImpl = rdpOnRequest
+  result.onRequestImpl = rdpOnRequest
 
 var resourceManager: NCResourceManager
 
 proc getResourceManager*(): NCResourceManager =
   result = resourceManager
   
-proc SetupResourceManager*() =
-  if not NCCurrentlyOn(TID_IO):
+proc setupResourceManager*() =
+  if not ncCurrentlyOn(TID_IO):
     # Execute on the browser IO thread.
-    NCBindTask(setupResourceManagerTask, SetupResourceManager)
-    discard NCPostTask(TID_IO, setupResourceManagerTask())
+    ncBindTask(setupResourceManagerTask, setupResourceManager)
+    discard ncPostTask(TID_IO, setupResourceManagerTask())
     return
 
   setupForeignThreadGC()
@@ -124,12 +124,12 @@ proc SetupResourceManager*() =
   let testOrigin = kTestOrigin
 
   # Add the URL filter.
-  resourceManager.SetUrlFilter(RequestUrlFilter)
+  resourceManager.setUrlFilter(requestUrlFilter)
 
   # Add provider for resource dumps.
-  resourceManager.AddProvider(newRequestDumpResourceProvider(testOrigin & "request.html"), 0, "")
+  resourceManager.addProvider(newRequestDumpResourceProvider(testOrigin & "request.html"), 0, "")
 
   # Read resources from a directory on disk.
   var resourceDir: string
-  if NCGetPath(PK_DIR_EXE, resourceDir):
-    resourceManager.AddDirectoryProvider(testOrigin, resourceDir & DirSep & "resources", 100, "")
+  if ncGetPath(PK_DIR_EXE, resourceDir):
+    resourceManager.addDirectoryProvider(testOrigin, resourceDir & DirSep & "resources", 100, "")

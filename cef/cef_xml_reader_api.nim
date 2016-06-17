@@ -6,9 +6,7 @@ type
   # Structure that supports the reading of XML data via the libxml streaming API.
   # The functions of this structure should only be called on the thread that
   # creates the object.
-  cef_xml_reader* = object
-    base*: cef_base
-
+  cef_xml_reader* = object of cef_base
     # Moves the cursor to the next node in the document. This function must be
     # called at least once to set the current cursor position. Returns true (1)
     # if the cursor position was set successfully.
@@ -27,7 +25,6 @@ type
 
     # The below functions retrieve data for the node at the current cursor
     # position.
-
     # Returns the node type.
     get_type*: proc(self: ptr cef_xml_reader): cef_xml_node_type {.cef_callback.}
 

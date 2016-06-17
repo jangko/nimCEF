@@ -6,15 +6,15 @@ include cef_import
 wrapAPI(NCDownloadItemCallback, cef_download_item_callback, false)
 
 # Call to cancel the download.
-proc Cancel*(self: NCDownloadItemCallback) =
+proc cancel*(self: NCDownloadItemCallback) =
   self.wrapCall(cancel)
 
 # Call to pause the download.
-proc Pause*(self: NCDownloadItemCallback) =
+proc pause*(self: NCDownloadItemCallback) =
   self.wrapCall(pause)
 
 # Call to resume the download.
-proc Resume*(self: NCDownloadItemCallback) =
+proc resume*(self: NCDownloadItemCallback) =
   self.wrapCall(resume)
 
 # Callback structure used to asynchronously continue a download.
@@ -24,7 +24,7 @@ wrapAPI(NCBeforeDownloadCallback, cef_before_download_callback, false)
 # for the download including the file name or leave blank to use the
 # suggested name and the default temp directory. Set |show_dialog| to true
 # (1) if you do wish to show the default "Save As" dialog.
-proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
+proc continueCallback*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
   self.wrapCall(cont, download_path, show_dialog)
 
 # Structure used to handle file downloads. The functions of this structure will
@@ -35,7 +35,7 @@ wrapCallback(NCDownloadHandler, cef_download_handler):
   # |callback| either asynchronously or in this function to continue the
   # download if desired. Do not keep a reference to |download_item| outside of
   # this function.
-  proc OnBeforeDownload*(self: T, browser: NCBrowser,
+  proc onBeforeDownload*(self: T, browser: NCBrowser,
     download_item: NCDownloadItem, suggested_name: string,
     callback: NCBeforeDownloadCallback)
 
@@ -45,5 +45,5 @@ wrapCallback(NCDownloadHandler, cef_download_handler):
   # Execute |callback| either asynchronously or in this function to cancel the
   # download if desired. Do not keep a reference to |download_item| outside of
   # this function.
-  proc OnDownloadUpdated*(self: T, browser: NCBrowser,
+  proc onDownloadUpdated*(self: T, browser: NCBrowser,
     download_item: NCDownloadItem, callback: NCDownloadItemCallback)

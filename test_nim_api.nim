@@ -5,59 +5,32 @@ include cef_import
 # Structure defining the reference count implementation functions. All
 # framework structures must include the cef_base_t structure first.
 
-var
-  add_ref_cnt = 1
-  release_ref_cnt = 1
-  has_one_ref_cnt = 1
-
 # Increment the reference count.
 proc add_ref(self: ptr cef_base) {.cef_callback.} =
-  if add_ref_cnt == 0:
-    #echo "cef_base_t.add_ref"
-    inc add_ref_cnt
-
-  #if (DEBUG_REFERENCE_COUNTING)
-  #      printf("+");
   discard
 
 # Decrement the reference count.  Delete this object when no references
 # remain.
 proc release(self: ptr cef_base): cint {.cef_callback.} =
-  if release_ref_cnt == 0:
-    #echo "cef_base_t.release"
-    inc release_ref_cnt
-
-  #if (DEBUG_REFERENCE_COUNTING)
-  # printf("-");
   result = 1
 
 # Returns the current number of references.
 proc has_one_ref(self: ptr cef_base): cint {.cef_callback.} =
-  if has_one_ref_cnt == 0:
-    #echo "cef_base_t.get_refct"
-    inc has_one_ref_cnt
-
-  #  if (DEBUG_REFERENCE_COUNTING)
-  #      printf("=");
-  result = 1
+   result = 1
 
 proc initialize_cef_base(base: ptr cef_base) =
-  #echo "initialize_cef_base"
-
   # Check if "size" member was set.
   let size = base.size
   # Let's print the size in case sizeof was used
   # on a pointer instead of a structure. In such
   # case the number will be very high.
-  #echo "cef_base_t.size = ", size
   if size <= 0:
-    #echo "FATAL: initialize_cef_base failed, size member not set"
+    echo "FATAL: initialize_cef_base failed, size member not set"
     quit(1)
 
   base.add_ref = add_ref;
   base.release = release;
   base.has_one_ref = has_one_ref
-
 
 
 # Called on the IO thread before a new popup browser is created. The
@@ -87,12 +60,6 @@ proc on_before_popup(self: ptr cef_life_span_handler,
 
 # Called after a new browser is created.
 proc on_after_created(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
-  discard
-
-# Called when a modal window is about to display and the modal loop should
-# begin running. Return false (0) to use the default modal loop
-# implementation or true (1) to use a custom implementation.
-proc run_modal(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {.cef_callback.} =
   discard
 
 # Called when a browser has recieved a request to close. This may result
@@ -160,20 +127,14 @@ proc do_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser): cint {
 # be used to exit the custom modal loop. See do_close() documentation for
 # additional usage information.
 proc on_before_close(self: ptr cef_life_span_handler, browser: ptr_cef_browser) {.cef_callback.} =
-  var brow = cast[ptr cef_browser](browser)
-  var host = brow.get_host(brow)
-  var client = host.get_client(host)
-  echo "on before close client addr: ", cast[int](client)
   cef_quit_message_loop()
 
-
 proc initialize_life_span_handler(span: ptr cef_life_span_handler) =
-  span.base.size = sizeof(span[])
+  span.size = sizeof(span[])
   initialize_cef_base(cast[ptr cef_base](span))
 
   span.on_before_popup = on_before_popup
   span.on_after_created = on_after_created
-  span.run_modal = run_modal
   span.do_close = do_close
   span.on_before_close = on_before_close
 
@@ -192,7 +153,6 @@ proc initialize_life_span_handler(span: ptr cef_life_span_handler) =
 # in undefined behavior including crashes.
 proc on_before_command_line_processing(self: ptr cef_app,
   process_type: ptr cef_string, command_line: ptr cef_command_line) {.cef_callback.} =
-  #echo "on_before_command_line_processing"
   discard
 
 # Provides an opportunity to register custom schemes. Do not keep a reference
@@ -200,7 +160,6 @@ proc on_before_command_line_processing(self: ptr cef_app,
 # each process and the registered schemes should be the same across all
 # processes.
 proc on_register_custom_schemes(self: ptr cef_app, registrar: ptr cef_scheme_registrar) {.cef_callback.} =
-  #echo "on_register_custom_schemes"
   discard
 
 # Return the handler for resource bundle events. If
@@ -208,25 +167,21 @@ proc on_register_custom_schemes(self: ptr cef_app, registrar: ptr cef_scheme_reg
 # If no handler is returned resources will be loaded from pack files. This
 # function is called by the browser and render processes on multiple threads.
 proc get_resource_bundle_handler(self: ptr cef_app): ptr cef_resource_bundle_handler {.cef_callback.} =
-  #echo "get_resource_bundle_handler"
   result = nil
 
 # Return the handler for functionality specific to the browser process. This
 # function is called on multiple threads in the browser process.
 proc get_browser_process_handler(self: ptr cef_app): ptr cef_browser_process_handler {.cef_callback.} =
-  #echo "get_browser_process_handler"
   result = nil
 
 
 # Return the handler for functionality specific to the render process. This
 # function is called on the render process main thread.
 proc get_render_process_handler(self: ptr cef_app): ptr cef_render_process_handler {.cef_callback.} =
-  #echo "get_render_process_handler"
   result = nil
 
 proc initialize_app_handler(app: ptr cef_app) =
-  #echo "initialize_app_handler"
-  app.base.size = sizeof(app[])
+  app.size = sizeof(app[])
   initialize_cef_base(cast[ptr cef_base](app))
 
   # callbacks
@@ -248,73 +203,60 @@ type
 # implementation will be used.
 
 proc get_context_menu_handler(self: ptr cef_client): ptr cef_context_menu_handler {.cef_callback.} =
-  #echo "get_context_menu_handler"
   result = nil
 
 # Return the handler for dialogs. If no handler is provided the default
 # implementation will be used.
 
 proc get_dialog_handler(self: ptr cef_client): ptr cef_dialog_handler {.cef_callback.} =
-  #echo "get_dialog_handler"
   result = nil
 
 # Return the handler for browser display state events.
 proc get_display_handler(self: ptr cef_client): ptr cef_display_handler {.cef_callback.} =
-  #echo "get_display_handler"
   result = nil
 
 # Return the handler for download events. If no handler is returned downloads
 # will not be allowed.
 proc get_download_handler(self: ptr cef_client): ptr cef_download_handler {.cef_callback.} =
-  #echo "get_download_handler"
   result = nil
 
 # Return the handler for drag events.
 proc get_drag_handler(self: ptr cef_client): ptr cef_drag_handler {.cef_callback.} =
-  #echo "get_drag_handler"
   result = nil
 
 # Return the handler for focus events.
 proc get_focus_handler(self: ptr cef_client): ptr cef_focus_handler {.cef_callback.} =
-  #echo "get_focus_handler"
   result = nil
 
 # Return the handler for geolocation permissions requests. If no handler is
 # provided geolocation access will be denied by default.
 proc get_geolocation_handler(self: ptr cef_client): ptr cef_geolocation_handler {.cef_callback.} =
-  #echo "get_geolocation_handler"
   result = nil
 
 # Return the handler for JavaScript dialogs. If no handler is provided the
 # default implementation will be used.
 
 proc get_jsdialog_handler(self: ptr cef_client): ptr cef_jsdialog_handler {.cef_callback.} =
-  #echo "get_jsdialog_handler"
   result = nil
 
 # Return the handler for keyboard events.
 proc get_keyboard_handler(self: ptr cef_client): ptr cef_keyboard_handler {.cef_callback.} =
-  #echo "get_keyboard_handler"
   result = nil
 
 # Return the handler for browser life span events.
 proc get_life_span_handler(self: ptr cef_client): ptr cef_life_span_handler {.cef_callback.} =
-  #echo "get_life_span_handler"
   result = cast[ptr my_client](self).span.addr
 
 # Return the handler for browser load status events.
 proc get_load_handler(self: ptr cef_client): ptr cef_load_handler {.cef_callback.} =
-  #echo "get_load_handler"
   result = nil
 
 # Return the handler for off-screen rendering events.
 proc get_render_handler(self: ptr cef_client): ptr cef_render_handler {.cef_callback.} =
-  #echo "get_render_handler"
   result = nil
 
 # Return the handler for browser request events.
 proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_callback.} =
-  #echo "get_request_handler"
   result = nil
 
 # Called when a new message is received from a different process. Return true
@@ -323,13 +265,10 @@ proc get_request_handler(self: ptr cef_client): ptr cef_request_handler {.cef_ca
 proc on_process_message_received(self: ptr cef_client,
   browser: ptr_cef_browser, source_process: cef_process_id,
   message: ptr cef_process_message): cint {.cef_callback.} =
-  #echo "on_process_message_received"
   result = 0
 
 proc initialize_client_handler(client: ptr my_client) =
-  #echo "initialize_client_handler"
-
-  client.handler.base.size = sizeof(my_client)
+  client.handler.size = sizeof(my_client)
   initialize_cef_base(cast[ptr cef_base](client))
 
   # callbacks
@@ -373,7 +312,7 @@ proc main() =
 
   #Execute subprocesses.
   #let argc = paramCount()
-  echo "cef_execute_process, app size: ", app.base.size
+  echo "cef_execute_process, app size: ", app.size
   var code = cef_execute_process(mainArgs.addr, app.addr, nil)
   if code >= 0:
     echo "failure execute process ", code
@@ -429,7 +368,6 @@ proc main() =
   # initialized with zeroes.
   var client: my_client
   initialize_client_handler(client.addr)
-  echo "client addr: ", cast[int](client.addr)
 
   # Create browser.
   echo "cef_browser_host_create_browser"

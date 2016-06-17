@@ -3,10 +3,7 @@ include cef_import
 
 type
   # Callback structure used for continuation of custom context menu display.
-  cef_run_context_menu_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_run_context_menu_callback* = object of cef_base
     # Complete context menu display by selecting the specified |command_id| and
     # |event_flags|.
     cont*: proc(self: ptr cef_run_context_menu_callback,
@@ -17,10 +14,7 @@ type
 
   # Implement this structure to handle context menu events. The functions of this
   # structure will be called on the UI thread.
-  cef_context_menu_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_context_menu_handler* = object of cef_base
     # Called before a context menu is displayed. |params| provides information
     # about the context menu state. |model| initially contains the default
     # context menu. The |model| can be cleared to show no context menu or
@@ -62,10 +56,7 @@ type
 
   # Provides information about the context menu state. The ethods of this
   # structure can only be accessed on browser process the UI thread.
-  cef_context_menu_params* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_context_menu_params* = object of cef_base
     # Returns the X coordinate of the mouse where the context menu was invoked.
     # Coords are relative to the associated RenderView's origin.
     get_xcoord*: proc(self: ptr cef_context_menu_params): cint {.cef_callback.}

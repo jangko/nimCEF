@@ -4,9 +4,7 @@ include cef_import
 type
   # Structure used to represent a web request. The functions of this structure
   # may be called on any thread.
-  cef_request* = object
-    base*: cef_base
-
+  cef_request* = object of cef_base
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_request): cint {.cef_callback.}
 
@@ -92,10 +90,7 @@ type
 
   # Structure used to represent post data for a web request. The functions of
   # this structure may be called on any thread.
-  cef_post_data* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_post_data* = object of cef_base
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_post_data): cint {.cef_callback.}
 
@@ -126,10 +121,7 @@ type
 
   # Structure used to represent a single element in the request post data. The
   # functions of this structure may be called on any thread.
-  cef_post_data_element* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_post_data_element* = object of cef_base
     # Returns true (1) if this object is read-only.
     is_read_only*: proc(self: ptr cef_post_data_element): cint {.cef_callback.}
 

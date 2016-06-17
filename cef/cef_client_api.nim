@@ -14,9 +14,7 @@ include cef_import
 
 type
   # Implement this structure to provide handler implementations.
-  cef_client* = object
-    base*: cef_base
-
+  cef_client* = object of cef_base
     # Return the handler for context menus. If no handler is provided the default
     # implementation will be used.
     get_context_menu_handler*: proc(self: ptr cef_client): ptr cef_context_menu_handler {.cef_callback.}

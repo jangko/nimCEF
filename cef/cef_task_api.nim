@@ -8,9 +8,7 @@ type
   # to post then the task object may be destroyed on the source thread instead of
   # the target thread. For this reason be cautious when performing work in the
   # task object destructor.
-  cef_task* = object
-    base*: cef_base
-
+  cef_task* = object of cef_base
     # Method that will be executed on the target thread.
     execute*: proc(self: ptr cef_task) {.cef_callback.}
 
@@ -21,9 +19,7 @@ type
   # types of tasks in different processes. The cef_thread_id_t definitions in
   # cef_types.h list the common CEF threads. Task runners are also available for
   # other CEF threads as appropriate (for example, V8 WebWorker threads).
-  cef_task_runner* = object
-    base*: cef_base
-
+  cef_task_runner* = object of cef_base
     # Returns true (1) if this object is pointing to the same task runner as
     # |that| object.
     is_same*: proc(self, that: ptr cef_task_runner): cint {.cef_callback.}

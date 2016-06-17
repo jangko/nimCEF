@@ -7,11 +7,11 @@ wrapAPI(NCRunContextMenuCallback, cef_run_context_menu_callback, false)
 
 # Complete context menu display by selecting the specified |command_id| and
 # |event_flags|.
-proc Continue*(self: NCRunContextMenuCallback, command_id: int, event_flags: cef_event_flags) =
+proc continueCallback*(self: NCRunContextMenuCallback, command_id: int, event_flags: cef_event_flags) =
   self.wrapCall(cont, command_id, event_flags)
 
 # Cancel context menu display.
-proc Cancel*(self: NCRunContextMenuCallback) =
+proc cancel*(self: NCRunContextMenuCallback) =
   self.wrapCall(cancel)
 
 # Implement this structure to handle context menu events. The functions of this
@@ -22,7 +22,7 @@ wrapCallback(NCContextMenuHandler, cef_context_menu_handler):
   # context menu. The |model| can be cleared to show no context menu or
   # modified to show a custom menu. Do not keep references to |params| or
   # |model| outside of this callback.
-  proc OnBeforeContextMenu*(self: T, browser: NCBrowser,
+  proc onBeforeContextMenu*(self: T, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel)
 
   # Called to allow custom display of the context menu. |params| provides
@@ -31,7 +31,7 @@ wrapCallback(NCContextMenuHandler, cef_context_menu_handler):
   # (1) and execute |callback| either synchronously or asynchronously with the
   # selected command ID. For default display return false (0). Do not keep
   # references to |params| or |model| outside of this callback.
-  proc RunContextMenu*(self: T, browser: NCBrowser,
+  proc runContextMenu*(self: T, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel,
     callback: NCRunContextMenuCallback): int
 
@@ -42,10 +42,10 @@ wrapCallback(NCContextMenuHandler, cef_context_menu_handler):
   # MENU_ID_USER_LAST. |params| will have the same values as what was passed to
   # on_before_context_menu(). Do not keep a reference to |params| outside of
   # this callback.
-  proc OnContextMenuCommand*(self: T, browser: NCBrowser,
+  proc onContextMenuCommand*(self: T, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
     event_flags: cef_event_flags): int
 
   # Called when the context menu is dismissed irregardless of whether the menu
   # was NULL or a command was selected.
-  proc OnContextMenuDismissed*(self: T,  browser: NCBrowser, frame: NCFrame)
+  proc onContextMenuDismissed*(self: T,  browser: NCBrowser, frame: NCFrame)

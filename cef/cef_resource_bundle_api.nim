@@ -7,10 +7,7 @@ type
   # returned from cef_app_t::GetResourceBundleHandler. See CefSettings for
   # additional options related to resource bundle loading. The functions of this
   # structure may be called on any thread unless otherwise indicated.
-  cef_resource_bundle* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_resource_bundle* = object of cef_base
     # Returns the localized string for the specified |string_id| or an NULL
     # string if the value is not found. Include cef_pack_strings.h for a listing
     # of valid string ID values.

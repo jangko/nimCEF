@@ -3,10 +3,7 @@ include cef_import
 
 type
   # Structure used to represent an entry in navigation history.
-  cef_navigation_entry* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_navigation_entry* = object of cef_base
     # Returns true (1) if this object is valid. Do not call any other functions
     # if this function returns false (0).
     is_valid*: proc(self: ptr cef_navigation_entry): cint {.cef_callback.}

@@ -15,39 +15,39 @@ wrapCallback(NCPrintHandler, cef_print_handler):
   # will be called before the other OnPrint*() functions and irrespective of
   # how printing was initiated (e.g. NCBrowserHost::Print(), JavaScript
   # window.print() or PDF extension print button).
-  proc OnPrintStart*(self: T, browser: NCBrowser)
+  proc onPrintStart*(self: T, browser: NCBrowser)
 
   # Synchronize |settings| with client state. If |get_defaults| is true (1)
   # then populate |settings| with the default print settings. Do not keep a
   # reference to |settings| outside of this callback.
-  proc OnPrintSettings*(self: T, settings: NCPrintSettings, getDefaults: bool)
+  proc onPrintSettings*(self: T, settings: NCPrintSettings, getDefaults: bool)
 
   # Show the print dialog. Execute |callback| once the dialog is dismissed.
   # Return true (1) if the dialog will be displayed or false (0) to cancel the
   # printing immediately.
-  proc OnPrintDialog*(self: T,  hasSelection: bool, callback: NCPrintDialogCallback): bool
+  proc onPrintDialog*(self: T,  hasSelection: bool, callback: NCPrintDialogCallback): bool
 
   # Send the print job to the printer. Execute |callback| once the job is
   # completed. Return true (1) if the job will proceed or false (0) to cancel
   # the job immediately.
-  proc OnPrintJob*(self: T, documentName, pdfFilePath: string, callback: NCPrintJobCallback): bool
+  proc onPrintJob*(self: T, documentName, pdfFilePath: string, callback: NCPrintJobCallback): bool
 
   # Reset client state related to printing.
-  proc OnPrintReset*(self: T)
+  proc onPrintReset*(self: T)
 
   # Return the PDF paper size in device units. Used in combination with
   # NCBrowserHost::PrintToPdf().
-  proc GetPdfPaperSize*(self: T,  device_units_per_inch: int): NCSize
+  proc getPdfPaperSize*(self: T,  device_units_per_inch: int): NCSize
 
 
 # Continue printing with the specified |settings|.
-proc Continue*(self: NCPrintDialogCallback, settings: NCPrintSettings) =
+proc continueCallback*(self: NCPrintDialogCallback, settings: NCPrintSettings) =
   self.wrapCall(cont, settings)
 
 # Cancel the printing.
-proc Cancel*(self: NCPrintDialogCallback) =
+proc cancel*(self: NCPrintDialogCallback) =
   self.wrapCall(cancel)
 
 # Indicate completion of the print job.
-proc Continue*(self: NCPrintJobCallback) =
+proc continueCallback*(self: NCPrintJobCallback) =
   self.wrapCall(cont)

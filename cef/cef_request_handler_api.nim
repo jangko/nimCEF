@@ -4,10 +4,7 @@ include cef_import
 
 type
   # Callback structure used for asynchronous continuation of url requests.
-  cef_request_callback* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_request_callback* = object of cef_base
     # Continue the url request. If |allow| is true (1) the request will be
     # continued. Otherwise, the request will be canceled.
     cont*: proc(self: ptr cef_request_callback, allow: cint) {.cef_callback.}
@@ -17,10 +14,7 @@ type
 
   # Implement this structure to handle events related to browser requests. The
   # functions of this structure will be called on the thread indicated.
-  cef_request_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_request_handler* = object of cef_base
     # Called on the UI thread before browser navigation. Return true (1) to
     # cancel the navigation or false (0) to allow the navigation to proceed. The
     # |request| object cannot be modified in this callback.

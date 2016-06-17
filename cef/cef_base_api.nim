@@ -7,7 +7,7 @@ include cef_import
 type
   # Structure defining the reference count implementation functions. All
   # framework structures must include the cef_base_t structure first.
-  cef_base* {.pure.} = object
+  cef_base* {.inheritable, pure.} = object
     # Size of the data structure.
     size*: csize
 

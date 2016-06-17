@@ -2,9 +2,7 @@ import cef_base_api
 include cef_import
 
 type
-  cef_read_handler* = object
-
-    base*: cef_base
+  cef_read_handler* = object of cef_base
     # Read raw binary data.
     read*: proc(self: ptr cef_read_handler, data: pointer,
         size: csize, n: csize): csize {.cef_callback.}
@@ -25,9 +23,7 @@ type
     # the handler from.
     may_block*: proc(self: ptr cef_read_handler): cint {.cef_callback.}
 
-  cef_stream_reader* = object
-    base*: cef_base
-
+  cef_stream_reader* = object of cef_base
     # Read raw binary data.
     read*: proc(self: ptr cef_stream_reader, data: pointer,
       size: csize, n: csize): csize {.cef_callback.}
@@ -48,9 +44,7 @@ type
     # the reader from.
     may_block*: proc(self: ptr cef_stream_reader): cint {.cef_callback.}
 
-  cef_write_handler* = object
-    base*: cef_base
-
+  cef_write_handler* = object of cef_base
     # Write raw binary data.
     write*: proc(self: ptr cef_write_handler,
       data: pointer, size: csize, n: csize): csize {.cef_callback.}
@@ -71,9 +65,7 @@ type
     # the handler from.
     may_block*: proc(self: ptr cef_write_handler): cint {.cef_callback.}
 
-  cef_stream_writer* = object
-    base*: cef_base
-
+  cef_stream_writer* = object of cef_base
     # Write raw binary data.
     write*: proc(self: ptr cef_stream_writer,
       data: pointer, size: csize, n: csize): csize {.cef_callback.}

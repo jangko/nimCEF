@@ -189,7 +189,7 @@ type
     # CefRequestContextSettings.accept_language_list value.
     accept_language_list*: string
 
-proc to_cef*(ns: NCSettings): cef_settings =
+proc toCef*(ns: NCSettings): cef_settings =
   result.size = sizeof(cef_settings)
   result.single_process = ns.single_process.cint
   result.no_sandbox = ns.no_sandbox.cint
@@ -217,7 +217,7 @@ proc to_cef*(ns: NCSettings): cef_settings =
   result.background_color = ns.background_color
   result.accept_language_list <= ns.accept_language_list
 
-proc nc_free*(cs: var cef_settings) =
+proc ncFree*(cs: var cef_settings) =
   cef_string_clear(cs.browser_subprocess_path.addr)
   cef_string_clear(cs.cache_path.addr)
   cef_string_clear(cs.user_data_path.addr)
@@ -402,18 +402,18 @@ type
     # empty then "en-US,en" will be used.
     accept_language_list*: string
 
-proc to_cef*(ns: NCRequestContextSettings): cef_request_context_settings =
+proc toCef*(ns: NCRequestContextSettings): cef_request_context_settings =
   result.cache_path <= ns.cache_path
   result.persist_session_cookies = ns.persist_session_cookies.cint
   result.persist_user_preferences = ns.persist_user_preferences.cint
   result.ignore_certificate_errors = ns.ignore_certificate_errors.cint
   result.accept_language_list <= ns.accept_language_list
 
-proc nc_free*(cs: var cef_request_context_settings) =
+proc ncFree*(cs: var cef_request_context_settings) =
   cef_string_clear(cs.cache_path.addr)
   cef_string_clear(cs.accept_language_list.addr)
 
-proc to_cef*(ns: NCBrowserSettings): cef_browser_settings =
+proc toCef*(ns: NCBrowserSettings): cef_browser_settings =
   result.size = sizeof(cef_browser_settings)
   result.windowless_frame_rate = ns.windowless_frame_rate.cint
   result.standard_font_family <= ns.standard_font_family
@@ -449,7 +449,7 @@ proc to_cef*(ns: NCBrowserSettings): cef_browser_settings =
   result.background_color = ns.background_color
   result.accept_language_list <= ns.accept_language_list
 
-proc to_nim*(ns: ptr cef_browser_settings): NCBrowserSettings =
+proc toNim*(ns: ptr cef_browser_settings): NCBrowserSettings =
   result.windowless_frame_rate = ns.windowless_frame_rate.cint
   result.standard_font_family = $(ns.standard_font_family.addr)
   result.fixed_font_family = $(ns.fixed_font_family.addr)
@@ -484,7 +484,7 @@ proc to_nim*(ns: ptr cef_browser_settings): NCBrowserSettings =
   result.background_color = ns.background_color
   result.accept_language_list = $(ns.accept_language_list.addr)
 
-proc nc_free*(cs: var cef_browser_settings) =
+proc ncFree*(cs: var cef_browser_settings) =
   cef_string_clear(cs.standard_font_family.addr)
   cef_string_clear(cs.fixed_font_family.addr)
   cef_string_clear(cs.serif_font_family.addr)
@@ -534,7 +534,7 @@ type
     # background graphics.
     backgrounds_enabled: bool
 
-proc to_cef*(ns: NCPdfPrintSettings): cef_pdf_print_settings =
+proc toCef*(ns: NCPdfPrintSettings): cef_pdf_print_settings =
   result.header_footer_title <= ns.header_footer_title
   result.header_footer_url <= ns.header_footer_url
   result.page_width = ns.page_width.cint
@@ -549,6 +549,6 @@ proc to_cef*(ns: NCPdfPrintSettings): cef_pdf_print_settings =
   result.landscape = ns.landscape.cint
   result.backgrounds_enabled = ns.backgrounds_enabled.cint
 
-proc nc_free*(cs: var cef_pdf_print_settings) =
+proc ncFree*(cs: var cef_pdf_print_settings) =
   cef_string_clear(cs.header_footer_title.addr)
   cef_string_clear(cs.header_footer_url.addr)

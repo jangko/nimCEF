@@ -6,7 +6,7 @@ include cef_import
 wrapAPI(NCGeolocationCallback, cef_geolocation_callback, false)
 
 # Call to allow or deny geolocation access.
-proc Continue*(self: NCGeolocationCallback, allow: bool): bool =
+proc continueCallback*(self: NCGeolocationCallback, allow: bool): bool =
   self.wrapCall(cont, result, allow)
 
 # Implement this structure to handle events related to geolocation permission
@@ -19,9 +19,9 @@ wrapCallback(NCGeolocationHandler, cef_geolocation_handler):
   # NCGeolocationCallback::Continue() either in this function or at a later
   # time to continue or cancel the request. Return false (0) to cancel the
   # request immediately.
-  proc OnRequestGeolocationPermission*(self: T, browser: NCBrowser,
+  proc onRequestGeolocationPermission*(self: T, browser: NCBrowser,
     requesting_url: string, request_id: int, callback: NCGeolocationCallback): bool
 
   # Called when a geolocation access request is canceled. |request_id| is the
   # unique ID for the permission request.
-  proc OnCancelGeolocationPermission*(self: T, browser: NCBrowser, request_id: int)
+  proc onCancelGeolocationPermission*(self: T, browser: NCBrowser, request_id: int)

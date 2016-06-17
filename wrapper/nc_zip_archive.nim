@@ -17,47 +17,46 @@ proc uniToLower(str: string): string =
   for c in runes(str):
     result.add $toLower(c)
 
-proc Initialize(self: NCZipFile, dataSize: int): bool =
+proc initialize(self: NCZipFile, dataSize: int): bool =
   self.data = newString(dataSize)
   result = true
 
-proc GetData*(self: NCZipFile): string =
+proc getData*(self: NCZipFile): string =
   result = self.data
 
-proc GetDataSize*(self: NCZipFile): int =
+proc getDataSize*(self: NCZipFile): int =
   result = self.data.len
 
-proc GetStreamReader*(self: NCZipFile): NCStreamReader =
+proc getStreamReader*(self: NCZipFile): NCStreamReader =
   let handler = newNCByteReadHandler(self.data.cstring, self.data.len, self)
-  result = NCStreamReaderCreateForHandler(handler)
+  result = ncStreamReaderCreateForHandler(handler)
 
-
-proc Clear*(self: NCZipArchive) =
+proc clear*(self: NCZipArchive) =
   acquire(self.lock)
   self.contents = initTable[string, NCZipFile]()
   release(self.lock)
 
-proc GetFileCount*(self: NCZipArchive): int =
+proc getFileCount*(self: NCZipArchive): int =
   acquire(self.lock)
   result = self.contents.len
   release(self.lock)
 
-proc HasFile*(self: NCZipArchive, fileName: string): bool =
+proc hasFile*(self: NCZipArchive, fileName: string): bool =
   acquire(self.lock)
   result = self.contents.hasKey(uniToLower(fileName))
   release(self.lock)
 
-proc GetFile*(self: NCZipArchive, fileName: string): NCZipFile =
+proc getFile*(self: NCZipArchive, fileName: string): NCZipFile =
   acquire(self.lock)
   result = self.contents[uniToLower(fileName)]
   release(self.lock)
 
-proc RemoveFile*(self: NCZipArchive, fileName: string): bool =
+proc removeFile*(self: NCZipArchive, fileName: string): bool =
   acquire(self.lock)
   self.contents.del(uniToLower(fileName))
   release(self.lock)
 
-proc GetFiles*(self: NCZipArchive): FileMap =
+proc getFiles*(self: NCZipArchive): FileMap =
   acquire(self.lock)
   result = self.contents
   release(self.lock)
@@ -67,52 +66,52 @@ proc newZipArchive(): NCZipArchive =
   result.contents = initTable[string, NCZipFile]()
   initRLock(result.lock)
   
-proc LoadZipArchive*(stream: NCStreamReader, password: string, overwriteExisting: bool): NCZipArchive =
-  var reader = NCZipReaderCreate(stream)
-  if reader.GetHandler() == nil:
+proc loadZipArchive*(stream: NCStreamReader, password: string, overwriteExisting: bool): NCZipArchive =
+  var reader = ncZipReaderCreate(stream)
+  if reader.getHandler() == nil:
     return nil
 
-  if not reader.MoveToFirstFile():
+  if not reader.moveToFirstFile():
     return nil
 
   var za = newZipArchive()
   while true:
-    let size = reader.GetFileSize()
+    let size = reader.getFileSize()
     if size == 0:
       #Skip directories and empty files.
-      discard reader.MoveToNextFile()
+      discard reader.moveToNextFile()
       continue
     
-    if not reader.OpenFile(password):
+    if not reader.openFile(password):
       break
 
-    let name = uniToLower(reader.GetFileName())
+    let name = uniToLower(reader.getFileName())
 
     if za.contents.hasKey(name):
       if overwriteExisting:
         za.contents.del(name)
       else:
         #Skip files that already exist.
-        discard reader.MoveToNextFile()
+        discard reader.moveToNextFile()
         continue
 
     var contents = NCZipFile()
-    discard contents.Initialize(size.int)
+    discard contents.initialize(size.int)
       
     var data = contents.data.cstring
     var offset = 0
 
     # Read the file contents.
     while true:
-      let bytesRead = reader.ReadFile(data[offset].addr, (size - offset).int)
+      let bytesRead = reader.readFile(data[offset].addr, (size - offset).int)
       inc(offset, bytesRead)
-      if not ((offset < size) and (not reader.Eof())): break
+      if not ((offset < size) and (not reader.eof())): break
 
     doAssert(offset == size)
-    discard reader.CloseFile()
+    discard reader.closeFile()
     
     # Add the file to the map.
     za.contents[name] = contents
-    if not reader.MoveToNextFile(): break
+    if not reader.moveToNextFile(): break
 
   result = za

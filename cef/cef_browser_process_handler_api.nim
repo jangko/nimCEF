@@ -5,10 +5,7 @@ type
   # Structure used to implement browser process callbacks. The functions of this
   # structure will be called on the browser process main thread unless otherwise
   # indicated.
-  cef_browser_process_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_browser_process_handler* = object of cef_base
     # Called on the browser process UI thread immediately after the CEF context
     # has been initialized.
     on_context_initialized*: proc(self: ptr cef_browser_process_handler) {.cef_callback.}

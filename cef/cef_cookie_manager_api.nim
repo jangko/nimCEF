@@ -4,9 +4,7 @@ include cef_import
 type
   # Structure used for managing cookies. The functions of this structure may be
   # called on any thread unless otherwise indicated.
-  cef_cookie_manager* = object
-    base*: cef_base
-
+  cef_cookie_manager* = object of cef_base
     # Set the schemes supported by this manager. The default schemes ("http",
     # "https", "ws" and "wss") will always be supported. If |callback| is non-
     # NULL it will be executed asnychronously on the IO thread after the change
@@ -74,9 +72,7 @@ type
 
   # Structure to implement for visiting cookie values. The functions of this
   # structure will always be called on the IO thread.
-  cef_cookie_visitor* = object
-    base*: cef_base
-
+  cef_cookie_visitor* = object of cef_base
     # Method that will be called once for each cookie. |count| is the 0-based
     # index for the current cookie. |total| is the total number of cookies. Set
     # |deleteCookie| to true (1) to delete the cookie currently being visited.
@@ -88,9 +84,7 @@ type
 
   # Structure to implement to be notified of asynchronous completion via
   # cef_cookie_manager_t::set_cookie().
-  cef_set_cookie_callback* = object
-    base*: cef_base
-
+  cef_set_cookie_callback* = object of cef_base
     # Method that will be called upon completion. |success| will be true (1) if
     # the cookie was set successfully.
     on_complete*: proc(self: ptr cef_set_cookie_callback,
@@ -98,9 +92,7 @@ type
 
   # Structure to implement to be notified of asynchronous completion via
   # cef_cookie_manager_t::delete_cookies().
-  cef_delete_cookies_callback* = object
-    base*: cef_base
-
+  cef_delete_cookies_callback* = object of cef_base
     # Method that will be called upon completion. |num_deleted| will be the
     # number of cookies that were deleted or -1 if unknown.
 

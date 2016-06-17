@@ -4,4 +4,4 @@ include cef_import
 # Implement this structure to receive string values asynchronously.
 wrapCallback(NCStringVisitor, cef_string_visitor):
   # Method that will be executed.
-  proc Visit*(self: T, str: string)
+  proc visit*(self: T, str: string)

@@ -9,12 +9,12 @@ wrapCallback(NCKeyboardHandler, cef_keyboard_handler):
   # event message, if any. Return true (1) if the event was handled or false
   # (0) otherwise. If the event will be handled in on_key_event() as a keyboard
   # shortcut set |is_keyboard_shortcut| to true (1) and return false (0).
-  proc OnPreKeyEvent*(self: T, browser: NCBrowser, event: NCKeyEvent,
+  proc onPreKeyEvent*(self: T, browser: NCBrowser, event: NCKeyEvent,
     os_event: cef_event_handle, is_keyboard_shortcut: var int): bool
 
   # Called after the renderer and JavaScript in the page has had a chance to
   # handle the event. |event| contains information about the keyboard event.
   # |os_event| is the operating system event message, if any. Return true (1)
   # if the keyboard event was handled or false (0) otherwise.
-  proc OnKeyEvent*(self: T, browser: NCBrowser, event: NCKeyEvent,
+  proc onKeyEvent*(self: T, browser: NCBrowser, event: NCKeyEvent,
     os_event: cef_event_handle): bool

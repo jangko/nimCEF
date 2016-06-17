@@ -4,10 +4,7 @@ include cef_import
 type
   # Implement this structure to filter resource response content. The functions
   # of this structure will be called on the browser process IO thread.
-  cef_response_filter* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_response_filter* = object of cef_base
     # Initialize the response filter. Will only be called a single time. The
     # filter will not be installed if this function returns false (0).
     init_filter*: proc(self: ptr cef_response_filter): cint {.cef_callback.}

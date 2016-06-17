@@ -5,10 +5,7 @@ type
   # Implement this structure to handle events related to browser load status. The
   # functions of this structure will be called on the browser process UI thread
   # or render process main thread (TID_RENDERER).
-  cef_load_handler* = object
-    # Base structure.
-    base*: cef_base
-
+  cef_load_handler* = object of cef_base
     # Called when the loading state has changed. This callback will be executed
     # twice -- once when loading is initiated either programmatically or by user
     # action, and once when loading is terminated due to completion, cancellation

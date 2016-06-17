@@ -11,7 +11,7 @@ type
 
 proc newNCStringMultiMap*(): NCStringMultiMap =
   result = newTable[string, seq[string]]()
-  
+
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
 proc toCef*(str: string): ptr cef_string =
@@ -134,7 +134,7 @@ type
   APIPair = object
     nApi : NimNode
     nBase: NimNode
-    
+
 var apiList {.compileTime.} : seq[APIPair] = @[]
 
 macro registerAPI*(api, base: typed): stmt =
@@ -143,25 +143,25 @@ macro registerAPI*(api, base: typed): stmt =
 
 macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = RootObj): typed =
   inc(wrapAPIStat)
-  
+
   let baseName = $base
   let parentName = $parent
   let apiName = $api
   let isRoot = parentName == "RootObj"
   var glue = ""
-  
+
   if importUtil.boolVal():
     glue.add "import nc_util_impl, $1_api\n" % [baseName]
     glue.add "export $1_api\n" % [baseName]
 
   glue.add "type\n"
   glue.add "  $1* = ref object of $2\n" % [apiName, parentName]
-  
+
   if isRoot:
     glue.add "    handler*: ptr $1\n" % [baseName]
 
   glue.add "proc getHandler*(self: $1): ptr $2 {.inline.} =\n" % [apiName, baseName]
-  
+
   if isRoot:
     glue.add "  result = if self == nil: nil else: self.handler\n"
   else:
@@ -172,7 +172,7 @@ macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = Root
     glue.add "  self.handler\n"
   else:
     glue.add "  cast[ptr $1](self.handler)\n" % [baseName]
-    
+
   glue.add "proc ncFinalizer(self: $1) =\n" % [apiName]
   glue.add "  ncRelease(self.handler)\n"
 
@@ -182,12 +182,12 @@ macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = Root
   glue.add "  result.handler = handler\n"
   glue.add "  ncAddRef(handler)\n"
   glue.add "registerAPI($1, $2)\n" % [apiName, baseName]
-  
+
   if wrapDebugMode:
     echo glue
-    
+
   result = parseStmt(glue)
-      
+
 macro debugModeOn*(): stmt =
   wrapDebugMode = true
   result = newEmptyNode()
@@ -215,16 +215,16 @@ proc getRecList(n: NimNode): NimNode =
     if c.kind == nnkRecList:
       return c
   result = newEmptyNode()
-  
+
 proc findRoot(n: NimNode): NimNode =
   var parent = n
   while true:
     if parent[1].kind == nnkEmpty: break
-    if parent[1].kind == nnkSym: 
+    if parent[1].kind == nnkSym:
       if $parent[1] == "RootObj": break
     parent = getType(parent[1])
   result = parent
-  
+
 proc checkSymNC(n: NimNode): NimNode =
   var err = false
   if n.typeKind != ntyObject: err = true
@@ -240,7 +240,7 @@ proc checkSymNC(n: NimNode): NimNode =
 proc checkSymHandler(nc: NimNode): NimNode =
   var ncstr = $nc
   let pos = ncstr.find(':')
-  if pos != -1: 
+  if pos != -1:
     ncstr = ncstr.substr(0, pos-1)
   for n in apiList:
     if $n.nAPI == ncstr: return getType(n.nBase)
@@ -326,9 +326,9 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
   let
     selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
     symNC      = checkSymNC(selfType[1]) # ObjectTy: Empty, Reclist: sym handler
-    baseHandler= getRecList(symNC)[0]  
+    baseHandler= getRecList(symNC)[0]
     symHandler = checkSymHandler(selfType[1]) # BracketExpr: sym ptr, sym cef_xxx
-    symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n  
+    symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n
     routineList= getRecList(symCef)
     argSize    = args.len-1
     rout       = getRoutine(routineList, $routine)
@@ -599,13 +599,12 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
       else: error(lineinfo(arg) & " unsupported ref type: " & argv)
       params.add "$1.getHandler()" % [argv]
     of ntyBool, ntyInt, ntyFloat, ntyInt32, ntyUint32:
-      if arg.kind == nnkHiddenDeref:
-        let argType = $getType(routine)[i - startIndex + 2][1]
+      let argType = getType(routine)[i - startIndex + 2].getBaseType()
+      if arg.kind == nnkHiddenDeref:      
         proloque.add "var arg$1: $2\n" % [argi, argType]
         params.add "arg$1" % [argi]
         epiloque.add "$1 = arg$2\n" % [argv, argi]
-      else:
-        let argType = $getType(routine)[i - startIndex + 2]
+      else:        
         params.add "$1.$2" % [argv, argType]
     of ntyObject:
       if arg.kind == nnkHiddenDeref:
@@ -641,9 +640,37 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
       let T = getType(res)[1]
       if checkString(T):
         proloque.add "var res = cef_string_list_alloc()\n"
-        params.add ", res"
+        if argSize > 0: params.add ", "
+        params.add "res"
         body.add "$1($2)\n" % [calee, params]
         epiloque.add "result = toNim(res)\n"
+      elif checkWrapped(T):
+        let handler = $getHandler(T)
+        let size = $args[args.len-1]
+        let destType = T.getBaseType()
+        let argi = $argSize
+        proloque.add "result = newSeq[$1]($2)\n" % [destType, size]
+        proloque.add "var res$1 = newSeq[ptr $2]($3)\n" % [argi, handler, size]
+        proloque.add "var buf$1 = cast[ptr ptr $2](res$1[0].addr)\n" % [argi, handler]
+        params.add ", buf" & argi
+        body = "$1($2)\n" % [calee, params]
+        epiloque.add "for i in 0.. <$1:\n" % [size]
+        epiloque.add "  result[i] = ncWrap(res$1[i])\n" % [argi]
+        
+        #[
+        let handler = $getHandler(T)
+        let destType = T.getBaseType()
+        let argi = $argSize
+        if argSize > 0: params.add ", "
+        proloque.add "var buf$1: ptr $2 = nil\n" % [argi, handler]
+        proloque.add "var size$1 = 0\n" % [argi]
+        proloque.add "proc idxptr(a: ptr $1, i: int): ptr $1 =\n" % [handler]
+        proloque.add "  cast[ptr $1](cast[ByteAddress](a) + i * sizeof(pointer))\n" % [handler]
+        params.add "size$1, buf$1" % [argi]
+        body = "$1($2)\n" % [calee, params]
+        epiloque.add "result = newSeq[$1](size$2)\n" % [destType, argi]
+        epiloque.add "for i in 0.. <size$1:\n" % [argi]
+        epiloque.add "  result[i] = ncWrap(idxptr(buf$1, i))\n" % [argi]]#
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
     else:
@@ -690,7 +717,7 @@ proc checkCefPtr(n: NimNode): bool =
     if objType[2].typeKind != ntyObject: return false
     if objType[2].len < 2: return false
     let ofInherit = objType[2][1]
-    if ofInherit.kind != nnkEmpty: 
+    if ofInherit.kind != nnkEmpty:
       node = ofInherit
       continue
     else:
@@ -897,10 +924,14 @@ macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
   let glue = wrapCallbackImpl(nc, cef, methods, true)
   result = parseStmt(glue)
 
-macro wrapHandler*(nc: untyped, cef: typed, methods: untyped): stmt =
+macro wrapHandler*(nc: untyped, cef: typed, parent: typed, methods: untyped): stmt =
   let glue = wrapCallbackImpl(nc, cef, methods, false)
   result = parseStmt(glue)
-
+  
+macro wrapHandlerNoMethods*(nc: untyped, cef: typed, parent: typed): stmt =
+  let glue = wrapCallbackImpl(nc, cef, newStmtList(), false)
+  result = parseStmt(glue)
+  
 proc isRefInherit(nc: NimNode): NimNode =
   if nc.kind != nnkSym: return newEmptyNode()
   let impl = getImpl(nc.symbol)
@@ -949,14 +980,14 @@ proc getBaseName(nc: NimNode): string =
   if isNCObject(nc): return $nc
   let base = isRefInherit(nc)
   result = $base
-  
+
 proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): string =
   let hName = getHandlerName(nc)
   let baseName = getBaseName(nc)
   let typeID = $global_iidx
   let implID = $(global_iidx + 1)
   inc(global_iidx, 2)
-  
+
   var glue = "type\n"
   glue.add "  NCType$1 = $2_i[$3]\n" % [typeID, hName, $nc]
   glue.add "var NCImpl$1 = NCType$2" % [implID, typeID]
@@ -979,26 +1010,26 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
   if methods.len != 0:
     glue.add ")\n"
 
-  let star = if constructorVisible: "*" else: ""  
+  let star = if constructorVisible: "*" else: ""
   glue.add "proc make$1NCImplNC$2(): $1 = \n" % [$nc, star]
   glue.add "  result = make$1(NCImpl$2)\n" % [baseName, implID]
 
   if wrapDebugMode:
     echo glue
-    
+
   result = glue
-    
-macro handlerImpl*(nc: typed, methods: varargs[typed]): stmt =    
+
+macro handlerImpl*(nc: typed, methods: varargs[typed]): stmt =
   let glue = handlerImplImpl(nc, methods, true)
   result = parseStmt(glue)
 
-macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): stmt =    
+macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): stmt =
   let glue = handlerImplImpl(nc, methods, false)
   result = parseStmt(glue)
-  
+
 template ncCreate*(n: typed): expr =
   `make n NCImplNC`()
-  
+
 var
   vm_menu_id {.compileTime.} = 1
 
@@ -1014,22 +1045,22 @@ macro MENU_ID*(n: untyped): stmt =
     inc vm_menu_id
 
   result = parseStmt(glue)
-  
+
 macro ncBindTask*(ident: untyped, routine: typed): stmt =
   var procName: string
-  var rout: NimNode  
+  var rout: NimNode
   if routine.kind == nnkCall:
     procName = $routine[0]
     rout = getImpl(routine[0].symbol)
   else:
     procName = $routine
     rout = getImpl(routine.symbol)
-    
+
   let params = params(rout)
   let paramList = collectParams(params, 1)
   let typeID = $global_iidx
   inc(global_iidx)
-  
+
   var args = ""
   var ex_args = ""
   var call_args = ""
@@ -1038,15 +1069,15 @@ macro ncBindTask*(ident: untyped, routine: typed): stmt =
     args.add "arg$1: $2" % [$i, arg.nType.toStrlit().strVal]
     ex_args.add "self.nc_arg$1" % [$i]
     call_args.add "arg$1" % [$i]
-    if i < paramList.len - 1: 
+    if i < paramList.len - 1:
       args.add ", "
       ex_args.add ", "
       call_args.add ", "
-      
+
   var glue = "proc $1($2): NCTask =\n" % [$ident, args]
   glue.add "  type\n"
   glue.add "    NCType$1 = ref object of NCTask\n" % [typeID]
-  
+
   for i in 0.. <paramList.len:
     let arg = paramList[i]
     glue.add "      nc_arg$1: $2\n" % [$i, arg.nType.toStrlit().strVal]
@@ -1054,16 +1085,16 @@ macro ncBindTask*(ident: untyped, routine: typed): stmt =
   glue.add "  closureHandlerImpl(NCType$1):\n" % [typeID]
   glue.add "    proc Execute(self: NCType$1) =\n" % [typeID]
   glue.add "      $1($2)\n" % [procName, ex_args]
-  
+
   glue.add "  proc newNCType$1($2): NCType$1 =\n" % [typeID, args]
   glue.add "    result = NCType$1.ncCreate()\n" % [typeID]
-  
+
   for i in 0.. <paramList.len:
     glue.add "    result.nc_arg$1 = arg$1\n" % [$i]
-  
+
   glue.add "  result = newNCType$1($2)\n" % [typeID, call_args]
-  
+
   if wrapDebugMode:
     echo glue
-    
+
   result = parseStmt(glue)

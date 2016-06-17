@@ -271,7 +271,7 @@ proc main() =
   #var rch = makeNCRequestContextHandler(rch_impl)
   #var rcsetting: NCRequestContextSettings
   #var ctx = NCRequestContextCreateContext(rcsetting, rch)
-
+  
   # Create browser.
   discard ncBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
 

@@ -379,6 +379,10 @@ proc toCef*(nc: NCPoint): cef_point =
 
 template ncFree*(nc: cef_point) = discard
 
+proc toNim*(nc: ptr cef_point): NCPoint =
+  result.x = nc.x.int
+  result.y = nc.y.int
+
 proc toNim*(nc: cef_point): NCPoint =
   result.x = nc.x.int
   result.y = nc.y.int
@@ -439,7 +443,7 @@ proc toCef*(nc: NCDraggableRegion): cef_draggable_region =
   result.bounds = toCef(nc.bounds)
   result.draggable = nc.draggable.cint
 
-template ncFree*(nc: cef_point) = discard
+template ncFree*(nc: cef_draggable_region) = discard
 
 proc toNim*(nc: ptr cef_draggable_region): NCDraggableRegion =
   result.bounds = toNim(nc.bounds)

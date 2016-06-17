@@ -34,10 +34,10 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 
 | Macro Name   | Call Count |
 |--------------|------------|
-| wrapCall     |    662     |
-| wrapProc     |    80      |
+| wrapCall     |    811     |
+| wrapProc     |    91      |
 | wrapMethod   |    151     |
-| wrapAPI      |    109     |
+| wrapAPI      |    116     |
 | wrapCallback |    45      |
 
 ### HOW TO BUILD nimCEF EXAMPLES

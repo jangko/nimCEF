@@ -8,7 +8,7 @@ include cef_import
 
 #moved to nc_types.nim to avoid circular import
 #wrapAPI(NCClient, cef_client)
-wrapHandler(NCClient, cef_client):
+wrapHandler(NCClient, cef_client, RootObj):
   # Return the handler for context menus. If no handler is provided the default
   # implementation will be used.
   proc getContextMenuHandler*(self: T): NCContextMenuHandler

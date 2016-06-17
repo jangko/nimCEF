@@ -904,7 +904,7 @@ proc cef_display_get_count*(): csize {.cef_import.}
 
 # Returns all Displays. Mirrored displays are excluded; this function is
 # intended to return distinct, usable displays.
-proc cef_display_get_alls*(displaysCount: var csize, displays: var ptr cef_display) {.cef_import.}
+proc cef_display_get_alls*(displaysCount: var csize, displays: ptr ptr cef_display) {.cef_import.}
 
 # Create a new MenuButton. A |delegate| must be provided to call show_menu()
 # when the button is clicked. |text| will be shown on the MenuButton and used
@@ -915,4 +915,4 @@ proc cef_display_get_alls*(displaysCount: var csize, displays: var ptr cef_displ
 # and no default minimum size. If |with_menu_marker| is true (1) a menu marker
 # will be added to the button.
 proc cef_menu_button_create*(delegate: ptr cef_menu_button_delegate, text: ptr cef_string,
-  with_frame: cint, with_menu_marker: cint) {.cef_import.}
+  with_frame: cint, with_menu_marker: cint): ptr cef_menu_button {.cef_import.}

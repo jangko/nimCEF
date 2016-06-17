@@ -77,7 +77,7 @@ import nc_util, nc_context_menu_params, nc_menu_model
 
 ```nimrod
 type
-  myHandler = ref object of NCContextMenuHandler
+  MyHandler = ref object of NCContextMenuHandler
 ```
 * Next step use **handlerImpl**, with two parameters,
 	* first param is the typeDesc we already defined or the NCxxx type
@@ -85,12 +85,12 @@ type
   * the second param is optional, and default implementation will be used if no procs are defined
 
 ```nimrod
-handlerImpl(myHandler):
-  proc OnBeforeContextMenu(self: myHandler, browser: NCBrowser,
+handlerImpl(MyHandler):
+  proc onBeforeContextMenu(self: MyHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel) =
     discard
 
-  proc OnContextMenuCommand(self: myHandler, browser: NCBrowser,
+  proc onContextMenuCommand(self: MyHandler, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, command_id: cef_menu_id,
     event_flags: cef_event_flags): int =
     discard
@@ -98,7 +98,7 @@ handlerImpl(myHandler):
 
 * if you want to create an instance of your handler, just call NCCreate with single param from **handlerImpl** first param
 ```nimrod
-var cmhandler_inst = myHandler.NCCreate()
+var cmhandler_inst = MyHandler.NCCreate()
 ```
 
 ### HOW TO CREATE USER DEFINED MENU ID
@@ -127,15 +127,15 @@ MENU_ID:
 * or you can use NCBindTask to help you do that in a much simpler way
 
 ```nimrod
-proc ContinueOpenOnIOThread(fileId: int) =
+proc continueOpenOnIOThread(fileId: int) =
   NC_REQUIRE_IO_THREAD()
   #do something in IO thread
 
-proc OpenMyFile(fileId: int) =
+proc openMyFile(fileId: int) =
   # first param is the task's name
   # second param is a proc that will be executed in target thread
-  NCBindTask(continueOpenTask, ContinueOpenOnIOThread)
-  discard NCPostTask(TID_IO, ContinueOpenFileTask(fileId))
+  NCBindTask(continueOpenTask, continueOpenOnIOThread)
+  discard NCPostTask(TID_IO, continueOpenTask(fileId))
 ```
 
 How to resolve overloaded proc? You can give param to target proc to help compiler decide which one will be used

@@ -248,7 +248,7 @@ proc stopRequest(self: NCResourceManager, state: RequestState) =
   self.detachRequestFromProvider(state)
   
   # Delete the state object and execute the callback.
-  state.callback.Continue(true)  
+  state.callback.continueCallback(true)  
   
 # Send the request to providers in order until one potentially handles it or we
 # run out of providers. Returns true if the request is potentially handled.

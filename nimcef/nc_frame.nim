@@ -12,15 +12,15 @@ proc isValid*(self: NCFrame): bool =
   self.wrapCall(is_valid, result)
 
 # Execute undo in this frame.
-proc Undo*(self: NCFrame) =
+proc undo*(self: NCFrame) =
   self.wrapCall(undo)
 
 # Execute redo in this frame.
-proc Redo*(self: NCFrame) =
+proc redo*(self: NCFrame) =
   self.wrapCall(redo)
 
 # Execute cut in this frame.
-proc Cut*(self: NCFrame) =
+proc cut*(self: NCFrame) =
   self.wrapCall(cut)
 
 # Execute copy in this frame.
@@ -28,21 +28,21 @@ proc copy*(self: NCFrame) =
   self.wrapCall(copy)
 
 # Execute paste in this frame.
-proc Paste*(self: NCFrame) =
+proc paste*(self: NCFrame) =
   self.wrapCall(paste)
 
 # Execute delete in this frame.
-proc Del*(self: NCFrame) =
+proc del*(self: NCFrame) =
   self.wrapCall(del)
 
 # Execute select all in this frame.
-proc SelectAll*(self: NCFrame) =
+proc selectAll*(self: NCFrame) =
   self.wrapCall(select_all)
 
 # Save this frame's HTML source to a temporary file and open it in the
 # default text viewing application. This function can only be called from the
 # browser process.
-proc ViewSource*(self: NCFrame) =
+proc viewSource*(self: NCFrame) =
   self.wrapCall(view_source)
 
 # Retrieve this frame's HTML source as a string sent to the specified
@@ -56,17 +56,17 @@ proc getText*(self: NCFrame, visitor: NCStringVisitor) =
   self.wrapCall(get_text, visitor)
 
 # Load the request represented by the |request| object.
-proc LoadRequest*(self: NCFrame, request: NCRequest) =
+proc loadRequest*(self: NCFrame, request: NCRequest) =
   self.wrapCall(load_request, request)
 
 # Load the specified |url|.
-proc LoadUrl*(self: NCFrame, url: string) =
+proc loadUrl*(self: NCFrame, url: string) =
   self.wrapCall(load_url, url)
 
 # Load the contents of |string_val| with the specified dummy |url|. |url|
 # should have a standard scheme (for example, http scheme) or behaviors like
 # link clicks and web security restrictions may not behave as expected.
-proc LoadString*(self: NCFrame, string_val, url: string) =
+proc loadString*(self: NCFrame, string_val, url: string) =
   self.wrapCall(load_string, string_val, url)
 
 # Execute a string of JavaScript code in this frame. The |script_url|
@@ -74,7 +74,7 @@ proc LoadString*(self: NCFrame, string_val, url: string) =
 # renderer may request this URL to show the developer the source of the
 # error.  The |start_line| parameter is the base line number to use for error
 # reporting.
-proc ExecuteJavaScript*(self: NCFrame, code, script_url: string, start_line: int) =
+proc executeJavaScript*(self: NCFrame, code, script_url: string, start_line: int) =
   self.wrapCall(execute_java_script, code, script_url, start_line)
 
 # Returns true (1) if this is the main (top-level) frame.
@@ -118,5 +118,5 @@ proc getV8context*(self: NCFrame): NCV8context =
 
 # Visit the DOM document. This function can only be called from the render
 # process.
-proc VisitDom*(self: NCFrame, visitor: NCDomvisitor) =
+proc visitDom*(self: NCFrame, visitor: NCDomvisitor) =
   self.wrapCall(visit_dom, visitor)

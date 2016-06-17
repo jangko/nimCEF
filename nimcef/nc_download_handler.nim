@@ -6,15 +6,15 @@ include cef_import
 wrapAPI(NCDownloadItemCallback, cef_download_item_callback, false)
 
 # Call to cancel the download.
-proc Cancel*(self: NCDownloadItemCallback) =
+proc cancel*(self: NCDownloadItemCallback) =
   self.wrapCall(cancel)
 
 # Call to pause the download.
-proc Pause*(self: NCDownloadItemCallback) =
+proc pause*(self: NCDownloadItemCallback) =
   self.wrapCall(pause)
 
 # Call to resume the download.
-proc Resume*(self: NCDownloadItemCallback) =
+proc resume*(self: NCDownloadItemCallback) =
   self.wrapCall(resume)
 
 # Callback structure used to asynchronously continue a download.
@@ -24,7 +24,7 @@ wrapAPI(NCBeforeDownloadCallback, cef_before_download_callback, false)
 # for the download including the file name or leave blank to use the
 # suggested name and the default temp directory. Set |show_dialog| to true
 # (1) if you do wish to show the default "Save As" dialog.
-proc Continue*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
+proc continueCallback*(self: NCBeforeDownloadCallback, download_path: string, show_dialog: bool) =
   self.wrapCall(cont, download_path, show_dialog)
 
 # Structure used to handle file downloads. The functions of this structure will

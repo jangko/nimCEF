@@ -7,7 +7,7 @@ wrapAPI(NCJsDialogCallback, cef_jsdialog_callback, false)
 
 # Continue the JS dialog request. Set |success| to true (1) if the OK button
 # was pressed. The |user_input| value should be specified for prompt dialogs.
-proc Continue*(self: NCJsDialogCallback, success: bool, user_input: string) =
+proc continueCallback*(self: NCJsDialogCallback, success: bool, user_input: string) =
   self.wrapCall(cont, success, user_input)
 
 # Implement this structure to handle events related to JavaScript dialogs. The

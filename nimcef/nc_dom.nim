@@ -17,7 +17,7 @@ wrapCallback(NCDomVisitor, cef_domvisitor):
   # executed. DOM objects are only valid for the scope of this function. Do not
   # keep references to or attempt to access any DOM objects outside the scope
   # of this function.
-  proc Visit*(self: T, document: NCDomDocument)
+  proc visit*(self: T, document: NCDomDocument)
 
 # Returns the document type.
 proc getType*(self: NCDomDocument): cef_dom_document_type =

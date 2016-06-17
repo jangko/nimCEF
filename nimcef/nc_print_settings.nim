@@ -75,7 +75,7 @@ proc setCollate*(self: NCPrintSettings, collate: bool) =
   self.wrapCall(set_collate, collate)
 
 # Returns true (1) if pages will be collated.
-proc WillCollate*(self: NCPrintSettings): bool =
+proc willCollate*(self: NCPrintSettings): bool =
   self.wrapCall(will_collate, result)
 
 # Set the color model.

@@ -16,7 +16,7 @@ wrapCallback(NCSchemeHandlerFactory, cef_scheme_handler_factory):
   # request or NULL if the request did not originate from a browser window (for
   # example, if the request came from cef_urlrequest_t). The |request| object
   # passed to this function will not contain cookie data.
-  proc Create*(self: T, browser: NCBrowser,
+  proc create*(self: T, browser: NCBrowser,
     frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler
 
 # Register a custom scheme. This function should not be called for the built-

@@ -54,11 +54,11 @@ proc readFile*(self: NCZipReader, buffer: pointer, bufferSize: int): int =
   self.wrapCall(read_file, result, buffer, bufferSize)
 
 # Returns the current offset in the uncompressed file contents.
-proc Tell*(self: NCZipReader): int64 =
+proc tell*(self: NCZipReader): int64 =
   self.wrapCall(tell, result)
 
 # Returns true (1) if at end of the file contents.
-proc Eof*(self: NCZipReader): bool =
+proc eof*(self: NCZipReader): bool =
   self.wrapCall(eof, result)
 
 # Create a new NCZipReader object. The returned object's functions can

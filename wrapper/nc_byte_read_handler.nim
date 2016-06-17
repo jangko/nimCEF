@@ -21,7 +21,7 @@ handlerImpl(NCByteReadHandler):
     result = ret.int
     release(self.lock)
   
-  proc Seek*(self: NCByteReadHandler, offset: int64, whence: int): int =
+  proc seek*(self: NCByteReadHandler, offset: int64, whence: int): int =
     var rv = -1
     acquire(self.lock)
     case whence
@@ -48,17 +48,17 @@ handlerImpl(NCByteReadHandler):
     result = rv
     release(self.lock)
   
-  proc Tell*(self: NCByteReadHandler): int64 =
+  proc tell*(self: NCByteReadHandler): int64 =
     acquire(self.lock)
     result = self.offset
     release(self.lock)
   
-  proc Eof*(self: NCByteReadHandler): bool =
+  proc eof*(self: NCByteReadHandler): bool =
     acquire(self.lock)
     result = self.offset >= self.size
     release(self.lock)
   
-  proc MayBlock*(self: NCByteReadHandler): bool = false
+  proc mayBlock*(self: NCByteReadHandler): bool = false
 
 proc newNCByteReadHandler*(bytes: cstring, size: int, source: ref RootObj): NCByteReadHandler =
   result = NCByteReadHandler.ncCreate()

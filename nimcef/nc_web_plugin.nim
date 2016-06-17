@@ -25,7 +25,7 @@ wrapCallback(NCWebPluginInfoVisitor, cef_web_plugin_info_visitor):
   # index for the current plugin. |total| is the total number of plugins.
   # Return false (0) to stop visiting plugins. This function may never be
   # called if no plugins are found.
-  proc Visit*(self: T, info: NCWebPluginInfo, count, total: int): bool
+  proc visit*(self: T, info: NCWebPluginInfo, count, total: int): bool
 
 # Structure to implement for receiving unstable plugin information. The
 # functions of this structure will be called on the browser process IO thread.

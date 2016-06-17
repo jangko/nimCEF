@@ -5,7 +5,7 @@ import nc_util, nc_stream
 wrapAPI(NCDragData, cef_drag_data)
 
 # Returns a copy of the current object.
-proc Clone*(self: NCDragData): NCDragData =
+proc clone*(self: NCDragData): NCDragData =
   self.wrapCall(clone, result)
 
 # Returns true (1) if this object is read-only.
@@ -92,7 +92,7 @@ proc setFragmentBaseUrl*(self: NCDragData, base_url: string) =
 # Reset the file contents. You should do this before calling
 # NCBrowserHost::DragTargetDragEnter as the web view does not allow us
 # to drag in this kind of data.
-proc ResetFileContents*(self: NCDragData) =
+proc resetFileContents*(self: NCDragData) =
   self.wrapCall(reset_file_contents)
 
 # Add a file that is being dragged into the webview.

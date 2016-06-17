@@ -50,7 +50,7 @@ proc copy*(self: NCValue): NCValue =
   self.wrapCall(copy, result)
 
 # Returns the underlying value type.
-proc getYype*(self: NCValue): cef_value_type =
+proc getType*(self: NCValue): cef_value_type =
   self.wrapCall(get_type, result)
 
 # Returns the underlying value as type bool.

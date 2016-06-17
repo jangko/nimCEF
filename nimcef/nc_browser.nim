@@ -21,7 +21,7 @@ wrapCallback(NCNavigationEntryVisitor, cef_navigation_entry_visitor):
   # stop. |current| is true (1) if this entry is the currently loaded
   # navigation entry. |index| is the 0-based index of this entry and |total| is
   # the total number of entries.
-  proc Visit*(self: T, entry: NCNavigationEntry, current, index, total: int): bool
+  proc visit*(self: T, entry: NCNavigationEntry, current, index, total: int): bool
 
 # Callback structure for NCBrowserHost::PrintToPDF. The functions of this
 # structure will be called on the browser process UI thread.
@@ -47,19 +47,19 @@ proc getHost*(self: NCBrowser): NCBrowserHost =
   self.wrapCall(get_host, result)
 
 # Returns true (1) if the browser can navigate backwards.
-proc CanGoBack*(self: NCBrowser): bool =
+proc canGoBack*(self: NCBrowser): bool =
   self.wrapCall(can_go_back, result)
 
 # Navigate backwards.
-proc GoBack*(self: NCBrowser) =
+proc goBack*(self: NCBrowser) =
   self.wrapCall(go_back)
 
 # Returns true (1) if the browser can navigate forwards.
-proc CanGoForward*(self: NCBrowser): bool =
+proc canGoForward*(self: NCBrowser): bool =
   self.wrapCall(can_go_forward, result)
 
 # Navigate forwards.
-proc GoGorward*(self: NCBrowser) =
+proc goGorward*(self: NCBrowser) =
   self.wrapCall(go_forward)
 
 # Returns true (1) if the browser is currently loading.
@@ -67,15 +67,15 @@ proc isLoading*(self: NCBrowser): bool =
   self.wrapCall(is_loading, result)
 
 # Reload the current page.
-proc Reload*(self: NCBrowser) =
+proc reload*(self: NCBrowser) =
   self.wrapCall(reload)
 
 # Reload the current page ignoring any cached data.
-proc ReloadIgnoreCache*(self: NCBrowser) =
+proc reloadIgnoreCache*(self: NCBrowser) =
   self.wrapCall(reload_ignore_cache)
 
 # Stop loading the page.
-proc StopLoad*(self: NCBrowser) =
+proc stopLoad*(self: NCBrowser) =
   self.wrapCall(stop_load)
 
 # Returns the globally unique identifier for this browser.
@@ -126,7 +126,7 @@ proc getFrameNames*(self: NCBrowser): seq[string] =
 
 # Send a message to the specified |target_process|. Returns true (1) if the
 # message was sent successfully.
-proc SendProcessMessage*(self: NCBrowser, target_process: cef_process_id, message: NCProcessMessage): bool =
+proc sendProcessMessage*(self: NCBrowser, target_process: cef_process_id, message: NCProcessMessage): bool =
   self.wrapCall(send_process_message, result, target_process, message)
 
 # Returns the hosted browser object.
@@ -150,7 +150,7 @@ proc closeBrowser*(self: NCBrowserHost, force_close: bool) =
 # is pending and true (1) after the close has completed. See close_browser()
 # and cef_life_span_handler_t::do_close() documentation for additional usage
 # information. This function must be called on the browser process UI thread.
-proc TryCloseBrowser*(self: NCBrowserHost): bool =
+proc tryCloseBrowser*(self: NCBrowserHost): bool =
   self.wrapCall(try_close_browser, result)
   
 # Set whether the browser is focused.
@@ -206,14 +206,14 @@ proc setZoomLevel*(self: NCBrowserHost, zoomLevel: float64) =
 # selected by default. |callback| will be executed after the dialog is
 # dismissed or immediately if another dialog is already pending. The dialog
 # will be initiated asynchronously on the UI thread.
-proc RunFileDialog*(self: NCBrowserHost, mode: cef_file_dialog_mode,
+proc runFileDialog*(self: NCBrowserHost, mode: cef_file_dialog_mode,
   title, default_file_path: string, accept_filters: seq[string], selected_accept_filter: int,
   callback: NCRunFileDialogCallback) =
   self.wrapCall(run_file_dialog, mode, title, default_file_path,
     accept_filters, selected_accept_filter, callback)
 
 # Download the file at |url| using NCDownloadHandler.
-proc StartDownload*(self: NCBrowserHost, url: string) =
+proc startDownload*(self: NCBrowserHost, url: string) =
   self.wrapCall(start_download, url)
   
 # Download |image_url| and execute |callback| on completion with the images
@@ -226,19 +226,19 @@ proc StartDownload*(self: NCBrowserHost, url: string) =
 # to |max_image_size| and is the only result. A |max_image_size| of 0 means
 # unlimited. If |bypass_cache| is true (1) then |image_url| is requested from
 # the server even if it is present in the browser cache.
-proc DownloadImage*(self: NCBrowserHost, image_url: string, 
+proc downloadImage*(self: NCBrowserHost, image_url: string, 
   is_favicon: bool, max_image_size: uint32, bypass_cache: int, callback: NCDownloadImageCallback) =
   self.wrapCall(download_image, image_url, is_favicon, max_image_size, bypass_cache, callback)
       
 # Print the current browser contents.
-proc Print*(self: NCBrowserHost) =
+proc print*(self: NCBrowserHost) =
   self.wrapCall(print)
 
 # Print the current browser contents to the PDF file specified by |path| and
 # execute |callback| on completion. The caller is responsible for deleting
 # |path| when done. For PDF printing to work on Linux you must implement the
 # NCPrintHandler::GetPdfPaperSize function.
-proc PrintToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings, callback: NCPdfPrintCallback) =
+proc printToPdf*(self: NCBrowserHost, path: string, settings: NCPdfPrintSettings, callback: NCPdfPrintCallback) =
   self.wrapCall(print_to_pdf, path, settings, callback)
 
 # Search for |searchText|. |identifier| can be used to have multiple searches
@@ -251,7 +251,7 @@ proc find*(self: NCBrowserHost, identifier: int, searchText: string, forward, ma
   self.wrapCall(find, identifier, searchText, forward, matchCase, findNext)
 
 # Cancel all searches that are currently going on.
-proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
+proc stopFinding*(self: NCBrowserHost, clearSelection: bool) =
   self.wrapCall(stop_finding, clearSelection)
 
 # Open developer tools (DevTools) in its own browser. The DevTools browser
@@ -261,7 +261,7 @@ proc StopFinding*(self: NCBrowserHost, clearSelection: bool) =
 # is non-NULL then the element at the specified (x,y) location will be
 # inspected. The |windowInfo| parameter will be ignored if this browser is
 # wrapped in a NCBrowserView.
-proc ShowDevTools*(self: NCBrowserHost, windowInfo: NCWindowInfo, client: NCClient,
+proc showDevTools*(self: NCBrowserHost, windowInfo: NCWindowInfo, client: NCClient,
   setting: NCBrowserSettings, inspect_element_at: NCPoint) =
   self.wrapCall(show_dev_tools, windowInfo, client, setting, inspect_element_at)
 
@@ -292,7 +292,7 @@ proc isMouseCursorChangeDisabled*(self: NCBrowserHost): bool =
 
 # If a misspelled word is currently selected in an editable node calling this
 # function will replace it with the specified |word|.
-proc ReplaceMisspelling*(self: NCBrowserHost, word: string) =
+proc replaceMisspelling*(self: NCBrowserHost, word: string) =
   self.wrapCall(replace_misspelling, word)
 
 # Add the specified |word| to the spelling dictionary.
@@ -307,13 +307,13 @@ proc isWindowRenderingDisabled*(self: NCBrowserHost): bool =
 # call NCRenderHandler::GetViewRect to get the new size and then call
 # NCRenderHandler::OnPaint asynchronously with the updated regions. This
 # function is only used when window rendering is disabled.
-proc WasResized*(self: NCBrowserHost) =
+proc wasResized*(self: NCBrowserHost) =
   self.wrapCall(was_resized)
 
 # Notify the browser that it has been hidden or shown. Layouting and
 # NCRenderHandler::OnPaint notification will stop when the browser is
 # hidden. This function is only used when window rendering is disabled.
-proc WasHidden*(self: NCBrowserHost, hidden: bool) =
+proc wasHidden*(self: NCBrowserHost, hidden: bool) =
   self.wrapCall(was_hidden, hidden)
 
 # Send a notification to the browser that the screen info has changed. The
@@ -322,28 +322,28 @@ proc WasHidden*(self: NCBrowserHost, hidden: bool) =
 # window from one display to another, or changing the properties of the
 # current display. This function is only used when window rendering is
 # disabled.
-proc NotifyScreenInfoChanged*(self: NCBrowserHost) =
+proc notifyScreenInfoChanged*(self: NCBrowserHost) =
   self.wrapCall(notify_screen_info_changed)
 
 # Invalidate the view. The browser will call NCRenderHandler::OnPaint
 # asynchronously. This function is only used when window rendering is
 # disabled.
-proc Invalidate*(self: NCBrowserHost, ptype: cef_paint_element_type) =
+proc invalidate*(self: NCBrowserHost, ptype: cef_paint_element_type) =
   self.wrapCall(invalidate, ptype)
 
 # Send a key event to the browser.
-proc SendKeyEvent*(self: NCBrowserHost, event: NCKeyEvent) =
+proc sendKeyEvent*(self: NCBrowserHost, event: NCKeyEvent) =
   self.wrapCall(send_key_event, event)
 
 # Send a mouse click event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
-proc SendMouseClickEvent*(self: NCBrowserHost, event: NCMouseEvent,
+proc sendMouseClickEvent*(self: NCBrowserHost, event: NCMouseEvent,
   ptype: cef_mouse_button_type, mouseUp: bool, clickCount: int) =
   self.wrapCall(send_mouse_click_event, event, ptype, mouseUp, clickCount)
 
 # Send a mouse move event to the browser. The |x| and |y| coordinates are
 # relative to the upper-left corner of the view.
-proc SendMouseMoveEvent*(self: NCBrowserHost,
+proc sendMouseMoveEvent*(self: NCBrowserHost,
   event: NCMouseEvent, mouseLeave: bool) =
   self.wrapCall(send_mouse_move_event, event, mouseLeave)
 
@@ -352,21 +352,21 @@ proc SendMouseMoveEvent*(self: NCBrowserHost,
 # values represent the movement delta in the X and Y directions respectively.
 # In order to scroll inside select popups with window rendering disabled
 # NCRenderHandler::GetScreenPoint should be implemented properly.
-proc SendMouseWheelEvent*(self: NCBrowserHost,
+proc sendMouseWheelEvent*(self: NCBrowserHost,
   event: NCMouseEvent, deltaX, deltaY: int) =
   self.wrapCall(send_mouse_wheel_event, event, deltaX, deltaY)
 
 # Send a focus event to the browser.
-proc SendFocusEvent*(self: NCBrowserHost, setFocus: bool) =
+proc sendFocusEvent*(self: NCBrowserHost, setFocus: bool) =
   self.wrapCall(send_focus_event, setFocus)
 
 # Send a capture lost event to the browser.
-proc SendCaptureLostEvent*(self: NCBrowserHost) =
+proc sendCaptureLostEvent*(self: NCBrowserHost) =
   self.wrapCall(send_capture_lost_event)
 
 # Notify the browser that the window hosting it is about to be moved or
 # resized. This function is only used on Windows and Linux.
-proc NotifyMoveOrResizeStarted*(self: NCBrowserHost) =
+proc notifyMoveOrResizeStarted*(self: NCBrowserHost) =
   self.wrapCall(notify_move_or_resize_started)
 
 # Returns the maximum rate in frames per second (fps) that
@@ -392,11 +392,11 @@ proc getNstextInputContext*(self: NCBrowserHost): cef_text_input_context =
 
 # Handles a keyDown event prior to passing it through the NSTextInputClient
 # machinery.
-proc HandleKeyEventBeforeTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
+proc handleKeyEventBeforeTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
   self.wrapCall(handle_key_event_before_text_input_client, keyEvent)
 
 # Performs any additional actions after NSTextInputClient handles the event.
-proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
+proc handleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_event_handle) =
   self.wrapCall(handle_key_event_after_text_input_client, keyEvent)
 
 # Call this function when the user drags the mouse into the web view (before
@@ -406,7 +406,7 @@ proc HandleKeyEventAfterTextInputClient*(self: NCBrowserHost, keyEvent: cef_even
 # NCDragData::ResetFileContents (for example, if |drag_data| comes from
 # NCRenderHandler::StartDragging). This function is only used when
 # window rendering is disabled.
-proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: NCDragData,
+proc dragTargetDragEnter*(self: NCBrowserHost, drag_data: NCDragData,
   event: NCMouseEvent, allowed_ops: cef_drag_operations_mask) =
   self.wrapCall(drag_target_drag_enter, drag_data, event, allowed_ops)
 
@@ -414,14 +414,14 @@ proc DragTargetDragEnter*(self: NCBrowserHost, drag_data: NCDragData,
 # a drag operation (after calling DragTargetDragEnter and before calling
 # DragTargetDragLeave/DragTargetDrop). This function is only used when window
 # rendering is disabled.
-proc DragTargetDragOver*(self: NCBrowserHost, event: NCMouseEvent,
+proc dragTargetDragOver*(self: NCBrowserHost, event: NCMouseEvent,
   allowed_ops: cef_drag_operations_mask) =
   self.wrapCall(drag_target_drag_over, event, allowed_ops)
 
 # Call this function when the user drags the mouse out of the web view (after
 # calling DragTargetDragEnter). This function is only used when window
 # rendering is disabled.
-proc DragTargetDragLeave*(self: NCBrowserHost) =
+proc dragTargetDragLeave*(self: NCBrowserHost) =
   self.wrapCall(drag_target_drag_leave)
 
 # Call this function when the user completes the drag operation by dropping
@@ -429,7 +429,7 @@ proc DragTargetDragLeave*(self: NCBrowserHost) =
 # object being dropped is |drag_data|, given as an argument to the previous
 # DragTargetDragEnter call. This function is only used when window rendering
 # is disabled.
-proc DragTargetDrop*(self: NCBrowserHost, event: NCMouseEvent) =
+proc dragTargetDrop*(self: NCBrowserHost, event: NCMouseEvent) =
   self.wrapCall(drag_target_drop, event)
 
 # Call this function when the drag operation started by a
@@ -439,7 +439,7 @@ proc DragTargetDrop*(self: NCBrowserHost, event: NCMouseEvent) =
 # drag target then all DragTarget* functions should be called before
 # DragSource* methods. This function is only used when window rendering is
 # disabled.
-proc DragSourceEndedAt*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_mask) =
+proc dragSourceEndedAt*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_mask) =
   self.wrapCall(drag_source_ended_at, x, y, op)
 
 # Call this function when the drag operation started by a
@@ -448,7 +448,7 @@ proc DragSourceEndedAt*(self: NCBrowserHost, x, y: int, op: cef_drag_operations_
 # drag operation. If the web view is both the drag source and the drag target
 # then all DragTarget* functions should be called before DragSource* methods.
 # This function is only used when window rendering is disabled.
-proc DragSourceSystemDragEnded*(self: NCBrowserHost) =
+proc dragSourceSystemDragEnded*(self: NCBrowserHost) =
   self.wrapCall(drag_source_system_drag_ended)
 
 # Create a new browser window using the window parameters specified by

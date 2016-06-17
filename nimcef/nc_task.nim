@@ -25,23 +25,23 @@ proc isSame*(self, that: NCTaskRunner): bool =
   self.wrapCall(is_same, result, that)
 
 # Returns true (1) if this task runner belongs to the current thread.
-proc BelongsToCurrentThread*(self: NCTaskRunner): bool =
+proc belongsToCurrentThread*(self: NCTaskRunner): bool =
   self.wrapCall(belongs_to_current_thread, result)
 
 # Returns true (1) if this task runner is for the specified CEF thread.
-proc BelongsToThread*(self: NCTaskRunner, threadId: cef_thread_id): bool =
+proc belongsToThread*(self: NCTaskRunner, threadId: cef_thread_id): bool =
   self.wrapCall(belongs_to_thread, result, threadId)
 
 # Post a task for execution on the thread associated with this task runner.
 # Execution will occur asynchronously.
-proc PostTask*(self: NCTaskRunner, task: NCTask): bool =
+proc postTask*(self: NCTaskRunner, task: NCTask): bool =
   self.wrapCall(post_task, result, task)
 
 # Post a task for delayed execution on the thread associated with this task
 # runner. Execution will occur asynchronously. Delayed tasks are not
 # supported on V8 WebWorker threads and will be executed without the
 # specified delay.
-proc PostDelayedTask*(self: NCTaskRunner, task: NCTask, delay_ms: int64): bool =
+proc postDelayedTask*(self: NCTaskRunner, task: NCTask, delay_ms: int64): bool =
   self.wrapCall(post_delayed_task, result, task, delay_ms)
 
 # Returns the task runner for the current thread. Only CEF threads will have

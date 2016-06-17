@@ -63,8 +63,8 @@ proc readFrom(buf: LocalBuffer, reader: NCStreamReader): int =
 proc readOnFileThread(self: NCStreamResourceHandler, bytesToRead: int, callback: NCCallback)
 
 handlerImpl(NCStreamResourceHandler):
-  proc ProcessRequest*(self: NCStreamResourceHandler, request: NCRequest, callback: NCCallback): bool =
-    callback.Continue()
+  proc processRequest*(self: NCStreamResourceHandler, request: NCRequest, callback: NCCallback): bool =
+    callback.continueCallback()
     result = true
 
   proc getResponseHeaders*(self: NCStreamResourceHandler, response: NCResponse,
@@ -116,7 +116,7 @@ proc newNCStreamResourceHandler*(mimeType: string, stream: NCStreamReader): NCSt
   result.headerMap = newNCStringMultiMap()
   doAssert(result.mimeType != "")
   doAssert(stream.getHandler() != nil)
-  result.readOnFileThread = stream.MayBlock()
+  result.readOnFileThread = stream.mayBlock()
 
 proc newNCStreamResourceHandler*(statusCode: int, statusText, mimeType: string, 
   headerMap: NCStringMultiMap, stream: NCStreamReader): NCStreamResourceHandler =
@@ -128,7 +128,7 @@ proc newNCStreamResourceHandler*(statusCode: int, statusText, mimeType: string,
   result.stream = stream
   doAssert(result.mimeType != "")
   doAssert(stream.getHandler() != nil)
-  result.readOnFileThread = stream.MayBlock()
+  result.readOnFileThread = stream.mayBlock()
 
 proc readOnFileThread(self: NCStreamResourceHandler, bytesToRead: int, callback: NCCallback) =
   #NC_REQUIRE_FILE_THREAD()
@@ -137,4 +137,4 @@ proc readOnFileThread(self: NCStreamResourceHandler, bytesToRead: int, callback:
     
   self.buffer.reset(bytesToRead)
   discard self.buffer.readFrom(self.stream)
-  callback.Continue()
+  callback.continueCallback()

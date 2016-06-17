@@ -62,13 +62,13 @@ wrapCallback(NCRenderHandler, cef_render_handler):
   # NCBrowserHost::DragSourceEndedAt and DragSourceSystemDragEnded either
   # synchronously or asynchronously to inform the web view that the drag
   # operation has ended.
-  proc StartDragging*(self: T, browser: NCBrowser, drag_data: NCDragData,
+  proc startDragging*(self: T, browser: NCBrowser, drag_data: NCDragData,
     allowed_ops: cef_drag_operations_mask, x, y: int): bool
 
   # Called when the web view wants to update the mouse cursor during a drag &
   # drop operation. |operation| describes the allowed operation (none, move,
   # copy, link).
-  proc UpdateDragCursor*(self: T, browser: NCBrowser, operation: cef_drag_operations_mask)
+  proc updateDragCursor*(self: T, browser: NCBrowser, operation: cef_drag_operations_mask)
 
   # Called when the scroll offset has changed.
   proc onScrollOffsetChanged*(self: T, browser: NCBrowser, x, y: float64)

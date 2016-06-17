@@ -31,7 +31,6 @@ proc getStreamReader*(self: NCZipFile): NCStreamReader =
   let handler = newNCByteReadHandler(self.data.cstring, self.data.len, self)
   result = ncStreamReaderCreateForHandler(handler)
 
-
 proc clear*(self: NCZipArchive) =
   acquire(self.lock)
   self.contents = initTable[string, NCZipFile]()
@@ -106,7 +105,7 @@ proc loadZipArchive*(stream: NCStreamReader, password: string, overwriteExisting
     while true:
       let bytesRead = reader.readFile(data[offset].addr, (size - offset).int)
       inc(offset, bytesRead)
-      if not ((offset < size) and (not reader.Eof())): break
+      if not ((offset < size) and (not reader.eof())): break
 
     doAssert(offset == size)
     discard reader.closeFile()

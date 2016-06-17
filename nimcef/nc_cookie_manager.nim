@@ -13,7 +13,7 @@ wrapCallback(NCCookieVisitor, cef_cookie_visitor):
   # |deleteCookie| to true (1) to delete the cookie currently being visited.
   # Return false (0) to stop visiting cookies. This function may never be
   # called if no cookies are found.
-  proc CookieVisit*(self: T, cookie: NCCookie, count, total: int, deleteCookie: var bool): bool
+  proc cookieVisit*(self: T, cookie: NCCookie, count, total: int, deleteCookie: var bool): bool
 
 # Structure to implement to be notified of asynchronous completion via
 # NCCookieManager::set_cookie().
@@ -39,7 +39,7 @@ proc setSupportedSchemes*(self: NCCookieManager, schemes: seq[string], callback:
 # Visit all cookies on the IO thread. The returned cookies are ordered by
 # longest path, then by earliest creation date. Returns false (0) if cookies
 # cannot be accessed.
-proc VisitAllCookies*(self: NCCookieManager, visitor: NCCookieVisitor): bool =
+proc visitAllCookies*(self: NCCookieManager, visitor: NCCookieVisitor): bool =
   self.wrapCall(visit_all_cookies, result, visitor)
 
 # Visit a subset of cookies on the IO thread. The results are filtered by the
@@ -47,7 +47,7 @@ proc VisitAllCookies*(self: NCCookieManager, visitor: NCCookieVisitor): bool =
 # HTTP-only cookies will also be included in the results. The returned
 # cookies are ordered by longest path, then by earliest creation date.
 # Returns false (0) if cookies cannot be accessed.
-proc VisitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool, visitor: NCCookieVisitor): bool =
+proc visitUrlCookies*(self: NCCookieManager, url: string, includeHttpOnly: bool, visitor: NCCookieVisitor): bool =
   self.wrapCall(visit_url_cookies, result, url, includeHttpOnly, visitor)
 
 # Sets a cookie given a valid URL and explicit user-provided cookie
@@ -69,7 +69,7 @@ proc setCookie*(self: NCCookieManager, url: string, cookie: NCCookie, callback: 
 # have been deleted. Returns false (0) if a non-NULL invalid URL is specified
 # or if cookies cannot be accessed. Cookies can alternately be deleted using
 # the Visit*Cookies() functions.
-proc DeleteCookies*(self: NCCookieManager, url, cookie_name: string, callback: NCDeleteCookiesCallback): bool =
+proc deleteCookies*(self: NCCookieManager, url, cookie_name: string, callback: NCDeleteCookiesCallback): bool =
   self.wrapCall(delete_cookies, result, url, cookie_name, callback)
 
 # Sets the directory path that will be used for storing cookie data. If
@@ -87,7 +87,7 @@ proc setStoragePath*(self: NCCookieManager, path: string, persist_session_cookie
 # Flush the backing store (if any) to disk. If |callback| is non-NULL it will
 # be executed asnychronously on the IO thread after the flush is complete.
 # Returns false (0) if cookies cannot be accessed.
-proc FlushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
+proc flushStore*(self: NCCookieManager, callback: NCCompletionCallback): bool =
   self.wrapCall(flush_store, result, callback)
 
 

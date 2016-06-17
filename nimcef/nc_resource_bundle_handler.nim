@@ -27,4 +27,4 @@ wrapCallback(NCResourceBundleHandler, cef_resource_bundle_handler):
   # not be copied and must remain resident in memory. Include
   # cef_pack_resources.h for a listing of valid resource ID values.
   proc getDataResourceForScale*(self: T, resource_id: int,
-  scale_factor: cef_scale_factor, data: var pointer, data_size: var int): bool
+    scale_factor: cef_scale_factor, data: var pointer, data_size: var int): bool

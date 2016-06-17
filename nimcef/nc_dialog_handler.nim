@@ -9,11 +9,11 @@ wrapAPI(NCFileDialogCallback, cef_file_dialog_callback, false)
 # NCDialogHandler::OnFileDialog. |file_paths| should be a single value
 # or a list of values depending on the dialog mode. An NULL |file_paths|
 # value is treated the same as calling cancel().
-proc Continue*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
+proc continueCallback*(self: NCFileDialogCallback, selected_accept_filter: int, file_paths: seq[string]) =
   self.wrapCall(cont, selected_accept_filter, file_paths)
 
 # Cancel the file selection.
-proc Cancel*(self: NCFileDialogCallback) =
+proc cancel*(self: NCFileDialogCallback) =
   self.wrapCall(cancel)
 
 # Implement this structure to handle dialog events. The functions of this

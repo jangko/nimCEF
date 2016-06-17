@@ -71,7 +71,7 @@ proc getDefaultCookieManager*(self: NCRequestContext, callback: NCCompletionCall
 # change or remove the factory that matches the specified |scheme_name| and
 # optional |domain_name|. Returns false (0) if an error occurs. This function
 # may be called on any thread in the browser process.
-proc RegisterSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_name: string,
+proc registerSchemeHandlerFactory*(self: NCRequestContext, scheme_name, domain_name: string,
   factory: NCSchemeHandlerFactory): bool =
   self.wrapCall(register_scheme_handler_factory, result, scheme_name, domain_name, factory)
 
@@ -85,7 +85,7 @@ proc clearSchemeHandlerFactories*(self: NCRequestContext): bool =
 # reload all pages with plugins.
 # NCRequestContextHandler::OnBeforePluginLoad may be called to rebuild
 # the plugin list cache.
-proc PurgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
+proc purgePluginListCache*(self: NCRequestContext, reload_pages: bool) =
   self.wrapCall(purge_plugin_list_cache, reload_pages)
 
 # Returns true (1) if a preference with the specified |name| exists. This
@@ -114,7 +114,7 @@ proc getAllPreferences*(self: NCRequestContext, include_defaults: bool): NCDicti
 # modified using SetPreference. As one example preferences set via the
 # command-line usually cannot be modified. This function must be called on
 # the browser process UI thread.
-proc CanSetPreference*(self: NCRequestContext, name: string): bool =
+proc canSetPreference*(self: NCRequestContext, name: string): bool =
   self.wrapCall(can_set_preference, result, name)
 
 # Set the |value| associated with preference |name|. Returns true (1) if the
@@ -143,14 +143,14 @@ proc closeAllConnections*(self: NCRequestContext, callback: NCCompletionCallback
 
 # Attempts to resolve |origin| to a list of associated IP addresses.
 # |callback| will be executed on the UI thread after completion.
-proc ResolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCallback) =
+proc resolveHost*(self: NCRequestContext, origin: string, callback: NCResolveCallback) =
   self.wrapCall(resolve_host, origin, callback)
 
 # Attempts to resolve |origin| to a list of associated IP addresses using
 # cached data. |resolved_ips| will be populated with the list of resolved IP
 # addresses or NULL if no cached data is available. Returns ERR_NONE on
 # success. This function must be called on the browser process IO thread.
-proc ResolveHostCached*(self: NCRequestContext, origin: string,
+proc resolveHostCached*(self: NCRequestContext, origin: string,
   resolved_ips: seq[string]): cef_errorcode =
   self.wrapCall(resolve_host_cached, result, origin, resolved_ips)
 
@@ -165,5 +165,5 @@ proc ncRequestContextCreateContext*(settings: NCRequestContextSettings, handler:
 
 # Creates a new context object that shares storage with |other| and uses an
 # optional |handler|.
-proc CreateContextShared*(other: NCRequestContext, handler: NCRequestContextHandler): NCRequestContext =
+proc ncCreateContextShared*(other: NCRequestContext, handler: NCRequestContextHandler): NCRequestContext =
   wrapProc(cef_create_context_shared, result, other, handler)

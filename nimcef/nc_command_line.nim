@@ -27,17 +27,17 @@ proc copy*(self: NCCommandLine): NCCommandLine =
 # Initialize the command line with the specified |argc| and |argv| values.
 # The first argument must be the name of the program. This function is only
 # supported on non-Windows platforms.
-proc InitFromArgv*(self: NCCommandLine, argc: cint, argv: ptr cstring) =
+proc initFromArgv*(self: NCCommandLine, argc: cint, argv: ptr cstring) =
   self.handler.init_from_argv(self.handler, argc, argv)
 
 # Initialize the command line with the string returned by calling
 # GetCommandLineW(). This function is only supported on Windows.
-proc InitFromString*(self: NCCommandLine, command_line: string) =
+proc initFromString*(self: NCCommandLine, command_line: string) =
   self.wrapCall(init_from_string, command_line)
 
 # Reset the command-line switches and arguments but leave the program
 # component unchanged.
-proc Reset*(self: NCCommandLine) =
+proc reset*(self: NCCommandLine) =
   self.wrapCall(reset)
 
 # Retrieve the original command line string as a vector of strings. The argv
@@ -78,11 +78,11 @@ proc getSwitches*(self: NCCommandLine): StringTableRef =
 
 # Add a switch to the end of the command line. If the switch has no value
 # pass an NULL value string.
-proc AppendSwitch*(self: NCCommandLine, name: string) =
+proc appendSwitch*(self: NCCommandLine, name: string) =
   self.wrapCall(append_switch, name)
 
 # Add a switch with the specified value to the end of the command line.
-proc AppendSwitchWithValue*(self: NCCommandLine, name, value: string) =
+proc appendSwitchWithValue*(self: NCCommandLine, name, value: string) =
   self.wrapCall(append_switch_with_value, name, value)
 
 # True if there are remaining command line arguments.
@@ -94,19 +94,19 @@ proc getArguments*(self: NCCommandLine): seq[string] =
   self.wrapCall(get_arguments, result)
 
 # Add an argument to the end of the command line.
-proc AppendArgument*(self: NCCommandLine, argument: string) =
+proc appendArgument*(self: NCCommandLine, argument: string) =
   self.wrapCall(append_argument, argument)
 
 # Insert a command before the current command. Common for debuggers, like
 # "valgrind" or "gdb --args".
-proc PrependWrapper*(self: NCCommandLine, wrapper: string) =
+proc prependWrapper*(self: NCCommandLine, wrapper: string) =
   self.wrapCall(prepend_wrapper, wrapper)
 
 # Create a new NCCommandLine instance.
-proc CommandLineCreate*(): NCCommandLine =
+proc ncCommandLineCreate*(): NCCommandLine =
   wrapProc(cef_command_line_create, result)
 
 # Returns the singleton global NCCommandLine object. The returned object
 # will be read-only.
-proc CommandLineGetGlobal*(): NCCommandLine =
+proc ncCommandLineGetGlobal*(): NCCommandLine =
   wrapProc(cef_command_line_get_global, result)

@@ -38,28 +38,28 @@ proc addSubMenu*(self: NCMenuModel, command_id: cef_menu_id, label: string): NCM
 
 # Insert a separator in the menu at the specified |index|. Returns true *(1)
 # on success.
-proc InsertSeparatorAt*(self: NCMenuModel, index: int): bool =
+proc insertSeparatorAt*(self: NCMenuModel, index: int): bool =
   self.wrapCall(insert_separator_at, result, index)
 
 # Insert an item in the menu at the specified |index|. Returns true *(1) on
 # success.
-proc InsertItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): bool =
+proc insertItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): bool =
   self.wrapCall(insert_item_at, result, index, command_id, label)
 
 # Insert a check item in the menu at the specified |index|. Returns true *(1)
 # on success.
-proc InsertCheckItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): bool =
+proc insertCheckItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): bool =
   self.wrapCall(insert_check_item_at, result, index, command_id, label)
 
 # Insert a radio item in the menu at the specified |index|. Only a single
 # item with the specified |group_id| can be checked at a time. Returns true
 # *(1) on success.
-proc InsertRadioItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string, group_id: int): bool =
+proc insertRadioItemAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string, group_id: int): bool =
   self.wrapCall(insert_radio_item_at, result, index, command_id, label, group_id)
 
 # Insert a sub-menu in the menu at the specified |index|. The new sub-menu is
 # returned.
-proc InsertSubMenuAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): NCMenuModel =
+proc insertSubMenuAt*(self: NCMenuModel, index: int, command_id: cef_menu_id, label: string): NCMenuModel =
   self.wrapCall(insert_sub_menu_at, result, index, command_id, label)
 
 # Removes the item with the specified |command_id|. Returns true *(1) on

@@ -41,13 +41,13 @@ wrapCallback(NCPrintHandler, cef_print_handler):
 
 
 # Continue printing with the specified |settings|.
-proc Continue*(self: NCPrintDialogCallback, settings: NCPrintSettings) =
+proc continueCallback*(self: NCPrintDialogCallback, settings: NCPrintSettings) =
   self.wrapCall(cont, settings)
 
 # Cancel the printing.
-proc Cancel*(self: NCPrintDialogCallback) =
+proc cancel*(self: NCPrintDialogCallback) =
   self.wrapCall(cancel)
 
 # Indicate completion of the print job.
-proc Continue*(self: NCPrintJobCallback) =
+proc continueCallback*(self: NCPrintJobCallback) =
   self.wrapCall(cont)

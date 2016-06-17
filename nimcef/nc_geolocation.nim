@@ -33,10 +33,10 @@ type
     timestamp*: NCTime
 
     # Error code, see enum above.
-    error_code*: cef_geoposition_error_code
+    errorCode*: cef_geoposition_error_code
 
     # Human-readable error message.
-    error_message*: string
+    errorMessage*: string
 
 proc toNim(cc: ptr cef_geoposition): NCGeoPosition =
   result.latitude = cc.latitude.float64
@@ -47,8 +47,8 @@ proc toNim(cc: ptr cef_geoposition): NCGeoPosition =
   result.heading = cc.heading.float64
   result.speed = cc.speed.float64
   result.timestamp = toNim(cc.timestamp)
-  result.error_code = cc.error_code
-  result.error_message = $(cc.error_message.addr)
+  result.errorCode = cc.error_code
+  result.errorMessage = $(cc.error_message.addr)
 
 # Implement this structure to receive geolocation updates. The functions of
 # this structure will be called on the browser process UI thread.

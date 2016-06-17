@@ -43,7 +43,7 @@ wrapAPI(NCV8StackFrame, cef_v8stackframe, false)
 # functions of this structure will be called on the thread associated with the
 # V8 function.
 wrapCallback(NCV8Handler, cef_v8handler):
-  proc Execute*(self: T, name: string, obj: NCV8Value, args: seq[NCV8Value],
+  proc execute*(self: T, name: string, obj: NCV8Value, args: seq[NCV8Value],
     retval: var NCV8Value, exception: string): bool
 
 # Handle execution of the function identified by |name|. |object| is the
@@ -51,7 +51,7 @@ wrapCallback(NCV8Handler, cef_v8handler):
 # arguments passed to the function. If execution succeeds set |retval| to the
 # function return value. If execution fails set |exception| to the exception
 # that will be thrown. Return true (1) if execution was handled.
-proc Execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
+proc execute*(self: NCV8Handler, name: string, obj: NCV8Value, args: seq[NCV8Value],
   retval: var NCV8Value, exception: string): bool =
   self.wrapCall(execute, result, name, obj, args, retval, exception)
 
@@ -87,12 +87,12 @@ proc getGlobal*(self: NCV8Context): NCV8Value =
 # the same number of times as enter() before releasing this context. V8
 # objects belong to the context in which they are created. Returns true (1)
 # if the scope was entered successfully.
-proc Enter*(self: NCV8Context): bool =
+proc enter*(self: NCV8Context): bool =
   self.wrapCall(enter, result)
 
 # Exit this context. Call this function only after calling enter(). Returns
 # true (1) if the scope was exited successfully.
-proc Exit*(self: NCV8Context): bool =
+proc exit*(self: NCV8Context): bool =
   self.wrapCall(exit, result)
 
 # Returns true (1) if this object is pointing to the same handle as |that|
@@ -104,7 +104,7 @@ proc isSame*(self, that: NCV8Context): bool =
 # On success |retval| will be set to the return value, if any, and the
 # function will return true (1). On failure |exception| will be set to the
 # exception, if any, and the function will return false (0).
-proc Eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: var NCV8Exception): bool =
+proc eval*(self: NCV8Context, code: string, retval: var NCV8Value, exception: var NCV8Exception): bool =
   self.wrapCall(eval, result, code, retval, exception)
 
 # Handle retrieval the accessor value identified by |name|. |object| is the
@@ -177,7 +177,7 @@ proc isNull*(self: NCV8Value): bool =
   self.wrapCall(is_null, result)
 
 # True if the value type is bool.
-proc isNool*(self: NCV8Value): bool =
+proc isBool*(self: NCV8Value): bool =
   self.wrapCall(is_bool, result)
 
 # True if the value type is cint.
@@ -271,7 +271,7 @@ proc clearException*(self: NCV8Value): bool =
 
 # Returns true (1) if this object will re-throw future exceptions. This
 # attribute exists only in the scope of the current CEF value object.
-proc WillRethrowExceptions*(self: NCV8Value): bool =
+proc willRethrowExceptions*(self: NCV8Value): bool =
   self.wrapCall(will_rethrow_exceptions, result)
 
 # Set whether this object will re-throw future exceptions. By default
@@ -294,14 +294,14 @@ proc hasValueByIndex*(self: NCV8Value, index: int): bool =
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only and don't-delete values this function
 # will return true (1) even though deletion failed.
-proc DeleteValueByKey*(self: NCV8Value, key: string): bool =
+proc deleteValueByKey*(self: NCV8Value, key: string): bool =
   self.wrapCall(delete_value_bykey, result, key)
 
 # Deletes the value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly, deletion
 # fails or an exception is thrown. For read-only and don't-delete values this
 # function will return true (1) even though deletion failed.
-proc DeleteValueByIndex*(self: NCV8Value, index: int): bool =
+proc deleteValueByIndex*(self: NCV8Value, index: int): bool =
   self.wrapCall(delete_value_byindex, result, index)
 
 # Returns the value with the specified identifier on success. Returns NULL if
@@ -368,7 +368,7 @@ proc getExternallyAllocatedMemory*(self: NCV8Value): int =
 # |change_in_bytes| specifies the number of bytes to adjust by. This function
 # returns the number of bytes associated with the object after the
 # adjustment. This function can only be called on user created objects.
-proc AdjustExternallyAllocatedMemory*(self: NCV8Value, change_in_bytes: int): int =
+proc adjustExternallyAllocatedMemory*(self: NCV8Value, change_in_bytes: int): int =
   self.wrapCall(adjust_externally_allocated_memory, result, change_in_bytes)
 
 # ARRAY METHODS - These functions are only available on arrays.
@@ -394,7 +394,7 @@ proc getFunctionHandler*(self: NCV8Value): NCV8Handler =
 # be passed to the function. Returns the function return value on success.
 # Returns NULL if this function is called incorrectly or an exception is
 # thrown.
-proc ExecuteFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
+proc executeFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
   self.wrapCall(execute_function, result, obj, args)
 
 # Execute the function using the specified V8 context. |object| is the
@@ -403,7 +403,7 @@ proc ExecuteFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NC
 # that will be passed to the function. Returns the function return value on
 # success. Returns NULL if this function is called incorrectly or an
 # exception is thrown.
-proc ExecuteFunctionWithContext*(self: NCV8Value, context: NCV8Context,
+proc executeFunctionWithContext*(self: NCV8Value, context: NCV8Context,
   obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
   self.wrapCall(execute_function_with_context, result, context, obj, args)
 

@@ -965,14 +965,14 @@ when defined(winUniCode):
 else:
   template WC*(s: string): cstring = s.cstring
 
-proc SendMessageA*(wnd: HWND, msg: WINUINT, wp: WPARAM, lp: LPARAM): LRESULT {.
+proc sendMessageA*(wnd: HWND, msg: WINUINT, wp: WPARAM, lp: LPARAM): LRESULT {.
     stdcall, dynlib: "user32", importc: "SendMessageA".}
-proc SendMessageW*(wnd: HWND, Msg: WINUINT, wp: WPARAM, lp: LPARAM): LRESULT {.
+proc sendMessageW*(wnd: HWND, Msg: WINUINT, wp: WPARAM, lp: LPARAM): LRESULT {.
     stdcall, dynlib: "user32", importc: "SendMessageW".}
 
 proc sendMessage*(wnd: HWND, msg: WINUINT, wp: WPARAM = 0, lp: LPARAM = 0): LRESULT {.discardable.} =
-  when defined(winUnicode): result = SendMessageW(wnd, msg, wp, lp)
-  else: result = SendMessageA(wnd, msg, wp, lp)
+  when defined(winUnicode): result = sendMessageW(wnd, msg, wp, lp)
+  else: result = sendMessageA(wnd, msg, wp, lp)
 
 proc setFocus*(wnd: HWND): HWND {.stdcall, dynlib: "user32", importc: "SetFocus", discardable.}
 

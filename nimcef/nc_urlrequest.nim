@@ -86,5 +86,5 @@ proc getResponse*(self: NCUrlRequest): NCResponse =
   self.wrapCall(get_response, result)
 
 # Cancel the request.
-proc Cancel*(self: NCUrlRequest) =
+proc cancel*(self: NCUrlRequest) =
   self.wrapCall(cancel)

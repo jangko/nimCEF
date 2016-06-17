@@ -9,7 +9,7 @@ wrapCallback(NCResourceHandler, cef_resource_handler):
   # available (NCCallback::Continue() can also be called from inside this
   # function if header information is available immediately). To cancel the
   # request return false (0).
-  proc ProcessRequest*(self: T, request: NCRequest, callback: NCCallback): bool
+  proc processRequest*(self: T, request: NCRequest, callback: NCCallback): bool
 
   # Retrieve response header information. If the response length is not known
   # set |response_length| to -1 and read_response() will be called until it
@@ -34,11 +34,11 @@ wrapCallback(NCResourceHandler, cef_resource_handler):
   # Return true (1) if the specified cookie can be sent with the request or
   # false (0) otherwise. If false (0) is returned for any cookie then no
   # cookies will be sent with the request.
-  proc CanGetCookie*(self: T, cookie: NCCookie): bool
+  proc canGetCookie*(self: T, cookie: NCCookie): bool
 
   # Return true (1) if the specified cookie returned with the response can be
   # set or false (0) otherwise.
-  proc CanSetCookie*(self: T, cookie: NCCookie): bool
+  proc canSetCookie*(self: T, cookie: NCCookie): bool
 
   # Request processing has been canceled.
-  proc Cancel*(self: T)
+  proc cancel*(self: T)

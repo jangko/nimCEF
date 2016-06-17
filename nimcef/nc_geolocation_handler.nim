@@ -6,7 +6,7 @@ include cef_import
 wrapAPI(NCGeolocationCallback, cef_geolocation_callback, false)
 
 # Call to allow or deny geolocation access.
-proc Continue*(self: NCGeolocationCallback, allow: bool): bool =
+proc continueCallback*(self: NCGeolocationCallback, allow: bool): bool =
   self.wrapCall(cont, result, allow)
 
 # Implement this structure to handle events related to geolocation permission

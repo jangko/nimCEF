@@ -9,11 +9,11 @@ wrapAPI(NCRequestCallback, cef_request_callback, false)
 
 # Continue the url request. If |allow| is true (1) the request will be
 # continued. Otherwise, the request will be canceled.
-proc Continue*(self: NCRequestCallback, allow: bool) =
+proc continueCallback*(self: NCRequestCallback, allow: bool) =
   self.wrapCall(cont, allow)
 
 # Cancel the url request.
-proc Cancel*(self: NCRequestCallback) =
+proc cancel*(self: NCRequestCallback) =
   self.wrapCall(cancel)
 
 # Implement this structure to handle events related to browser requests. The

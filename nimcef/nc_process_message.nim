@@ -26,5 +26,5 @@ proc getArgumentList*(self: NCProcessMessage): NCListValue =
   self.wrapCall(get_argument_list, result)
 
 # Create a new NCProcessMessage object with the specified name.
-proc CreateProcessMessage*(name: string): NCProcessMessage =
+proc ncCreateProcessMessage*(name: string): NCProcessMessage =
   wrapProc(cef_process_message_create, result, name)

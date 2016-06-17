@@ -49,7 +49,7 @@ proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
   windowInfo.height = devToolH
 
   var setting: NCBrowserSettings
-  host.ShowDevTools(windowInfo, NCClient.ncCreate(), setting, NCPoint(x:x, y:y))
+  host.showDevTools(windowInfo, NCClient.ncCreate(), setting, NCPoint(x:x, y:y))
 
 handlerImpl(NCContextMenuHandler):
   proc onBeforeContextMenu(self: NCContextMenuHandler, browser: NCBrowser,
@@ -71,7 +71,7 @@ handlerImpl(NCContextMenuHandler):
 
     case command_id
     of MY_MENU_ID:
-      frame.ExecuteJavaScript("alert('Hello There Clicked!');", frame.getURL(), 0)
+      frame.executeJavaScript("alert('Hello There Clicked!');", frame.getURL(), 0)
 
     of MY_QUIT_ID:
       var host = browser.getHost()
@@ -87,7 +87,7 @@ handlerImpl(NCContextMenuHandler):
       showDevTool(browser.getHost(), params.getXCoord(), params.getYCoord())
 
     of MY_OTHER_TESTS:
-      browser.getMainFrame().LoadURL("http://tests/other_tests")
+      browser.getMainFrame().loadURL("http://tests/other_tests")
     else:
       echo "unsupported MENU ID"
     #if command_id == MY_PLUGIN_ID:
@@ -96,7 +96,7 @@ handlerImpl(NCContextMenuHandler):
     #  NCVisitWebPluginInfo(visitor)
 
 handlerImpl(myScheme):
-  proc ProcessRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
+  proc processRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
     NC_REQUIRE_IO_THREAD()
 
     var handled = false
@@ -135,7 +135,7 @@ myScheme object handling the client:// protocol.
 
     if handled:
       #Indicate the headers are available.
-      callback.Continue()
+      callback.continueCallback()
       return true
 
     result = false
@@ -170,7 +170,7 @@ handlerImpl(myApp):
     discard registrar.addCustomScheme("client", true, false, false)
 
 handlerImpl(NCSchemeHandlerFactory):
-  proc Create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
+  proc create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
     result = myScheme.ncCreate()
 

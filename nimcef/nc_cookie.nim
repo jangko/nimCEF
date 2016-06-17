@@ -30,10 +30,10 @@ type
 
     # The cookie last access date. This is automatically populated by the system
     # on access.
-    last_access*: NCTime
+    lastAccess*: NCTime
 
     # The cookie expiration date is only valid if |has_expires| is true.
-    has_expires: bool
+    hasExpires: bool
     expires*: NCTime
 
 proc toNim*(cc: ptr cef_cookie): NCCookie =
@@ -44,8 +44,8 @@ proc toNim*(cc: ptr cef_cookie): NCCookie =
   result.secure = cc.secure == 1.cint
   result.httponly = cc.httponly == 1.cint
   result.creation = toNim(cc.creation)
-  result.last_access = toNim(cc.last_access)
-  result.has_expires = cc.has_expires == 1.cint
+  result.lastAccess = toNim(cc.last_access)
+  result.hasExpires = cc.has_expires == 1.cint
   result.expires = toNim(cc.expires)
 
 proc toCef*(nc: NCCookie): cef_cookie =
@@ -56,8 +56,8 @@ proc toCef*(nc: NCCookie): cef_cookie =
   result.secure = nc.secure.cint
   result.httponly = nc.httponly.cint
   result.creation = toCef(nc.creation)
-  result.last_access = toCef(nc.last_access)
-  result.has_expires = nc.has_expires.cint
+  result.last_access = toCef(nc.lastAccess)
+  result.has_expires = nc.hasExpires.cint
   result.expires = toCef(nc.expires)
 
 proc ncFree*(cc: var cef_cookie) =

@@ -7,11 +7,11 @@ wrapAPI(NCRunContextMenuCallback, cef_run_context_menu_callback, false)
 
 # Complete context menu display by selecting the specified |command_id| and
 # |event_flags|.
-proc Continue*(self: NCRunContextMenuCallback, command_id: int, event_flags: cef_event_flags) =
+proc continueCallback*(self: NCRunContextMenuCallback, command_id: int, event_flags: cef_event_flags) =
   self.wrapCall(cont, command_id, event_flags)
 
 # Cancel context menu display.
-proc Cancel*(self: NCRunContextMenuCallback) =
+proc cancel*(self: NCRunContextMenuCallback) =
   self.wrapCall(cancel)
 
 # Implement this structure to handle context menu events. The functions of this
@@ -31,7 +31,7 @@ wrapCallback(NCContextMenuHandler, cef_context_menu_handler):
   # (1) and execute |callback| either synchronously or asynchronously with the
   # selected command ID. For default display return false (0). Do not keep
   # references to |params| or |model| outside of this callback.
-  proc RunContextMenu*(self: T, browser: NCBrowser,
+  proc runContextMenu*(self: T, browser: NCBrowser,
     frame: NCFrame, params: NCContextMenuParams, model: NCMenuModel,
     callback: NCRunContextMenuCallback): int
 

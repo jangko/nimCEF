@@ -5,9 +5,9 @@ import nc_types, nc_util
 wrapAPI(NCAuthCallback, cef_auth_callback)
 
 # Continue the authentication request.
-proc Continue*(self: NCAuthCallback, username, password: string) =
+proc continueAuth*(self: NCAuthCallback, username, password: string) =
   self.wrapCall(cont, username, password)
 
 # Cancel the authentication request.
-proc Cancel*(self: NCAuthCallback) =
+proc cancel*(self: NCAuthCallback) =
   self.wrapCall(cancel)

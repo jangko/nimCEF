@@ -96,9 +96,9 @@ handlerImpl(MyHandler):
     discard
 ```
 
-* if you want to create an instance of your handler, just call NCCreate with single param from **handlerImpl** first param
+* if you want to create an instance of your handler, just call ncCreate with single param from **handlerImpl** first param
 ```nimrod
-var cmhandler_inst = MyHandler.NCCreate()
+var cmhandler_inst = MyHandler.ncCreate()
 ```
 
 ### HOW TO CREATE USER DEFINED MENU ID
@@ -124,7 +124,7 @@ MENU_ID:
 ### HOW TO POST TASK TO OTHER THREAD
 
 * You can use handlerImpl to implement your own callback object derived from NCTask
-* or you can use NCBindTask to help you do that in a much simpler way
+* or you can use ncBindTask to help you do that in a much simpler way
 
 ```nimrod
 proc continueOpenOnIOThread(fileId: int) =
@@ -134,8 +134,8 @@ proc continueOpenOnIOThread(fileId: int) =
 proc openMyFile(fileId: int) =
   # first param is the task's name
   # second param is a proc that will be executed in target thread
-  NCBindTask(continueOpenTask, continueOpenOnIOThread)
-  discard NCPostTask(TID_IO, continueOpenTask(fileId))
+  ncBindTask(continueOpenTask, continueOpenOnIOThread)
+  discard ncPostTask(TID_IO, continueOpenTask(fileId))
 ```
 
 How to resolve overloaded proc? You can give param to target proc to help compiler decide which one will be used
@@ -150,15 +150,15 @@ proc readFile(fileId: int, mode: int) =
 
 proc readMyFile(fileId: int, mode: int) =
   # help the compiler to choose between overloaded procs
-  NCBindTask(readMyFileTask, readFile(fileId, mode))
-  discard NCPostTask(TID_IO, readMyFileTask(fileId, mode))
+  ncBindTask(readMyFileTask, readFile(fileId, mode))
+  discard ncPostTask(TID_IO, readMyFileTask(fileId, mode))
 ```
 
 You must be very careful when you post object across threads boundary for the reason below.
 
 ### MULTITHREAD ISSUE
 Nim memory model and C/C++ memory model is different. In C/C++, object can be freely posted to another thread via CefPostTask.
-While in Nim, NCPostTask should be used carefully. Every Nim thread has their own heap and GC. if you must post object across
+While in Nim, ncPostTask should be used carefully. Every Nim thread has their own heap and GC. if you must post object across
 threads, you must create object in global heap, it means you must manually manage the object lifetime and you cannot use
 string or seq as usual(they must be manually marked by GC_ref/GC_unref). If you don't post object across threads boundary,
 you can call setupForeignThreadGC() before you create any object and use them as usual inside that thread only.

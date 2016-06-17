@@ -336,6 +336,42 @@ type
     # Bit flags describing any pressed modifier keys. See
     # cef_event_flags_t for values.
     modifiers*: uint32
+  
+  # Settings used when initializing a CefBoxLayout.
+  NCBoxLayoutSettings* = object
+    # If true (1) the layout will be horizontal, otherwise the layout will be
+    # vertical.
+    horizontal*: bool
+
+    # Adds additional horizontal space between the child view area and the host
+    # view border.
+    inside_border_horizontal_spacing*: int
+
+    # Adds additional vertical space between the child view area and the host
+    # view border.
+    inside_border_vertical_spacing*: int
+
+    # Adds additional space around the child view area.
+    inside_border_insets*: NCInsets
+
+    # Adds additional space between child views.
+    between_child_spacing*: int
+
+    # Specifies where along the main axis the child views should be laid out.
+    main_axis_alignment*: cef_main_axis_alignment
+
+    # Specifies where along the cross axis the child views should be laid out.
+    cross_axis_alignment*: cef_cross_axis_alignment
+
+    # Minimum cross axis size.
+    minimum_cross_axis_size*: int
+
+    # Default flex for views when none is specified via CefBoxLayout methods.
+    # Using the preferred size as the basis, free space along the main axis is
+    # distributed to views in the ratio of their flex weights. Similarly, if the
+    # views will overflow the parent, space is subtracted in these ratios. A flex
+    # of 0 means this view is not resized. Flex values must not be negative.
+    default_flex*: int
 
 proc toCef*(nc: NCPoint): cef_point =
   result.x = nc.x.cint
@@ -391,7 +427,7 @@ proc toCef*(nc: NCInsets): cef_insets =
   result.bottom = nc.bottom.cint
   result.right = nc.right.cint
 
-proc toNim*(nc: cef_insets): NCInsets =
+proc toNim*(nc: ptr cef_insets): NCInsets =
   result.top = nc.top.int
   result.left = nc.left.int
   result.bottom = nc.bottom.int
@@ -472,3 +508,27 @@ proc toCef*(nc: NCMouseEvent): cef_mouse_event =
   result.modifiers = nc.modifiers
 
 template ncFree*(nc: cef_mouse_event) = discard
+
+proc toNim*(nc: ptr cef_box_layout_settings): NCBoxLayoutSettings =
+  result.horizontal = nc.horizontal == 1.cint
+  result.inside_border_horizontal_spacing = nc.inside_border_horizontal_spacing.int
+  result.inside_border_vertical_spacing = nc.inside_border_vertical_spacing.int
+  result.inside_border_insets = toNim(nc.inside_border_insets.addr)
+  result.between_child_spacing = nc.between_child_spacing.int
+  result.main_axis_alignment = nc.main_axis_alignment
+  result.cross_axis_alignment = nc.cross_axis_alignment
+  result.minimum_cross_axis_size = nc.minimum_cross_axis_size.int
+  result.default_flex = nc.default_flex.int
+  
+proc toCef*(nc: NCBoxLayoutSettings): cef_box_layout_settings =
+  result.horizontal = nc.horizontal.cint
+  result.inside_border_horizontal_spacing = nc.inside_border_horizontal_spacing.cint
+  result.inside_border_vertical_spacing = nc.inside_border_vertical_spacing.cint
+  result.inside_border_insets = toCef(nc.inside_border_insets)
+  result.between_child_spacing = nc.between_child_spacing.cint
+  result.main_axis_alignment = nc.main_axis_alignment
+  result.cross_axis_alignment = nc.cross_axis_alignment
+  result.minimum_cross_axis_size = nc.minimum_cross_axis_size.cint
+  result.default_flex = nc.default_flex.cint
+  
+proc ncFree*(nc: cef_box_layout_settings) = discard

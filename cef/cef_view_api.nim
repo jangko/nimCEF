@@ -244,7 +244,7 @@ type
     # Returns the cef_browser_t hosted by this BrowserView. Will return NULL if
     # the browser has not yet been created or has already been destroyed.
 
-    get_browser: proc(self: ptr cef_browser_view): ptr cef_browser {.cef_callback.}
+    get_browser*: proc(self: ptr cef_browser_view): ptr cef_browser {.cef_callback.}
 
   # A View representing a button. Depending on the specific type, the button
   # could be implemented by a native control or custom rendered. Methods must be

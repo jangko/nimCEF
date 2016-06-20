@@ -63,7 +63,8 @@ proc ncInitialize*(args: NCMainArgs, settings: NCSettings,
 
 # This function should be called on the main application thread to shut down
 # the CEF browser process before the application exits.
-template ncShutdown*(): expr = cef_shutdown()
+proc ncShutdown*() =
+  wrapProc(cef_shutdown)
 
 # Perform a single iteration of CEF message loop processing. This function is
 # used to integrate the CEF message loop into an existing application message
@@ -71,7 +72,8 @@ template ncShutdown*(): expr = cef_shutdown()
 # This function should only be called on the main application thread and only
 # if cef_initialize() is called with a CefSettings.multi_threaded_message_loop
 # value of false (0). This function will not block.
-template ncDoMessageLoopWork*(): expr = cef_do_message_loop_work()
+proc ncDoMessageLoopWork*()=
+  wrapProc(cef_do_message_loop_work)
 
 # Run the CEF message loop. Use this function instead of an application-
 # provided message loop to get the best balance between performance and CPU
@@ -79,18 +81,22 @@ template ncDoMessageLoopWork*(): expr = cef_do_message_loop_work()
 # only if cef_initialize() is called with a
 # CefSettings.multi_threaded_message_loop value of false (0). This function
 # will block until a quit message is received by the system.
-template ncRunMessageLoop*(): expr = cef_run_message_loop()
+proc ncRunMessageLoop*() =
+  wrapProc(cef_run_message_loop)
 
 # Quit the CEF message loop that was started by calling cef_run_message_loop().
 # This function should only be called on the main application thread and only
 # if cef_run_message_loop() was used.
-template ncQuitMessageLoop*(): expr = cef_quit_message_loop()
+proc ncQuitMessageLoop*() =
+  wrapProc(cef_quit_message_loop)
 
 # Set to true (1) before calling Windows APIs like TrackPopupMenu that enter a
 # modal message loop. Set to false (0) after exiting the modal message loop.
-proc ncSetOSModalLoop*(osModalLoop: bool) = cef_set_osmodal_loop(osModalLoop.cint)
+proc ncSetOSModalLoop*(osModalLoop: bool) =
+  wrapProc(cef_set_osmodal_loop, osModalLoop)
 
 # Call during process startup to enable High-DPI support on Windows 7 or newer.
 # Older versions of Windows should be left DPI-unaware because they do not
 # support DirectWrite and GDI fonts are kerned very badly.
-template ncEnableHighDPISupport*() = cef_enable_highdpi_support()
+proc ncEnableHighDPISupport*() =
+  wrapProc(cef_enable_highdpi_support)

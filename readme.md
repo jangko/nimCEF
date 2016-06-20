@@ -32,13 +32,13 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 
 ### Latest Statistics
 
-| Macro Name   | Call Count |
-|--------------|------------|
-| wrapCall     |    811     |
-| wrapProc     |    98      |
-| wrapMethod   |    209     |
-| wrapAPI      |    116     |
-| wrapCallback |    52      |
+| Macro Name   | Call Count | Description                           |
+|--------------|------------|---------------------------------------|
+| wrapAPI      |    116     | wrapper for cef object with ref count |
+| wrapCall     |    811     | wrapper for ordinary cef methods      |
+| wrapProc     |    98      | wrapper for free proc                 |
+| wrapCallback |    52      | wrapper for cef callback object       |
+| wrapMethod   |    209     | wrapper for callback object's methods |
 
 ### HOW TO BUILD nimCEF EXAMPLES
 From your console command prompt type:

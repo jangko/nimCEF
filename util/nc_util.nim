@@ -656,21 +656,6 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         body = "$1($2)\n" % [calee, params]
         epiloque.add "for i in 0.. <$1:\n" % [size]
         epiloque.add "  result[i] = ncWrap(res$1[i])\n" % [argi]
-
-        #[
-        let handler = $getHandler(T)
-        let destType = T.getBaseType()
-        let argi = $argSize
-        if argSize > 0: params.add ", "
-        proloque.add "var buf$1: ptr $2 = nil\n" % [argi, handler]
-        proloque.add "var size$1 = 0\n" % [argi]
-        proloque.add "proc idxptr(a: ptr $1, i: int): ptr $1 =\n" % [handler]
-        proloque.add "  cast[ptr $1](cast[ByteAddress](a) + i * sizeof(pointer))\n" % [handler]
-        params.add "size$1, buf$1" % [argi]
-        body = "$1($2)\n" % [calee, params]
-        epiloque.add "result = newSeq[$1](size$2)\n" % [destType, argi]
-        epiloque.add "for i in 0.. <size$1:\n" % [argi]
-        epiloque.add "  result[i] = ncWrap(idxptr(buf$1, i))\n" % [argi]]#
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
     else:
@@ -900,12 +885,13 @@ macro wrapMethods*(nc, n, c: typed): stmt =
   var glue = ""
   var constructor = "proc make$1*[T](impl: $2[T]): T =\n" % [$nc, ni]
   constructor.add "  ncInit($1, T, impl)\n" % [ns]
+  constructor.add "  var handler = cast[ptr $1](result.handler)\n" % [$c]
 
   for i in 0.. <nlist.len:
     let cproc = clist[i]
     let cname = getValidProcName(cproc[0])
     glue.add glueSingleMethod(ns, nlist[i], cproc, global_iidx)
-    constructor.add "  result.handler.$1 = $1_i$2\n" % [cname, $global_iidx]
+    constructor.add "  handler.$1 = $1_i$2\n" % [cname, $global_iidx]
     inc(global_iidx)
 
   if wrapDebugMode:
@@ -921,6 +907,12 @@ proc getParentMethods(nc: NimNode): seq[string] =
   let recList = impl[2][2]
   for n in recList:
     result.add n.toStrLit().strVal()
+
+var handlerList {.compileTime.} : seq[APIPair] = @[]
+
+macro registerHandler*(api, base: typed): stmt =
+  handlerList.add APIPair(nApi: api, nBase: base)
+  result = newEmptyNode()
 
 proc wrapCallbackImpl(nc, cef, parent, methods: NimNode, wrapAPI: bool): string =
   inc(wrapCallbackStat)
@@ -945,6 +937,7 @@ proc wrapCallbackImpl(nc, cef, parent, methods: NimNode, wrapAPI: bool): string 
   glue.add "  $1 = object of NCBase[$2, $3]\n" % [nc_name, $cef, $nc]
   glue.add "    impl: $1_i[$2]\n" % [nc_name, $nc]
   glue.add "wrapMethods($1, $2_i, $3)\n" % [$nc, nc_name, $cef]
+  glue.add "registerHandler($1, $2)\n" % [$nc, nc_name]
 
   if wrapDebugMode:
     echo glue
@@ -980,25 +973,9 @@ proc isNCObject(nc: NimNode): bool =
   if not checkWrapped(getType(nc)[1]): return false
   result = true
 
-proc isNCInherit(nc: NimNode): bool =
-  let base = isRefInherit(nc)
-  if base.kind == nnkEmpty: return false
-  if not checkWrapped(base): return false
-  result = true
-
-proc getHandlerType(nc: NimNode): string =
-  let nType = getImpl(nc.symbol)
-  let recList = nType[2][0][2]
-  let name = $recList[0][1][0]
-  result = "nc" & name.substr(3)
-
-proc getParentHandlerType(nc: NimNode): string =
-  let base = isRefInherit(nc)
-  result = getHandlerType(base)
-
-proc getHandlerName(nc: NimNode): string =
-  if isNCObject(nc): return getHandlerType(nc)
-  if isNCInherit(nc): return getParentHandlerType(nc)
+proc getHandlerName(base: string): string {.compileTime.} =
+  for n in handlerList:
+    if $n.nAPI == base: return $n.nBase
   error("unknown type, possibly not a nc object")
 
 proc genField(nc: NimNode): string =
@@ -1013,8 +990,9 @@ proc getBaseName(nc: NimNode): string =
   result = $base
 
 proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): string =
-  let hName = getHandlerName(nc)
   let baseName = getBaseName(nc)
+  let hName = getHandlerName(baseName)
+
   let typeID = $global_iidx
   let implID = $(global_iidx + 1)
   inc(global_iidx, 2)

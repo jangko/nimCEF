@@ -972,7 +972,7 @@ wrapHandler(NCButtonDelegate, cef_button_delegate, nc_view_delegate_i):
 # Implement this structure to handle MenuButton events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCMEnuButtonDelegate, cef_menu_button_delegate, nc_button_delegate_i):
+wrapHandler(NCMenuButtonDelegate, cef_menu_button_delegate, nc_button_delegate_i):
   # Called when |button| is pressed. Call cef_menu_button_t::show_menu() to
   # show the resulting menu at |screen_point|.
   proc onMenuButtonPressed*(self: T, menuButton: NCMenuButton, screenPoint: NCPoint)

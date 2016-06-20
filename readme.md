@@ -36,7 +36,7 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 |--------------|------------|
 | wrapCall     |    811     |
 | wrapProc     |    92      |
-| wrapMethod   |    172     |
+| wrapMethod   |    209     |
 | wrapAPI      |    116     |
 | wrapCallback |    52      |
 

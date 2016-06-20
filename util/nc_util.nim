@@ -600,11 +600,11 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
       params.add "$1.getHandler()" % [argv]
     of ntyBool, ntyInt, ntyFloat, ntyInt32, ntyUint32:
       let argType = getType(routine)[i - startIndex + 2].getBaseType()
-      if arg.kind == nnkHiddenDeref:      
+      if arg.kind == nnkHiddenDeref:
         proloque.add "var arg$1: $2\n" % [argi, argType]
         params.add "arg$1" % [argi]
         epiloque.add "$1 = arg$2\n" % [argv, argi]
-      else:        
+      else:
         params.add "$1.$2" % [argv, argType]
     of ntyObject:
       if arg.kind == nnkHiddenDeref:
@@ -656,7 +656,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
         body = "$1($2)\n" % [calee, params]
         epiloque.add "for i in 0.. <$1:\n" % [size]
         epiloque.add "  result[i] = ncWrap(res$1[i])\n" % [argi]
-        
+
         #[
         let handler = $getHandler(T)
         let destType = T.getBaseType()
@@ -872,9 +872,28 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
 
   result = proloque & body & epiloque & epiloque2
 
+proc collectMethods(ce: NimNode): NimNode =
+  result = newStmtList()
+  var temp = newStmtList()
+  var parent = ce
+  while true:
+    let impl = getImpl(parent.symbol)
+    let recList = impl[2][2]
+    temp.add recList
+    parent = impl[2][1]
+    if parent.kind == nnkEmpty: break
+    parent = parent[0]
+    if $parent == "cef_base": break
+
+  #parent first then child, that's why the operation must be reversed
+  for x in countdown(temp.len-1, 0):
+    let recList = temp[x]
+    for n in recList:
+      result.add n
+
 macro wrapMethods*(nc, n, c: typed): stmt =
   let nlist = getImpl(n.symbol)[2][2]
-  let clist = getImpl(c.symbol)[2][2]
+  let clist = collectMethods(c)
   let ni = $n
   let ns = ni.substr(0, ni.len-3)
 
@@ -895,7 +914,15 @@ macro wrapMethods*(nc, n, c: typed): stmt =
 
   result = parseStmt(glue & constructor)
 
-proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool): string =
+proc getParentMethods(nc: NimNode): seq[string] =
+  result = @[]
+  if $nc == "RootObj": return result
+  let impl = getImpl(nc.symbol)
+  let recList = impl[2][2]
+  for n in recList:
+    result.add n.toStrLit().strVal()
+
+proc wrapCallbackImpl(nc, cef, parent, methods: NimNode, wrapAPI: bool): string =
   inc(wrapCallbackStat)
 
   let nc_name = make_nc_name($cef)
@@ -905,6 +932,10 @@ proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool
     glue.add "wrapAPI($1, $2, false)\n" % [$nc, $cef]
   glue.add "type\n"
   glue.add "  $1_i*[T] = object\n" % [nc_name]
+
+  let parentMethods = getParentMethods(parent)
+  for m in parentMethods:
+    glue.add "    $1\n" % [m]
 
   for m in methods:
     let procName = m[0].toStrLit().strVal()
@@ -921,17 +952,17 @@ proc wrapCallbackImpl(nc: NimNode, cef: NimNode, methods: NimNode, wrapAPI: bool
   result = glue
 
 macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
-  let glue = wrapCallbackImpl(nc, cef, methods, true)
+  let glue = wrapCallbackImpl(nc, cef, bindSym"RootObj", methods, true)
   result = parseStmt(glue)
 
 macro wrapHandler*(nc: untyped, cef: typed, parent: typed, methods: untyped): stmt =
-  let glue = wrapCallbackImpl(nc, cef, methods, false)
+  let glue = wrapCallbackImpl(nc, cef, parent, methods, false)
   result = parseStmt(glue)
-  
+
 macro wrapHandlerNoMethods*(nc: untyped, cef: typed, parent: typed): stmt =
-  let glue = wrapCallbackImpl(nc, cef, newStmtList(), false)
+  let glue = wrapCallbackImpl(nc, cef, parent, newStmtList(), false)
   result = parseStmt(glue)
-  
+
 proc isRefInherit(nc: NimNode): NimNode =
   if nc.kind != nnkSym: return newEmptyNode()
   let impl = getImpl(nc.symbol)

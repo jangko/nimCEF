@@ -1,6 +1,6 @@
 import nc_util, nc_types, cef_view_api, nc_image, nc_menu_model
 import nc_request_context, nc_settings, nc_util_impl, cef_browser_api
-import cef_client_api
+import cef_client_api, macros
 include cef_import
 
 # A Layout handles the sizing of the children of a Panel according to
@@ -926,7 +926,7 @@ wrapHandler(NCViewDelegate, cef_view_delegate, RootObj):
 # Implement this structure to handle BrowserView events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, NCViewDelegate):
+wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, nc_view_delegate_i):
   # Called when |browser| associated with |browser_view| is created. This
   # function will be called after cef_life_span_handler_t::on_after_created()
   # is called for |browser| and before on_popup_browser_view_created() is
@@ -944,7 +944,7 @@ wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, NCViewDelegate):
   # cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1)
   # if the popup will be a DevTools browser. Return the delegate that will be
   # used for the new popup BrowserView.
-  proc getDelegateForPopupBrowserView*(self: T, browser_view: NCBrowserView, 
+  proc getDelegateForPopupBrowserView*(self: T, browser_view: NCBrowserView,
     settings: NCBrowserSettings, client: NCClient, isDevtools: bool): NCBrowserViewDelegate
 
   # Called after |popup_browser_view| is created. This function will be called
@@ -960,19 +960,19 @@ wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, NCViewDelegate):
 # Implement this structure to handle Panel events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandlerNoMethods(NCPanelDelegate, cef_panel_delegate, NCViewDelegate)
+wrapHandlerNoMethods(NCPanelDelegate, cef_panel_delegate, nc_view_delegate_i)
 
 # Implement this structure to handle Button events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCButtonDelegate, cef_button_delegate, NCViewDelegate):
+wrapHandler(NCButtonDelegate, cef_button_delegate, nc_view_delegate_i):
   # Called when |button| is pressed.
   proc onButtonPressed*(self: T, button: NCButton)
 
 # Implement this structure to handle MenuButton events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCMEnuButtonDelegate, cef_menu_button_delegate, NCButtonDelegate):
+wrapHandler(NCMEnuButtonDelegate, cef_menu_button_delegate, nc_button_delegate_i):
   # Called when |button| is pressed. Call cef_menu_button_t::show_menu() to
   # show the resulting menu at |screen_point|.
   proc onMenuButtonPressed*(self: T, menuButton: NCMenuButton, screenPoint: NCPoint)
@@ -980,7 +980,7 @@ wrapHandler(NCMEnuButtonDelegate, cef_menu_button_delegate, NCButtonDelegate):
 # Implement this structure to handle Textfield events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCTextFieldDelegate, cef_textfield_delegate, NCViewDelegate):
+wrapHandler(NCTextFieldDelegate, cef_textfield_delegate, nc_view_delegate_i):
   # Called when |textfield| recieves a keyboard event. |event| contains
   # information about the keyboard event. Return true (1) if the keyboard event
   # was handled or false (0) otherwise for default handling.
@@ -992,7 +992,7 @@ wrapHandler(NCTextFieldDelegate, cef_textfield_delegate, NCViewDelegate):
 # Implement this structure to handle window events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCWindowDelegate, cef_window_delegate, NCPanelDelegate):
+wrapHandler(NCWindowDelegate, cef_window_delegate, nc_panel_delegate_i):
   # Called when |window| is created.
   proc onWindowCreated*(self: T, window: NCWindow)
 
@@ -1018,7 +1018,7 @@ wrapHandler(NCWindowDelegate, cef_window_delegate, NCPanelDelegate):
   # Return true (1) if |window| can be closed. This will be called for user-
   # initiated window close actions and when cef_window_t::close() is called.
   proc canClose*(self: T, window: NCWindow): bool
-      
+
 # Create a new BrowserView. The underlying cef_browser_t will not be created
 # until this view is added to the views hierarchy.
 proc ncBrowserViewCreate*(client: NCClient, url: string,
@@ -1052,6 +1052,18 @@ proc ncWindowCreateTopLevel*(delegate: NCWindowDelegate): NCWindow =
 proc ncLabelButtonCreate*(delegate: NCButtonDelegate, text: string, withFrame: bool): NCLabelButton =
   wrapProc(cef_label_button_create, result, delegate, text, withFrame)
 
+# Create a new MenuButton. A |delegate| must be provided to call show_menu()
+# when the button is clicked. |text| will be shown on the MenuButton and used
+# as the default accessible name. If |with_frame| is true (1) the button will
+# have a visible frame at all times, center alignment, additional padding and a
+# default minimum size of 70x33 DIP. If |with_frame| is false (0) the button
+# will only have a visible frame on hover/press, left alignment, less padding
+# and no default minimum size. If |with_menu_marker| is true (1) a menu marker
+# will be added to the button.
+proc ncMenuButtonCreate*(delegate: NCMenuButtonDelegate, text: string,
+  withFrame: bool, withMenuMarker: bool): NCMenuButton =
+  wrapProc(cef_menu_button_create, result, delegate, text, withFrame, withMenuMarker)
+
 # Returns the primary Display.
 proc ncDisplayGetPrimary*(): NCDisplay =
   wrapProc(cef_display_get_primary, result)
@@ -1077,15 +1089,3 @@ proc ncDisplayGetCount*(): int =
 proc ncDisplayGetAlls*(): seq[NCDisplay] =
   var size = ncDisplayGetCount()
   wrapProc(cef_display_get_alls, result, size)
-
-# Create a new MenuButton. A |delegate| must be provided to call show_menu()
-# when the button is clicked. |text| will be shown on the MenuButton and used
-# as the default accessible name. If |with_frame| is true (1) the button will
-# have a visible frame at all times, center alignment, additional padding and a
-# default minimum size of 70x33 DIP. If |with_frame| is false (0) the button
-# will only have a visible frame on hover/press, left alignment, less padding
-# and no default minimum size. If |with_menu_marker| is true (1) a menu marker
-# will be added to the button.
-proc ncMenuButtonCreate*(delegate: NCMenuButtonDelegate, text: string,
-  withFrame: bool, withMenuMarker: bool): NCMenuButton =
-  wrapProc(cef_menu_button_create, result, delegate, text, withFrame, withMenuMarker)

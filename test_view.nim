@@ -6,24 +6,27 @@ import nc_urlrequest, nc_auth_callback, nc_frame, nc_web_plugin
 import nc_request_context_handler, nc_request_context
 import nc_life_span_handler, nc_context_menu_handler
 import test_runner, nc_resource_manager, nc_request_handler
-import nc_display_handler, nc_view
+import nc_display_handler, layout
 
 type
-  myApp = ref object of NCApp
+  MyApp = ref object of NCApp
 
-  myScheme = ref object of NCResourceHandler
+  MyScheme = ref object of NCResourceHandler
     mData: string
     mMimeType: string
     mOffset: int
 
-  myClient = ref object of NCClient
+  MyClient = ref object of NCClient
     abc: int
     name: string
     cmh: NCContextMenuHandler
     lsh: NCLifeSpanHandler
     reqh: NCRequestHandler
-    disph: NCDisplayHandler
+    disph: MyDisplayHandler
 
+  MyDisplayHandler = ref object of NCDisplayHandler
+    windowDelegate: MyWindowDelegate
+    
 MENU_ID:
   MY_MENU_ID
   MY_QUIT_ID
@@ -95,8 +98,8 @@ handlerImpl(NCContextMenuHandler):
     #  let visitor = makeNCWebPluginInfoVisitor(visitor_impl)
     #  NCVisitWebPluginInfo(visitor)
 
-handlerImpl(myScheme):
-  proc processRequest(self: myScheme, request: NCRequest, callback: NCCallback): bool =
+handlerImpl(MyScheme):
+  proc processRequest(self: MyScheme, request: NCRequest, callback: NCCallback): bool =
     NC_REQUIRE_IO_THREAD()
 
     var handled = false
@@ -106,7 +109,7 @@ handlerImpl(myScheme):
       self.mData = """<html><head><title>Client Scheme Handler</title></head>
 <body bgcolor="white">
 This contents of this page are served by the
-myScheme object handling the client:// protocol.
+MyScheme object handling the client:// protocol.
 <h2>Google</h2>
 <a href="https://www.google.com/">https://www.google.com/</a>
 <br/>You should see an image:
@@ -140,7 +143,7 @@ myScheme object handling the client:// protocol.
 
     result = false
 
-  proc getResponseHeaders(self: myScheme, response: NCResponse, response_length: var int64, redirectUrl: var string) =
+  proc getResponseHeaders(self: MyScheme, response: NCResponse, response_length: var int64, redirectUrl: var string) =
     NC_REQUIRE_IO_THREAD()
     doAssert(self.mData != nil and self.mData.len != 0)
 
@@ -150,7 +153,7 @@ myScheme object handling the client:// protocol.
     #Set the resulting response length
     response_length = self.mData.len
 
-  proc readResponse(self: myScheme, data_out: cstring, bytes_to_read: int, bytes_read: var int, callback: NCCallback): bool =
+  proc readResponse(self: MyScheme, data_out: cstring, bytes_to_read: int, bytes_read: var int, callback: NCCallback): bool =
     NC_REQUIRE_IO_THREAD()
     var has_data = false
     bytes_read = 0
@@ -165,14 +168,14 @@ myScheme object handling the client:// protocol.
 
     result = has_data
 
-handlerImpl(myApp):
-  proc onRegisterCustomSchemes*(self: myApp, registrar: NCSchemeRegistrar) =
+handlerImpl(MyApp):
+  proc onRegisterCustomSchemes*(self: MyApp, registrar: NCSchemeRegistrar) =
     discard registrar.addCustomScheme("client", true, false, false)
 
 handlerImpl(NCSchemeHandlerFactory):
   proc create*(self: NCSchemeHandlerFactory, browser: NCBrowser, frame: NCFrame, schemeName: string, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
-    result = myScheme.ncCreate()
+    result = MyScheme.ncCreate()
 
 proc registerSchemeHandler() =
   ncRegisterSchemeHandlerFactory("client", "tests", NCSchemeHandlerFactory.ncCreate())
@@ -194,33 +197,40 @@ handlerImpl(NCRequestHandler):
     var resourceManager = getResourceManager()
     result = resourceManager.getResourceHandler(browser, frame, request)
 
-handlerImpl(NCDisplayHandler):
-  proc onTitleChange*(self: NCDisplayHandler, browser: NCBrowser, title: string) =
+handlerImpl(MyDisplayHandler):
+  proc onTitleChange*(self: MyDisplayHandler, browser: NCBrowser, title: string) =
+    NC_REQUIRE_UI_THREAD()
     var host = browser.getHost()
     var hWnd = host.getWindowHandle()
     discard setWindowText(hWnd, title)
+  
+  proc onAddressChange*(self: MyDisplayHandler, browser: NCBrowser, frame: NCFrame, url: string) =
+    NC_REQUIRE_UI_THREAD()
+    # Only update the address for the main (top-level) frame.
+    if frame.isMain():
+      self.windowDelegate.setAddress(url)
 
-handlerImpl(myClient):
-  proc getContextMenuHandler*(self: myClient): NCContextMenuHandler =
+handlerImpl(MyClient):
+  proc getContextMenuHandler*(self: MyClient): NCContextMenuHandler =
     return self.cmh
 
-  proc getLifeSpanHandler*(self: myClient): NCLifeSpanHandler =
+  proc getLifeSpanHandler*(self: MyClient): NCLifeSpanHandler =
     return self.lsh
 
-  proc getRequestHandler*(self: myClient): NCRequestHandler =
+  proc getRequestHandler*(self: MyClient): NCRequestHandler =
     return self.reqh
 
-  proc getDisplayHandler*(self: myClient): NCDisplayHandler =
+  proc getDisplayHandler*(self: MyClient): NCDisplayHandler =
     return self.disph
 
-proc newClient(no: int, name: string): myClient =
-  result = myClient.ncCreate()
+proc newClient(no: int, name: string): MyClient =
+  result = MyClient.ncCreate()
   result.abc = no
   result.name = name
   result.cmh = NCContextMenuHandler.ncCreate()
   result.lsh = NCLifeSpanHandler.ncCreate()
   result.reqh = NCRequestHandler.ncCreate()
-  result.disph = NCDisplayHandler.ncCreate()
+  result.disph = MyDisplayHandler.ncCreate()
   setupResourceManager()
 
 proc onBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, top_origin_url: string,
@@ -233,58 +243,10 @@ proc onBeforePluginLoad*(self: NCRequestContextHandler, mime_type, plugin_url, t
 
   result = false
 
-type
-  MyWindowDelegate = ref object of NCWindowDelegate
-    buttonDelegate: MyButtonDelegate
-    
-  MyButtonDelegate = ref object of NCButtonDelegate
-
-handlerImpl(MyButtonDelegate):
-  proc getPreferredSize*(self: MyButtonDelegate, view: NCView): NCSize =
-    result = NCSize(width: 150, height: 10)
-
-  proc getMinimumSize*(self: MyButtonDelegate, view: NCView): NCSize =
-    result = NCSize(width:50, height:10)
-
-  proc getMaximumSize*(self: MyButtonDelegate, view: NCView): NCSize =
-    result = NCSize(width:300, height:100)
-    
-  proc onButtonPressed*(self: MyButtonDelegate, button: NCButton) =
-    discard
-    
-handlerImpl(MyWindowDelegate):
-  proc onWindowCreated*(self: MyWindowDelegate, window: NCWindow) =
-    window.setSize(NCSize(width:300, height:300))
-    window.setVisible(true)
-    self.buttonDelegate = MyButtonDelegate.ncCreate()
-    var button = ncLabelButtonCreate(self.buttonDelegate, "Back", true)
-    window.addChildView(button)
-    button.setVisible(true)
-    var layout = window.setToFillLayout()
-    window.layout()
-
-  proc onWindowDestroyed*(self: MyWindowDelegate, window: NCWindow) =
-    discard
-
-  proc isFrameless*(self: MyWindowDelegate, window: NCWindow): bool =
-    result = false
-
-  proc canResize*(self: MyWindowDelegate, window: NCWindow): bool =
-    result = true
-
-  proc canMaximize*(self: MyWindowDelegate, window: NCWindow): bool =
-    result = true
-  
-  proc canMinimize*(self: MyWindowDelegate,  window: NCWindow): bool =
-    result = true
-
-  proc canClose*(self: MyWindowDelegate, window: NCWindow): bool =
-    result = true
-  
 proc main() =
   # Main args.
   var mainArgs = makeNCMainArgs()
-  var app = myApp.ncCreate()
+  var app = MyApp.ncCreate()
 
   var code = ncExecuteProcess(mainArgs, app)
   if code >= 0:
@@ -312,18 +274,18 @@ proc main() =
 
   #Browser settings.
   #It is mandatory to set the "size" member.
-  var browserSettings: NCBrowserSettings
+  #var browserSettings: NCBrowserSettings
   #browserSettings.plugins = STATE_ENABLED
-  var client = newClient(123, "myClient")
+  var client = newClient(123, "MyClient")
 
   #var rch = makeNCRequestContextHandler(rch_impl)
   #var rcsetting: NCRequestContextSettings
   #var ctx = NCRequestContextCreateContext(rcsetting, rch)
 
-  var window = ncWindowCreateTopLevel(MyWindowDelegate.ncCreate())
+  client.disph.windowDelegate = setupLayout(client, url)
 
   # Create browser.
-  discard ncBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
+  #discard ncBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
 
   # Message loop.
   ncRunMessageLoop()

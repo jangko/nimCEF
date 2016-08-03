@@ -106,5 +106,5 @@ proc getAsJPEG*(self: NCImage, scale_factor: float32, quality: int,
 
 # Create a new cef_image_t. It will initially be NULL. Use the Add*() functions
 # to add representations at different scale factors.
-proc ncImageCreate(): NCImage =
+proc ncImageCreate*(): NCImage =
   wrapProc(cef_image_create, result)

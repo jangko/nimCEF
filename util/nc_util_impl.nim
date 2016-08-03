@@ -7,7 +7,7 @@ type
     refCount*: int
     container*: C
 
-template toType*(T: typedesc, obj: expr): expr =
+template toType*(T: typedesc, obj: typed): untyped =
   cast[ptr T](cast[ByteAddress](obj) - sizeof(pointer))
 
 proc genericAddRef[T](self: ptr cef_base) {.cef_callback.} =
@@ -49,7 +49,7 @@ proc ncFinalizer*[T, C](self: C) =
 
 #T is nc_xxx from wrapCallback
 #C is NCxxx or it's descendant
-template ncInit*(T, C: typedesc, impl: expr) =
+template ncInit*(T, C: typedesc, impl: typed) =
   var handler = createShared(T)
   ncInitBase[T](handler)
   new(result, ncFinalizer[T, C])

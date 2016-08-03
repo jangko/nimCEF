@@ -100,18 +100,18 @@ when defined(CEF_STRING_TYPE_UTF8):
     cef_char* = char
     cef_string_userfree* = cef_string_userfree_utf8
 
-  template cef_string_set*(a, b, c, d: expr): expr = cef_string_utf8_set(a, b, c, d)
-  template cef_string_copy*(a, b, c: expr): expr = cef_string_utf8_copy(a, b, c)
-  template cef_string_clear*(a: expr) = cef_string_utf8_clear(a)
-  template cef_string_userfree_alloc*(): expr = cef_string_userfree_utf8_alloc()
-  template cef_string_userfree_free*(a: expr) = cef_string_userfree_utf8_free(a)
-  template cef_string_from_ascii*(a, b, c: expr): expr = cef_string_utf8_copy(a, b, c)
-  template cef_string_to_utf8*(a, b, c: expr): expr = cef_string_utf8_copy(a, b, c)
-  template cef_string_from_utf8*(a, b, c: expr): expr = cef_string_utf8_copy(a, b, c)
-  template cef_string_to_utf16*(a, b, c: expr): expr = cef_string_utf8_to_utf16(a, b, c)
-  template cef_string_from_utf16*(a, b, c: expr): expr = cef_string_utf16_to_utf8(a, b, c)
-  template cef_string_to_wide*(a, b, c: expr): expr = cef_string_utf8_to_wide(a, b, c)
-  template cef_string_from_wide*(a, b, c: expr): expr = cef_string_wide_to_utf8(a, b, c)
+  template cef_string_set*(a, b, c, d: typed): untyped = cef_string_utf8_set(a, b, c, d)
+  template cef_string_copy*(a, b, c: typed): untyped = cef_string_utf8_copy(a, b, c)
+  template cef_string_clear*(a: typed) = cef_string_utf8_clear(a)
+  template cef_string_userfree_alloc*(): untyped = cef_string_userfree_utf8_alloc()
+  template cef_string_userfree_free*(a: typed) = cef_string_userfree_utf8_free(a)
+  template cef_string_from_ascii*(a, b, c: typed): untyped = cef_string_utf8_copy(a, b, c)
+  template cef_string_to_utf8*(a, b, c: typed): untyped = cef_string_utf8_copy(a, b, c)
+  template cef_string_from_utf8*(a, b, c: typed): untyped = cef_string_utf8_copy(a, b, c)
+  template cef_string_to_utf16*(a, b, c: typed): untyped = cef_string_utf8_to_utf16(a, b, c)
+  template cef_string_from_utf16*(a, b, c: typed): untyped = cef_string_utf16_to_utf8(a, b, c)
+  template cef_string_to_wide*(a, b, c: typed): untyped = cef_string_utf8_to_wide(a, b, c)
+  template cef_string_from_wide*(a, b, c: typed): untyped = cef_string_wide_to_utf8(a, b, c)
 
 elif defined(CEF_STRING_TYPE_WIDE):
   type
@@ -119,18 +119,18 @@ elif defined(CEF_STRING_TYPE_WIDE):
     cef_char* = wchar_t
     cef_string_userfree* = cef_string_userfree_wide
 
-  template cef_string_set*(a, b, c, d: expr): expr = cef_string_wide_set(a, b, c, d)
-  template cef_string_copy*(a, b, c: expr): expr = cef_string_wide_copy(a, b, c)
-  template cef_string_clear*(a: expr) = cef_string_wide_clear(a)
-  template cef_string_userfree_alloc*(): expr = cef_string_userfree_wide_alloc()
-  template cef_string_userfree_free*(a: expr) = cef_string_userfree_wide_free(a)
-  template cef_string_from_ascii*(a, b, c: expr): expr = cef_string_ascii_to_wide(a, b, c)
-  template cef_string_to_utf8*(a, b, c: expr): expr = cef_string_wide_to_utf8(a, b, c)
-  template cef_string_from_utf8*(a, b, c: expr): expr = cef_string_utf8_to_wide(a, b, c)
-  template cef_string_to_utf16*(a, b, c: expr): expr = cef_string_wide_to_utf16(a, b, c)
-  template cef_string_from_utf16*(a, b, c: expr): expr = cef_string_utf16_to_wide(a, b, c)
-  template cef_string_to_wide*(a, b, c: expr): expr = cef_string_wide_copy(a, b, c)
-  template cef_string_from_wide*(a, b, c: expr): expr = cef_string_wide_copy(a, b, c)
+  template cef_string_set*(a, b, c, d: typed): untyped = cef_string_wide_set(a, b, c, d)
+  template cef_string_copy*(a, b, c: typed): untyped = cef_string_wide_copy(a, b, c)
+  template cef_string_clear*(a: typed) = cef_string_wide_clear(a)
+  template cef_string_userfree_alloc*(): untyped = cef_string_userfree_wide_alloc()
+  template cef_string_userfree_free*(a: typed) = cef_string_userfree_wide_free(a)
+  template cef_string_from_ascii*(a, b, c: typed): untyped = cef_string_ascii_to_wide(a, b, c)
+  template cef_string_to_utf8*(a, b, c: typed): untyped = cef_string_wide_to_utf8(a, b, c)
+  template cef_string_from_utf8*(a, b, c: typed): untyped = cef_string_utf8_to_wide(a, b, c)
+  template cef_string_to_utf16*(a, b, c: typed): untyped = cef_string_wide_to_utf16(a, b, c)
+  template cef_string_from_utf16*(a, b, c: typed): untyped = cef_string_utf16_to_wide(a, b, c)
+  template cef_string_to_wide*(a, b, c: typed): untyped = cef_string_wide_copy(a, b, c)
+  template cef_string_from_wide*(a, b, c: typed): untyped = cef_string_wide_copy(a, b, c)
 
 else:
   type
@@ -138,15 +138,15 @@ else:
     cef_char* = uint16
     cef_string_userfree* = cef_string_userfree_utf16
 
-  template cef_string_set*(a, b, c, d: expr): expr = cef_string_utf16_set(a, b, c, d)
-  template cef_string_copy*(a, b, c: expr): expr = cef_string_utf16_copy(a, b, c)
-  template cef_string_clear*(a: expr) = cef_string_utf16_clear(a)
-  template cef_string_userfree_alloc*(): expr = cef_string_userfree_utf16_alloc()
-  template cef_string_userfree_free*(a: expr) = cef_string_userfree_utf16_free(a)
-  template cef_string_from_ascii*(a, b, c: expr): expr = cef_string_ascii_to_utf16(a, b, c)
-  template cef_string_to_utf8*(a, b, c: expr): expr = cef_string_utf16_to_utf8(a, b, c)
-  template cef_string_from_utf8*(a,b,c: expr): expr = cef_string_utf8_to_utf16(a, b, c)
-  template cef_string_to_utf16*(a, b, c: expr): expr = cef_string_utf16_copy(a, b, c)
-  template cef_string_from_utf16*(a, b, c: expr): expr = cef_string_utf16_copy(a, b, c)
-  template cef_string_to_wide*(a, b, c: expr): expr = cef_string_utf16_to_wide(a, b, c)
-  template cef_string_from_wide*(a, b, c: expr): expr = cef_string_wide_to_utf16(a, b, c)
+  template cef_string_set*(a, b, c, d: typed): untyped = cef_string_utf16_set(a, b, c, d)
+  template cef_string_copy*(a, b, c: typed): untyped = cef_string_utf16_copy(a, b, c)
+  template cef_string_clear*(a: typed) = cef_string_utf16_clear(a)
+  template cef_string_userfree_alloc*(): untyped = cef_string_userfree_utf16_alloc()
+  template cef_string_userfree_free*(a: typed) = cef_string_userfree_utf16_free(a)
+  template cef_string_from_ascii*(a, b, c: typed): untyped = cef_string_ascii_to_utf16(a, b, c)
+  template cef_string_to_utf8*(a, b, c: typed): untyped = cef_string_utf16_to_utf8(a, b, c)
+  template cef_string_from_utf8*(a,b,c: typed): untyped = cef_string_utf8_to_utf16(a, b, c)
+  template cef_string_to_utf16*(a, b, c: typed): untyped = cef_string_utf16_copy(a, b, c)
+  template cef_string_from_utf16*(a, b, c: typed): untyped = cef_string_utf16_copy(a, b, c)
+  template cef_string_to_wide*(a, b, c: typed): untyped = cef_string_utf16_to_wide(a, b, c)
+  template cef_string_from_wide*(a, b, c: typed): untyped = cef_string_wide_to_utf16(a, b, c)

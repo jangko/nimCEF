@@ -25,14 +25,14 @@ wrapAPI(NCBrowserHost, cef_browser_host, false)
 # Implement this structure to provide handler implementations.
 wrapAPI(NCClient, cef_client, false)
 
-template ncWrap*(x: ptr_cef_client): expr = ncWrap(cast[ptr cef_client](x))
-template ncWrap*(x: ptr_cef_browser): expr = ncWrap(cast[ptr cef_browser](x))
-template ncWrap*(x: ptr_cef_frame): expr = ncWrap(cast[ptr cef_frame](x))
-template ncRelease*(x: ptr_cef_browser): expr = ncRelease(cast[ptr cef_browser](x))
-template ncRelease*(x: ptr_cef_client): expr = ncRelease(cast[ptr cef_client](x))
-template ncRelease*(x: ptr_cef_frame): expr = ncRelease(cast[ptr cef_frame](x))
+template ncWrap*(x: ptr_cef_client): untyped = ncWrap(cast[ptr cef_client](x))
+template ncWrap*(x: ptr_cef_browser): untyped = ncWrap(cast[ptr cef_browser](x))
+template ncWrap*(x: ptr_cef_frame): untyped = ncWrap(cast[ptr cef_frame](x))
+template ncRelease*(x: ptr_cef_browser): untyped = ncRelease(cast[ptr cef_browser](x))
+template ncRelease*(x: ptr_cef_client): untyped = ncRelease(cast[ptr cef_client](x))
+template ncRelease*(x: ptr_cef_frame): untyped = ncRelease(cast[ptr cef_frame](x))
 
-template USER_MENU_ID*(n: int): expr = (MENU_ID_USER_FIRST.ord + n).cef_menu_id
+template USER_MENU_ID*(n: int): untyped = (MENU_ID_USER_FIRST.ord + n).cef_menu_id
 
 type
   NCMainArgs* = object

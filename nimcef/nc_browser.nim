@@ -271,7 +271,7 @@ proc closeDevTools*(self: NCBrowserHost) =
   
 # Returns true (1) if this browser currently has an associated DevTools
 # browser. Must be called on the browser process UI thread.
-proc hasDevTools(self: NCBrowserHost): bool =
+proc hasDevTools*(self: NCBrowserHost): bool =
   self.wrapCall(has_dev_tools, result)
     
 # Retrieve a snapshot of current navigation entries as values sent to the

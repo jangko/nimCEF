@@ -117,7 +117,7 @@ var
   wrapAPIStat      {.compileTime.} = 0
   wrapCallbackStat {.compileTime.} = 0
 
-macro printWrapStat*(): stmt =
+macro printWrapStat*(): untyped =
   echo "wrapCall    : ", wrapCallStat
   echo "wrapProc    : ", wrapProcStat
   echo "wrapMethod  : ", wrapMethodStat
@@ -137,7 +137,7 @@ type
 
 var apiList {.compileTime.} : seq[APIPair] = @[]
 
-macro registerAPI*(api, base: typed): stmt =
+macro registerAPI*(api, base: typed): untyped =
   apiList.add APIPair(nApi: api, nBase: base)
   result = newEmptyNode()
 
@@ -167,7 +167,7 @@ macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = Root
   else:
     glue.add "  result = if self == nil: nil else: cast[ptr $1](self.handler)\n" % [baseName]
 
-  glue.add "template ncCastHandler*(self: $1): expr =\n" % [apiName]
+  glue.add "template ncCastHandler*(self: $1): untyped =\n" % [apiName]
   if isRoot:
     glue.add "  self.handler\n"
   else:
@@ -188,11 +188,11 @@ macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = Root
 
   result = parseStmt(glue)
 
-macro debugModeOn*(): stmt =
+macro debugModeOn*(): untyped =
   wrapDebugMode = true
   result = newEmptyNode()
 
-macro debugModeOff*(): stmt =
+macro debugModeOff*(): untyped =
   wrapDebugMode = false
   result = newEmptyNode()
 
@@ -224,18 +224,6 @@ proc findRoot(n: NimNode): NimNode =
       if $parent[1] == "RootObj": break
     parent = getType(parent[1])
   result = parent
-
-proc checkSymNC(n: NimNode): NimNode =
-  var err = false
-  if n.typeKind != ntyObject: err = true
-  let root = findRoot(getType(n))
-  let reclist = getRecList(root)
-  if reclist.len != 0:
-    if not (reclist[0].kind == nnkSym and $reclist[0] == "handler"): err = true
-  else:
-    err = true
-  if err: error(lineinfo(n) & " self must be a ref object type with a handler")
-  result = root
 
 proc checkSymHandler(nc: NimNode): NimNode =
   var ncstr = $nc
@@ -319,14 +307,12 @@ proc getBaseType(n: NimNode): string =
     return t.substr(0, t.find(':')-1)
   result = $n
 
-macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
+macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
   inc(wrapCallStat)
 
   # Sanitary Check
   let
     selfType   = checkSelf(self)         # BracketExpr: sym ref, sym NCXXX:ObjectType
-    symNC      = checkSymNC(selfType[1]) # ObjectTy: Empty, Reclist: sym handler
-    baseHandler= getRecList(symNC)[0]
     symHandler = checkSymHandler(selfType[1]) # BracketExpr: sym ptr, sym cef_xxx
     symCef     = getType(symHandler[1])  # ObjectTy: Empty, Reclist: 1..n
     routineList= getRecList(symCef)
@@ -541,7 +527,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): stmt =
 
   result = parseStmt(proloque & body & epiloque)
 
-macro wrapProc*(routine: typed, args: varargs[typed]): stmt =
+macro wrapProc*(routine: typed, args: varargs[typed]): untyped =
   inc(wrapProcStat)
 
   let hasResult = routineHasResult(routine)
@@ -876,7 +862,7 @@ proc collectMethods(ce: NimNode): NimNode =
     for n in recList:
       result.add n
 
-macro wrapMethods*(nc, n, c: typed): stmt =
+macro wrapMethods*(nc, n, c: typed): untyped =
   let nlist = getImpl(n.symbol)[2][2]
   let clist = collectMethods(c)
   let ni = $n
@@ -910,7 +896,7 @@ proc getParentMethods(nc: NimNode): seq[string] =
 
 var handlerList {.compileTime.} : seq[APIPair] = @[]
 
-macro registerHandler*(api, base: typed): stmt =
+macro registerHandler*(api, base: typed): untyped =
   handlerList.add APIPair(nApi: api, nBase: base)
   result = newEmptyNode()
 
@@ -944,15 +930,15 @@ proc wrapCallbackImpl(nc, cef, parent, methods: NimNode, wrapAPI: bool): string 
 
   result = glue
 
-macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): stmt =
+macro wrapCallback*(nc: untyped, cef: typed, methods: untyped): untyped =
   let glue = wrapCallbackImpl(nc, cef, bindSym"RootObj", methods, true)
   result = parseStmt(glue)
 
-macro wrapHandler*(nc: untyped, cef: typed, parent: typed, methods: untyped): stmt =
+macro wrapHandler*(nc: untyped, cef: typed, parent: typed, methods: untyped): untyped =
   let glue = wrapCallbackImpl(nc, cef, parent, methods, false)
   result = parseStmt(glue)
 
-macro wrapHandlerNoMethods*(nc: untyped, cef: typed, parent: typed): stmt =
+macro wrapHandlerNoMethods*(nc: untyped, cef: typed, parent: typed): untyped =
   let glue = wrapCallbackImpl(nc, cef, parent, newStmtList(), false)
   result = parseStmt(glue)
 
@@ -1028,21 +1014,21 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
 
   result = glue
 
-macro handlerImpl*(nc: typed, methods: varargs[typed]): stmt =
+macro handlerImpl*(nc: typed, methods: varargs[typed]): untyped =
   let glue = handlerImplImpl(nc, methods, true)
   result = parseStmt(glue)
 
-macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): stmt =
+macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): untyped =
   let glue = handlerImplImpl(nc, methods, false)
   result = parseStmt(glue)
 
-template ncCreate*(n: typed): expr =
+template ncCreate*(n: typed): untyped =
   `make n NCImplNC`()
 
 var
   vm_menu_id {.compileTime.} = 1
 
-macro MENU_ID*(n: untyped): stmt =
+macro MENU_ID*(n: untyped): untyped =
   if n.kind != nnkStmtList:
     error(n.lineinfo() & " expected stmtlist")
 
@@ -1055,7 +1041,7 @@ macro MENU_ID*(n: untyped): stmt =
 
   result = parseStmt(glue)
 
-macro ncBindTask*(ident: untyped, routine: typed): stmt =
+macro ncBindTask*(ident: untyped, routine: typed): untyped =
   var procName: string
   var rout: NimNode
   if routine.kind == nnkCall:

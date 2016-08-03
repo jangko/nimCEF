@@ -69,14 +69,14 @@ proc ncPostTask*(threadId: cef_thread_id, task: NCTask): bool =
 proc ncPostDelayedTask*(threadId: cef_thread_id, task: NCTask, delay_ms: int64): bool =
   wrapProc(cef_post_delayed_task, result, threadId, task, delay_ms)
 
-template NC_REQUIRE_UI_THREAD*(): expr =
+template NC_REQUIRE_UI_THREAD*(): untyped =
   doAssert(ncCurrentlyOn(TID_UI))
 
-template NC_REQUIRE_IO_THREAD*(): expr =
+template NC_REQUIRE_IO_THREAD*(): untyped =
   doAssert(ncCurrentlyOn(TID_IO))
 
-template NC_REQUIRE_FILE_THREAD*(): expr =
+template NC_REQUIRE_FILE_THREAD*(): untyped =
   doAssert(ncCurrentlyOn(TID_FILE))
 
-template NC_REQUIRE_RENDERER_THREAD*(): expr =
+template NC_REQUIRE_RENDERER_THREAD*(): untyped =
   doAssert(ncCurrentlyOn(TID_RENDERER))

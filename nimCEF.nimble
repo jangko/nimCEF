@@ -6,4 +6,4 @@ description   = "CEF3 Chromium Emmbedded Framework wrapper"
 license       = "MIT"
 
 [Deps]
-Requires: "nim >= 0.13.0"
+Requires: "nim >= 0.14.0"

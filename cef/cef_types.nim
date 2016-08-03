@@ -13,26 +13,26 @@ type
   cef_color* = uint32
 
 # Return the alpha byte from a cef_color_t value.
-template CefColorGetA*(color: cef_color): expr = (((color) shr 24) and 0xFF)
+template CefColorGetA*(color: cef_color): untyped = (((color) shr 24) and 0xFF)
 # Return the red byte from a cef_color_t value.
-template CefColorGetR*(color: cef_color): expr = (((color) shr 16) and 0xFF)
+template CefColorGetR*(color: cef_color): untyped = (((color) shr 16) and 0xFF)
 # Return the green byte from a cef_color_t value.
-template CefColorGetG*(color: cef_color): expr = (((color) shr  8) and 0xFF)
+template CefColorGetG*(color: cef_color): untyped = (((color) shr  8) and 0xFF)
 # Return the blue byte from a cef_color_t value.
-template CefColorGetB*(color: cef_color): expr = (((color) shr  0) and 0xFF)
+template CefColorGetB*(color: cef_color): untyped = (((color) shr  0) and 0xFF)
 
 # Return an cef_color_t value with the specified byte component values.
-template CefColorSetARGB*(a, r, g, b): expr =
+template CefColorSetARGB*(a, r, g, b): untyped =
   ((uint32(a) shl 24) or (uint32(r) shl 16) or (uint32(g) shl 8) or (uint32(b) shl 0))
 
 # Return an int64 value with the specified low and high int32 component values.
-template CefInt64Set*(int32_low, int32_high): expr =
+template CefInt64Set*(int32_low, int32_high): untyped =
   (int64(int32(int32_low)) or (int64(int32(int32_high)) shl 32))
 
 # Return the low int32 value from an int64 value.
-template CefInt64GetLow*(int64_val): expr = int32(int64_val)
+template CefInt64GetLow*(int64_val): untyped = int32(int64_val)
 # Return the high int32 value from an int64 value.
-template CefInt64GetHigh*(int64_val): expr = int32((int64(int64_val) shr 32) and 0xFFFFFFFF'i32)
+template CefInt64GetHigh*(int64_val): untyped = int32((int64(int64_val) shr 32) and 0xFFFFFFFF'i32)
 
 type
   # Log severity levels.

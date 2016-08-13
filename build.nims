@@ -20,6 +20,9 @@ addSwitch("define:winUnicode")
 when defined(release):
   addSwitch("define:release")
 
+when not defined(cpu64):
+  addSwitch("cpu:i386")
+  
 exec "nim c $1 test_client" % [switches]
 exec "nim c $1 test_api" % [switches]
 exec "nim c $1 test_nim_api" % [switches]

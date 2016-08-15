@@ -24,7 +24,7 @@ wrapAPI(NCBrowserHost, cef_browser_host, false)
 
 # Implement this structure to provide handler implementations.
 wrapAPI(NCClient, cef_client, false)
-
+  
 template ncWrap*(x: ptr_cef_client): untyped = ncWrap(cast[ptr cef_client](x))
 template ncWrap*(x: ptr_cef_browser): untyped = ncWrap(cast[ptr cef_browser](x))
 template ncWrap*(x: ptr_cef_frame): untyped = ncWrap(cast[ptr cef_frame](x))

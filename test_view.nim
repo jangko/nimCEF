@@ -216,12 +216,12 @@ handlerImpl(NCRequestHandler):
 handlerImpl(MyDisplayHandler):
   proc onTitleChange*(self: MyDisplayHandler, browser: NCBrowser, title: string) =
     NC_REQUIRE_UI_THREAD()
-    var host = browser.getHost()
-    var hWnd = host.getWindowHandle()
-    when defined(windows):
-      discard setWindowText(hWnd, title)
-    elif defined(UNIX):
-      set_title(hWnd, title)
+    #var host = browser.getHost()
+    #var hWnd = host.getWindowHandle()
+    #when defined(windows):
+    #  discard setWindowText(hWnd, title)
+    #elif defined(UNIX):
+    #  set_title(hWnd, title)
   
   proc onAddressChange*(self: MyDisplayHandler, browser: NCBrowser, frame: NCFrame, url: string) =
     NC_REQUIRE_UI_THREAD()

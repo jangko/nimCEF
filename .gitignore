@@ -63,3 +63,5 @@ cefclient/
 *.log
 *.dat
 *.c
+*.so
+chrome-sandbox

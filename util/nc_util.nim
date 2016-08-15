@@ -665,7 +665,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): untyped =
   result = parseStmt(proloque & body & epiloque)
 
 proc make_nc_name(n: string): string =
-  result = "nc_" & n.substr(n.find('_') + 1)
+  result = "Tnc_" & n.substr(n.find('_') + 1)
 
 proc getValidProcName(n: NimNode): string =
   if n.kind != nnkPostfix:
@@ -930,7 +930,7 @@ proc wrapCallbackImpl(nc, cef, parent, methods: NimNode, wrapAPI: bool): string 
     let params = m[3].toStrLit().strVal()
     glue.add "    $1: proc$2\n" % [procName, params]
 
-  glue.add "  $1 = object of NCBase[$2, $3]\n" % [nc_name, $cef, $nc]
+  glue.add "  $1* = object of NCBase[$2, $3]\n" % [nc_name, $cef, $nc]
   glue.add "    impl: $1_i[$2]\n" % [nc_name, $nc]
   glue.add "wrapMethods($1, $2_i, $3)\n" % [$nc, nc_name, $cef]
   glue.add "registerHandler($1, $2)\n" % [$nc, nc_name]

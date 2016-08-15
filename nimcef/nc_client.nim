@@ -61,8 +61,3 @@ wrapHandler(NCClient, cef_client, RootObj):
   # reference to or attempt to access the message outside of this callback.
   proc onRenderProcessMessageReceived*(self: T, browser: NCBrowser,
     source_process: cef_process_id, message: NCProcessMessage): bool
-
-proc getClient*[T](browser: NCBrowser): T =
-  let client = browser.GetHost().GetClient()
-  let handler = toType(nc_client, client.handler)
-  result = T(handler.container)

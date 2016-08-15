@@ -9,7 +9,7 @@ type
   cef_cursor_handle* = culong
   cef_event_handle*  = distinct pointer # XEvent*
   cef_window_handle* = culong
-  XDisplay = distinct pointer
+  XDisplay* = distinct pointer
   cef_text_input_context* = distinct pointer
 
   # Structure representing CefExecuteProcess arguments.

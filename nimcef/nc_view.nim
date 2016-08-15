@@ -926,7 +926,7 @@ wrapHandler(NCViewDelegate, cef_view_delegate, RootObj):
 # Implement this structure to handle BrowserView events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, nc_view_delegate_i):
+wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, Tnc_view_delegate_i):
   # Called when |browser| associated with |browser_view| is created. This
   # function will be called after cef_life_span_handler_t::on_after_created()
   # is called for |browser| and before on_popup_browser_view_created() is
@@ -960,19 +960,19 @@ wrapHandler(NCBrowserViewDelegate, cef_browser_view_delegate, nc_view_delegate_i
 # Implement this structure to handle Panel events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandlerNoMethods(NCPanelDelegate, cef_panel_delegate, nc_view_delegate_i)
+wrapHandlerNoMethods(NCPanelDelegate, cef_panel_delegate, Tnc_view_delegate_i)
 
 # Implement this structure to handle Button events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCButtonDelegate, cef_button_delegate, nc_view_delegate_i):
+wrapHandler(NCButtonDelegate, cef_button_delegate, Tnc_view_delegate_i):
   # Called when |button| is pressed.
   proc onButtonPressed*(self: T, button: NCButton)
 
 # Implement this structure to handle MenuButton events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCMenuButtonDelegate, cef_menu_button_delegate, nc_button_delegate_i):
+wrapHandler(NCMenuButtonDelegate, cef_menu_button_delegate, Tnc_button_delegate_i):
   # Called when |button| is pressed. Call cef_menu_button_t::show_menu() to
   # show the resulting menu at |screen_point|.
   proc onMenuButtonPressed*(self: T, menuButton: NCMenuButton, screenPoint: NCPoint)
@@ -980,7 +980,7 @@ wrapHandler(NCMenuButtonDelegate, cef_menu_button_delegate, nc_button_delegate_i
 # Implement this structure to handle Textfield events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCTextFieldDelegate, cef_textfield_delegate, nc_view_delegate_i):
+wrapHandler(NCTextFieldDelegate, cef_textfield_delegate, Tnc_view_delegate_i):
   # Called when |textfield| recieves a keyboard event. |event| contains
   # information about the keyboard event. Return true (1) if the keyboard event
   # was handled or false (0) otherwise for default handling.
@@ -992,7 +992,7 @@ wrapHandler(NCTextFieldDelegate, cef_textfield_delegate, nc_view_delegate_i):
 # Implement this structure to handle window events. The functions of this
 # structure will be called on the browser process UI thread unless otherwise
 # indicated.
-wrapHandler(NCWindowDelegate, cef_window_delegate, nc_panel_delegate_i):
+wrapHandler(NCWindowDelegate, cef_window_delegate, Tnc_panel_delegate_i):
   # Called when |window| is created.
   proc onWindowCreated*(self: T, window: NCWindow)
 

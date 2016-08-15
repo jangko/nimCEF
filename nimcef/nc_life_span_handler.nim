@@ -122,7 +122,7 @@ wrapCallback(NCLifeSpanHandler, cef_life_span_handler):
   #     is destroyed.
   # 11. Application exits by calling NCQuitMessageLoop() if no other browsers
   #     exist.
-  proc doClose*(self: T, browser: NCBrowser): int
+  proc doClose*(self: T, browser: NCBrowser): bool
 
   # Called just before a browser is destroyed. Release all references to the
   # browser object and do not attempt to execute any functions on the browser

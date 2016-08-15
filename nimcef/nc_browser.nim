@@ -466,3 +466,8 @@ proc ncBrowserHostCreateBrowser*(windowInfo: NCWindowInfo, client: NCClient,
 proc ncBrowserHostCreateBrowserSync*(windowInfo: NCWindowInfo, client: NCClient,
   url: string, settings: NCBrowserSettings, request_context: NCRequestContext = nil): NCBrowser =
   wrapProc(cef_browser_host_create_browser_sync, result, windowInfo, client, url, settings, request_context)
+  
+proc getClient*[T](browser: NCBrowser): T =
+  var client = browser.getHost().getClient()
+  var handler = toType(Tnc_client, client.handler)
+  result = T(handler.container)

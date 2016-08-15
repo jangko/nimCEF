@@ -57,7 +57,7 @@ else:
 
   proc makeNCMainArgs*(): NCMainArgs =
     let count = paramCount()
-    result.args.argc = count
+    result.args.argc = count.cint
     nim_params = newSeq[string](count)
     c_params = newSeq[cstring](count+1)
     for i in 0.. <count:
@@ -156,6 +156,28 @@ elif defined(UNIX):
 
       #Pointer for the new browser window. Only used with windowed rendering.
       window*: cef_window_handle
+
+  proc toCef*(nc: NCWindowInfo): cef_window_info =
+    result.x = nc.x.cuint
+    result.y = nc.y.cuint
+    result.width = nc.width.cuint
+    result.height = nc.width.cuint
+    result.parentWindow = nc.parentWindow
+    result.windowlessRenderingEnabled = nc.windowlessRenderingEnabled.cint
+    result.transparentPaintingEnabled = nc.transparentPaintingEnabled.cint
+    result.window = nc.window
+
+  proc toNim*(nc: ptr cef_window_info): NCWindowInfo =
+    result.x = nc.x.uint
+    result.y = nc.y.uint
+    result.width = nc.width.uint
+    result.height = nc.width.uint
+    result.parentWindow = nc.parentWindow
+    result.windowlessRenderingEnabled = nc.windowlessRenderingEnabled == 1.cint
+    result.transparentPaintingEnabled = nc.transparentPaintingEnabled == 1.cint
+    result.window = nc.window
+
+  proc ncFree*(nc: var cef_window_info) = discard
 
 elif defined(MACOSX):
   type

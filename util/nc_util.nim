@@ -424,6 +424,12 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
       let nType = getType(arg)
       if sameType(cType, nType):
         params.add argv
+    of ntyDistinct:
+      let T = getType(arg)[1]
+      if T.typeKind == ntyPointer:
+        params.add argv
+      else:
+        error(lineinfo(arg) & " unsupported distinct param type: " & $T)
     else:
       error(lineinfo(arg) & " unsupported param type: " & $arg.typeKind)
 
@@ -444,6 +450,8 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
       body = "result = $1($2).int32\n" % [calee, params]
     of ntyUInt32:
       body = "result = $1($2).uint32\n" % [calee, params]
+    of ntyUInt:
+      body = "result = $1($2).uint\n" % [calee, params]
     of ntyRef:
       if checkWrapped(res): body = "result = ncWrap($1($2))\n" % [calee, params]
       elif checkMultiMap(res):
@@ -781,7 +789,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
         params.add "$1 == 1.$2" % [$c.nName, $c.nType]
       else:
         params.add "$1.$2" % [$c.nName, $n.nType]
-    of ntyPointer, ntyInt, ntyInt64, ntyCstring, ntyEnum:
+    of ntyPointer, ntyInt, ntyInt64, ntyCstring, ntyEnum, ntyUint:
       params.add $c.nName
     of ntyDistinct:
       if $c.nType == "ptr_cef_browser":
@@ -789,8 +797,10 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
         epiloque2.add "  ncRelease($1)\n" % [$c.nName]
       elif $c.nType == "cef_string_list":
         params.add "$$($1)" % [$c.nName]
+      elif $c.nType == "cef_event_handle":
+        params.add $c.nName
       else:
-        error("unknown distinct param")
+        error("unknown distinct param: " & $c.nType)
     of ntyVar:
       if n.nType[0].typeKind in {ntyInt, ntyInt64}:
         proloque.add "    var $1_p = $1.$2\n" % [$c.nName, $n.nType[0]]
@@ -817,7 +827,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
     of ntyFloat:
       params.add "$1.$2" % [$c.nName, $n.nType]
     else:
-      error("unknown param kind " & $c.nType.typeKind)
+      error("unknown param kind " & $c.nType.typeKind & ", of " & $c.nName)
 
     if i < argSize-1: params.add ", "
 

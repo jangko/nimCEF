@@ -1,4 +1,4 @@
-import winapi, os, strutils
+import os, strutils
 import nc_menu_model, nc_process_message, nc_app, nc_client, nc_types
 import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
 import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
@@ -6,7 +6,12 @@ import nc_urlrequest, nc_auth_callback, nc_frame, nc_web_plugin
 import nc_request_context_handler, nc_request_context
 import nc_life_span_handler, nc_context_menu_handler
 import test_runner, nc_resource_manager, nc_request_handler
-import nc_display_handler, layout
+import nc_display_handler, layout, nc_view
+
+when defined(windows):
+  import winapi
+elif defined(UNIX):
+  import gtkapi
 
 type
   MyApp = ref object of NCApp
@@ -39,17 +44,28 @@ MENU_ID:
 handlerImpl(NCClient)
 
 proc showDevTool(host: NCBrowserHost; x, y: int = 0) =
-  let screenW = getSystemMetrics(SM_CXSCREEN)
-  let screenH = getSystemMetrics(SM_CYSCREEN)
+  var disp = ncDisplayGetPrimary()
+  var rect = disp.getWorkArea()
+
+  let screenW = rect.width
+  let screenH = rect.height
+
   let devToolW = screenW - screenW div 3
   let devToolH = screenH - screenH div 3
   var windowInfo: NCWindowInfo
-  windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE
-  windowInfo.parent_window = cef_window_handle(0)
-  windowInfo.x = (screenW - devToolW) div 2
-  windowInfo.y = (screenH - devToolH) div 2
-  windowInfo.width = devToolW
-  windowInfo.height = devToolH
+
+  when defined(windows):
+    windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE
+    windowInfo.parent_window = cef_window_handle(0)
+    windowInfo.x = (screenW - devToolW) div 2
+    windowInfo.y = (screenH - devToolH) div 2
+    windowInfo.width = devToolW
+    windowInfo.height = devToolH
+  else:
+    windowInfo.x = uint((screenW - devToolW) div 2)
+    windowInfo.y = uint((screenH - devToolH) div 2)
+    windowInfo.width = devToolW.uint
+    windowInfo.height = devToolH.uint
 
   var setting: NCBrowserSettings
   host.showDevTools(windowInfo, NCClient.ncCreate(), setting, NCPoint(x:x, y:y))
@@ -202,7 +218,10 @@ handlerImpl(MyDisplayHandler):
     NC_REQUIRE_UI_THREAD()
     var host = browser.getHost()
     var hWnd = host.getWindowHandle()
-    discard setWindowText(hWnd, title)
+    when defined(windows):
+      discard setWindowText(hWnd, title)
+    elif defined(UNIX):
+      set_title(hWnd, title)
   
   proc onAddressChange*(self: MyDisplayHandler, browser: NCBrowser, frame: NCFrame, url: string) =
     NC_REQUIRE_UI_THREAD()
@@ -257,13 +276,13 @@ proc main() =
   settings.no_sandbox = true
   discard ncInitialize(mainArgs, settings, app)
 
-  var windowInfo: NCWindowInfo
-  windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
-  windowInfo.parent_window = cef_window_handle(0)
-  windowInfo.x = 0
-  windowInfo.y = 0
-  windowInfo.width = getSystemMetrics(SM_CXSCREEN)
-  windowInfo.height = getSystemMetrics(SM_CYSCREEN)
+  #var windowInfo: NCWindowInfo
+  #windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
+  #windowInfo.parent_window = cef_window_handle(0)
+  #windowInfo.x = 0
+  #windowInfo.y = 0
+  #windowInfo.width = getSystemMetrics(SM_CXSCREEN)
+  #windowInfo.height = getSystemMetrics(SM_CYSCREEN)
 
   registerSchemeHandler()
 

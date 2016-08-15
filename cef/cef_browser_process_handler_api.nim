@@ -30,3 +30,14 @@ type
     # provided then printing will not be supported on the Linux platform.
     get_print_handler*: proc(self: ptr cef_browser_process_handler): ptr cef_print_handler {.cef_callback.}
 
+    # Called from any thread when work has been scheduled for the browser process
+    # main (UI) thread. This callback is used in combination with CefSettings.
+    # external_message_pump and cef_do_message_loop_work() in cases where the CEF
+    # message loop must be integrated into an existing application message loop
+    # (see additional comments and warnings on CefDoMessageLoopWork). This
+    # callback should schedule a cef_do_message_loop_work() call to happen on the
+    # main (UI) thread. |delay_ms| is the requested delay in milliseconds. If
+    # |delay_ms| is <= 0 then the call should happen reasonably soon. If
+    # |delay_ms| is > 0 then the call should be scheduled to happen after the
+    # specified delay and any currently pending scheduled call should be cancelled.
+    on_schedule_message_pump_work*: proc(self: ptr cef_browser_process_handler, delay_ms: int64) {.cef_callback.}

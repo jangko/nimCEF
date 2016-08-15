@@ -82,6 +82,16 @@ type
     # Windows.
     multi_threaded_message_loop*: cint
 
+    # Set to true (1) to control browser process main (UI) thread message pump
+    # scheduling via the CefBrowserProcessHandler::OnScheduleMessagePumpWork()
+    # callback. This option is recommended for use in combination with the
+    # CefDoMessageLoopWork() function in cases where the CEF message loop must be
+    # integrated into an existing application message loop (see additional
+    # comments and warnings on CefDoMessageLoopWork). Enabling this option is not
+    # recommended for most users; leave this option disabled and use either the
+    # CefRunMessageLoop() function or multi_threaded_message_loop if possible.
+    external_message_pump*: cint
+
     # Set to true (1) to enable windowless (off-screen) rendering support. Do not
     # enable this value if the application does not use windowless rendering as
     # it may reduce rendering performance on some systems.

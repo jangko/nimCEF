@@ -20,7 +20,7 @@ The Convenience Layer heavily utilizing Nim macros to generate consistent and ef
 
 ---
 
-### Translation status(CEF3 ver 2704):
+### Translation status(CEF3 ver 2743):
 
 | No | Items                 | Win32    | Linux32 | Win64    | Linux64 | Mac64    | Nim Ver  |
 |----|-----------------------|----------|---------|----------|---------|----------|----------|

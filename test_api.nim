@@ -15,7 +15,6 @@ import cef_navigation_entry_api, cef_origin_whitelist_api, cef_request_context_h
 import cef_resource_bundle_api, cef_resource_bundle_handler_api, cef_response_filter_api
 import cef_trace_api, cef_zip_reader_api, cef_response_api, cef_view_api
 
-
 import nc_app, nc_client, nc_frame
 import nc_menu_model, nc_process_message, nc_command_line
 import nc_browser, nc_zip_reader, nc_xml_reader, nc_value, nc_dom, nc_types

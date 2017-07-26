@@ -4,64 +4,11 @@ import nc_load_handler, nc_display_handler, nc_util, nc_task
 import nc_client, nc_util_impl, nc_app, nc_frame, nc_browser_process_handler
 import nc_command_line, nc_settings
 
- #, nc_menu_model, nc_process_message, nc_app, nc_client
-#import nc_context_menu_params, nc_browser, nc_scheme, nc_resource_handler
-#import nc_request, nc_callback, nc_util, nc_response, nc_settings, nc_task
-#import nc_urlrequest, nc_auth_callback, nc_frame, nc_web_plugin
-#import nc_request_context_handler, nc_request_context
-#import nc_life_span_handler, nc_context_menu_handler
-#import test_runner, nc_resource_manager, nc_request_handler
-#import nc_display_handler, layout, nc_view
-
-when defined(macosx):
-  const libX11* = "libX11.dylib"
+when defined(windows):
+  import win_util, winapi
 else:
-  const libX11* = "libX11.so.6"
-
-{.pragma: libx11, cdecl, dynlib: libX11, importc.}
-{.pragma: libx11c, cdecl, dynlib: libX11.}
-
-type
-  PPChar* = ptr cstring
-  PAtom* = ptr TAtom
-  TAtom* = culong
-  TBool* = cint
-  TStatus* = cint
-  TWindow* = culong
-  Pcuchar* = cstring
-  TXID* = culong
-  PXErrorEvent* = ptr TXErrorEvent
-  TXErrorEvent*{.final.} = object
-    theType*: cint
-    display*: XDisplay
-    resourceid*: TXID
-    serial*: culong
-    error_code*: cuchar
-    request_code*: cuchar
-    minor_code*: cuchar
-    
-  TXErrorHandler* = proc(para1: XDisplay, para2: PXErrorEvent): cint {.cdecl.}
-  TXIOErrorHandler* = proc(para1: XDisplay): cint {.cdecl.}
+  import x11_util
   
-const
-  PropModeReplace* = 0
-
-proc XInternAtoms*(para1: XDisplay, para2: PPchar, para3: cint, para4: TBool, para5: PAtom): TStatus {.libx11.}
-
-proc XChangeProperty*(para1: XDisplay, para2: TWindow, para3: TAtom,
-                      para4: TAtom, para5: cint, para6: cint, para7: Pcuchar,
-                      para8: cint): cint {.libx11.}
-
-proc XStoreName*(para1: XDisplay, para2: TWindow, para3: cstring): cint {.libx11.}
-proc XSetErrorHandler*(para1: TXErrorHandler): TXErrorHandler {.libx11.}
-proc XSetIOErrorHandler*(para1: TXIOErrorHandler): TXIOErrorHandler {.libx11.}
-
-let
-  atom1 = "_NET_WM_NAME"
-  atom2 = "UTF8_STRING"
-
-var kAtoms = [atom1.cstring, atom2.cstring]
-
 type
   MyClient = ref object of NCClient
     lifespanh: NCLifeSpanHandler
@@ -80,36 +27,6 @@ type
   SimpleWindowDelegate = ref object of NCWindowDelegate
     browserView: NCBrowserView
     
-proc PlatformTitleChange(browser: NCBrowser, title: string) =
-  # Retrieve the X11 display shared with Chromium.
-  var display = cef_get_xdisplay()
-  doAssert(display.pointer != nil)
-
-  # Retrieve the X11 window handle for the browser.
-  var window = browser.getHost().getWindowHandle()
-  doAssert(window != kNullWindowHandle.culong)
-
-  # Retrieve the atoms required by the below XChangeProperty call.
-  var atoms: array[2, TAtom]
-  var result = XInternAtoms(display, kAtoms[0].addr, 2, 0.cint, atoms[0].addr)
-  if result == 0: return
-
-  # Set the window title.
-  discard XChangeProperty(display,
-                  window,
-                  atoms[0],
-                  atoms[1],
-                  8.cint,
-                  PropModeReplace.cint,
-                  title,
-                  title.len.cint)
-
-  # TODO(erg): This is technically wrong. So XStoreName and friends expect
-  # this in Host Portable Character Encoding instead of UTF-8, which I believe
-  # is Compound Text. This shouldn't matter 90% of the time since this is the
-  # fallback to the UTF8 property above.
-  discard XStoreName(display, window, title)
-
 handlerImpl(NCDisplayHandler):
   proc onTitleChange*(self: NCDisplayHandler, browser: NCBrowser, title: string) =
     NC_REQUIRE_UI_THREAD()
@@ -285,8 +202,9 @@ proc newApp(): MyApp =
   result = MyApp.ncCreate()
   result.bph = NCBrowserProcessHandler.ncCreate()
   
-proc XErrorHandlerImpl(display: XDisplay, event: PXErrorEvent): cint {.cdecl.} = 0
-proc XIOErrorHandlerImpl(display: XDisplay): cint {.cdecl.} = 0
+when not defined(windows):
+  proc XErrorHandlerImpl(display: XDisplay, event: PXErrorEvent): cint {.cdecl.} = 0
+  proc XIOErrorHandlerImpl(display: XDisplay): cint {.cdecl.} = 0
 
 proc main() =
   # Main args.
@@ -297,19 +215,23 @@ proc main() =
     echo "failure execute process ", code
     quit(code)
     
-  # Install xlib error handlers so that the application won't be terminated
-  # on non-fatal errors.
-  discard XSetErrorHandler(XErrorHandlerImpl)
-  discard XSetIOErrorHandler(XIOErrorHandlerImpl)
+  when not defined(windows):
+    # Install xlib error handlers so that the application won't be terminated
+    # on non-fatal errors.
+    discard XSetErrorHandler(XErrorHandlerImpl)
+    discard XSetIOErrorHandler(XIOErrorHandlerImpl)
 
   # Specify CEF global settings here.
-  var settings: NCSettings
+  var settings = NCSettings()
+  settings.no_sandbox = true
 
   # SimpleApp implements application-level callbacks for the browser process.
   # It will create the first browser instance in OnContextInitialized() after
   # CEF has initialized.
   var app = newApp()
 
+  doAssert(app != nil)
+  
   # Initialize CEF for the browser process.
   discard ncInitialize(mainArgs, settings, app)
 

@@ -259,7 +259,7 @@ proc checkBase(n: NimNode): bool =
 proc checkWrapped(n: NimNode): bool =
   let nType = getType(n)
   if nType.typeKind != ntyRef: return false
-  let parent = getType(nType[1])
+  let parent = getTypeImpl(nType[1])
   let root = findRoot(parent)
   if root[2].len == 0: return false
   let handler = root[2][0]
@@ -270,15 +270,18 @@ proc checkWrapped(n: NimNode): bool =
   result = true
 
 proc checkMultiMap(n: NimNode): bool =
-  let objSym = getType(n)[1] #table
-  if objSym.kind != nnkSym: return false
-  if $objSym != "Table": return false
-  let data = getRecList(getType(objSym))[0]
-  let A = getType(data)[1][2]
-  if $A != "string": return false
-  let B = getType(data)[1][3]
-  if B.typeKind != ntySequence: return false
-  if $getType(B)[1] != "string": return false
+  let mapType = getTypeImpl(n)
+  if mapType.kind != nnkRefTy: return false
+  let bracket = mapType[0]
+  if bracket.kind != nnkBracketExpr: return false
+  if bracket.len < 3: return false
+  if bracket[0].kind != nnkSym and $bracket[0] != "Table": return false
+  if bracket[1].kind != nnkSym and $bracket[1] != "string": return false
+  if bracket[2].kind != nnkBracketExpr: return false
+  let seqType = bracket[2]
+  if seqType.len < 2: return false
+  if seqType[0].kind != nnkSym and $seqType[0] != "seq": return false
+  if seqType[1].kind != nnkSym and $seqType[1] != "string": return false
   result = true
 
 proc checkStringMap(n: NimNode): bool =
@@ -572,8 +575,8 @@ macro wrapProc*(routine: typed, args: varargs[typed]): untyped =
     of ntyEnum, ntyPointer, ntyInt64:
       if arg.kind == nnkHiddenDeref:
         #enumty should have typeName
-        let argType = $getType(routine)[i - startIndex + 2][1][0][1]
-        proloque.add "var arg$1 = $2\n" % [argi, argType]
+        let argVal = $getTypeImpl(routine)[0][i - startIndex + 1][0]
+        proloque.add "var arg$1 = $2\n" % [argi, argVal]
         params.add "arg$1" % [argi]
         epiloque.add "$1 = arg$2\n" % [argv, argi]
       else:

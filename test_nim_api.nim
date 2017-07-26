@@ -341,10 +341,10 @@ proc main() =
   elif defined(windows):
     windowInfo.style = WS_OVERLAPPEDWINDOW or WS_CLIPCHILDREN or  WS_CLIPSIBLINGS or WS_VISIBLE or WS_MAXIMIZE
     windowInfo.parent_window = cef_window_handle(0)
-    windowInfo.x = CW_USEDEFAULT
-    windowInfo.y = CW_USEDEFAULT
-    windowInfo.width = CW_USEDEFAULT
-    windowInfo.height = CW_USEDEFAULT
+    windowInfo.x = 0
+    windowInfo.y = 0
+    windowInfo.width = getSystemMetrics(SM_CXSCREEN)
+    windowInfo.height = getSystemMetrics(SM_CYSCREEN)
 
   #Initial url.
   let cwd = getCurrentDir()

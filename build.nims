@@ -23,8 +23,11 @@ when defined(release):
 when not defined(cpu64):
   addSwitch("cpu:i386")
   
-exec "nim c $1 test_client" % [switches]
-exec "nim c $1 test_api" % [switches]
-exec "nim c $1 test_nim_api" % [switches]
-exec "nim c $1 test_parser" % [switches]
-exec "nim c $1 test_simple_client" % [switches]
+when defined(windows):
+  exec "nim c $1 test_client" % [switches]
+  exec "nim c $1 test_api" % [switches]
+  exec "nim c $1 test_nim_api" % [switches]
+  exec "nim c $1 test_parser" % [switches]
+  exec "nim c $1 test_simple_client" % [switches]
+else:
+  exec "nim c $1 simple" % [switches]

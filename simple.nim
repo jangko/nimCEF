@@ -235,7 +235,7 @@ proc main() =
   # Initialize CEF for the browser process.
   discard ncInitialize(mainArgs, settings, app)
 
-  # Run the CEF message loop. This will block until CefQuitMessageLoop() is
+  # Run the CEF message loop. This will block until ncQuitMessageLoop() is
   # called.
   ncRunMessageLoop()
 

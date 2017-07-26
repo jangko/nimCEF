@@ -1,4 +1,4 @@
-import winapi, nc_types, nc_browser
+import gtkapi, nc_types, nc_browser
 
 when defined(macosx):
   const libX11* = "libX11.dylib"

@@ -43,7 +43,7 @@ proc toNim*(strlist: cef_string_list, dofree = true): seq[string] =
   var len = cef_string_list_size(strlist).int
   result = newSeq[string](len)
   var res: cef_string
-  for i in 0.. <len:
+  for i in 0..<len:
     if cef_string_list_value(strlist, i.cint, res.addr) == 1.cint:
       result[i] = $(res.addr)
       cef_string_clear(res.addr)
@@ -70,7 +70,7 @@ proc toNim*(map: cef_string_map, doFree = true): StringTableRef =
   let count = cef_string_map_size(map)
   result = newStringTable(modeCaseSensitive)
   var key, value: cef_string
-  for i in 0.. <count:
+  for i in 0..<count:
     discard cef_string_map_key(map, i.cint, key.addr)
     discard cef_string_map_value(map, i.cint, value.addr)
     result[$(key.addr)] = $(value.addr)
@@ -82,12 +82,12 @@ proc toNim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
   result = newTable[string, seq[string]]()
   let len = cef_string_multimap_size(map)
   var key, val: cef_string
-  for i in 0.. <len:
-    if cef_string_multimap_key(map, i, key.addr) == 1.cint:
+  for i in 0..<len:
+    if cef_string_multimap_key(map, i.cint, key.addr) == 1.cint:
       let count = cef_string_multimap_find_count(map, key.addr)
       var elem = newSeq[string](count)
-      for j in 0.. <count:
-        discard cef_string_multimap_enumerate(map, key.addr, j, val.addr)
+      for j in 0..<count:
+        discard cef_string_multimap_enumerate(map, key.addr, j.cint, val.addr)
         elem[j] = $(val.addr)
         cef_string_clear(val.addr)
       result.add($(key.addr), elem)
@@ -401,7 +401,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
         let handler = $getHandler(T)
         let argType = getType(rout)[i - startIndex + 3].getBaseType()
         proloque.add "var arg$1 = newSeq[ptr $2]($3.len)\n" % [argi, handler, argv]
-        proloque.add "for i in 0.. <$1.len:\n" % [argv]
+        proloque.add "for i in 0..<$1.len:\n" % [argv]
         proloque.add "  arg$1[i] = $2[i].getHandler()\n" % [argi, argv]
         proloque.add "  ncAddRef(arg$1[i])\n" % [argi]
         params.add "$1.len.$2, cast[ptr ptr $3](arg$4[0].addr)" % [argv, argType, handler, argi]
@@ -413,7 +413,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
         let argLen  = getType(rout)[i - startIndex + 3].getBaseType()
         let argBase = getType(rout)[i - startIndex + 4].getBaseType()
         proloque.add "var arg$1 = newSeq[$2]($3.len)\n" % [argi, argBase, argv]
-        proloque.add "for i in 0.. <$1.len:\n" % [argv]
+        proloque.add "for i in 0..<$1.len:\n" % [argv]
         proloque.add "  arg$1[i] = $2[i].toCef()\n" % [argi, argv]
         params.add "$1.len.$2, cast[ptr $3](arg$4[0].addr)" % [argv, argLen, argBase, argi]
       else:
@@ -494,7 +494,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
         proloque.add "var buf$1 = cast[ptr ptr $2](res$1[0].addr)\n" % [argi, handler]
         params.add ", buf" & argi
         body = "$1($2)\n" % [calee, params]
-        epiloque.add "for i in 0.. <$1:\n" % [size]
+        epiloque.add "for i in 0..<$1:\n" % [size]
         epiloque.add "  result[i] = ncWrap(res$1[i])\n" % [argi]
       elif T.typeKind == ntyInt64:
         let size = $args[args.len-1]
@@ -511,7 +511,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
         proloque.add "var buf$1 = cast[ptr $2](res$1[0].addr)\n" % [argi, srcType]
         params.add ", buf" & argi
         body = "$1($2)\n" % [calee, params]
-        epiloque.add "for i in 0.. <$1:\n" % [size]
+        epiloque.add "for i in 0..<$1:\n" % [size]
         epiloque.add "  result[i] = toNim(res$1[i])\n" % [argi]
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
@@ -651,7 +651,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): untyped =
         proloque.add "var buf$1 = cast[ptr ptr $2](res$1[0].addr)\n" % [argi, handler]
         params.add ", buf" & argi
         body = "$1($2)\n" % [calee, params]
-        epiloque.add "for i in 0.. <$1:\n" % [size]
+        epiloque.add "for i in 0..<$1:\n" % [size]
         epiloque.add "  result[i] = ncWrap(res$1[i])\n" % [argi]
       else:
         error(lineinfo(res) & " unsupported type of \"result\": seq " & getType(res).treeRepr)
@@ -682,13 +682,13 @@ type
 
 proc extractParam(res: var seq[paramPair], n: NimNode) =
   let numParam = n.len - 2
-  for i in 0.. <numParam:
+  for i in 0..<numParam:
     res.add paramPair(nName: n[i], nType: n[numParam])
 
 proc collectParams(n: NimNode, start = 2): seq[paramPair] =
   result = @[]
   # skip result and self
-  for i in start.. <n.len:
+  for i in start..<n.len:
     extractParam(result, n[i])
 
 proc checkCefPtr(n: NimNode): bool =
@@ -742,7 +742,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
 
   let argSize = nplist.len
   var ci = 0
-  for i in 0.. <argSize:
+  for i in 0..<argSize:
     let n = nplist[i]
     let c = cplist[ci]
     inc(ci)
@@ -753,9 +753,9 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       proloque.add "    proc idxptr(a: ptr ptr $1, i: int): ptr $1 =\n" % [$cc.nType[0][0]]
       proloque.add "      cast[ptr ptr $1](cast[ByteAddress](a) + i * sizeof(pointer))[]\n" % [$cc.nType[0][0]]
       proloque.add "    var $1_p = newSeq[$2]($3.int)\n" % [$n.nName, $n.nType[1], $c.nName]
-      proloque.add "    for i in 0.. <$1_p.len:\n" % [$n.nName]
+      proloque.add "    for i in 0..<$1_p.len:\n" % [$n.nName]
       proloque.add "      $1_p[i] = ncWrap(idxptr($2, i))\n" % [$n.nName, $cc.nName]
-      epiloque.add "    for i in 0.. <$1_p.len:\n" % [$n.nName]
+      epiloque.add "    for i in 0..<$1_p.len:\n" % [$n.nName]
       epiloque.add "      var xx = idxptr($1, i)\n" % [$cc.nName]
       epiloque.add "      ncRelease(xx)\n" % [$n.nName]
       params.add "$1_p" % [$n.nName]
@@ -886,7 +886,7 @@ macro wrapMethods*(nc, n, c: typed): untyped =
   constructor.add "  ncInit($1, T, impl)\n" % [ns]
   constructor.add "  var handler = cast[ptr $1](result.handler)\n" % [$c]
 
-  for i in 0.. <nlist.len:
+  for i in 0..<nlist.len:
     let cproc = clist[i]
     let cname = getValidProcName(cproc[0])
     glue.add glueSingleMethod(ns, nlist[i], cproc, global_iidx)
@@ -1010,7 +1010,7 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
       glue.add genField(methods[0])
     else:
       let len = methods[0].len
-      for i in 0.. <len:
+      for i in 0..<len:
         let n = methods[0][i]
         glue.add genField(n)
         if i < len-1: glue.add ",\n"
@@ -1072,7 +1072,7 @@ macro ncBindTask*(ident: untyped, routine: typed): untyped =
   var args = ""
   var ex_args = ""
   var call_args = ""
-  for i in 0.. <paramList.len:
+  for i in 0..<paramList.len:
     let arg = paramList[i]
     args.add "arg$1: $2" % [$i, arg.nType.toStrlit().strVal]
     ex_args.add "self.nc_arg$1" % [$i]
@@ -1086,7 +1086,7 @@ macro ncBindTask*(ident: untyped, routine: typed): untyped =
   glue.add "  type\n"
   glue.add "    NCType$1 = ref object of NCTask\n" % [typeID]
 
-  for i in 0.. <paramList.len:
+  for i in 0..<paramList.len:
     let arg = paramList[i]
     glue.add "      nc_arg$1: $2\n" % [$i, arg.nType.toStrlit().strVal]
 
@@ -1097,7 +1097,7 @@ macro ncBindTask*(ident: untyped, routine: typed): untyped =
   glue.add "  proc newNCType$1($2): NCType$1 =\n" % [typeID, args]
   glue.add "    result = NCType$1.ncCreate()\n" % [typeID]
 
-  for i in 0.. <paramList.len:
+  for i in 0..<paramList.len:
     glue.add "    result.nc_arg$1 = arg$1\n" % [$i]
 
   glue.add "  result = newNCType$1($2)\n" % [typeID, call_args]

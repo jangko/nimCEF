@@ -283,42 +283,42 @@ proc setRethrowExceptions*(self: NCV8Value, rethrow: bool): bool =
   self.wrapCall(set_rethrow_exceptions, result, rethrow)
 
 # Returns true (1) if the object has a value with the specified identifier.
-proc hasValueByKey*(self: NCV8Value, key: string): bool =
+proc hasValue*(self: NCV8Value, key: string): bool =
   self.wrapCall(has_value_bykey, result, key)
 
 # Returns true (1) if the object has a value with the specified identifier.
-proc hasValueByIndex*(self: NCV8Value, index: int): bool =
+proc hasValue*(self: NCV8Value, index: int): bool =
   self.wrapCall(has_value_byindex, result, index)
 
 # Deletes the value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only and don't-delete values this function
 # will return true (1) even though deletion failed.
-proc deleteValueByKey*(self: NCV8Value, key: string): bool =
+proc deleteValue*(self: NCV8Value, key: string): bool =
   self.wrapCall(delete_value_bykey, result, key)
 
 # Deletes the value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly, deletion
 # fails or an exception is thrown. For read-only and don't-delete values this
 # function will return true (1) even though deletion failed.
-proc deleteValueByIndex*(self: NCV8Value, index: int): bool =
+proc deleteValue*(self: NCV8Value, index: int): bool =
   self.wrapCall(delete_value_byindex, result, index)
 
 # Returns the value with the specified identifier on success. Returns NULL if
 # this function is called incorrectly or an exception is thrown.
-proc getValueByKey*(self: NCV8Value, key: string): NCV8Value =
+proc getValue*(self: NCV8Value, key: string): NCV8Value =
   self.wrapCall(get_value_bykey, result, key)
 
 # Returns the value with the specified identifier on success. Returns NULL if
 # this function is called incorrectly or an exception is thrown.
-proc getValueByIndex*(self: NCV8Value, index: int): NCV8Value =
+proc getValue*(self: NCV8Value, index: int): NCV8Value =
   self.wrapCall(get_value_byindex, result, index)
 
 # Associates a value with the specified identifier and returns true (1) on
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only values this function will return true
 # (1) even though assignment failed.
-proc setValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
+proc setValue*(self: NCV8Value, key: string, value: NCV8Value,
   attribute: cef_v8_propertyattribute) : bool =
   self.wrapCall(set_value_bykey, result, key, value, attribute)
 
@@ -326,7 +326,7 @@ proc setValueByKey*(self: NCV8Value, key: string, value: NCV8Value,
 # success. Returns false (0) if this function is called incorrectly or an
 # exception is thrown. For read-only values this function will return true
 # (1) even though assignment failed.
-proc setValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
+proc setValue*(self: NCV8Value, index: int, value: NCV8Value): bool =
   self.wrapCall(set_value_byindex, result, index, value)
 
 # Registers an identifier and returns true (1) on success. Access to the
@@ -334,7 +334,7 @@ proc setValueByIndex*(self: NCV8Value, index: int, value: NCV8Value): bool =
 # NCV8Value::NCV8ValueCreateObject(). Returns false (0) if this
 # function is called incorrectly or an exception is thrown. For read-only
 # values this function will return true (1) even though assignment failed.
-proc setValueByAccessor*(self: NCV8Value, key: string, settings: cef_v8_accesscontrol,
+proc setValue*(self: NCV8Value, key: string, settings: cef_v8_accesscontrol,
   attribute: cef_v8_propertyattribute): bool =
   self.wrapCall(set_value_byaccessor, result, key, settings, attribute)
 

@@ -403,7 +403,7 @@ proc executeFunction*(self: NCV8Value, obj: NCV8Value, args: seq[NCV8Value]): NC
 # that will be passed to the function. Returns the function return value on
 # success. Returns NULL if this function is called incorrectly or an
 # exception is thrown.
-proc executeFunctionWithContext*(self: NCV8Value, context: NCV8Context,
+proc executeFunction*(self: NCV8Value, context: NCV8Context,
   obj: NCV8Value, args: seq[NCV8Value]): NCV8Value =
   self.wrapCall(execute_function_with_context, result, context, obj, args)
 

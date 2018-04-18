@@ -694,7 +694,7 @@ proc collectParams(n: NimNode, start = 2): seq[paramPair] =
 proc checkCefPtr(n: NimNode): bool =
   var node = n
   while true:
-    let objType = getImpl(node[0].symbol)
+    let objType = getImpl(node[0])
     if objType.len < 3: return false
     if objType[2].typeKind != ntyObject: return false
     if objType[2].len < 2: return false
@@ -861,7 +861,7 @@ proc collectMethods(ce: NimNode): NimNode =
   var temp = newStmtList()
   var parent = ce
   while true:
-    let impl = getImpl(parent.symbol)
+    let impl = getImpl(parent)
     let recList = impl[2][2]
     temp.add recList
     parent = impl[2][1]
@@ -876,7 +876,7 @@ proc collectMethods(ce: NimNode): NimNode =
       result.add n
 
 macro wrapMethods*(nc, n, c: typed): untyped =
-  let nlist = getImpl(n.symbol)[2][2]
+  let nlist = getImpl(n)[2][2]
   let clist = collectMethods(c)
   let ni = $n
   let ns = ni.substr(0, ni.len-3)
@@ -902,7 +902,7 @@ macro wrapMethods*(nc, n, c: typed): untyped =
 proc getParentMethods(nc: NimNode): seq[string] =
   result = @[]
   if $nc == "RootObj": return result
-  let impl = getImpl(nc.symbol)
+  let impl = getImpl(nc)
   let recList = impl[2][2]
   for n in recList:
     result.add n.toStrLit().strVal()
@@ -957,7 +957,7 @@ macro wrapHandlerNoMethods*(nc: untyped, cef: typed, parent: typed): untyped =
 
 proc isRefInherit(nc: NimNode): NimNode =
   if nc.kind != nnkSym: return newEmptyNode()
-  let impl = getImpl(nc.symbol)
+  let impl = getImpl(nc)
   if impl.kind != nnkTypeDef: return newEmptyNode()
   if impl[2].typeKind != ntyRef: return newEmptyNode()
   if impl[2][0].typeKind != ntyObject: return newEmptyNode()
@@ -1059,10 +1059,10 @@ macro ncBindTask*(ident: untyped, routine: typed): untyped =
   var rout: NimNode
   if routine.kind == nnkCall:
     procName = $routine[0]
-    rout = getImpl(routine[0].symbol)
+    rout = getImpl(routine[0])
   else:
     procName = $routine
-    rout = getImpl(routine.symbol)
+    rout = getImpl(routine)
 
   let params = params(rout)
   let paramList = collectParams(params, 1)

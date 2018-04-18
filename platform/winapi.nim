@@ -24,6 +24,7 @@ type
   WINUINT* = int32
   WINBOOL* = int32
   UCHAR* = int8
+  WORD* = int16
 
   LONG_PTR* = ByteAddress
   WPARAM* = LONG_PTR
@@ -330,7 +331,7 @@ const
   WM_MOVING* = 534
   WM_NCACTIVATE* = 134
   WM_NCCALCSIZE* = 131
-  WM_ncCreate* = 129
+  WM_NCCREATE* = 129
   WM_NCDESTROY* = 130
   WM_NCHITTEST* = 132
   WM_NCLBUTTONDBLCLK* = 163
@@ -1070,6 +1071,13 @@ template getModuleHandle*(moduleName: string): HMODULE =
   when defined(winUnicode): getModuleHandleW(WC(moduleName))
   else: getModuleHandleA(moduleName.cstring)
 
+proc LoadIconA(hInst: HINST, lpIconName: LPCSTR): HICON {.stdcall, dynlib: "user32", importc: "LoadIconA".}
+proc LoadIconW(hInst: HINST, lpIconName: LPCWSTR): HICON {.stdcall, dynlib: "user32", importc: "LoadIconW".}
+
+template loadIcon*(hInst: HINST, iconName: string): HICON =
+  when defined(winUnicode): LoadIconW(hInst, WC(iconName))
+  else: LoadIconA(hInst, iconName.cstring)
+
 proc LoadLibraryA(lpLibFileName: LPCSTR): HINST {.stdcall, dynlib: "kernel32", importc: "LoadLibraryA".}
 proc LoadLibraryW(lpLibFileName: LPCWSTR): HINST {.stdcall, dynlib: "kernel32", importc: "LoadLibraryW".}
 
@@ -1218,3 +1226,61 @@ template setWindowText*(wnd: HWND, text: string): untyped =
     SetWindowTextW(wnd, WC(text)) == TRUE
   else:
     SetWindowTextA(wnd, text) == TRUE
+
+type
+  OPENFILENAMEA* = object
+    lStructSize*: DWORD
+    hwndOwner*: HWND
+    hInstance*: HINST
+    lpstrFilter*: LPCSTR
+    lpstrCustomFilter*: LPCSTR
+    nMaxCustFilter*: DWORD
+    nFilterIndex*: DWORD
+    lpstrFile*: LPCSTR
+    nMaxFile*: DWORD
+    lpstrFileTitle*: LPCSTR
+    nMaxFileTitle*: DWORD
+    lpstrInitialDir*: LPCSTR
+    lpstrTitle*: LPCSTR
+    Flags*: DWORD
+    nFileOffset*: WORD
+    nFileExtension*: WORD
+    lpstrDefExt*: LPCSTR
+    lCustData*: pointer
+    lpfnHook*: pointer
+    lpTemplateName*: LPCSTR
+
+proc GetOpenFileNameA*(pn: ptr OPENFILENAMEA): WINBOOL {.stdcall,
+  dynlib: "comdlg32", importc: "GetOpenFileNameA".}
+
+proc GetSaveFileNameA*(pn: ptr OPENFILENAMEA): WINBOOL {.stdcall,
+  dynlib: "comdlg32", importc: "GetSaveFileNameA".}
+
+type
+  OPENFILENAMEW* = object
+    lStructSize*: DWORD
+    hwndOwner*: HWND
+    hInstance*: HINST
+    lpstrFilter*: LPCWSTR
+    lpstrCustomFilter*: LPCWSTR
+    nMaxCustFilter*: DWORD
+    nFilterIndex*: DWORD
+    lpstrFile*: LPCWSTR
+    nMaxFile*: DWORD
+    lpstrFileTitle*: LPCWSTR
+    nMaxFileTitle*: DWORD
+    lpstrInitialDir*: LPCWSTR
+    lpstrTitle*: LPCWSTR
+    Flags*: DWORD
+    nFileOffset*: WORD
+    nFileExtension*: WORD
+    lpstrDefExt*: LPCWSTR
+    lCustData*: pointer
+    lpfnHook*: pointer
+    lpTemplateName*: LPCWSTR
+
+proc GetOpenFileNameW*(pn: ptr OPENFILENAMEW): WINBOOL {.stdcall,
+  dynlib: "comdlg32", importc: "GetOpenFileNameW".}
+
+proc GetSaveFileNameW*(pn: ptr OPENFILENAMEW): WINBOOL {.stdcall,
+  dynlib: "comdlg32", importc: "GetSaveFileNameW".}

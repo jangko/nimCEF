@@ -204,7 +204,7 @@ proc sendRequest(self: Request): RequestState =
 
 proc removeElementAt[T](list: var seq[T], idx: int) =
   var temp: seq[T] = @[]
-  for i in 0.. <list.len:
+  for i in 0..<list.len:
     if i != idx: temp.add list[i]
   list = temp
 
@@ -246,10 +246,10 @@ proc stopRequest(self: NCResourceManager, state: RequestState) =
 
   # Detach from the current provider.
   self.detachRequestFromProvider(state)
-  
+
   # Delete the state object and execute the callback.
-  state.callback.continueCallback(true)  
-  
+  state.callback.continueCallback(true)
+
 # Send the request to providers in order until one potentially handles it or we
 # run out of providers. Returns true if the request is potentially handled.
 proc sendRequest(self: NCResourceManager, state: RequestState): bool =
@@ -273,7 +273,7 @@ proc sendRequest(self: NCResourceManager, state: RequestState): bool =
     else:
       potentiallyHandled = true
     if nextState == nil: break
-    
+
   result = potentiallyHandled
 
 proc addProvider*(self: NCResourceManager, provider: Provider, order: int, identifier: string) =
@@ -288,7 +288,7 @@ proc addProvider*(self: NCResourceManager, provider: Provider, order: int, ident
     return
 
   # Insert before the first entry with a higher |order| value.
-  for i in 0.. <self.providers.len:
+  for i in 0..<self.providers.len:
     if self.providers[i].order > order:
       self.providers.insert(provider, i)
       return
@@ -400,7 +400,7 @@ proc removeProviders*(self: NCResourceManager, identifier: string) =
     return
 
   var temp: seq[Provider] = @[]
-  for i in 0.. <temp.len:
+  for i in 0..<temp.len:
     var provider = self.providers[i]
     if provider.identifier == identifier:
       if not provider.deleteNow(false):
@@ -486,7 +486,7 @@ proc getResourceHandler*(self: NCResourceManager, browser: NCBrowser,
     self.pendingHandlers.del key
   else:
     result = nil
-  
+
 proc cpOnRequest(prov: Provider, request: Request): bool =
   var self = ContentProvider(prov)
   NC_REQUIRE_IO_THREAD()
@@ -538,7 +538,7 @@ proc openOnFileThread(filePath: string, request: Request) =
 
   #setupForeignThreadGC()
   var stream = ncStreamReaderCreateForFile(filePath)
-  
+
   # Continue loading on the IO thread.
   #ncBindTask(ContinueOpenFileTask, ContinueOpenOnIOThread)
   #discard ncPostTask(TID_IO, ContinueOpenFileTask(request, stream))

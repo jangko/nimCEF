@@ -117,7 +117,7 @@ proc addChild*(self, child: NCXmlObject): bool =
   result = true
 
 proc removeChild*(self, child: NCXmlObject): bool =
-  for i in 0.. <self.children.len:
+  for i in 0..<self.children.len:
     if self.children[i] == child:
       self.children.delete(i)
       child.setParent(nil)

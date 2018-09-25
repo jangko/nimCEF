@@ -1,9 +1,7 @@
-[Package]
-name          = "nimCEF"
-version       = "0.1.0"
+packageName   = "nimCEF"
+version       = "0.1.1"
 author        = "Andri Lim"
 description   = "CEF3 Chromium Emmbedded Framework wrapper"
 license       = "MIT"
 
-[Deps]
-Requires: "nim >= 0.14.0"
+requires: "nim >= 0.18.1"

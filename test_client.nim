@@ -142,7 +142,7 @@ myScheme object handling the client:// protocol.
 
   proc getResponseHeaders(self: myScheme, response: NCResponse, response_length: var int64, redirectUrl: var string) =
     NC_REQUIRE_IO_THREAD()
-    doAssert(self.mData != nil and self.mData.len != 0)
+    doAssert(self.mData.len != 0)
 
     response.setMimeType(self.mMimeType)
     response.setStatus(200)
@@ -187,7 +187,7 @@ handlerImpl(NCRequestHandler):
     NC_REQUIRE_IO_THREAD()
     var resourceManager = getResourceManager()
     result = resourceManager.onBeforeResourceLoad(browser, frame, request, callback)
-    
+
   proc getResourceHandler*(self: NCRequestHandler, browser: NCBrowser,
     frame: NCFrame, request: NCRequest): NCResourceHandler =
     NC_REQUIRE_IO_THREAD()
@@ -199,7 +199,7 @@ handlerImpl(NCDisplayHandler):
     var host = browser.getHost()
     var hWnd = host.getWindowHandle()
     discard setWindowText(hWnd, title)
-  
+
 handlerImpl(myClient):
   proc getContextMenuHandler*(self: myClient): NCContextMenuHandler =
     return self.cmh
@@ -212,7 +212,7 @@ handlerImpl(myClient):
 
   proc getDisplayHandler*(self: myClient): NCDisplayHandler =
     return self.disph
-    
+
 proc newClient(no: int, name: string): myClient =
   result = myClient.ncCreate()
   result.abc = no
@@ -271,7 +271,7 @@ proc main() =
   #var rch = makeNCRequestContextHandler(rch_impl)
   #var rcsetting: NCRequestContextSettings
   #var ctx = NCRequestContextCreateContext(rcsetting, rch)
-  
+
   # Create browser.
   discard ncBrowserHostCreateBrowser(windowInfo, client, url, browserSettings)
 

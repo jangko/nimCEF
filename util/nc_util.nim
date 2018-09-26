@@ -15,12 +15,12 @@ proc newNCStringMultiMap*(): NCStringMultiMap =
 #don't forget to call cef_string_userfree_free after you finished using
 #cef_string from this proc
 proc toCef*(str: string): ptr cef_string =
-  if str == nil: return nil
+  if str.len == 0: return nil
   result = cef_string_userfree_alloc()
   discard cef_string_from_utf8(str.cstring, str.len.csize, result)
 
 proc toNim*(str: cef_string_userfree, dofree = true): string =
-  if str == nil: return nil
+  if str == nil: return ""
   var res: cef_string_utf8
   if cef_string_to_utf8(str.str, str.length, res.addr) == 1:
     result = newString(res.length)
@@ -33,7 +33,7 @@ proc toNim*(str: cef_string_userfree, dofree = true): string =
 proc `$`*(str: ptr cef_string): string = toNim(str, false)
 
 proc `<=`*(cstr: var cef_string, str: string) =
-  if str != nil:
+  if str.len != 0:
     discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
 
 template ncFree*(str: ptr cef_string) =

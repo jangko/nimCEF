@@ -24,7 +24,7 @@ wrapAPI(NCBrowserHost, cef_browser_host, false)
 
 # Implement this structure to provide handler implementations.
 wrapAPI(NCClient, cef_client, false)
-  
+
 template ncWrap*(x: ptr_cef_client): untyped = ncWrap(cast[ptr cef_client](x))
 template ncWrap*(x: ptr_cef_browser): untyped = ncWrap(cast[ptr cef_browser](x))
 template ncWrap*(x: ptr_cef_frame): untyped = ncWrap(cast[ptr cef_frame](x))
@@ -47,7 +47,7 @@ when defined(windows):
   import winapi
 
   proc makeNCMainArgs*(): NCMainArgs =
-    result.args.instance = getModuleHandle(nil)
+    result.args.instance = getModuleHandle()
 
 else:
   import os
@@ -234,7 +234,7 @@ type
     left*: int
     bottom*: int
     right*: int
-    
+
   # Structure representing a draggable region.
   NCDraggableRegion* = object
     # Bounds of the region.
@@ -358,7 +358,7 @@ type
     # Bit flags describing any pressed modifier keys. See
     # cef_event_flags_t for values.
     modifiers*: uint32
-  
+
   # Settings used when initializing a CefBoxLayout.
   NCBoxLayoutSettings* = object
     # If true (1) the layout will be horizontal, otherwise the layout will be
@@ -545,7 +545,7 @@ proc toNim*(nc: ptr cef_box_layout_settings): NCBoxLayoutSettings =
   result.cross_axis_alignment = nc.cross_axis_alignment
   result.minimum_cross_axis_size = nc.minimum_cross_axis_size.int
   result.default_flex = nc.default_flex.int
-  
+
 proc toCef*(nc: NCBoxLayoutSettings): cef_box_layout_settings =
   result.horizontal = nc.horizontal.cint
   result.inside_border_horizontal_spacing = nc.inside_border_horizontal_spacing.cint
@@ -556,5 +556,5 @@ proc toCef*(nc: NCBoxLayoutSettings): cef_box_layout_settings =
   result.cross_axis_alignment = nc.cross_axis_alignment
   result.minimum_cross_axis_size = nc.minimum_cross_axis_size.cint
   result.default_flex = nc.default_flex.cint
-  
+
 proc ncFree*(nc: cef_box_layout_settings) = discard

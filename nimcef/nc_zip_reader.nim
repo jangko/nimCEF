@@ -41,7 +41,7 @@ proc getFileLastModified*(self: NCZipReader): NCTime =
 
 # Opens the file for reading of uncompressed data. A read password may
 # optionally be specified.
-proc openFile*(self: NCZipReader, password: string = nil): bool =
+proc openFile*(self: NCZipReader, password: string = ""): bool =
   self.wrapCall(open_file, result, password)
 
 # Closes the file.

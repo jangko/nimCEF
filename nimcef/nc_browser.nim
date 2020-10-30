@@ -117,7 +117,7 @@ proc getFrameCount*(self: NCBrowser): int =
 
 # Returns the identifiers of all existing frames.
 proc getFrameIdentifiers*(self: NCBrowser): seq[int64] =
-  var count = self.getFrameCount()
+  var count = self.getFrameCount().csize_t
   self.wrapCall(get_frame_identifiers, result, count)
 
 # Returns the names of all existing frames.

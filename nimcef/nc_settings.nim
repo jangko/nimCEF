@@ -190,7 +190,7 @@ type
     accept_language_list*: string
 
 proc toCef*(ns: NCSettings): cef_settings =
-  result.size = sizeof(cef_settings)
+  result.size = sizeof(cef_settings).csize_t
   result.single_process = ns.single_process.cint
   result.no_sandbox = ns.no_sandbox.cint
   result.browser_subprocess_path <= ns.browser_subprocess_path
@@ -414,7 +414,7 @@ proc ncFree*(cs: var cef_request_context_settings) =
   cef_string_clear(cs.accept_language_list.addr)
 
 proc toCef*(ns: NCBrowserSettings): cef_browser_settings =
-  result.size = sizeof(cef_browser_settings)
+  result.size = sizeof(cef_browser_settings).csize_t
   result.windowless_frame_rate = ns.windowless_frame_rate.cint
   result.standard_font_family <= ns.standard_font_family
   result.fixed_font_family <= ns.fixed_font_family

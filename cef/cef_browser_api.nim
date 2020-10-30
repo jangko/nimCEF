@@ -67,11 +67,11 @@ type
       name: ptr cef_string): ptr cef_frame {.cef_callback.}
 
     # Returns the number of frames that currently exist.
-    get_frame_count*: proc(self: ptr cef_browser): csize {.cef_callback.}
+    get_frame_count*: proc(self: ptr cef_browser): csize_t {.cef_callback.}
 
     # Returns the identifiers of all existing frames.
     get_frame_identifiers*: proc(self: ptr cef_browser,
-      identifiersCount: var csize, identifiers: ptr int64) {.cef_callback.}
+      identifiersCount: var csize_t, identifiers: ptr int64) {.cef_callback.}
 
     # Returns the names of all existing frames.
     get_frame_names*: proc(self: ptr cef_browser, names: cef_string_list) {.cef_callback.}

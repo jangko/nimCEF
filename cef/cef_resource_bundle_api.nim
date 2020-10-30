@@ -21,7 +21,7 @@ type
     # memory and should not be freed. Include cef_pack_resources.h for a listing
     # of valid resource ID values.
     get_data_resource*: proc(self: ptr cef_resource_bundle,
-      resource_id: cint, data: ptr pointer, data_size: var csize): cint {.cef_callback.}
+      resource_id: cint, data: ptr pointer, data_size: var csize_t): cint {.cef_callback.}
 
     # Retrieves the contents of the specified |resource_id| nearest the scale
     # factor |scale_factor|. Use a |scale_factor| value of SCALE_FACTOR_NONE for
@@ -32,7 +32,7 @@ type
     # memory and should not be freed. Include cef_pack_resources.h for a listing
     # of valid resource ID values.
     get_data_resource_for_scale*: proc(self: ptr cef_resource_bundle, resource_id: cint,
-      scale_factor: cef_scale_factor, data: ptr pointer, data_size: var csize): cint {.cef_callback.}
+      scale_factor: cef_scale_factor, data: ptr pointer, data_size: var csize_t): cint {.cef_callback.}
 
 # Returns the global resource bundle instance.
 proc cef_resource_bundle_get_global*(): ptr cef_resource_bundle {.cef_import.}

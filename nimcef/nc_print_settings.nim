@@ -59,7 +59,7 @@ proc getPageRangesCount*(self: NCPrintSettings): int =
 
 # Retrieve the page ranges.
 proc getPageRanges*(self: NCPrintSettings): seq[NCRange] =
-  var count = self.getPageRangesCount()
+  var count = self.getPageRangesCount().csize_t
   self.wrapCall(get_page_ranges, result, count)
 
 # Set whether only the selection will be printed.

@@ -5,7 +5,7 @@ type
   cef_read_handler* = object of cef_base
     # Read raw binary data.
     read*: proc(self: ptr cef_read_handler, data: pointer,
-        size: csize, n: csize): csize {.cef_callback.}
+        size: csize_t, n: csize_t): csize_t {.cef_callback.}
 
     # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
     # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
@@ -26,7 +26,7 @@ type
   cef_stream_reader* = object of cef_base
     # Read raw binary data.
     read*: proc(self: ptr cef_stream_reader, data: pointer,
-      size: csize, n: csize): csize {.cef_callback.}
+      size: csize_t, n: csize_t): csize_t {.cef_callback.}
 
     # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
     # SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
@@ -47,7 +47,7 @@ type
   cef_write_handler* = object of cef_base
     # Write raw binary data.
     write*: proc(self: ptr cef_write_handler,
-      data: pointer, size: csize, n: csize): csize {.cef_callback.}
+      data: pointer, size: csize_t, n: csize_t): csize_t {.cef_callback.}
 
     # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
     # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
@@ -68,7 +68,7 @@ type
   cef_stream_writer* = object of cef_base
     # Write raw binary data.
     write*: proc(self: ptr cef_stream_writer,
-      data: pointer, size: csize, n: csize): csize {.cef_callback.}
+      data: pointer, size: csize_t, n: csize_t): csize_t {.cef_callback.}
 
     # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
     # SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
@@ -90,7 +90,7 @@ type
 proc cef_stream_reader_create_for_file*(fileName: ptr cef_string): ptr cef_stream_reader {.cef_import.}
 
 # Create a new cef_stream_reader_t object from data.
-proc cef_stream_reader_create_for_data*(data: pointer, size: csize): ptr cef_stream_reader {.cef_import.}
+proc cef_stream_reader_create_for_data*(data: pointer, size: csize_t): ptr cef_stream_reader {.cef_import.}
 
 # Create a new cef_stream_reader_t object from a custom handler.
 proc cef_stream_reader_create_for_handler*(handler: ptr cef_read_handler): ptr cef_stream_reader {.cef_import.}

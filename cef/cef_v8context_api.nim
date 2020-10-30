@@ -64,7 +64,7 @@ type
     # that will be thrown. Return true (1) if execution was handled.
     execute*: proc(self: ptr cef_v8handler,
       name: ptr cef_string, obj: ptr cef_v8value,
-      argumentsCount: csize, arguments: ptr ptr cef_v8value,
+      argumentsCount: csize_t, arguments: ptr ptr cef_v8value,
       retval: var ptr cef_v8value, exception: ptr cef_string): cint {.cef_callback.}
 
   # Structure that should be implemented to handle V8 accessor calls. Accessor
@@ -329,7 +329,7 @@ type
     # Returns NULL if this function is called incorrectly or an exception is
     # thrown.
     execute_function*: proc(self: ptr cef_v8value, obj: ptr cef_v8value,
-      argumentsCount: csize, arguments: ptr ptr cef_v8value): ptr cef_v8value {.cef_callback.}
+      argumentsCount: csize_t, arguments: ptr ptr cef_v8value): ptr cef_v8value {.cef_callback.}
 
     # Execute the function using the specified V8 context. |object| is the
     # receiver ('this' object) of the function. If |object| is NULL the specified
@@ -338,7 +338,7 @@ type
     # success. Returns NULL if this function is called incorrectly or an
     # exception is thrown.
     execute_function_with_context*: proc(self: ptr cef_v8value, context: ptr cef_v8context,
-      obj: ptr cef_v8value, argumentsCount: csize,
+      obj: ptr cef_v8value, argumentsCount: csize_t,
       arguments: ptr ptr cef_v8value): ptr cef_v8value {.cef_callback.}
 
   # Structure representing a V8 stack trace handle. V8 handles can only be

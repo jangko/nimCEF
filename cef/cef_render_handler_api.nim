@@ -50,7 +50,7 @@ type
     # upper-left origin.
     on_paint*: proc(self: ptr cef_render_handler,
         browser: ptr_cef_browser, ptype: cef_paint_element_type,
-        dirtyRectsCount: csize, dirtyRects: ptr cef_rect, buffer: pointer,
+        dirtyRectsCount: csize_t, dirtyRects: ptr cef_rect, buffer: pointer,
         width, height: cint) {.cef_callback.}
 
     # Called when the browser's cursor has changed. If |type| is CT_CUSTOM then

@@ -132,12 +132,12 @@ type
     copy*: proc(self: ptr cef_binary_value): ptr cef_binary_value {.cef_callback.}
 
     # Returns the data size.
-    get_size*: proc(self: ptr cef_binary_value): csize {.cef_callback.}
+    get_size*: proc(self: ptr cef_binary_value): csize_t {.cef_callback.}
 
     # Read up to |buffer_size| number of bytes into |buffer|. Reading begins at
     # the specified byte |data_offset|. Returns the number of bytes read.
     get_data*: proc(self: ptr cef_binary_value,
-      buffer: pointer, buffer_size, data_offset: csize): csize {.cef_callback.}
+      buffer: pointer, buffer_size, data_offset: csize_t): csize_t {.cef_callback.}
 
   # Structure representing a dictionary value. Can be used on any process and
   # thread.
@@ -172,7 +172,7 @@ type
       exclude_empty_children: cint): ptr cef_dictionary_value {.cef_callback.}
 
     # Returns the number of values.
-    get_size*: proc(self: ptr cef_dictionary_value): csize {.cef_callback.}
+    get_size*: proc(self: ptr cef_dictionary_value): csize_t {.cef_callback.}
 
     # Removes all values. Returns true (1) on success.
     clear*: proc(self: ptr cef_dictionary_value): cint {.cef_callback.}
@@ -318,10 +318,10 @@ type
 
     # Sets the number of values. If the number of values is expanded all new
     # value slots will default to type null. Returns true (1) on success.
-    set_size*: proc(self: ptr cef_list_value, size: csize): cint {.cef_callback.}
+    set_size*: proc(self: ptr cef_list_value, size: csize_t): cint {.cef_callback.}
 
     # Returns the number of values.
-    get_size*: proc(self: ptr cef_list_value): csize {.cef_callback.}
+    get_size*: proc(self: ptr cef_list_value): csize_t {.cef_callback.}
 
     # Removes all values. Returns true (1) on success.
     clear*: proc(self: ptr cef_list_value): cint {.cef_callback.}
@@ -432,7 +432,7 @@ proc cef_list_value_create*(): ptr cef_list_value {.cef_import.}
 
 # Creates a new object that is not owned by any other object. The specified
 # |data| will be copied.
-proc cef_binary_value_create*(data: pointer, data_size: csize): ptr cef_binary_value {.cef_import.}
+proc cef_binary_value_create*(data: pointer, data_size: csize_t): ptr cef_binary_value {.cef_import.}
 
 # Creates a new object that is not owned by any other object.
 proc cef_dictionary_value_create*(): ptr cef_dictionary_value {.cef_import.}

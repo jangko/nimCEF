@@ -122,7 +122,7 @@ proc getElementCount*(self: NCPostData): int =
 
 # Retrieve the post data elements.
 proc getElements*(self: NCPostData): seq[NCPostDataElement] =
-  var size = self.getElementCount()
+  var size = self.getElementCount().csize_t
   self.wrapCall(get_elements, result, size)
 
 # Remove the specified post data element.  Returns true (1) if the removal

@@ -308,7 +308,7 @@ type
     remove_all_child_views*: proc(self: ptr cef_panel) {.cef_callback.}
 
     # Returns the number of child Views.
-    get_child_view_count*: proc(self: ptr cef_panel): csize {.cef_callback.}
+    get_child_view_count*: proc(self: ptr cef_panel): csize_t {.cef_callback.}
 
     # Returns the child View at the specified |index|.
     get_child_view_at*: proc(self: ptr cef_panel, index: cint): ptr cef_view {.cef_callback.}
@@ -392,7 +392,7 @@ type
     select_range*: proc(self: ptr cef_textfield, the_range: ptr cef_range) {.cef_callback.}
 
     # Returns the current cursor position.
-    get_cursor_position*: proc(self: ptr cef_textfield): csize {.cef_callback.}
+    get_cursor_position*: proc(self: ptr cef_textfield): csize_t {.cef_callback.}
 
     # Sets the text color.
     set_text_color*: proc(self: ptr cef_textfield, color: cef_color) {.cef_callback.}
@@ -576,7 +576,7 @@ type
     # the draggable regions. The draggable region bounds should be in window
     # coordinates.
     set_draggable_regions*: proc(self: ptr cef_window,
-      regionsCount: csize, regions: ptr cef_draggable_region) {.cef_callback.}
+      regionsCount: csize_t, regions: ptr cef_draggable_region) {.cef_callback.}
 
     # Retrieve the platform window handle for this Window.
     get_window_handle*: proc(self: ptr cef_window): cef_window_handle {.cef_callback.}
@@ -900,11 +900,11 @@ proc cef_display_get_matching_bounds*(bounds: ptr cef_rect, input_pixel_coords: 
 
 # Returns the total number of Displays. Mirrored displays are excluded; this
 # function is intended to return the number of distinct, usable displays.
-proc cef_display_get_count*(): csize {.cef_import.}
+proc cef_display_get_count*(): csize_t {.cef_import.}
 
 # Returns all Displays. Mirrored displays are excluded; this function is
 # intended to return distinct, usable displays.
-proc cef_display_get_alls*(displaysCount: var csize, displays: ptr ptr cef_display) {.cef_import.}
+proc cef_display_get_alls*(displaysCount: var csize_t, displays: ptr ptr cef_display) {.cef_import.}
 
 # Create a new MenuButton. A |delegate| must be provided to call show_menu()
 # when the button is clicked. |text| will be shown on the MenuButton and used

@@ -43,7 +43,7 @@ wrapCallback(NCRenderHandler, cef_render_handler):
   # be |width|*|height|*4 bytes in size and represents a BGRA image with an
   # upper-left origin.
   proc onPaint*(self: T, browser: NCBrowser, ptype: cef_paint_element_type,
-    dirtyRectsCount: int, dirtyRects: NCRect, buffer: pointer, width, height: int)
+    dirtyRectsCount: uint, dirtyRects: NCRect, buffer: pointer, width, height: int)
 
   # Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
   # |custom_cursor_info| will be populated with the custom cursor information.

@@ -24,6 +24,6 @@ wrapCallback(NCResponseFilter, cef_response_filter):
   # matches |data_in_size| (all available pre-filter bytes have been read), and
   # the function returns RESPONSE_FILTER_DONE or RESPONSE_FILTER_ERROR. Do not
   # keep a reference to the buffers passed to this function.
-  proc filter*(self: T, data_in: pointer, data_in_size: int,
-    data_in_read: var int, data_out: pointer, data_out_size: int,
-    data_out_written: var int): cef_response_filter_status
+  proc filter*(self: T, data_in: pointer, data_in_size: uint,
+    data_in_read: var uint, data_out: pointer, data_out_size: uint,
+    data_out_written: var uint): cef_response_filter_status

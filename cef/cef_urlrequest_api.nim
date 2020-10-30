@@ -60,7 +60,7 @@ type
     # UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request.
     on_download_data*: proc(self: ptr cef_urlrequest_client,
         request: ptr cef_urlrequest, data: pointer,
-        data_length: csize) {.cef_callback.}
+        data_length: csize_t) {.cef_callback.}
 
     # Called on the IO thread when the browser needs credentials from the user.
     # |isProxy| indicates whether the host is a proxy server. |host| contains the

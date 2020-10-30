@@ -1029,7 +1029,8 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
 
 macro handlerImpl*(nc: typed, methods: varargs[typed]): untyped =
   let glue = handlerImplImpl(nc, methods, true)
-  result = parseStmt(glue)
+  result = methods[0]
+  result.add parseStmt(glue)
 
 macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): untyped =
   let glue = handlerImplImpl(nc, methods, false)

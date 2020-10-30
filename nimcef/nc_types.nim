@@ -60,7 +60,7 @@ else:
     result.args.argc = count.cint
     nim_params = newSeq[string](count)
     c_params = newSeq[cstring](count+1)
-    for i in 0.. <count:
+    for i in 0..<count:
       nim_params[i] = paramStr(i)
       c_params[i] = nim_params[i][0].addr
     c_params[count] = nil

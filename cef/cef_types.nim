@@ -57,7 +57,7 @@ type
 
   cef_settings* = object
     # Size of this structure.
-    size*: csize
+    size*: csize_t
 
     # Set to true (1) to use a single process for the browser and renderer. This
     # run mode is not officially supported by Chromium and is less stable than
@@ -256,7 +256,7 @@ type
   # recommended default values.
   cef_request_context_settings* = object
     # Size of this structure.
-    size*: csize
+    size*: csize_t
 
     # The location where cache data will be stored on disk. If empty then
     # browsers will be created in "incognito mode" where in-memory caches are
@@ -302,7 +302,7 @@ type
   # line switches.
   cef_browser_settings* = object
     # Size of this structure.
-    size*: csize
+    size*: csize_t
 
     # The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
     # will be called for a windowless browser. The actual fps may be lower if

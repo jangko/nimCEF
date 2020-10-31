@@ -20,7 +20,7 @@ type
     # resident in memory. Include cef_pack_resources.h for a listing of valid
     # resource ID values.
     get_data_resource*: proc(self: ptr cef_resource_bundle_handler, resource_id: cint, data: var pointer,
-      data_size: var csize): cint {.cef_callback.}
+      data_size: var csize_t): cint {.cef_callback.}
 
     # Called to retrieve data for the specified |resource_id| nearest the scale
     # factor |scale_factor|. To provide the resource data set |data| and
@@ -29,4 +29,4 @@ type
     # not be copied and must remain resident in memory. Include
     # cef_pack_resources.h for a listing of valid resource ID values.
     get_data_resource_for_scale*: proc(self: ptr cef_resource_bundle_handler, resource_id: cint,
-      scale_factor: cef_scale_factor, data: var pointer, data_size: var csize): cint {.cef_callback.}
+      scale_factor: cef_scale_factor, data: var pointer, data_size: var csize_t): cint {.cef_callback.}

@@ -1081,7 +1081,7 @@ proc ncDisplayGetMatchingBounds*(bounds: NCRect, inputPixelCoords: bool): NCDisp
 
 # Returns the total number of Displays. Mirrored displays are excluded; this
 # function is intended to return the number of distinct, usable displays.
-proc ncDisplayGetCount*(): int =
+proc ncDisplayGetCount*(): uint =
   wrapProc(cef_display_get_count, result)
 
 # Returns all Displays. Mirrored displays are excluded; this function is

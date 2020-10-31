@@ -1,4 +1,4 @@
-import cef_dynlib
+include cef_dynlib
 
 when defined(windows):
   {.pragma: cef_import, stdcall, importc, dynlib: CEF_LIB_NAME.}

@@ -61,7 +61,7 @@ type
     # this function will return the size of the file contents in bytes. Call
     # get_file_name() to get a suggested name for the file.
     get_file_contents*: proc(self: ptr cef_drag_data,
-      writer: ptr cef_stream_writer): csize {.cef_callback.}
+      writer: ptr cef_stream_writer): csize_t {.cef_callback.}
 
     # Retrieve the list of file names that are being dragged into the browser
     # window.

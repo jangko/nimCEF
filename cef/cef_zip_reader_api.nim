@@ -45,7 +45,7 @@ type
 
     # Read uncompressed file contents into the specified buffer. Returns < 0 if
     # an error occurred, 0 if at the end of file, or the number of bytes read.
-    read_file*: proc(self: ptr cef_zip_reader, buffer: pointer, bufferSize: csize): cint {.cef_callback.}
+    read_file*: proc(self: ptr cef_zip_reader, buffer: pointer, bufferSize: csize_t): cint {.cef_callback.}
 
     # Returns the current offset in the uncompressed file contents.
     tell*: proc(self: ptr cef_zip_reader): int64 {.cef_callback.}

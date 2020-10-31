@@ -19,4 +19,4 @@ type
     # never be called. If the last draggable region is removed from a document
     # this function will be called with an NULL vector.
     on_draggable_regions_changed*: proc(self: ptr cef_drag_handler, browser: ptr_cef_browser,
-      regionsCount: csize, regions: ptr cef_draggable_region) {.cef_callback.}
+      regionsCount: csize_t, regions: ptr cef_draggable_region) {.cef_callback.}

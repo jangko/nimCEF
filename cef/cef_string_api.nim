@@ -11,26 +11,26 @@ type
 
   cef_string_wide* = object
     str*: ptr wchar_t
-    length*: csize
+    length*: csize_t
     dtor*: proc(str: ptr wchar_t) {.cef_callback.}
 
   cef_string_utf16* = object
     str*: ptr uint16
-    length*: csize
+    length*: csize_t
     dtor: proc(str: ptr uint16) {.cef_callback.}
 
   cef_string_utf8* = object
     str*: cstring
-    length*: csize
+    length*: csize_t
     dtor*: proc(str: cstring) {.cef_callback.}
 
 # These functions set string values. If |copy| is true (1) the value will be
 # copied instead of referenced. It is up to the user to properly manage
 # the lifespan of references.
 
-proc cef_string_wide_set*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_wide, copy: cint): cint {.cef_import.}
-proc cef_string_utf8_set*(src: cstring, src_len: csize, output: ptr cef_string_utf8, copy: cint): cint {.cef_import.}
-proc cef_string_utf16_set*(src: ptr uint16, src_len: csize, output: ptr cef_string_utf16, copy: cint): cint {.cef_import.}
+proc cef_string_wide_set*(src: ptr wchar_t, src_len: csize_t, output: ptr cef_string_wide, copy: cint): cint {.cef_import.}
+proc cef_string_utf8_set*(src: cstring, src_len: csize_t, output: ptr cef_string_utf8, copy: cint): cint {.cef_import.}
+proc cef_string_utf16_set*(src: ptr uint16, src_len: csize_t, output: ptr cef_string_utf16, copy: cint): cint {.cef_import.}
 
 # Convenience macros for copying values.
 
@@ -55,18 +55,18 @@ proc cef_string_utf16_cmp*(str1, str2: ptr cef_string_utf16): cint {.cef_import.
 # possible result will always be written to |output| with the boolean return
 # value indicating whether the conversion is 100% valid.
 
-proc cef_string_wide_to_utf8*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_utf8): cint {.cef_import.}
-proc cef_string_utf8_to_wide*(src: cstring, src_len: csize, output: ptr cef_string_wide): cint {.cef_import.}
-proc cef_string_wide_to_utf16*(src: ptr wchar_t, src_len: csize, output: ptr cef_string_utf16): cint {.cef_import.}
-proc cef_string_utf16_to_wide*(src: ptr uint16, src_len: csize, output: ptr cef_string_wide): cint {.cef_import.}
-proc cef_string_utf8_to_utf16*(src: cstring, src_len: csize, output: ptr cef_string_utf16): cint {.cef_import.}
-proc cef_string_utf16_to_utf8*(src: ptr uint16, src_len: csize, output: ptr cef_string_utf8): cint {.cef_import.}
+proc cef_string_wide_to_utf8*(src: ptr wchar_t, src_len: csize_t, output: ptr cef_string_utf8): cint {.cef_import.}
+proc cef_string_utf8_to_wide*(src: cstring, src_len: csize_t, output: ptr cef_string_wide): cint {.cef_import.}
+proc cef_string_wide_to_utf16*(src: ptr wchar_t, src_len: csize_t, output: ptr cef_string_utf16): cint {.cef_import.}
+proc cef_string_utf16_to_wide*(src: ptr uint16, src_len: csize_t, output: ptr cef_string_wide): cint {.cef_import.}
+proc cef_string_utf8_to_utf16*(src: cstring, src_len: csize_t, output: ptr cef_string_utf16): cint {.cef_import.}
+proc cef_string_utf16_to_utf8*(src: ptr uint16, src_len: csize_t, output: ptr cef_string_utf8): cint {.cef_import.}
 
 # These functions convert an ASCII string, typically a hardcoded constant, to a
 # Wide/UTF16 string. Use instead of the UTF8 conversion routines if you know
 # the string is ASCII.
-proc cef_string_ascii_to_wide*(src: cstring, src_len: csize, output: ptr cef_string_wide): cint {.cef_import.}
-proc cef_string_ascii_to_utf16*(src: cstring, src_len: csize, output: ptr cef_string_utf16): cint {.cef_import.}
+proc cef_string_ascii_to_wide*(src: cstring, src_len: csize_t, output: ptr cef_string_wide): cint {.cef_import.}
+proc cef_string_ascii_to_utf16*(src: cstring, src_len: csize_t, output: ptr cef_string_utf16): cint {.cef_import.}
 
 # It is sometimes necessary for the system to allocate string structures with
 # the expectation that the user will free them. The userfree types act as a

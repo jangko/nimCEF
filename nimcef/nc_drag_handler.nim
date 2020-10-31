@@ -18,4 +18,4 @@ wrapCallback(NCDragHandler, cef_drag_handler):
   # never be called. If the last draggable region is removed from a document
   # this function will be called with an NULL vector.
   proc onDraggableRegionsChanged*(self: T, browser: NCBrowser,
-    regionsCount: int, regions: NCDraggableRegion)
+    regionsCount: uint, regions: NCDraggableRegion)

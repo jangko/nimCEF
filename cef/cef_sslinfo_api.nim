@@ -78,16 +78,16 @@ type
 
     # Returns the number of certificates in the issuer chain. If 0, the
     # certificate is self-signed.
-    get_issuer_chain_size*: proc(self: ptr cef_sslinfo): csize {.cef_callback.}
+    get_issuer_chain_size*: proc(self: ptr cef_sslinfo): csize_t {.cef_callback.}
 
     # Returns the DER encoded data for the certificate issuer chain. If we failed
     # to encode a certificate in the chain it is still present in the array but
     # is an NULL string.
     get_derencoded_issuer_chain*: proc(self: ptr cef_sslinfo,
-      chainCount: var csize, chain: ptr ptr cef_binary_value) {.cef_callback.}
+      chainCount: var csize_t, chain: ptr ptr cef_binary_value) {.cef_callback.}
 
     # Returns the PEM encoded data for the certificate issuer chain. If we failed
     # to encode a certificate in the chain it is still present in the array but
     # is an NULL string.
     get_pemencoded_issuer_chain*: proc(self: ptr cef_sslinfo,
-      chainCount: var csize, chain: ptr ptr cef_binary_value) {.cef_callback.}
+      chainCount: var csize_t, chain: ptr ptr cef_binary_value) {.cef_callback.}

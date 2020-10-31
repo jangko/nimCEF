@@ -36,7 +36,7 @@ proc cef_get_extensions_for_mime_type*(mime_type: ptr cef_string, extensions: ce
 
 # Encodes |data| as a base64 string.
 # The resulting string must be freed by calling cef_string_userfree_free*().
-proc cef_base64encode*(data: pointer, data_size: csize): cef_string_userfree {.cef_import.}
+proc cef_base64encode*(data: pointer, data_size: csize_t): cef_string_userfree {.cef_import.}
 
 # Decodes the base64 encoded string |data|. The returned value will be NULL if
 # the decoding fails.

@@ -101,11 +101,11 @@ type
     has_excluded_elements*: proc(self: ptr cef_post_data): cint {.cef_callback.}
 
     # Returns the number of existing post data elements.
-    get_element_count*: proc(self: ptr cef_post_data): csize {.cef_callback.}
+    get_element_count*: proc(self: ptr cef_post_data): csize_t {.cef_callback.}
 
     # Retrieve the post data elements.
     get_elements*: proc(self: ptr cef_post_data,
-      elementsCount: var csize, elements: ptr ptr cef_post_data_element) {.cef_callback.}
+      elementsCount: var csize_t, elements: ptr ptr cef_post_data_element) {.cef_callback.}
 
     # Remove the specified post data element.  Returns true (1) if the removal
     # succeeds.
@@ -135,7 +135,7 @@ type
     # The post data element will represent bytes.  The bytes passed in will be
     # copied.
     set_to_bytes*: proc(self: ptr cef_post_data_element,
-      size: csize, bytes: pointer) {.cef_callback.}
+      size: csize_t, bytes: pointer) {.cef_callback.}
 
     # Return the type of this post data element.
     get_type*: proc(self: ptr cef_post_data_element): cef_postdataelement_type {.cef_callback.}
@@ -145,12 +145,12 @@ type
     get_file*: proc(self: ptr cef_post_data_element): cef_string_userfree {.cef_callback.}
 
     # Return the number of bytes.
-    get_bytes_count*: proc(self: ptr cef_post_data_element): csize {.cef_callback.}
+    get_bytes_count*: proc(self: ptr cef_post_data_element): csize_t {.cef_callback.}
 
     # Read up to |size| bytes into |bytes| and return the number of bytes
     # actually read.
     get_bytes*: proc(self: ptr cef_post_data_element,
-      size: csize, bytes: pointer): csize {.cef_callback.}
+      size: csize_t, bytes: pointer): csize_t {.cef_callback.}
 
 
 # Create a new cef_post_data_element_t object.

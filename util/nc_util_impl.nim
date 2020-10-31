@@ -38,7 +38,7 @@ proc ncInitializeBase[T](base: ptr cef_base) =
   base.has_one_ref = genericHasOneRef[T]
 
 proc ncInitBase*[A](elem: ptr A) =
-  elem.handler.size = sizeof(A)
+  elem.handler.size = sizeof(A).csize_t
   ncInitializeBase[A](cast[ptr cef_base](elem.handler.addr))
 
 proc ncFinalizer*[T, C](self: C) =

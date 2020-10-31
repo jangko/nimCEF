@@ -11,11 +11,11 @@ const
   
 wrapCallback(NCReadHandler, cef_read_handler):
   # Read raw binary data.
-  proc read*(self: T, data: pointer, size: int, n: int): int
+  proc read*(self: T, data: pointer, size: uint, n: uint): uint
 
   # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
-  proc seek*(self: T, offset: int64, whence: int): int
+  proc seek*(self: T, offset: int64, whence: int): uint
 
   # Return the current offset position.
   proc tell*(self: T): int64
@@ -30,7 +30,7 @@ wrapCallback(NCReadHandler, cef_read_handler):
 
 wrapCallback(NCWriteHandler, cef_write_handler):
   # Write raw binary data.
-  proc write*(self: T, data: pointer, size: int, n: int): int
+  proc write*(self: T, data: pointer, size: uint, n: uint): uint
 
   # Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
   # SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.

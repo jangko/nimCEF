@@ -9,7 +9,7 @@ type
   # framework structures must include the cef_base_t structure first.
   cef_base* {.inheritable, pure.} = object
     # Size of the data structure.
-    size*: csize
+    size*: csize_t
 
     # Called to increment the reference count for the object. Should be called
     # for every new copy of a pointer to a given object.

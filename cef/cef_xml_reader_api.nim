@@ -76,7 +76,7 @@ type
     has_attributes*: proc(self: ptr cef_xml_reader): cint {.cef_callback.}
 
     # Returns the number of attributes.
-    get_attribute_count*: proc(self: ptr cef_xml_reader): csize {.cef_callback.}
+    get_attribute_count*: proc(self: ptr cef_xml_reader): csize_t {.cef_callback.}
 
     # Returns the value of the attribute at the specified 0-based index.
     # The resulting string must be freed by calling cef_string_userfree_free().

@@ -99,12 +99,12 @@ proc getIssuerChainSize*(self: NCSslInfo): int =
 # to encode a certificate in the chain it is still present in the array but
 # is an NULL string.
 proc getDERencodedIssuerChain*(self: NCSslInfo): seq[NCBinaryValue] =
-  var size = self.getIssuerChainSize()
+  var size = self.getIssuerChainSize().csize_t
   self.wrapCall(get_derencoded_issuer_chain, result, size)
 
 # Returns the PEM encoded data for the certificate issuer chain. If we failed
 # to encode a certificate in the chain it is still present in the array but
 # is an NULL string.
 proc getPEMencodedIssuerChain*(self: NCSslInfo): seq[NCBinaryValue] =
-  var size = self.getIssuerChainSize()
+  var size = self.getIssuerChainSize().csize_t
   self.wrapCall(get_pemencoded_issuer_chain, result, size)

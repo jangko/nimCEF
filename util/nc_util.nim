@@ -17,12 +17,12 @@ proc newNCStringMultiMap*(): NCStringMultiMap =
 proc toCef*(str: string): ptr cef_string =
   if str.len == 0: return nil
   result = cef_string_userfree_alloc()
-  discard cef_string_from_utf8(str.cstring, str.len.csize, result)
+  discard cef_string_from_utf8(str.cstring, str.len.csize_t, result)
 
 proc toNim*(str: cef_string_userfree, dofree = true): string =
   if str == nil: return ""
   var res: cef_string_utf8
-  if cef_string_to_utf8(str.str, str.length, res.addr) == 1:
+  if cef_string_to_utf8(str.str, str.length.csize_t, res.addr) == 1:
     result = newString(res.length)
     copyMem(result.cstring, res.str, res.length)
     cef_string_utf8_clear(res.addr)
@@ -34,7 +34,7 @@ proc `$`*(str: ptr cef_string): string = toNim(str, false)
 
 proc `<=`*(cstr: var cef_string, str: string) =
   if str.len != 0:
-    discard cef_string_from_utf8(str.cstring, str.len.csize, cstr.addr)
+    discard cef_string_from_utf8(str.cstring, str.len.csize_t, cstr.addr)
 
 template ncFree*(str: ptr cef_string) =
   if str != nil: cef_string_userfree_free(str)
@@ -58,7 +58,7 @@ proc toCef*(input: seq[string]): cef_string_list =
   var list = cef_string_list_alloc()
   var res: cef_string
   for x in input:
-    if cef_string_from_utf8(x.cstring, x.len.csize, res.addr) == 1.cint:
+    if cef_string_from_utf8(x.cstring, x.len.csize_t, res.addr) == 1.cint:
       cef_string_list_append(list, res.addr)
       cef_string_clear(res.addr)
   result = list
@@ -90,7 +90,7 @@ proc toNim*(map: cef_string_multimap, doFree = true): NCStringMultiMap =
         discard cef_string_multimap_enumerate(map, key.addr, j.cint, val.addr)
         elem[j] = $(val.addr)
         cef_string_clear(val.addr)
-      result.add($(key.addr), elem)
+      result[$(key.addr)] = elem
       cef_string_clear(key.addr)
   if doFree: cef_string_multimap_free(map)
 
@@ -141,7 +141,7 @@ macro registerAPI*(api, base: typed): untyped =
   apiList.add APIPair(nApi: api, nBase: base)
   result = newEmptyNode()
 
-macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = RootObj): typed =
+macro wrapAPI*(api, base: untyped, importUtil: bool = true, parent: typed = RootObj): untyped =
   inc(wrapAPIStat)
 
   let baseName = $base
@@ -360,7 +360,7 @@ macro wrapCall*(self: typed, routine: untyped, args: varargs[typed]): untyped =
       proloque.add "let arg$1 = toCef($2)\n" % [argi, argv]
       params.add "arg$1" % [argi]
       epiloque.add "ncFree(arg$1)\n" % [argi]
-    of ntyBool, ntyInt, ntyFloat, ntyFloat32:
+    of ntyBool, ntyInt, ntyUInt, ntyFloat, ntyFloat32:
       let argType = getType(rout)[i - startIndex + 3].getBaseType()
       if arg.kind == nnkHiddenDeref:
         proloque.add "var arg$1 = $2.$3\n" % [argi, argv, argType]
@@ -595,7 +595,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): untyped =
       if checkWrapped(arg): proloque.add "ncAddRef($1.getHandler())\n" % [argv]
       else: error(lineinfo(arg) & " unsupported ref type: " & argv)
       params.add "$1.getHandler()" % [argv]
-    of ntyBool, ntyInt, ntyFloat, ntyInt32, ntyUint32:
+    of ntyBool, ntyInt, ntyUInt, ntyFloat, ntyInt32, ntyUint32:
       let argType = getType(routine)[i - startIndex + 2].getBaseType()
       if arg.kind == nnkHiddenDeref:
         proloque.add "var arg$1: $2\n" % [argi, argType]
@@ -629,7 +629,7 @@ macro wrapProc*(routine: typed, args: varargs[typed]): untyped =
         error(lineinfo(res) & " unsupported ref result")
     of ntyBool:
       body = "result = $1($2) == 1.cint\n" % [calee, params]
-    of ntyInt64, ntyInt:
+    of ntyInt64, ntyInt, ntyUint:
       body = "result = $1($2)\n" % [calee, params]
     of ntyString:
       body = "result = toNim($1($2))\n" % [calee, params]
@@ -748,7 +748,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
     inc(ci)
 
     #special case for seq
-    if isNCSeq(n.nType) and c.nType.typeKind == ntyInt:
+    if isNCSeq(n.nType) and c.nType.typeKind == ntyUInt:
       let cc = cplist[ci]
       proloque.add "    proc idxptr(a: ptr ptr $1, i: int): ptr $1 =\n" % [$cc.nType[0][0]]
       proloque.add "      cast[ptr ptr $1](cast[ByteAddress](a) + i * sizeof(pointer))[]\n" % [$cc.nType[0][0]]
@@ -780,7 +780,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
           proloque.add "    var $1_p = $$($1)\n" % [$c.nName]
           params.add "$1_p" % [$c.nName]
           epiloque.add "    cef_string_clear($1)\n" % [$c.nName]
-          epiloque.add "    discard cef_string_from_utf8($1_p.cstring, $1_p.len.cint, $1)\n" % [$c.nName]
+          epiloque.add "    discard cef_string_from_utf8($1_p.cstring, $1_p.len.csize_t, $1)\n" % [$c.nName]
         else:
           error("unknown var ptr type: " & $n.nName)
       elif n.nType.typeKind == ntyObject:
@@ -805,7 +805,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
       else:
         error("unknown distinct param: " & $c.nType)
     of ntyVar:
-      if n.nType[0].typeKind in {ntyInt, ntyInt64}:
+      if n.nType[0].typeKind in {ntyInt, ntyUInt, ntyInt64}:
         proloque.add "    var $1_p = $1.$2\n" % [$c.nName, $n.nType[0]]
         params.add "$1_p" % [$c.nName]
         epiloque.add "    $1 = $1_p.$2\n" % [$c.nName, $c.nType[0]]
@@ -839,7 +839,7 @@ proc glueSingleMethod(ns: string, nproc, cproc: NimNode, iidx: int): string =
     case cres.typeKind
     of ntyInt32:
       body = "    result = $1($2).$3\n" % [calee, params, $cres]
-    of ntyInt, ntyInt64, ntyEnum:
+    of ntyInt, ntyInt64, ntyUint, ntyEnum:
       body = "    result = $1($2)\n" % [calee, params]
     of ntyPtr:
       if checkCefPtr(cres):
@@ -1000,6 +1000,7 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
   glue.add "  NCType$1 = $2_i[$3]\n" % [typeID, hName, $nc]
   glue.add "var NCImpl$1 = NCType$2" % [implID, typeID]
 
+
   if methods.len == 0:
     glue.add "()\n"
   else:
@@ -1029,10 +1030,12 @@ proc handlerImplImpl(nc: NimNode, methods: NimNode, constructorVisible: bool): s
 
 macro handlerImpl*(nc: typed, methods: varargs[typed]): untyped =
   let glue = handlerImplImpl(nc, methods, true)
-  result = parseStmt(glue)
+  result = methods[0]
+  result.add parseStmt(glue)
 
 macro closureHandlerImpl*(nc: typed, methods: varargs[typed]): untyped =
   let glue = handlerImplImpl(nc, methods, false)
+  result = methods[0]
   result = parseStmt(glue)
 
 template ncCreate*(n: typed): untyped =
